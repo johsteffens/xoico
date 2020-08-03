@@ -1,0 +1,10 @@
+*.backup
+*.cbp
+xoite
+xoite.*
+build
+dev
+bin
+obj
+temp
+
