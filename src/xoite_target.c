@@ -43,22 +43,23 @@ er_t xoite_target_s_parse( xoite_target_s* o, sc_t source_path )
     if( !source_exists )
     {
         BLM_INIT();
-        xoite_source_s* plant_source = BLM_CREATE( xoite_source_s );
-        plant_source->target = o;
-        st_s_copy_sc( &plant_source->name, source_name->sc );
-        st_s_copy   ( &plant_source->path, source_path_n );
+        xoite_source_s* xsource = BLM_CREATE( xoite_source_s );
+        xsource->target = o;
 
-        plant_source->hash = bcore_tp_init();
+        st_s_copy_sc( &xsource->name, source_name->sc );
+        st_s_copy   ( &xsource->path, source_path_n );
+
+        xsource->hash = bcore_tp_init();
 
         if( bcore_file_exists( source_path_h->sc ) )
         {
-            BLM_TRY( xoite_source_s_parse( plant_source, BLM_A_PUSH( bcore_file_open_source( source_path_h->sc ) ) ) );
+            BLM_TRY( xoite_source_s_parse( xsource, BLM_A_PUSH( bcore_file_open_source( source_path_h->sc ) ) ) );
         }
 
         // parsing *.c files is generally not helpful  (currently plant code can only reside in header files)
-        // if( bcore_file_exists( source_path_c->sc ) ) xoite_source_s_parse( plant_source, BLM_A_PUSH( bcore_file_open_source( source_path_c->sc ) ) );
+        // if( bcore_file_exists( source_path_c->sc ) ) xoite_source_s_parse( xsource, BLM_A_PUSH( bcore_file_open_source( source_path_c->sc ) ) );
 
-        bcore_array_a_push( ( bcore_array* )o, sr_asd( bcore_fork( plant_source ) ) );
+        bcore_array_a_push( ( bcore_array* )o, sr_asd( bcore_fork( xsource ) ) );
         BLM_DOWN();
     }
 
@@ -135,7 +136,7 @@ er_t xoite_target_s_expand_heading( const xoite_target_s* o, sz_t indent, bcore_
 {
     BLM_INIT();
     bcore_sink_a_push_fa( sink, "/** This file was generated from beth-plant source code.\n" );
-    bcore_sink_a_push_fa( sink, " *  Compiling Agent : xoite_compiler (C) 2019, 2020 J.B.Steffens\n" );
+    bcore_sink_a_push_fa( sink, " *  Compiling Agent : xoite_compiler (C) 2020 J.B.Steffens\n" );
     bcore_sink_a_push_fa( sink, " *  Last File Update: " );
     {
         bcore_cday_utc_s* time = BLM_CREATE( bcore_cday_utc_s );
@@ -281,6 +282,8 @@ er_t xoite_target_s_expand_c( const xoite_target_s* o, sz_t indent, bcore_sink* 
 bl_t xoite_target_s_to_be_modified( const xoite_target_s* o )
 {
     BLM_INIT();
+    if( o->compiler->always_expand ) BLM_RETURNV( bl_t, true );
+
     bl_t to_be_modified = true;
 
     tp_t target_hash = xoite_target_s_get_hash( o );
@@ -323,8 +326,17 @@ er_t xoite_target_s_expand_phase1( xoite_target_s* o, bl_t* p_modified )
     {
         o->planted_h = st_s_create();
         o->planted_c = st_s_create();
-        BLM_TRY( xoite_target_s_expand_h( o, 0, ( bcore_sink* )o->planted_h ) );
-        BLM_TRY( xoite_target_s_expand_c( o, 0, ( bcore_sink* )o->planted_c ) );
+        if( !o->compiler->dry_run )
+        {
+            BLM_TRY( xoite_target_s_expand_h( o, 0, ( bcore_sink* )o->planted_h ) );
+            BLM_TRY( xoite_target_s_expand_c( o, 0, ( bcore_sink* )o->planted_c ) );
+        }
+        else
+        {
+            st_s* buf = BLM_CREATE( st_s );
+            BLM_TRY( xoite_target_s_expand_h( o, 0, ( bcore_sink* )buf ) );
+            BLM_TRY( xoite_target_s_expand_c( o, 0, ( bcore_sink* )buf ) );
+        }
         o->modified = true;
     }
 

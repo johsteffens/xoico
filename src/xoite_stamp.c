@@ -268,7 +268,7 @@ er_t xoite_stamp_s_resolve_chars( const xoite_stamp_s* o, st_s* string )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoite_stamp_s_extend( xoite_stamp_s* o, xoite_group_s* group, bcore_source* source, bl_t verbatim )
+er_t xoite_stamp_s_extend( xoite_stamp_s* o, bcore_source* source, bl_t verbatim )
 {
     BLM_INIT();
     ASSERT( o->self_source );
@@ -290,7 +290,8 @@ er_t xoite_stamp_s_extend( xoite_stamp_s* o, xoite_group_s* group, bcore_source*
         {
             BLM_INIT();
             xoite_func_s* func = BLM_CREATE( xoite_func_s );
-            BLM_TRY( xoite_func_s_parse( func, group, o, source ) );
+            func->group = o->group;
+            BLM_TRY( xoite_func_s_parse( func, o, source ) );
 
             bl_t register_func = xoite_func_s_registerable( func );
             sz_t idx = xoite_funcs_s_get_index( &o->funcs, func->type );
@@ -328,7 +329,7 @@ er_t xoite_stamp_s_extend( xoite_stamp_s* o, xoite_group_s* group, bcore_source*
                     {
                         BLM_INIT();
                         st_s* name = BLM_CREATE( st_s );
-                        BLM_TRY( xoite_group_s_parse_name_recursive( group, name, source ) );
+                        BLM_TRY( xoite_group_s_parse_name_recursive( o->group, name, source ) );
                         st_s_push_st( o->self_source, name );
                         BLM_DOWN();
                     }
@@ -355,7 +356,7 @@ er_t xoite_stamp_s_extend( xoite_stamp_s* o, xoite_group_s* group, bcore_source*
     // apply all functions of group and parents, which are not yet defined in stamp
     if( !verbatim )
     {
-        for( xoite_group_s* fgroup = group; fgroup != NULL; fgroup = fgroup->group )
+        for( xoite_group_s* fgroup = o->group; fgroup != NULL; fgroup = fgroup->group )
         {
             for( sz_t i = 0; i < fgroup->funcs.size; i++ )
             {
@@ -407,7 +408,7 @@ er_t xoite_stamp_s_parse( xoite_stamp_s* o, xoite_group_s* group, bcore_source* 
         st_s* templ_name = BLM_CREATE( st_s );
         BLM_TRY( xoite_group_s_parse_name( group, templ_name, source ) );
         st_s_push_fa( templ_name, "_s" );
-        const xoite* item = xoite_compiler_s_item_get( xoite_compiler_g, typeof( templ_name->sc ) );
+        const xoite* item = xoite_compiler_s_item_get( xoite_group_s_get_compiler( o->group ), typeof( templ_name->sc ) );
         if( !item ) XOITE_BLM_SOURCE_PARSE_ERR_FA( source, "Template #<sc_t> not found.", templ_name->sc );
         if( *(aware_t*)item != TYPEOF_xoite_stamp_s ) XOITE_BLM_SOURCE_PARSE_ERR_FA( source, "Template #<sc_t> is no stamp.", templ_name->sc );
         xoite_stamp_s_copy( o, ( xoite_stamp_s* )item );
@@ -438,7 +439,7 @@ er_t xoite_stamp_s_parse( xoite_stamp_s* o, xoite_group_s* group, bcore_source* 
 
     st_s_copy( &o->name, stamp_name );
 
-    BLM_TRY( xoite_stamp_s_extend( o, group, source, verbatim ) );
+    BLM_TRY( xoite_stamp_s_extend( o, source, verbatim ) );
 
     BLM_RETURNV( er_t, 0 );
 }
@@ -453,6 +454,7 @@ er_t xoite_stamp_s_finalize( xoite_stamp_s* o )
     for( sz_t i = 0; i < o->funcs.size; i++ )
     {
         xoite_func_s* func = o->funcs.data[ i ];
+        func->group = o->group;
         if( func->body ) BLM_TRY( xoite_stamp_s_resolve_chars( o, &func->body->code ) );
     }
     BLM_RETURNV( er_t, 0 );
@@ -541,9 +543,9 @@ er_t xoite_stamp_s_expand_declaration( const xoite_stamp_s* o, sz_t indent, bcor
     {
         BLM_INIT();
         xoite_func_s* func = o->funcs.data[ i ];
-        if( xoite_compiler_s_item_exists( xoite_compiler_g, func->type ) )
+        if( xoite_compiler_s_item_exists( xoite_group_s_get_compiler( o->group ), func->type ) )
         {
-            const xoite* item = xoite_compiler_s_item_get( xoite_compiler_g, func->type );
+            const xoite* item = xoite_compiler_s_item_get( xoite_group_s_get_compiler( o->group ), func->type );
             if( *(aware_t*)item == TYPEOF_xoite_feature_s )
             {
                 const xoite_feature_s* feature = ( xoite_feature_s* )item;
@@ -735,9 +737,9 @@ er_t xoite_stamp_s_expand_definition( const xoite_stamp_s* o, sz_t indent, bcore
     {
         BLM_INIT();
         xoite_func_s* func = o->funcs.data[ i ];
-        if( xoite_compiler_s_item_exists( xoite_compiler_g, func->type ) )
+        if( xoite_compiler_s_item_exists( xoite_group_s_get_compiler( o->group ), func->type ) )
         {
-            const xoite* item = xoite_compiler_s_item_get( xoite_compiler_g, func->type );
+            const xoite* item = xoite_compiler_s_item_get( xoite_group_s_get_compiler( o->group ), func->type );
             if( *(aware_t*)item == TYPEOF_xoite_feature_s )
             {
                 const xoite_feature_s* feature = ( xoite_feature_s* )item;
@@ -810,9 +812,9 @@ er_t xoite_stamp_s_expand_init1( const xoite_stamp_s* o, sz_t indent, bcore_sink
     for( sz_t i = 0; i < o->funcs.size; i++ )
     {
         xoite_func_s* func = o->funcs.data[ i ];
-        if( xoite_compiler_s_item_exists( xoite_compiler_g, func->type ) )
+        if( xoite_compiler_s_item_exists( xoite_group_s_get_compiler( o->group ), func->type ) )
         {
-            const xoite* item = xoite_compiler_s_item_get( xoite_compiler_g, func->type );
+            const xoite* item = xoite_compiler_s_item_get( xoite_group_s_get_compiler( o->group ), func->type );
             if( *(aware_t*)item == TYPEOF_xoite_feature_s )
             {
                 const xoite_feature_s* feature = ( xoite_feature_s* )item;

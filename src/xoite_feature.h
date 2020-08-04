@@ -46,7 +46,7 @@ stamp : = aware :
     xoite_args_s args;
     bl_t mutable;
 
-    private xoite_group_s* group;
+    private aware xoite_group_s* group;
     bcore_source_point_s source_point;
 
     func xoite : parse;
@@ -54,6 +54,7 @@ stamp : = aware :
     func xoite : get_global_name_sc;
     func xoite : expand_indef_typedef;
     func xoite : expand_spect_declaration;
+    func xoite : expand_spect_definition;
     func xoite : expand_indef_declaration;
     func xoite : expand_definition;
     func xoite : expand_init1;

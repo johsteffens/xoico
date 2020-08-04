@@ -86,9 +86,9 @@ er_t xoite_signature_s_parse( xoite_signature_s* o, bcore_source* source )
         tp_t tp_name = typeof( name_buf->sc );
 
         // if name_buf refers to another signature
-        if( xoite_compiler_s_item_exists( xoite_compiler_g, tp_name ) )
+        if( xoite_compiler_s_item_exists( xoite_group_s_get_compiler( o->group ), tp_name ) )
         {
-            vc_t item = xoite_compiler_s_item_get( xoite_compiler_g, tp_name );
+            vc_t item = xoite_compiler_s_item_get( xoite_group_s_get_compiler( o->group ), tp_name );
             if( *(aware_t*)item == TYPEOF_xoite_signature_s )
             {
                 const xoite_signature_s* signature = item;

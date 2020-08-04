@@ -32,7 +32,7 @@ stamp : = aware :
 {
     st_s type;
     st_s name;
-    private xoite_group_s* group;
+    private aware xoite_group_s* group;
     bcore_source_point_s source_point;
 
     func xoite : parse;

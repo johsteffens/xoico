@@ -27,7 +27,7 @@ BETH_PLANT_DEFINE_GROUP( xoite_func, xoite )
 #ifdef PLANT_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 signature tp_t get_hash( const );
-signature er_t parse( mutable, xoite_group_s* group, xoite_stamp_s* stamp, bcore_source* source );
+signature er_t parse( mutable, xoite_stamp_s* stamp, bcore_source* source );
 signature bl_t registerable( const );
 
 stamp : = aware :
@@ -37,7 +37,7 @@ stamp : = aware :
     tp_t type;
     bl_t overloadable = false;
     xoite_body_s => body;
-    private xoite_group_s* group;
+    private aware xoite_group_s* group;
     bcore_source_point_s source_point;
 
     func : :get_hash;

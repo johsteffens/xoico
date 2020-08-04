@@ -72,7 +72,7 @@ er_t xoite_source_s_parse( xoite_source_s* o, bcore_source* source )
             if( group->trait_name.size == 0 ) st_s_copy_sc( &group->trait_name, "bcore_inst" );
             BLM_TRY( xoite_group_s_parse( group, source ) );
             o->hash = bcore_tp_fold_tp( o->hash, group->hash );
-            BLM_TRY( xoite_compiler_s_group_register( xoite_compiler_g, group, source ) );
+            BLM_TRY( xoite_compiler_s_group_register( o->target->compiler, group, source ) );
         }
         else
         {

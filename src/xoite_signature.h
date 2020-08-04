@@ -34,7 +34,7 @@ stamp : = aware :
     st_s ret_type;       // return type
     xoite_args_s args;   // e.g.: sz_t a, sz_t b
     tp_t arg_o;          // first argument: mutable | const | 0
-    private xoite_group_s* group;
+    private aware xoite_group_s* group;
     bcore_source_point_s source_point;
 
     func xoite : parse;

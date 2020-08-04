@@ -33,7 +33,7 @@ signature er_t expand_name( const, bl_t first, bcore_sink* sink );
 stamp : = aware :
 {
     xoite_arg_s [];
-    private xoite_group_s* group;
+    private aware xoite_group_s* group;
 
     func xoite : parse;
     func xoite : get_hash;

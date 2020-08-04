@@ -46,7 +46,7 @@ stamp : = aware :
     st_s => planted_h; // planted header file
     st_s => planted_c; // planted c file
 
-    private xoite_compiler_s* compiler;
+    private aware xoite_compiler_s* compiler;
 
     func : :parse;
     func : :to_be_modified;

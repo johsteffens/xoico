@@ -212,9 +212,9 @@ er_t xoite_body_s_parse_expression( xoite_body_s* o, xoite_stamp_s* stamp, bcore
 
         tp_t tp_name = typeof( name->sc );
         // if name_buf refers to another body
-        if( xoite_compiler_s_item_exists( xoite_compiler_g, tp_name ) )
+        if( xoite_compiler_s_item_exists( xoite_group_s_get_compiler( o->group ), tp_name ) )
         {
-            vc_t item = xoite_compiler_s_item_get( xoite_compiler_g, tp_name );
+            vc_t item = xoite_compiler_s_item_get( xoite_group_s_get_compiler( o->group ), tp_name );
             if( *(aware_t*)item == TYPEOF_xoite_body_s )
             {
                 const xoite_body_s* body = item;

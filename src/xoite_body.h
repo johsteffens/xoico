@@ -36,7 +36,7 @@ stamp : = aware :
     st_s code;
     bl_t go_inline;
 
-    private xoite_group_s* group;
+    private aware xoite_group_s* group;
     bcore_source_point_s source_point;
 
     func xoite : get_hash;

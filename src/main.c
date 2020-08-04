@@ -20,40 +20,77 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
+BETH_PLANT_SIGNAL_OPEN_PLANT( xoite )
+BETH_PLANT_SIGNAL_CLOSE_PLANT( xoite )
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void help( bcore_sink* sink )
 {
-    bcore_sink_a_push_fa( sink, "XOI Builder: (C) J.B.Steffens\n" );
-    bcore_sink_a_push_fa( sink, "Usage: xoite <xoite-config-file> [<xoite-config-file> ...]\n" );
+    bcore_sink_a_push_fa( sink, "XOI Compiler: (C) J.B.Steffens\n" );
+    bcore_sink_a_push_fa( sink, "Usage: [options] xoite <xoite-config-file> [<xoite-config-file> ...]\n" );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 int main( int argc, char** argv )
 {
-    BETH_PLANT_USE( bcore );
+    BETH_PLANT_USE( xoite );
 
     BLM_INIT();
+
+    xoite_builder_main_s* builder_main = BLM_CREATE( xoite_builder_main_s );
     er_t er = 0;
+
+    sz_t arg_idx = 1;
 
     // plant
     if( argc > 1 )
     {
-        if( sc_t_equal( argv[ 1 ], "--help" ) )
+        if( sc_t_equal( argv[ arg_idx ], "--help" ) )
         {
             help( BCORE_STDOUT );
         }
         else
         {
-            clock_t time = clock();
-
-            for( sz_t i = 1; i < argc; i++ )
+            while( argv[ arg_idx ][ 0 ] == '-' )
             {
-                if( ( er = xoite_build_from_file( argv[ i ] ) ) ) break;
+                if( sc_t_equal( argv[ arg_idx ], "-d" ) )
+                {
+                    xoite_builder_main_s_set_dry_run( builder_main, true );
+                }
+                else if( sc_t_equal( argv[ arg_idx ], "-e" ) )
+                {
+                    xoite_builder_main_s_set_always_expand( builder_main, true );
+                }
+                else
+                {
+                    ERR_fa( "Invalid option: #<sc_t>\n", argv[ arg_idx ] );
+                }
+                arg_idx++;
             }
 
-            if( !er && xoite_update_required() )
+            if( xoite_builder_main_s_get_dry_run( builder_main ) )
             {
-                er = xoite_update( NULL );
+                bcore_sink_a_pushf( BCORE_STDOUT, "Dry run ...\n" );
+            }
+
+            if( xoite_builder_main_s_get_always_expand( builder_main ) )
+            {
+                bcore_sink_a_pushf( BCORE_STDOUT, "Expanding all ...\n" );
+            }
+
+            if( arg_idx >= argc ) help( BCORE_STDOUT );
+            clock_t time = clock();
+
+            for( sz_t i = arg_idx; i < argc; i++ )
+            {
+                if( ( er = xoite_builder_main_s_build_from_file( builder_main, argv[ i ] ) ) ) break;
+            }
+
+            if( !er && xoite_builder_main_s_update_required( builder_main ) )
+            {
+                er = xoite_builder_main_s_update( builder_main );
             }
 
             if( !er )

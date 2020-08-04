@@ -39,7 +39,8 @@ stamp : = aware :
     st_s path; // file path excluding extension
     tp_t hash;
     xoite_group_s => [];
-    private xoite_target_s* target;
+
+    private aware xoite_target_s* target;
 
     func xoite : finalize;
 

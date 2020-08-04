@@ -21,6 +21,7 @@
 #include "xoite_feature.h"
 #include "xoite_stamp.h"
 #include "xoite_source.h"
+#include "xoite_target.h"
 #include "xoite_compiler.h"
 
 /**********************************************************************************************************************/
@@ -143,8 +144,9 @@ er_t xoite_group_s_parse( xoite_group_s* o, bcore_source* source )
         {
             BLM_INIT();
             xoite_stamp_s* stamp = BLM_CREATE( xoite_stamp_s );
+            stamp->group = o->group;
             BLM_TRY( xoite_stamp_s_parse( stamp, o, source ) );
-            BLM_TRY( xoite_compiler_s_item_register( xoite_compiler_g, ( xoite* )stamp, source ) );
+            BLM_TRY( xoite_compiler_s_item_register( xoite_group_s_get_compiler( o ), ( xoite* )stamp, source ) );
             item = ( xoite* )bcore_fork( stamp );
             BLM_DOWN();
         }
@@ -156,8 +158,8 @@ er_t xoite_group_s_parse( xoite_group_s* o, bcore_source* source )
             xoite_stamp_s* stump = BLM_CREATE( xoite_stamp_s );
             BLM_TRY( xoite_stamp_s_parse( stump, o, source ) );
             BLM_TRY( xoite_stamp_s_make_funcs_overloadable( stump ) );
-            BLM_TRY( xoite_compiler_s_item_register( xoite_compiler_g, ( xoite* )stump, source ) );
-            BLM_TRY( xoite_compiler_s_life_a_push( xoite_compiler_g, bcore_fork( stump ) ) );
+            BLM_TRY( xoite_compiler_s_item_register( xoite_group_s_get_compiler( o ), ( xoite* )stump, source ) );
+            BLM_TRY( xoite_compiler_s_life_a_push( xoite_group_s_get_compiler( o ), bcore_fork( stump ) ) );
             if( extend_stump )
             {
                 o->extending = stump;
@@ -173,7 +175,7 @@ er_t xoite_group_s_parse( xoite_group_s* o, bcore_source* source )
             signature->group = o;
             BLM_TRY( xoite_signature_s_parse( signature, source ) );
             XOITE_BLM_SOURCE_PARSE_FA( source, " ; " );
-            BLM_TRY( xoite_compiler_s_item_register( xoite_compiler_g, ( xoite* )signature, source ) );
+            BLM_TRY( xoite_compiler_s_item_register( xoite_group_s_get_compiler( o ), ( xoite* )signature, source ) );
             item = ( xoite* )bcore_fork( signature );
             BLM_DOWN();
         }
@@ -184,7 +186,7 @@ er_t xoite_group_s_parse( xoite_group_s* o, bcore_source* source )
             body->group = o;
             BLM_TRY( xoite_body_s_parse( body, NULL, source ) );
             XOITE_BLM_SOURCE_PARSE_FA( source, " ; " );
-            BLM_TRY( xoite_compiler_s_item_register( xoite_compiler_g, ( xoite* )body, source ) );
+            BLM_TRY( xoite_compiler_s_item_register( xoite_group_s_get_compiler( o ), ( xoite* )body, source ) );
             item = ( xoite* )bcore_fork( body );
             BLM_DOWN();
         }
@@ -194,7 +196,7 @@ er_t xoite_group_s_parse( xoite_group_s* o, bcore_source* source )
             xoite_feature_s* feature = BLM_CREATE( xoite_feature_s );
             feature->group = o;
             BLM_TRY( xoite_feature_s_parse( feature, source ) );
-            BLM_TRY( xoite_compiler_s_item_register( xoite_compiler_g, ( xoite* )feature, source ) );
+            BLM_TRY( xoite_compiler_s_item_register( xoite_group_s_get_compiler( o ), ( xoite* )feature, source ) );
             o->has_features = true;
             if( feature->flag_a ) o->is_aware = true;
             item = ( xoite* )bcore_fork( feature );
@@ -245,7 +247,7 @@ er_t xoite_group_s_parse( xoite_group_s* o, bcore_source* source )
                 st_s* templ_name = BLM_CREATE( st_s );
                 BLM_TRY( xoite_group_s_parse_name( o, templ_name, source ) );
                 st_s_push_fa( templ_name, "_s" );
-                const xoite* item = xoite_compiler_s_item_get( xoite_compiler_g, typeof( templ_name->sc ) );
+                const xoite* item = xoite_compiler_s_item_get( xoite_group_s_get_compiler( o ), typeof( templ_name->sc ) );
                 if( !item ) XOITE_BLM_SOURCE_PARSE_ERR_FA( source, "Template #<sc_t> not found.", templ_name->sc );
                 if( *(aware_t*)item != TYPEOF_xoite_stamp_s ) XOITE_BLM_SOURCE_PARSE_ERR_FA( source, "Template #<sc_t> is no stamp.", templ_name->sc );
                 o->extending = ( xoite_stamp_s* )item;
@@ -256,7 +258,8 @@ er_t xoite_group_s_parse( xoite_group_s* o, bcore_source* source )
         {
             BLM_INIT();
             xoite_func_s* func = BLM_CREATE( xoite_func_s );
-            xoite_func_s_parse( func, o, NULL, source );
+            func->group = o;
+            xoite_func_s_parse( func, NULL, source );
             func->overloadable = true;
             o->hash = bcore_tp_fold_tp( o->hash, xoite_func_s_get_hash( func ) );
 
@@ -289,7 +292,7 @@ er_t xoite_group_s_parse( xoite_group_s* o, bcore_source* source )
             BLM_TRY( xoite_group_s_parse( group, source ) );
             XOITE_BLM_SOURCE_PARSE_FA( source, " ; " );
             o->source->hash = bcore_tp_fold_tp( o->source->hash, group->hash );
-            BLM_TRY( xoite_compiler_s_group_register( xoite_compiler_g, group, source ) );
+            BLM_TRY( xoite_compiler_s_group_register( xoite_group_s_get_compiler( o ), group, source ) );
             xoite_nested_group_s* nested_group = BLM_CREATE( xoite_nested_group_s );
             nested_group->group = group;
             item = ( xoite* )bcore_fork( nested_group );
@@ -330,7 +333,10 @@ er_t xoite_group_s_parse( xoite_group_s* o, bcore_source* source )
 er_t xoite_group_s_finalize( xoite_group_s* o )
 {
     BLM_INIT();
-    for( sz_t i = 0; i < o->size; i++ ) BLM_TRY( xoite_a_finalize( o->data[ i ] ) );
+    for( sz_t i = 0; i < o->size; i++ )
+    {
+        BLM_TRY( xoite_a_finalize( o->data[ i ] ) );
+    }
     BLM_RETURNV( er_t, 0 );
 }
 
@@ -488,6 +494,15 @@ er_t xoite_group_s_expand_init1( const xoite_group_s* o, sz_t indent, bcore_sink
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+
+xoite_compiler_s* xoite_group_s_get_compiler( const xoite_group_s* o )
+{
+//    assert( o );
+//    assert( o->source );
+//    assert( o->source->target );
+//    assert( o->source->target->compiler );
+    return o->source->target->compiler;
+}
 
 /**********************************************************************************************************************/
 

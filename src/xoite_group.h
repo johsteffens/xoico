@@ -31,6 +31,7 @@ signature er_t parse_name_recursive( mutable, st_s* name, bcore_source* source )
 signature er_t expand_declaration(   const, sz_t indent, bcore_sink* sink );
 signature er_t expand_definition(    const, sz_t indent, bcore_sink* sink );
 signature er_t expand_init1(         const, sz_t indent, bcore_sink* sink );
+signature xoite_compiler_s* get_compiler( const );
 
 stamp : = aware :
 {
@@ -53,7 +54,8 @@ stamp : = aware :
     private xoite_stamp_s -> extending; // !=NULL: extends this stamp on subsequent stamps
 
     xoite_funcs_s  funcs; // functions
-    private xoite_source_s* source;
+
+    private aware xoite_source_s* source;
 
     bcore_source_point_s source_point;
 
@@ -67,6 +69,9 @@ stamp : = aware :
     func : :expand_declaration;
     func : :expand_definition;
     func : :expand_init1;
+
+    func : :get_compiler;
+
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

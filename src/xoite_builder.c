@@ -21,13 +21,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// globals
-
-static bcore_arr_st_s* arr_path_g = NULL;
-
-//----------------------------------------------------------------------------------------------------------------------
-
-static er_t build_from_file( sc_t path, sz_t* p_target_index );
+er_t xoite_builder_main_s_build_from_file_get_target_index( xoite_builder_main_s* o, sc_t path, sz_t* p_target_index );
 
 er_t xoite_builder_target_s_build( const xoite_builder_target_s* o, sz_t* p_target_index )
 {
@@ -43,7 +37,7 @@ er_t xoite_builder_target_s_build( const xoite_builder_target_s* o, sz_t* p_targ
         }
         st_s_push_fa( file_path, "#<sc_t>", o->dependencies.data[ i ]->sc );
         sz_t target_index = -1;
-        BLM_TRY( build_from_file( file_path->sc, &target_index ) );
+        BLM_TRY( xoite_builder_main_s_build_from_file_get_target_index( o->main, file_path->sc, &target_index ) );
         if( target_index >= 0 ) bcore_arr_sz_s_push( dependencies, target_index );
         BLM_DOWN();
     }
@@ -69,10 +63,10 @@ er_t xoite_builder_target_s_build( const xoite_builder_target_s* o, sz_t* p_targ
         ASSERT( o->name );
         ASSERT( o->extension );
 
-        st_s* xoi_target_name = BLM_A_PUSH( st_s_create_fa( "#<sc_t>.#<sc_t>", o->name->sc, o->extension->sc ) );
+        st_s* xoi_target_name = BLM_A_PUSH( st_s_create_fa( "#<sc_t>_#<sc_t>", o->name->sc, o->extension->sc ) );
 
         sz_t index = -1;
-        BLM_TRY( xoite_compiler_compile( xoi_target_name->sc, file_path->sc, &index ) );
+        BLM_TRY( xoite_compiler_s_compile( o->main->compiler, xoi_target_name->sc, file_path->sc, &index ) );
         target_index = ( target_index == -1 ) ? index : target_index;
         if( index != target_index )
         {
@@ -91,10 +85,10 @@ er_t xoite_builder_target_s_build( const xoite_builder_target_s* o, sz_t* p_targ
 
     if( target_index >= 0 )
     {
-        BLM_TRY( xoite_compiler_set_target_dependencies( target_index, dependencies ) );
+        BLM_TRY( xoite_compiler_s_set_target_dependencies( o->main->compiler, target_index, dependencies ) );
         st_s* signal_handler = BLM_A_PUSH( st_s_create_fa( "#<sc_t>_general_signal_handler", o->name->sc ) );
         if( o->signal_handler ) st_s_copy( signal_handler, o->signal_handler );
-        BLM_TRY( xoite_compiler_set_target_signal_handler_name( target_index, signal_handler->sc ) );
+        BLM_TRY( xoite_compiler_s_set_target_signal_handler_name( o->main->compiler, target_index, signal_handler->sc ) );
         if( p_target_index ) *p_target_index = target_index;
     }
 
@@ -103,7 +97,10 @@ er_t xoite_builder_target_s_build( const xoite_builder_target_s* o, sz_t* p_targ
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static er_t build_from_file( sc_t path, sz_t* p_target_index )
+/**********************************************************************************************************************/
+// xoite_builder interface functions
+
+er_t xoite_builder_main_s_build_from_file_get_target_index( xoite_builder_main_s* o, sc_t path, sz_t* p_target_index )
 {
     BLM_INIT();
 
@@ -117,13 +114,11 @@ static er_t build_from_file( sc_t path, sz_t* p_target_index )
 
     st_path = BLM_A_PUSH( bcore_file_path_minimized( st_path->sc ) );
 
-    if( !arr_path_g ) arr_path_g = bcore_arr_st_s_create();
-
     bl_t new_path = true;
 
-    BFOR_EACH( i, arr_path_g )
+    BFOR_EACH( i, &o->arr_path )
     {
-        if( st_s_equal_st( arr_path_g->data[ i ], st_path ) )
+        if( st_s_equal_st( o->arr_path.data[ i ], st_path ) )
         {
             new_path = false;
             break;
@@ -134,9 +129,9 @@ static er_t build_from_file( sc_t path, sz_t* p_target_index )
 
     if( new_path )
     {
-        bcore_arr_st_s_push_st( arr_path_g, st_path );
+        bcore_arr_st_s_push_st( &o->arr_path, st_path );
 
-        if( xoite_compiler_get_verbosity() > 0 )
+        if( xoite_compiler_s_get_verbosity( o->compiler ) > 0 )
         {
             bcore_msg_fa( "BETH_PLANT: building #<sc_t>\n", st_path->sc );
         }
@@ -147,18 +142,10 @@ static er_t build_from_file( sc_t path, sz_t* p_target_index )
             BLM_RETURNV( er_t, TYPEOF_general_error );
         }
 
-        vd_t builder_vd = BLM_A_PUSH( bcore_txt_ml_from_file( st_path->sc ).o );
-
-        if( !xoite_builder_a_is_trait_of( builder_vd ) )
-        {
-            bcore_error_push_fa( TYPEOF_general_error, "#<sc_t>: Not a plant-builder configuration file.", st_path->sc );
-            BLM_RETURNV( er_t, TYPEOF_general_error );
-        }
-
-        xoite_builder* builder = builder_vd;
-        ASSERT( xoite_builder_a_is_trait_of( builder ) );
-
-        BLM_TRY( xoite_builder_a_build( builder, &target_index ) );
+        xoite_builder_target_s* builder = BLM_CREATE( xoite_builder_target_s );
+        builder->main = o;
+        bcore_txt_ml_a_from_file( builder, st_path->sc );
+        BLM_TRY( xoite_builder_target_s_build( builder, &target_index ) );
     }
 
     if( p_target_index ) *p_target_index = target_index;
@@ -168,74 +155,28 @@ static er_t build_from_file( sc_t path, sz_t* p_target_index )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/**********************************************************************************************************************/
-// xoite_builder interface functions
-
-//----------------------------------------------------------------------------------------------------------------------
-
-er_t xoite_builder_build_from_file( sc_t path )
+er_t xoite_builder_main_s_build_from_file( xoite_builder_main_s* o, sc_t path )
 {
-    return build_from_file( path, NULL );
+    return xoite_builder_main_s_build_from_file_get_target_index( o, path, NULL );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoite_builder_build_from_rel_file( sc_t root_path, sc_t path )
+bl_t xoite_builder_main_s_update_required( const xoite_builder_main_s* o )
 {
-    BLM_INIT();
-    BLM_TRY( xoite_builder_build_from_file( st_s_push_fa( BLM_A_PUSH( bcore_file_folder_path( root_path ) ), "/#<sc_t>", path )->sc ) );
-    BLM_RETURNV( er_t, 0 );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-bl_t xoite_builder_update_required( void )
-{
-    bl_t retv = xoite_compiler_update_required();
+    bl_t retv = xoite_compiler_s_update_required( o->compiler );
     return retv;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoite_builder_update( bl_t* modified )
+er_t xoite_builder_main_s_update( const xoite_builder_main_s* o )
 {
     if( bcore_error_stack_size() > 0 ) return TYPEOF_error_stack;
     BLM_INIT();
-    bcore_arr_st_s_detach( &arr_path_g );
-    BLM_TRY( xoite_compiler_update_planted_files( modified ) );
+    o->compiler->dry_run = o->dry_run;
+    BLM_TRY( xoite_compiler_s_update_planted_files( o->compiler, NULL ) );
     BLM_RETURNV( er_t, 0 );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-/**********************************************************************************************************************/
-
-//----------------------------------------------------------------------------------------------------------------------
-
-er_t xoite_build_from_file( sc_t path )
-{
-    return xoite_builder_build_from_file( path );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-er_t xoite_build_from_rel_file( sc_t root_path, sc_t path )
-{
-    return xoite_builder_build_from_rel_file( root_path, path );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-bl_t xoite_update_required( void )
-{
-    return xoite_builder_update_required();
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-er_t xoite_update( bl_t* modified )
-{
-    return xoite_builder_update( modified );
 }
 
 //----------------------------------------------------------------------------------------------------------------------

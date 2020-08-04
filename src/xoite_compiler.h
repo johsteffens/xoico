@@ -19,6 +19,7 @@
 /**********************************************************************************************************************/
 
 #include "xoite.h"
+#include "xoite_target.h"
 
 /**********************************************************************************************************************/
 
@@ -32,6 +33,15 @@ signature        er_t  group_register( mutable, const xoite_group_s* group, bcor
 signature        er_t  life_a_push(    mutable, vd_t object );
 signature        er_t  check_overwrite( const, sc_t file );
 
+// external interface ...
+signature er_t setup                         ( mutable );
+signature er_t compile                       ( mutable, sc_t target_name, sc_t source_path, sz_t* p_target_index );
+signature er_t set_target_signal_handler_name( mutable, sz_t target_index, sc_t name );
+signature er_t set_target_dependencies       ( mutable, sz_t target_index, const bcore_arr_sz_s* dependencies );
+signature er_t update_planted_files          ( mutable, bl_t* p_modified );
+signature bl_t update_required               ( mutable );
+signature sz_t get_verbosity                 ( const );
+
 stamp : = aware :
 {
     hidden xoite_target_s => [];
@@ -40,10 +50,11 @@ stamp : = aware :
     hidden bcore_life_s      life; // lifetime manager for items generation during processing
 
     // parameters
-    bl_t backup_planted_files             = true;
     bl_t register_plain_functions         = true;
     bl_t register_signatures              = false;
     bl_t overwrite_unsigned_planted_files = false;
+    bl_t always_expand                    = false; // true: always expands targets even when the hash has not changed;
+    bl_t dry_run                          = false; // dry_run: performs target computation but does not update target files
     sz_t verbosity                        = 1;
 
     // functions
@@ -54,27 +65,20 @@ stamp : = aware :
     func : :group_register;
     func : :life_a_push;
     func : :check_overwrite;
+
+    // external interface ...
+    func : :setup;
+    func : :compile;
+    func : :set_target_signal_handler_name;
+    func : :set_target_dependencies;
+    func : :update_planted_files;
+    func : :update_required;
+    func : :get_verbosity;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #endif // PLANT_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-// TODO: move to a context frame
-extern xoite_compiler_s* xoite_compiler_g;
-
-/**********************************************************************************************************************/
-/// xoite compiler global interface  (TODO: work into builder)
-
-//----------------------------------------------------------------------------------------------------------------------
-
-er_t xoite_compiler_setup( void );
-er_t xoite_compiler_compile( sc_t target_name, sc_t source_path, sz_t* p_target_index );
-er_t xoite_compiler_set_target_signal_handler_name( sz_t target_index, sc_t name );
-er_t xoite_compiler_set_target_dependencies( sz_t target_index, const bcore_arr_sz_s* dependencies );
-er_t xoite_compiler_update_planted_files( bl_t* p_modified );
-bl_t xoite_compiler_update_required( void );
-sz_t xoite_compiler_get_verbosity( void );
 
 //----------------------------------------------------------------------------------------------------------------------
 

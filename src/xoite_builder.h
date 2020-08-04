@@ -26,18 +26,21 @@ BETH_PLANT_DEFINE_GROUP( xoite_builder, xoite )
 #ifdef PLANT_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 /// returns index of target
-feature 'a' er_t build( const, sz_t* target_index );
+signature er_t build( const, sz_t* target_index );
 
 stamp :target = aware :
 {
     st_s => name;                  // target name
-    st_s => extension = "xoi.out"; // extension used for xoi output files
+    st_s => extension = "xoi_out"; // extension used for xoi output files
     st_s => root;                  // root folder of subsequent file paths (used if they are relative)
+
+    private aware :main_s* main;
+
     bcore_arr_st_s dependencies;   // dependent target definitions
     bcore_arr_st_s sources;        // array of source files
 
     /** Function name of principal signal handler for this plant
-     * If not defined, it is assumed that the name if <name>_general_signal_handler
+     *  If not defined, it is assumed that the name is <name>_general_signal_handler
      */
     st_s => signal_handler;
 
@@ -53,7 +56,58 @@ stamp :target = aware :
     func : : build;
 };
 
-stamp :target_adl = aware bcore_array { :target_s => []; };
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+signature er_t build_from_file( mutable, sc_t path );
+signature bl_t update_required( const );
+signature er_t update         ( const );
+
+signature er_t set_dry_run      ( mutable, bl_t v );
+signature er_t set_always_expand( mutable, bl_t v );
+signature bl_t get_dry_run      ( const );
+signature bl_t get_always_expand( const );
+
+stamp :main = aware :
+{
+    xoite_compiler_s => compiler;
+
+    bl_t dry_run = false;
+
+    bcore_arr_st_s arr_path;
+
+    func bcore_inst_call : init_x =
+    {
+        o->compiler = xoite_compiler_s_create();
+        xoite_compiler_s_setup( o->compiler );
+    };
+
+    func : :build_from_file;
+    func : :update_required;
+    func : :update;
+
+    func : :get_dry_run =
+    {
+        return o->dry_run;
+    };
+
+    func : :get_always_expand =
+    {
+        return o->compiler->always_expand;
+    };
+
+    func : :set_dry_run =
+    {
+        o->dry_run = v;
+        return 0;
+    };
+
+    func : :set_always_expand =
+    {
+        o->compiler->always_expand = v;
+        return 0;
+    };
+
+};
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -64,15 +118,6 @@ stamp :target_adl = aware bcore_array { :target_s => []; };
 
 /// build plant from configuration file (thread safe)
 er_t xoite_build_from_file( sc_t path );
-
-/** Builds from configuration file given in path.
- *  If path is relative, the root folder is take from root_path
- *  where root path specifies a file or folder inside the root path.
- *  Example:
- *     xoite_build_from_rel_file( __FILE__, "xoite.cfg" );
- *     --> xoite.cfg is assumed to be in the folder of xoite.cfg
- */
-er_t xoite_build_from_rel_file( sc_t root_path, sc_t path );
 
 /// Checks if compiled plants require an update of the corresponding panted files (thread safe)
 bl_t xoite_update_required( void );

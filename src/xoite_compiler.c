@@ -20,11 +20,6 @@
 
 /**********************************************************************************************************************/
 
-// TODO: move to a context frame
-xoite_compiler_s* xoite_compiler_g = NULL;
-
-//----------------------------------------------------------------------------------------------------------------------
-
 /// returns true if correct signature could be verified
 bl_t xoite_compiler_is_signed( sc_t file )
 {
@@ -241,57 +236,50 @@ er_t xoite_compiler_s_life_a_push( xoite_compiler_s* o, vd_t object )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoite_compiler_setup( void )
+er_t xoite_compiler_s_setup( xoite_compiler_s* o )
 {
     BLM_INIT();
-    if( !xoite_compiler_g )
-    {
-        BLM_INIT();
-        xoite_compiler_g = xoite_compiler_s_create();
-        st_s* dir_name = BLM_CREATE( st_s );
-        st_s* cfg_file = BLM_CREATE( st_s );
-        bcore_folder_get_current( dir_name );
 
-        if( bcore_file_find_descend( dir_name->sc, ".xoite_compiler.cfg", cfg_file ) )
-        {
-            bcore_txt_ml_a_from_file( xoite_compiler_g, cfg_file->sc );
-            if( xoite_compiler_g->verbosity > 0 ) bcore_msg_fa( "BETH_PLANT: Using '#<sc_t>'\n", cfg_file->sc );
-        }
-        BLM_DOWN();
+    st_s* dir_name = BLM_CREATE( st_s );
+    st_s* cfg_file = BLM_CREATE( st_s );
+    bcore_folder_get_current( dir_name );
+
+    if( bcore_file_find_descend( dir_name->sc, ".xoite_compiler.cfg", cfg_file ) )
+    {
+        bcore_txt_ml_a_from_file( o, cfg_file->sc );
+        if( o->verbosity > 0 ) bcore_msg_fa( "BETH_PLANT: Using '#<sc_t>'\n", cfg_file->sc );
     }
+
     BLM_RETURNV( er_t, 0 );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns target index
-er_t xoite_compiler_compile( sc_t target_name, sc_t source_path, sz_t* p_target_index )
+er_t xoite_compiler_s_compile( xoite_compiler_s* o, sc_t target_name, sc_t source_path, sz_t* p_target_index )
 {
     BLM_INIT();
-    if( !xoite_compiler_g ) BLM_TRY( xoite_compiler_setup() );
-    BLM_TRY( xoite_compiler_s_parse( xoite_compiler_g, target_name, source_path, p_target_index ) );
-    BLM_TRY( xoite_compiler_s_finalize( xoite_compiler_g ) );
+    BLM_TRY( xoite_compiler_s_parse( o, target_name, source_path, p_target_index ) );
+    BLM_TRY( xoite_compiler_s_finalize( o ) );
     BLM_RETURNV( er_t, 0 );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoite_compiler_set_target_signal_handler_name( sz_t target_index, sc_t name )
+er_t xoite_compiler_s_set_target_signal_handler_name( xoite_compiler_s* o, sz_t target_index, sc_t name )
 {
-    ASSERT( xoite_compiler_g );
-    ASSERT( target_index >= 0 && target_index < xoite_compiler_g->size );
-    xoite_target_s* target = xoite_compiler_g->data[ target_index ];
+    ASSERT( target_index >= 0 && target_index < o->size );
+    xoite_target_s* target = o->data[ target_index ];
     st_s_copy_sc( &target->signal_handler_name, name );
     return 0;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoite_compiler_set_target_dependencies( sz_t target_index, const bcore_arr_sz_s* dependencies )
+er_t xoite_compiler_s_set_target_dependencies( xoite_compiler_s* o, sz_t target_index, const bcore_arr_sz_s* dependencies )
 {
-    ASSERT( xoite_compiler_g );
-    ASSERT( target_index >= 0 && target_index < xoite_compiler_g->size );
-    xoite_target_s* target = xoite_compiler_g->data[ target_index ];
+    ASSERT( target_index >= 0 && target_index < o->size );
+    xoite_target_s* target = o->data[ target_index ];
     bcore_arr_sz_s_copy( &target->dependencies, dependencies );
     if( xoite_target_s_is_cyclic( target ) )
     {
@@ -302,22 +290,20 @@ er_t xoite_compiler_set_target_dependencies( sz_t target_index, const bcore_arr_
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoite_compiler_update_planted_files( bl_t* p_modified )
+er_t xoite_compiler_s_update_planted_files( xoite_compiler_s* o, bl_t* p_modified )
 {
     BLM_INIT();
-    ASSERT( xoite_compiler_g );
     bl_t modified = false;
-    bl_t verbosity = xoite_compiler_g->verbosity;
+    bl_t verbosity = o->verbosity;
     f3_t time = 0;
 
-    ABS_TIME_OF( BLM_TRY( xoite_compiler_s_expand( xoite_compiler_g, &modified ) ), time );
+    ABS_TIME_OF( BLM_TRY( xoite_compiler_s_expand( o, &modified ) ), time );
     if( modified )
     {
         if( verbosity > 0 ) bcore_msg_fa( "BETH_PLANT: Expanded in #<f3_t> sec.\n", time );
         if( verbosity > 0 ) bcore_msg_fa( "BETH_PLANT: Files were updated. Rebuild is necessary.\n" );
     }
-    xoite_compiler_s_discard( xoite_compiler_g );
-    xoite_compiler_g = NULL;
+
     if( p_modified ) *p_modified = modified;
 
     BLM_RETURNV( er_t, 0 );
@@ -325,26 +311,16 @@ er_t xoite_compiler_update_planted_files( bl_t* p_modified )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bl_t xoite_compiler_update_required( void )
+bl_t xoite_compiler_s_update_required( xoite_compiler_s* o )
 {
-    return xoite_compiler_s_to_be_modified( xoite_compiler_g );
+    return xoite_compiler_s_to_be_modified( o );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-sz_t xoite_compiler_get_verbosity( void )
+sz_t xoite_compiler_s_get_verbosity( const xoite_compiler_s* o )
 {
-    if( !xoite_compiler_g ) xoite_compiler_setup();
-    return xoite_compiler_g->verbosity;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-er_t xoite_compiler_set_verbosity( sz_t verbosity )
-{
-    if( !xoite_compiler_g ) xoite_compiler_setup();
-    xoite_compiler_g->verbosity = verbosity;
-    return 0;
+    return o->verbosity;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

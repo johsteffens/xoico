@@ -36,7 +36,7 @@ tp_t xoite_func_s_get_hash( const xoite_func_s* o )
 //----------------------------------------------------------------------------------------------------------------------
 
 /// stamp should be NULL func is not parsed inside a stamp
-er_t xoite_func_s_parse( xoite_func_s* o, xoite_group_s* group, xoite_stamp_s* stamp, bcore_source* source )
+er_t xoite_func_s_parse( xoite_func_s* o, xoite_stamp_s* stamp, bcore_source* source )
 {
     BLM_INIT();
 
@@ -55,7 +55,7 @@ er_t xoite_func_s_parse( xoite_func_s* o, xoite_group_s* group, xoite_stamp_s* s
     }
     else
     {
-        BLM_TRY( xoite_group_s_parse_name( group, type_name, source ) );
+        BLM_TRY( xoite_group_s_parse_name( o->group, type_name, source ) );
 
         if( stamp && st_s_equal_st( type_name, &stamp->trait_name ) )
         {
@@ -80,7 +80,7 @@ er_t xoite_func_s_parse( xoite_func_s* o, xoite_group_s* group, xoite_stamp_s* s
     if( bcore_source_a_parse_bl_fa( source, " #=?'='" ) )
     {
         o->body = xoite_body_s_create();
-        o->body->group = group;
+        o->body->group = o->group;
         BLM_TRY( xoite_body_s_parse( o->body, stamp, source ) );
     }
 
@@ -93,14 +93,14 @@ er_t xoite_func_s_parse( xoite_func_s* o, xoite_group_s* group, xoite_stamp_s* s
 
 bl_t xoite_func_s_registerable( const xoite_func_s* o )
 {
-    if( xoite_compiler_s_item_exists( xoite_compiler_g, o->type ) )
+    if( xoite_compiler_s_item_exists( xoite_group_s_get_compiler( o->group ), o->type ) )
     {
-        const xoite* item = xoite_compiler_s_item_get( xoite_compiler_g, o->type );
+        const xoite* item = xoite_compiler_s_item_get( xoite_group_s_get_compiler( o->group ), o->type );
         if( *(aware_t*)item == TYPEOF_xoite_signature_s )
         {
-            if( !xoite_compiler_g->register_signatures ) return false;
+            if( !xoite_group_s_get_compiler( o->group )->register_signatures ) return false;
             const xoite_signature_s* signature = ( xoite_signature_s* )item;
-            return ( signature->arg_o != 0 || xoite_compiler_g->register_plain_functions );
+            return ( signature->arg_o != 0 || xoite_group_s_get_compiler( o->group )->register_plain_functions );
         }
         else
         {

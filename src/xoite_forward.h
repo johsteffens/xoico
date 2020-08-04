@@ -28,7 +28,7 @@ BETH_PLANT_DEFINE_GROUP( xoite_forward, xoite )
 stamp : = aware :
 {
     st_s name; // deemed global
-    private xoite_group_s* group;
+    private aware xoite_group_s* group;
     bcore_source_point_s source_point;
 
     func xoite : parse;

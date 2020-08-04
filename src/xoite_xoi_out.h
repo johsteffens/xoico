@@ -1,6 +1,6 @@
 /** This file was generated from beth-plant source code.
- *  Compiling Agent : bcore_plant_compiler (C) 2019, 2020 J.B.Steffens
- *  Last File Update: 2020-08-04T16:24:59Z
+ *  Compiling Agent : xoite_compiler (C) 2020 J.B.Steffens
+ *  Last File Update: 2020-08-03T19:55:29Z
  *
  *  Copyright and License of this File:
  *
@@ -27,15 +27,15 @@
  *
  */
 
-#ifndef XOITE_PLANTED_H
-#define XOITE_PLANTED_H
+#ifndef XOITE_XOI_OUT_H
+#define XOITE_XOI_OUT_H
 
 #include "bcore_control.h"
 
 //To force a rebuild of this target by the plant-compiler, reset the hash key value below to 0.
-#define HKEYOF_xoite_planted 295895126
+#define HKEYOF_xoite_xoi_out 2977250247
 
-#define TYPEOF_xoite_planted 2115009419
+#define TYPEOF_xoite_xoi_out 3537855440
 
 /**********************************************************************************************************************/
 // source: xoite.h
@@ -314,7 +314,6 @@
   sc_t xoite_feature_s_get_global_name_sc( const xoite_feature_s* o ); \
   er_t xoite_feature_s_expand_indef_typedef( const xoite_feature_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoite_feature_s_expand_spect_declaration( const xoite_feature_s* o, sz_t indent, bcore_sink* sink ); \
-  er_t xoite_feature_s_expand_spect_definition( const xoite_feature_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoite_feature_s_expand_indef_declaration( const xoite_feature_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoite_feature_s_expand_definition( const xoite_feature_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoite_feature_s_expand_init1( const xoite_feature_s* o, sz_t indent, bcore_sink* sink );
@@ -336,7 +335,7 @@
   BCORE_DECLARE_OBJECT( xoite_func_s ) \
     {aware_t _;st_s name;st_s decl;tp_t type;bl_t overloadable;xoite_body_s* body;xoite_group_s* group;bcore_source_point_s source_point;}; \
   tp_t xoite_func_s_get_hash( const xoite_func_s* o ); \
-  er_t xoite_func_s_parse( xoite_func_s* o, xoite_stamp_s* stamp, bcore_source* source ); \
+  er_t xoite_func_s_parse( xoite_func_s* o, xoite_group_s* group, xoite_stamp_s* stamp, bcore_source* source ); \
   bl_t xoite_func_s_registerable( const xoite_func_s* o );
 #define BETH_EXPAND_GROUP_xoite_func \
   BCORE_FORWARD_OBJECT( xoite_func ); \
@@ -412,8 +411,7 @@
   er_t xoite_stamp_s_expand_init1( const xoite_stamp_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoite_stamp_s_parse( xoite_stamp_s* o, xoite_group_s* group, bcore_source* source ); \
   er_t xoite_stamp_s_resolve_chars( const xoite_stamp_s* o, st_s* string ); \
-  er_t xoite_stamp_s_make_funcs_overloadable( xoite_stamp_s* o ); \
-  void xoite_stamp_s_copy_x( xoite_stamp_s* o );
+  er_t xoite_stamp_s_make_funcs_overloadable( xoite_stamp_s* o );
 #define BETH_EXPAND_GROUP_xoite_stamp \
   BCORE_FORWARD_OBJECT( xoite_stamp ); \
   BCORE_FORWARD_OBJECT( xoite_stamp_s ); \
@@ -497,7 +495,7 @@
 #define TYPEOF_xoite_compiler_s 392017598
 #define BETH_EXPAND_ITEM_xoite_compiler_s \
   BCORE_DECLARE_OBJECT( xoite_compiler_s ) \
-    {aware_t _;BCORE_ARRAY_DYN_LINK_STATIC_S( xoite_target_s, );bcore_hmap_tpvd_s hmap_group;bcore_hmap_tpvd_s hmap_item;bcore_life_s life;bl_t register_plain_functions;bl_t register_signatures;bl_t overwrite_unsigned_planted_files;bl_t always_expand;bl_t dry_run;sz_t verbosity;}; \
+    {aware_t _;BCORE_ARRAY_DYN_LINK_STATIC_S( xoite_target_s, );bcore_hmap_tpvd_s hmap_group;bcore_hmap_tpvd_s hmap_item;bcore_life_s life;bl_t backup_planted_files;bl_t register_plain_functions;bl_t register_signatures;bl_t overwrite_unsigned_planted_files;sz_t verbosity;}; \
   er_t xoite_compiler_s_finalize( xoite_compiler_s* o ); \
   const xoite* xoite_compiler_s_item_get( const xoite_compiler_s* o, tp_t item_id ); \
   bl_t xoite_compiler_s_item_exists( const xoite_compiler_s* o, tp_t item_id ); \
@@ -534,15 +532,11 @@
 #define TYPEOF_xoite_builder_main_s 1204191458
 #define BETH_EXPAND_ITEM_xoite_builder_main_s \
   BCORE_DECLARE_OBJECT( xoite_builder_main_s ) \
-    {aware_t _;xoite_compiler_s* compiler;bl_t dry_run;bcore_arr_st_s arr_path;}; \
+    {aware_t _;xoite_compiler_s* compiler;bcore_arr_st_s arr_path;}; \
   void xoite_builder_main_s_init_x( xoite_builder_main_s* o ); \
   er_t xoite_builder_main_s_build_from_file( xoite_builder_main_s* o, sc_t path ); \
   bl_t xoite_builder_main_s_update_required( const xoite_builder_main_s* o ); \
-  er_t xoite_builder_main_s_update( const xoite_builder_main_s* o ); \
-  bl_t xoite_builder_main_s_get_dry_run( const xoite_builder_main_s* o ); \
-  bl_t xoite_builder_main_s_get_always_expand( const xoite_builder_main_s* o ); \
-  er_t xoite_builder_main_s_set_dry_run( xoite_builder_main_s* o, bl_t v ); \
-  er_t xoite_builder_main_s_set_always_expand( xoite_builder_main_s* o, bl_t v );
+  er_t xoite_builder_main_s_update( const xoite_builder_main_s* o );
 #define BETH_EXPAND_GROUP_xoite_builder \
   BCORE_FORWARD_OBJECT( xoite_builder ); \
   BCORE_FORWARD_OBJECT( xoite_builder_target_s ); \
@@ -552,7 +546,7 @@
 
 /**********************************************************************************************************************/
 
-vd_t xoite_planted_signal_handler( const bcore_signal_s* o );
+vd_t xoite_xoi_out_signal_handler( const bcore_signal_s* o );
 
-#endif // XOITE_PLANTED_H
-// BETH_PLANT_SIGNATURE  971213956
+#endif // XOITE_XOI_OUT_H
+// BETH_PLANT_SIGNATURE 4030433515
