@@ -23,7 +23,7 @@
 
 /**********************************************************************************************************************/
 
-XOI_DEFINE_GROUP( xoico_stamp, xoico )
+XOILA_DEFINE_GROUP( xoico_stamp, xoico )
 #ifdef PLANT_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 signature er_t resolve_chars( const, st_s* string );

@@ -23,7 +23,7 @@
 
 /**********************************************************************************************************************/
 
-XOI_DEFINE_GROUP( xoico_compiler, xoico )
+XOILA_DEFINE_GROUP( xoico_compiler, xoico )
 #ifdef PLANT_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 signature const xoico* item_get(       const, tp_t item_id );

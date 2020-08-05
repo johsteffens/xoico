@@ -23,7 +23,7 @@
 
 /**********************************************************************************************************************/
 
-XOI_DEFINE_GROUP( xoico_target, xoico )
+XOILA_DEFINE_GROUP( xoico_target, xoico )
 #ifdef PLANT_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 signature er_t parse( mutable, sc_t source_path );

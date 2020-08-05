@@ -23,7 +23,7 @@
 
 /**********************************************************************************************************************/
 
-XOI_DEFINE_GROUP( xoico_args, xoico )
+XOILA_DEFINE_GROUP( xoico_args, xoico )
 #ifdef PLANT_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 signature er_t append(      mutable, bcore_source* source );

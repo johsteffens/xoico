@@ -30,13 +30,13 @@ void help( bcore_sink* sink )
     bcore_sink_a_push_fa
     (
         sink,
-        "XOI Compiler: (C) J.B.Steffens\n"
+        "Xoila Compiler: (C) J.B.Steffens\n"
         "Usage: [options] xoico <xoico-config-file> [<xoico-config-file> ...]\n"
         "\n"
         "Options:\n"
         "-d : Dry run. Target files are not modified.\n"
-        "-e : Always Expand: Expands target files even if their hash has not changed.\n"
-        "-f : Force Overwrite target files. Use with care.\n"
+        "-e : Always expand: Expands target files even if their hash has not changed.\n"
+        "-f : Force overwrite target files. Use with care.\n"
     );
 }
 
