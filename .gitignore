@@ -1,7 +1,9 @@
 *.backup
 *.cbp
+*.workspace
+*.layout
+*.depend
 xoico
-xoico.*
 build
 dev
 bin
