@@ -1,6 +1,6 @@
-# XOI Compiler
+# Xoila Compiler
 
-This tool compiles xoi-code, which is embedded in c-header files.
+This tool compiles xoila-code, which is embedded in c-header files.
 It creates or updates \*_xoi_out.{c,h} files as specified by xoico-configuration files (\*_xoico.cfg).
 
 ***More details will follow ...***
@@ -15,13 +15,13 @@ $ make
 $ xoico --help
 ```
 
-## About XOI
+## About Xoila
 
-XOI is a meta language to be used in C-Header files.
+Xoila is the name of a meta language to be used in C-Header files.
 It is used in conjunction with the core library of [beth](https://github.com/johsteffens/beth).
 It provides a convenient programming layer unlocking core concepts of project beth.
 
-(*XOI* was initially called *beth_plant*.)
+(*Xoila* was initially called *Beth-Plant*.)
 
 ------
 
