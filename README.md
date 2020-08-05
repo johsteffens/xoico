@@ -5,7 +5,7 @@ It creates or updates \*_xoi_out.{c,h} files as specified by xoico-configuration
 
 ***More details will follow ...***
 
-## Usage
+## Getting Started
 
 ```
 $ git clone https://github.com/johsteffens/beth
