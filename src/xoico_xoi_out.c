@@ -1,33 +1,33 @@
 /** This file was generated from beth-plant source code.
- *  Compiling Agent : xoite_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-03T19:55:29Z
+ *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
+ *  Last File Update: 2020-08-05T13:48:17Z
  *
  *  Copyright and License of this File:
  *
  *  Generated code inherits the copyright and license of the underlying beth-plant source code.
  *  Source code defining this file is distributed across following files:
  *
- *  xoite.h
- *  xoite_name.h
- *  xoite_forward.h
- *  xoite_arg.h
- *  xoite_args.h
- *  xoite_signature.h
- *  xoite_body.h
- *  xoite_feature.h
- *  xoite_func.h
- *  xoite_funcs.h
- *  xoite_group.h
- *  xoite_stamp.h
- *  xoite_nested_group.h
- *  xoite_source.h
- *  xoite_target.h
- *  xoite_compiler.h
- *  xoite_builder.h
+ *  xoico.h
+ *  xoico_name.h
+ *  xoico_forward.h
+ *  xoico_arg.h
+ *  xoico_args.h
+ *  xoico_signature.h
+ *  xoico_body.h
+ *  xoico_feature.h
+ *  xoico_func.h
+ *  xoico_funcs.h
+ *  xoico_group.h
+ *  xoico_stamp.h
+ *  xoico_nested_group.h
+ *  xoico_source.h
+ *  xoico_target.h
+ *  xoico_compiler.h
+ *  xoico_builder.h
  *
  */
 
-#include "xoite_xoi_out.h"
+#include "xoico_xoi_out.h"
 #include "bcore_spect.h"
 #include "bcore_spect_inst.h"
 #include "bcore_sr.h"
@@ -35,149 +35,161 @@
 
 
 /**********************************************************************************************************************/
-// source: xoite.h
-#include "xoite.h"
+// source: xoico.h
+#include "xoico.h"
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoite
+// group: xoico
 
-BCORE_DEFINE_SPECT( bcore_inst, xoite )
+BCORE_DEFINE_SPECT( bcore_inst, xoico )
 "{"
     "bcore_spect_header_s header;"
+    "feature aware xoico : parse;"
+    "feature aware xoico : get_hash;"
+    "feature aware xoico : get_global_name_sc;"
+    "feature aware xoico : finalize = xoico_finalize__;"
+    "feature aware xoico : expand_forward = xoico_expand_forward__;"
+    "feature aware xoico : expand_indef_typedef = xoico_expand_indef_typedef__;"
+    "feature aware xoico : expand_spect_declaration = xoico_expand_spect_declaration__;"
+    "feature aware xoico : expand_spect_definition = xoico_expand_spect_definition__;"
+    "feature aware xoico : expand_declaration = xoico_expand_declaration__;"
+    "feature aware xoico : expand_indef_declaration = xoico_expand_indef_declaration__;"
+    "feature aware xoico : expand_definition = xoico_expand_definition__;"
+    "feature aware xoico : expand_init1 = xoico_expand_init1__;"
 "}";
 
 /**********************************************************************************************************************/
-// source: xoite_name.h
-#include "xoite_name.h"
+// source: xoico_name.h
+#include "xoico_name.h"
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoite_name
+// group: xoico_name
 
-BCORE_DEFINE_OBJECT_INST_P( xoite_name_s )
-"aware xoite_name"
+BCORE_DEFINE_OBJECT_INST_P( xoico_name_s )
+"aware xoico_name"
 "{"
     "st_s name;"
-    "private aware xoite_group_s* group;"
+    "private aware xoico_group_s* group;"
     "bcore_source_point_s source_point;"
-    "func xoite:parse;"
-    "func xoite:get_hash;"
-    "func xoite:get_global_name_sc;"
-    "func xoite:expand_declaration;"
-    "func xoite:expand_init1;"
+    "func xoico:parse;"
+    "func xoico:get_hash;"
+    "func xoico:get_global_name_sc;"
+    "func xoico:expand_declaration;"
+    "func xoico:expand_init1;"
 "}";
 
 /**********************************************************************************************************************/
-// source: xoite_forward.h
-#include "xoite_forward.h"
+// source: xoico_forward.h
+#include "xoico_forward.h"
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoite_forward
+// group: xoico_forward
 
-BCORE_DEFINE_OBJECT_INST_P( xoite_forward_s )
-"aware xoite_forward"
+BCORE_DEFINE_OBJECT_INST_P( xoico_forward_s )
+"aware xoico_forward"
 "{"
     "st_s name;"
-    "private aware xoite_group_s* group;"
+    "private aware xoico_group_s* group;"
     "bcore_source_point_s source_point;"
-    "func xoite:parse;"
-    "func xoite:get_hash;"
-    "func xoite:get_global_name_sc;"
-    "func xoite:expand_declaration;"
-    "func xoite:expand_forward;"
-    "func xoite:expand_init1;"
+    "func xoico:parse;"
+    "func xoico:get_hash;"
+    "func xoico:get_global_name_sc;"
+    "func xoico:expand_declaration;"
+    "func xoico:expand_forward;"
+    "func xoico:expand_init1;"
 "}";
 
 /**********************************************************************************************************************/
-// source: xoite_arg.h
-#include "xoite_arg.h"
+// source: xoico_arg.h
+#include "xoico_arg.h"
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoite_arg
+// group: xoico_arg
 
-BCORE_DEFINE_OBJECT_INST_P( xoite_arg_s )
-"aware xoite_arg"
+BCORE_DEFINE_OBJECT_INST_P( xoico_arg_s )
+"aware xoico_arg"
 "{"
     "st_s type;"
     "st_s name;"
-    "private aware xoite_group_s* group;"
+    "private aware xoico_group_s* group;"
     "bcore_source_point_s source_point;"
-    "func xoite:parse;"
-    "func xoite:get_hash;"
+    "func xoico:parse;"
+    "func xoico:get_hash;"
 "}";
 
 /**********************************************************************************************************************/
-// source: xoite_args.h
-#include "xoite_args.h"
+// source: xoico_args.h
+#include "xoico_args.h"
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoite_args
+// group: xoico_args
 
-BCORE_DEFINE_OBJECT_INST_P( xoite_args_s )
-"aware xoite_args"
+BCORE_DEFINE_OBJECT_INST_P( xoico_args_s )
+"aware xoico_args"
 "{"
-    "xoite_arg_s [];"
-    "private aware xoite_group_s* group;"
-    "func xoite:parse;"
-    "func xoite:get_hash;"
+    "xoico_arg_s [];"
+    "private aware xoico_group_s* group;"
+    "func xoico:parse;"
+    "func xoico:get_hash;"
 "}";
 
 /**********************************************************************************************************************/
-// source: xoite_signature.h
-#include "xoite_signature.h"
+// source: xoico_signature.h
+#include "xoico_signature.h"
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoite_signature
+// group: xoico_signature
 
-BCORE_DEFINE_OBJECT_INST_P( xoite_signature_s )
-"aware xoite_signature"
+BCORE_DEFINE_OBJECT_INST_P( xoico_signature_s )
+"aware xoico_signature"
 "{"
     "st_s name;"
     "st_s global_name;"
     "bl_t has_ret;"
     "st_s ret_type;"
-    "xoite_args_s args;"
+    "xoico_args_s args;"
     "tp_t arg_o;"
-    "private aware xoite_group_s* group;"
+    "private aware xoico_group_s* group;"
     "bcore_source_point_s source_point;"
-    "func xoite:parse;"
-    "func xoite:get_hash;"
-    "func xoite:get_global_name_sc;"
+    "func xoico:parse;"
+    "func xoico:get_hash;"
+    "func xoico:get_global_name_sc;"
 "}";
 
 /**********************************************************************************************************************/
-// source: xoite_body.h
-#include "xoite_body.h"
+// source: xoico_body.h
+#include "xoico_body.h"
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoite_body
+// group: xoico_body
 
-BCORE_DEFINE_OBJECT_INST_P( xoite_body_s )
-"aware xoite_body"
+BCORE_DEFINE_OBJECT_INST_P( xoico_body_s )
+"aware xoico_body"
 "{"
     "st_s name;"
     "st_s global_name;"
     "st_s code;"
     "bl_t go_inline;"
-    "private aware xoite_group_s* group;"
+    "private aware xoico_group_s* group;"
     "bcore_source_point_s source_point;"
-    "func xoite:get_hash;"
-    "func xoite:get_global_name_sc;"
+    "func xoico:get_hash;"
+    "func xoico:get_global_name_sc;"
 "}";
 
 /**********************************************************************************************************************/
-// source: xoite_feature.h
-#include "xoite_feature.h"
+// source: xoico_feature.h
+#include "xoico_feature.h"
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoite_feature
+// group: xoico_feature
 
-BCORE_DEFINE_OBJECT_INST_P( xoite_feature_s )
-"aware xoite_feature"
+BCORE_DEFINE_OBJECT_INST_P( xoico_feature_s )
+"aware xoico_feature"
 "{"
     "st_s name;"
     "st_s global_name;"
     "st_s default_name;"
-    "xoite_body_s => default_body;"
+    "xoico_body_s => default_body;"
     "bl_t strict;"
     "bl_t flag_p;"
     "bl_t flag_t;"
@@ -185,207 +197,215 @@ BCORE_DEFINE_OBJECT_INST_P( xoite_feature_s )
     "bl_t flag_r;"
     "bl_t has_ret;"
     "st_s ret_type;"
-    "xoite_args_s args;"
+    "xoico_args_s args;"
     "bl_t mutable;"
-    "private aware xoite_group_s* group;"
+    "private aware xoico_group_s* group;"
     "bcore_source_point_s source_point;"
-    "func xoite:parse;"
-    "func xoite:get_hash;"
-    "func xoite:get_global_name_sc;"
-    "func xoite:expand_indef_typedef;"
-    "func xoite:expand_spect_declaration;"
-    "func xoite:expand_indef_declaration;"
-    "func xoite:expand_definition;"
-    "func xoite:expand_init1;"
+    "func xoico:parse;"
+    "func xoico:get_hash;"
+    "func xoico:get_global_name_sc;"
+    "func xoico:expand_indef_typedef;"
+    "func xoico:expand_spect_declaration;"
+    "func xoico:expand_spect_definition;"
+    "func xoico:expand_indef_declaration;"
+    "func xoico:expand_definition;"
+    "func xoico:expand_init1;"
 "}";
 
 /**********************************************************************************************************************/
-// source: xoite_func.h
-#include "xoite_func.h"
+// source: xoico_func.h
+#include "xoico_func.h"
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoite_func
+// group: xoico_func
 
-BCORE_DEFINE_OBJECT_INST_P( xoite_func_s )
-"aware xoite_func"
+BCORE_DEFINE_OBJECT_INST_P( xoico_func_s )
+"aware xoico_func"
 "{"
     "st_s name;"
     "st_s decl;"
     "tp_t type;"
     "bl_t overloadable = false;"
-    "xoite_body_s => body;"
-    "private aware xoite_group_s* group;"
+    "xoico_body_s => body;"
+    "private aware xoico_group_s* group;"
     "bcore_source_point_s source_point;"
 "}";
 
 /**********************************************************************************************************************/
-// source: xoite_funcs.h
-#include "xoite_funcs.h"
+// source: xoico_funcs.h
+#include "xoico_funcs.h"
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoite_funcs
+// group: xoico_funcs
 
-BCORE_DEFINE_OBJECT_INST_P( xoite_funcs_s )
-"aware xoite_funcs"
+BCORE_DEFINE_OBJECT_INST_P( xoico_funcs_s )
+"aware xoico_funcs"
 "{"
-    "xoite_func_s => [];"
+    "xoico_func_s => [];"
 "}";
 
 /**********************************************************************************************************************/
-// source: xoite_group.h
-#include "xoite_group.h"
+// source: xoico_group.h
+#include "xoico_group.h"
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoite_group
+// group: xoico_group
 
-BCORE_DEFINE_OBJECT_INST_P( xoite_group_s )
-"aware xoite_group"
+BCORE_DEFINE_OBJECT_INST_P( xoico_group_s )
+"aware xoico_group"
 "{"
-    "aware xoite => [];"
+    "aware xoico => [];"
     "st_s name;"
-    "private xoite_group_s* group;"
+    "private xoico_group_s* group;"
     "st_s trait_name = \"bcore_inst\";"
     "tp_t hash;"
     "bl_t expandable = true;"
     "bl_t has_features;"
     "bl_t is_aware;"
     "bl_t retrievable;"
-    "private xoite_stamp_s -> extending;"
-    "xoite_funcs_s funcs;"
-    "private aware xoite_source_s* source;"
+    "private xoico_stamp_s -> extending;"
+    "xoico_funcs_s funcs;"
+    "private aware xoico_source_s* source;"
     "bcore_source_point_s source_point;"
-    "func xoite:parse;"
-    "func xoite:get_hash;"
-    "func xoite:get_global_name_sc;"
-    "func xoite:finalize;"
+    "func xoico:parse;"
+    "func xoico:get_hash;"
+    "func xoico:get_global_name_sc;"
+    "func xoico:finalize;"
 "}";
 
 /**********************************************************************************************************************/
-// source: xoite_stamp.h
-#include "xoite_stamp.h"
+// source: xoico_stamp.h
+#include "xoico_stamp.h"
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoite_stamp
+// group: xoico_stamp
 
-BCORE_DEFINE_OBJECT_INST_P( xoite_stamp_s )
-"aware xoite_stamp"
+BCORE_DEFINE_OBJECT_INST_P( xoico_stamp_s )
+"aware xoico_stamp"
 "{"
     "st_s name;"
     "st_s trait_name;"
     "st_s => self_source;"
-    "xoite_funcs_s funcs;"
-    "private aware xoite_group_s* group;"
+    "xoico_funcs_s funcs;"
+    "private aware xoico_group_s* group;"
     "bcore_source_point_s source_point;"
-    "func xoite:get_hash;"
-    "func xoite:get_global_name_sc;"
-    "func xoite:finalize;"
-    "func xoite:expand_declaration;"
-    "func xoite:expand_forward;"
-    "func xoite:expand_indef_declaration;"
-    "func xoite:expand_definition;"
-    "func xoite:expand_init1;"
+    "func xoico:get_hash;"
+    "func xoico:get_global_name_sc;"
+    "func xoico:finalize;"
+    "func xoico:expand_declaration;"
+    "func xoico:expand_forward;"
+    "func xoico:expand_indef_declaration;"
+    "func xoico:expand_definition;"
+    "func xoico:expand_init1;"
+    "func bcore_inst_call:copy_x;"
 "}";
 
+void xoico_stamp_s_copy_x( xoico_stamp_s* o )
+{
+    BFOR_EACH( i, &o->funcs ) o->funcs.data[ i ]->group = o->group;
+}
+
 /**********************************************************************************************************************/
-// source: xoite_nested_group.h
-#include "xoite_nested_group.h"
+// source: xoico_nested_group.h
+#include "xoico_nested_group.h"
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoite_nested_group
+// group: xoico_nested_group
 
-BCORE_DEFINE_OBJECT_INST_P( xoite_nested_group_s )
-"aware xoite_nested_group"
+BCORE_DEFINE_OBJECT_INST_P( xoico_nested_group_s )
+"aware xoico_nested_group"
 "{"
-    "private xoite_group_s* group;"
-    "func xoite:get_hash;"
-    "func xoite:expand_forward;"
-    "func xoite:expand_indef_declaration;"
+    "private xoico_group_s* group;"
+    "func xoico:get_hash;"
+    "func xoico:expand_forward;"
+    "func xoico:expand_indef_declaration;"
 "}";
 
 /**********************************************************************************************************************/
-// source: xoite_source.h
-#include "xoite_source.h"
+// source: xoico_source.h
+#include "xoico_source.h"
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoite_source
+// group: xoico_source
 
-BCORE_DEFINE_OBJECT_INST_P( xoite_source_s )
-"aware xoite_source"
+BCORE_DEFINE_OBJECT_INST_P( xoico_source_s )
+"aware xoico_source"
 "{"
     "st_s name;"
     "st_s path;"
     "tp_t hash;"
-    "xoite_group_s => [];"
-    "private aware xoite_target_s* target;"
-    "func xoite:finalize;"
+    "xoico_group_s => [];"
+    "private aware xoico_target_s* target;"
+    "func xoico:finalize;"
 "}";
 
 /**********************************************************************************************************************/
-// source: xoite_target.h
-#include "xoite_target.h"
+// source: xoico_target.h
+#include "xoico_target.h"
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoite_target
+// group: xoico_target
 
-BCORE_DEFINE_OBJECT_INST_P( xoite_target_s )
-"aware xoite_target"
+BCORE_DEFINE_OBJECT_INST_P( xoico_target_s )
+"aware xoico_target"
 "{"
     "st_s name;"
     "st_s path;"
-    "xoite_source_s => [];"
-    "func xoite:finalize;"
+    "xoico_source_s => [];"
+    "func xoico:finalize;"
     "st_s signal_handler_name;"
     "bcore_arr_sz_s dependencies;"
     "bl_t flag;"
     "bl_t modified;"
     "st_s => planted_h;"
     "st_s => planted_c;"
-    "private aware xoite_compiler_s* compiler;"
+    "private aware xoico_compiler_s* compiler;"
 "}";
 
 /**********************************************************************************************************************/
-// source: xoite_compiler.h
-#include "xoite_compiler.h"
+// source: xoico_compiler.h
+#include "xoico_compiler.h"
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoite_compiler
+// group: xoico_compiler
 
-BCORE_DEFINE_OBJECT_INST_P( xoite_compiler_s )
-"aware xoite_compiler"
+BCORE_DEFINE_OBJECT_INST_P( xoico_compiler_s )
+"aware xoico_compiler"
 "{"
-    "hidden xoite_target_s => [];"
+    "hidden xoico_target_s => [];"
     "hidden bcore_hmap_tpvd_s hmap_group;"
     "hidden bcore_hmap_tpvd_s hmap_item;"
     "hidden bcore_life_s life;"
-    "bl_t backup_planted_files = true;"
     "bl_t register_plain_functions = true;"
     "bl_t register_signatures = false;"
     "bl_t overwrite_unsigned_planted_files = false;"
+    "bl_t always_expand = false;"
+    "bl_t dry_run = false;"
     "sz_t verbosity = 1;"
-    "func xoite:finalize;"
+    "func xoico:finalize;"
 "}";
 
 /**********************************************************************************************************************/
-// source: xoite_builder.h
-#include "xoite_builder.h"
+// source: xoico_builder.h
+#include "xoico_builder.h"
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoite_builder
+// group: xoico_builder
 
-BCORE_DEFINE_OBJECT_INST_P( xoite_builder_target_s )
-"aware xoite_builder"
+BCORE_DEFINE_OBJECT_INST_P( xoico_builder_target_s )
+"aware xoico_builder"
 "{"
     "st_s => name;"
     "st_s => extension = \"xoi_out\";"
     "st_s => root;"
-    "private aware xoite_builder_main_s* main;"
+    "private aware xoico_builder_main_s* main;"
     "bcore_arr_st_s dependencies;"
     "bcore_arr_st_s sources;"
     "st_s => signal_handler;"
     "func bcore_via_call:source;"
 "}";
 
-void xoite_builder_target_s_source( xoite_builder_target_s* o, bcore_source* source )
+void xoico_builder_target_s_source( xoico_builder_target_s* o, bcore_source* source )
 {
     if( !o->root )
     {
@@ -394,218 +414,254 @@ void xoite_builder_target_s_source( xoite_builder_target_s* o, bcore_source* sou
     }
 }
 
-BCORE_DEFINE_OBJECT_INST_P( xoite_builder_main_s )
-"aware xoite_builder"
+BCORE_DEFINE_OBJECT_INST_P( xoico_builder_main_s )
+"aware xoico_builder"
 "{"
-    "xoite_compiler_s => compiler;"
+    "xoico_compiler_s => compiler;"
+    "bl_t dry_run = false;"
     "bcore_arr_st_s arr_path;"
     "func bcore_inst_call:init_x;"
 "}";
 
-void xoite_builder_main_s_init_x( xoite_builder_main_s* o )
+void xoico_builder_main_s_init_x( xoico_builder_main_s* o )
 {
-    o->compiler = xoite_compiler_s_create();
-    xoite_compiler_s_setup( o->compiler );
+    o->compiler = xoico_compiler_s_create();
+    xoico_compiler_s_setup( o->compiler );
+}
+
+er_t xoico_builder_main_s_set_dry_run( xoico_builder_main_s* o, bl_t v )
+{
+    o->dry_run = v;
+    return 0;
+}
+
+bl_t xoico_builder_main_s_get_dry_run( const xoico_builder_main_s* o )
+{
+    return o->dry_run;
+}
+
+er_t xoico_builder_main_s_set_always_expand( xoico_builder_main_s* o, bl_t v )
+{
+    o->compiler->always_expand = v;
+    return 0;
+}
+
+bl_t xoico_builder_main_s_get_always_expand( const xoico_builder_main_s* o )
+{
+    return o->compiler->always_expand;
+}
+
+er_t xoico_builder_main_s_set_overwrite_unsigned_planted_files( xoico_builder_main_s* o, bl_t v )
+{
+    o->compiler->overwrite_unsigned_planted_files = v;
+    return 0;
+}
+
+bl_t xoico_builder_main_s_get_overwrite_unsigned_planted_files( const xoico_builder_main_s* o )
+{
+    return o->compiler->overwrite_unsigned_planted_files;
 }
 
 /**********************************************************************************************************************/
 
 vd_t bcore_general_signal_handler( const bcore_signal_s* o );
 
-vd_t xoite_xoi_out_signal_handler( const bcore_signal_s* o )
+vd_t xoico_xoi_out_signal_handler( const bcore_signal_s* o )
 {
-    switch( bcore_signal_s_handle_type( o, typeof( "xoite_xoi_out" ) ) )
+    switch( bcore_signal_s_handle_type( o, typeof( "xoico_xoi_out" ) ) )
     {
         case TYPEOF_init1:
         {
 
             // --------------------------------------------------------------------
-            // source: xoite.h
+            // source: xoico.h
 
-            // group: xoite
-            BCORE_REGISTER_FEATURE( xoite_parse );
-            BCORE_REGISTER_FEATURE( xoite_get_hash );
-            BCORE_REGISTER_FEATURE( xoite_get_global_name_sc );
-            BCORE_REGISTER_FEATURE( xoite_finalize );
-            BCORE_REGISTER_FFUNC( xoite_finalize, xoite_finalize__ );
-            BCORE_REGISTER_FEATURE( xoite_expand_forward );
-            BCORE_REGISTER_FFUNC( xoite_expand_forward, xoite_expand_forward__ );
-            BCORE_REGISTER_FEATURE( xoite_expand_indef_typedef );
-            BCORE_REGISTER_FFUNC( xoite_expand_indef_typedef, xoite_expand_indef_typedef__ );
-            BCORE_REGISTER_FEATURE( xoite_expand_spect_declaration );
-            BCORE_REGISTER_FFUNC( xoite_expand_spect_declaration, xoite_expand_spect_declaration__ );
-            BCORE_REGISTER_FEATURE( xoite_expand_spect_definition );
-            BCORE_REGISTER_FFUNC( xoite_expand_spect_definition, xoite_expand_spect_definition__ );
-            BCORE_REGISTER_FEATURE( xoite_expand_declaration );
-            BCORE_REGISTER_FFUNC( xoite_expand_declaration, xoite_expand_declaration__ );
-            BCORE_REGISTER_FEATURE( xoite_expand_indef_declaration );
-            BCORE_REGISTER_FFUNC( xoite_expand_indef_declaration, xoite_expand_indef_declaration__ );
-            BCORE_REGISTER_FEATURE( xoite_expand_definition );
-            BCORE_REGISTER_FFUNC( xoite_expand_definition, xoite_expand_definition__ );
-            BCORE_REGISTER_FEATURE( xoite_expand_init1 );
-            BCORE_REGISTER_FFUNC( xoite_expand_init1, xoite_expand_init1__ );
-            BCORE_REGISTER_SPECT( xoite );
-
-            // --------------------------------------------------------------------
-            // source: xoite_name.h
-
-            // group: xoite_name
-            BCORE_REGISTER_FFUNC( xoite_parse, xoite_name_s_parse );
-            BCORE_REGISTER_FFUNC( xoite_get_hash, xoite_name_s_get_hash );
-            BCORE_REGISTER_FFUNC( xoite_get_global_name_sc, xoite_name_s_get_global_name_sc );
-            BCORE_REGISTER_FFUNC( xoite_expand_declaration, xoite_name_s_expand_declaration );
-            BCORE_REGISTER_FFUNC( xoite_expand_init1, xoite_name_s_expand_init1 );
-            BCORE_REGISTER_OBJECT( xoite_name_s );
-            BCORE_REGISTER_TRAIT( xoite_name, xoite );
+            // group: xoico
+            BCORE_REGISTER_FEATURE( xoico_parse );
+            BCORE_REGISTER_FEATURE( xoico_get_hash );
+            BCORE_REGISTER_FEATURE( xoico_get_global_name_sc );
+            BCORE_REGISTER_FEATURE( xoico_finalize );
+            BCORE_REGISTER_FFUNC( xoico_finalize, xoico_finalize__ );
+            BCORE_REGISTER_FEATURE( xoico_expand_forward );
+            BCORE_REGISTER_FFUNC( xoico_expand_forward, xoico_expand_forward__ );
+            BCORE_REGISTER_FEATURE( xoico_expand_indef_typedef );
+            BCORE_REGISTER_FFUNC( xoico_expand_indef_typedef, xoico_expand_indef_typedef__ );
+            BCORE_REGISTER_FEATURE( xoico_expand_spect_declaration );
+            BCORE_REGISTER_FFUNC( xoico_expand_spect_declaration, xoico_expand_spect_declaration__ );
+            BCORE_REGISTER_FEATURE( xoico_expand_spect_definition );
+            BCORE_REGISTER_FFUNC( xoico_expand_spect_definition, xoico_expand_spect_definition__ );
+            BCORE_REGISTER_FEATURE( xoico_expand_declaration );
+            BCORE_REGISTER_FFUNC( xoico_expand_declaration, xoico_expand_declaration__ );
+            BCORE_REGISTER_FEATURE( xoico_expand_indef_declaration );
+            BCORE_REGISTER_FFUNC( xoico_expand_indef_declaration, xoico_expand_indef_declaration__ );
+            BCORE_REGISTER_FEATURE( xoico_expand_definition );
+            BCORE_REGISTER_FFUNC( xoico_expand_definition, xoico_expand_definition__ );
+            BCORE_REGISTER_FEATURE( xoico_expand_init1 );
+            BCORE_REGISTER_FFUNC( xoico_expand_init1, xoico_expand_init1__ );
+            BCORE_REGISTER_SPECT( xoico );
 
             // --------------------------------------------------------------------
-            // source: xoite_forward.h
+            // source: xoico_name.h
 
-            // group: xoite_forward
-            BCORE_REGISTER_FFUNC( xoite_parse, xoite_forward_s_parse );
-            BCORE_REGISTER_FFUNC( xoite_get_hash, xoite_forward_s_get_hash );
-            BCORE_REGISTER_FFUNC( xoite_get_global_name_sc, xoite_forward_s_get_global_name_sc );
-            BCORE_REGISTER_FFUNC( xoite_expand_declaration, xoite_forward_s_expand_declaration );
-            BCORE_REGISTER_FFUNC( xoite_expand_forward, xoite_forward_s_expand_forward );
-            BCORE_REGISTER_FFUNC( xoite_expand_init1, xoite_forward_s_expand_init1 );
-            BCORE_REGISTER_OBJECT( xoite_forward_s );
-            BCORE_REGISTER_TRAIT( xoite_forward, xoite );
-
-            // --------------------------------------------------------------------
-            // source: xoite_arg.h
-
-            // group: xoite_arg
-            BCORE_REGISTER_FFUNC( xoite_parse, xoite_arg_s_parse );
-            BCORE_REGISTER_FFUNC( xoite_get_hash, xoite_arg_s_get_hash );
-            BCORE_REGISTER_OBJECT( xoite_arg_s );
-            BCORE_REGISTER_TRAIT( xoite_arg, xoite );
+            // group: xoico_name
+            BCORE_REGISTER_FFUNC( xoico_parse, xoico_name_s_parse );
+            BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_name_s_get_hash );
+            BCORE_REGISTER_FFUNC( xoico_get_global_name_sc, xoico_name_s_get_global_name_sc );
+            BCORE_REGISTER_FFUNC( xoico_expand_declaration, xoico_name_s_expand_declaration );
+            BCORE_REGISTER_FFUNC( xoico_expand_init1, xoico_name_s_expand_init1 );
+            BCORE_REGISTER_OBJECT( xoico_name_s );
+            BCORE_REGISTER_TRAIT( xoico_name, xoico );
 
             // --------------------------------------------------------------------
-            // source: xoite_args.h
+            // source: xoico_forward.h
 
-            // group: xoite_args
-            BCORE_REGISTER_FFUNC( xoite_parse, xoite_args_s_parse );
-            BCORE_REGISTER_FFUNC( xoite_get_hash, xoite_args_s_get_hash );
-            BCORE_REGISTER_OBJECT( xoite_args_s );
-            BCORE_REGISTER_TRAIT( xoite_args, xoite );
-
-            // --------------------------------------------------------------------
-            // source: xoite_signature.h
-
-            // group: xoite_signature
-            BCORE_REGISTER_FFUNC( xoite_parse, xoite_signature_s_parse );
-            BCORE_REGISTER_FFUNC( xoite_get_hash, xoite_signature_s_get_hash );
-            BCORE_REGISTER_FFUNC( xoite_get_global_name_sc, xoite_signature_s_get_global_name_sc );
-            BCORE_REGISTER_OBJECT( xoite_signature_s );
-            BCORE_REGISTER_TRAIT( xoite_signature, xoite );
+            // group: xoico_forward
+            BCORE_REGISTER_FFUNC( xoico_parse, xoico_forward_s_parse );
+            BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_forward_s_get_hash );
+            BCORE_REGISTER_FFUNC( xoico_get_global_name_sc, xoico_forward_s_get_global_name_sc );
+            BCORE_REGISTER_FFUNC( xoico_expand_declaration, xoico_forward_s_expand_declaration );
+            BCORE_REGISTER_FFUNC( xoico_expand_forward, xoico_forward_s_expand_forward );
+            BCORE_REGISTER_FFUNC( xoico_expand_init1, xoico_forward_s_expand_init1 );
+            BCORE_REGISTER_OBJECT( xoico_forward_s );
+            BCORE_REGISTER_TRAIT( xoico_forward, xoico );
 
             // --------------------------------------------------------------------
-            // source: xoite_body.h
+            // source: xoico_arg.h
 
-            // group: xoite_body
-            BCORE_REGISTER_FFUNC( xoite_get_hash, xoite_body_s_get_hash );
-            BCORE_REGISTER_FFUNC( xoite_get_global_name_sc, xoite_body_s_get_global_name_sc );
-            BCORE_REGISTER_OBJECT( xoite_body_s );
-            BCORE_REGISTER_TRAIT( xoite_body, xoite );
-
-            // --------------------------------------------------------------------
-            // source: xoite_feature.h
-
-            // group: xoite_feature
-            BCORE_REGISTER_FFUNC( xoite_parse, xoite_feature_s_parse );
-            BCORE_REGISTER_FFUNC( xoite_get_hash, xoite_feature_s_get_hash );
-            BCORE_REGISTER_FFUNC( xoite_get_global_name_sc, xoite_feature_s_get_global_name_sc );
-            BCORE_REGISTER_FFUNC( xoite_expand_indef_typedef, xoite_feature_s_expand_indef_typedef );
-            BCORE_REGISTER_FFUNC( xoite_expand_spect_declaration, xoite_feature_s_expand_spect_declaration );
-            BCORE_REGISTER_FFUNC( xoite_expand_indef_declaration, xoite_feature_s_expand_indef_declaration );
-            BCORE_REGISTER_FFUNC( xoite_expand_definition, xoite_feature_s_expand_definition );
-            BCORE_REGISTER_FFUNC( xoite_expand_init1, xoite_feature_s_expand_init1 );
-            BCORE_REGISTER_OBJECT( xoite_feature_s );
-            BCORE_REGISTER_TRAIT( xoite_feature, xoite );
+            // group: xoico_arg
+            BCORE_REGISTER_FFUNC( xoico_parse, xoico_arg_s_parse );
+            BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_arg_s_get_hash );
+            BCORE_REGISTER_OBJECT( xoico_arg_s );
+            BCORE_REGISTER_TRAIT( xoico_arg, xoico );
 
             // --------------------------------------------------------------------
-            // source: xoite_func.h
+            // source: xoico_args.h
 
-            // group: xoite_func
-            BCORE_REGISTER_OBJECT( xoite_func_s );
-            BCORE_REGISTER_TRAIT( xoite_func, xoite );
-
-            // --------------------------------------------------------------------
-            // source: xoite_funcs.h
-
-            // group: xoite_funcs
-            BCORE_REGISTER_OBJECT( xoite_funcs_s );
-            BCORE_REGISTER_TRAIT( xoite_funcs, xoite );
+            // group: xoico_args
+            BCORE_REGISTER_FFUNC( xoico_parse, xoico_args_s_parse );
+            BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_args_s_get_hash );
+            BCORE_REGISTER_OBJECT( xoico_args_s );
+            BCORE_REGISTER_TRAIT( xoico_args, xoico );
 
             // --------------------------------------------------------------------
-            // source: xoite_group.h
+            // source: xoico_signature.h
 
-            // group: xoite_group
-            BCORE_REGISTER_FFUNC( xoite_parse, xoite_group_s_parse );
-            BCORE_REGISTER_FFUNC( xoite_get_hash, xoite_group_s_get_hash );
-            BCORE_REGISTER_FFUNC( xoite_get_global_name_sc, xoite_group_s_get_global_name_sc );
-            BCORE_REGISTER_FFUNC( xoite_finalize, xoite_group_s_finalize );
-            BCORE_REGISTER_OBJECT( xoite_group_s );
-            BCORE_REGISTER_TRAIT( xoite_group, xoite );
-
-            // --------------------------------------------------------------------
-            // source: xoite_stamp.h
-
-            // group: xoite_stamp
-            BCORE_REGISTER_FFUNC( xoite_get_hash, xoite_stamp_s_get_hash );
-            BCORE_REGISTER_FFUNC( xoite_get_global_name_sc, xoite_stamp_s_get_global_name_sc );
-            BCORE_REGISTER_FFUNC( xoite_finalize, xoite_stamp_s_finalize );
-            BCORE_REGISTER_FFUNC( xoite_expand_declaration, xoite_stamp_s_expand_declaration );
-            BCORE_REGISTER_FFUNC( xoite_expand_forward, xoite_stamp_s_expand_forward );
-            BCORE_REGISTER_FFUNC( xoite_expand_indef_declaration, xoite_stamp_s_expand_indef_declaration );
-            BCORE_REGISTER_FFUNC( xoite_expand_definition, xoite_stamp_s_expand_definition );
-            BCORE_REGISTER_FFUNC( xoite_expand_init1, xoite_stamp_s_expand_init1 );
-            BCORE_REGISTER_OBJECT( xoite_stamp_s );
-            BCORE_REGISTER_TRAIT( xoite_stamp, xoite );
+            // group: xoico_signature
+            BCORE_REGISTER_FFUNC( xoico_parse, xoico_signature_s_parse );
+            BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_signature_s_get_hash );
+            BCORE_REGISTER_FFUNC( xoico_get_global_name_sc, xoico_signature_s_get_global_name_sc );
+            BCORE_REGISTER_OBJECT( xoico_signature_s );
+            BCORE_REGISTER_TRAIT( xoico_signature, xoico );
 
             // --------------------------------------------------------------------
-            // source: xoite_nested_group.h
+            // source: xoico_body.h
 
-            // group: xoite_nested_group
-            BCORE_REGISTER_FFUNC( xoite_get_hash, xoite_nested_group_s_get_hash );
-            BCORE_REGISTER_FFUNC( xoite_expand_forward, xoite_nested_group_s_expand_forward );
-            BCORE_REGISTER_FFUNC( xoite_expand_indef_declaration, xoite_nested_group_s_expand_indef_declaration );
-            BCORE_REGISTER_OBJECT( xoite_nested_group_s );
-            BCORE_REGISTER_TRAIT( xoite_nested_group, xoite );
-
-            // --------------------------------------------------------------------
-            // source: xoite_source.h
-
-            // group: xoite_source
-            BCORE_REGISTER_FFUNC( xoite_finalize, xoite_source_s_finalize );
-            BCORE_REGISTER_OBJECT( xoite_source_s );
-            BCORE_REGISTER_TRAIT( xoite_source, xoite );
+            // group: xoico_body
+            BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_body_s_get_hash );
+            BCORE_REGISTER_FFUNC( xoico_get_global_name_sc, xoico_body_s_get_global_name_sc );
+            BCORE_REGISTER_OBJECT( xoico_body_s );
+            BCORE_REGISTER_TRAIT( xoico_body, xoico );
 
             // --------------------------------------------------------------------
-            // source: xoite_target.h
+            // source: xoico_feature.h
 
-            // group: xoite_target
-            BCORE_REGISTER_FFUNC( xoite_finalize, xoite_target_s_finalize );
-            BCORE_REGISTER_OBJECT( xoite_target_s );
-            BCORE_REGISTER_TRAIT( xoite_target, xoite );
+            // group: xoico_feature
+            BCORE_REGISTER_FFUNC( xoico_parse, xoico_feature_s_parse );
+            BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_feature_s_get_hash );
+            BCORE_REGISTER_FFUNC( xoico_get_global_name_sc, xoico_feature_s_get_global_name_sc );
+            BCORE_REGISTER_FFUNC( xoico_expand_indef_typedef, xoico_feature_s_expand_indef_typedef );
+            BCORE_REGISTER_FFUNC( xoico_expand_spect_declaration, xoico_feature_s_expand_spect_declaration );
+            BCORE_REGISTER_FFUNC( xoico_expand_spect_definition, xoico_feature_s_expand_spect_definition );
+            BCORE_REGISTER_FFUNC( xoico_expand_indef_declaration, xoico_feature_s_expand_indef_declaration );
+            BCORE_REGISTER_FFUNC( xoico_expand_definition, xoico_feature_s_expand_definition );
+            BCORE_REGISTER_FFUNC( xoico_expand_init1, xoico_feature_s_expand_init1 );
+            BCORE_REGISTER_OBJECT( xoico_feature_s );
+            BCORE_REGISTER_TRAIT( xoico_feature, xoico );
 
             // --------------------------------------------------------------------
-            // source: xoite_compiler.h
+            // source: xoico_func.h
 
-            // group: xoite_compiler
-            BCORE_REGISTER_FFUNC( xoite_finalize, xoite_compiler_s_finalize );
-            BCORE_REGISTER_OBJECT( xoite_compiler_s );
-            BCORE_REGISTER_TRAIT( xoite_compiler, xoite );
+            // group: xoico_func
+            BCORE_REGISTER_OBJECT( xoico_func_s );
+            BCORE_REGISTER_TRAIT( xoico_func, xoico );
 
             // --------------------------------------------------------------------
-            // source: xoite_builder.h
+            // source: xoico_funcs.h
 
-            // group: xoite_builder
-            BCORE_REGISTER_FFUNC( bcore_via_call_source, xoite_builder_target_s_source );
-            BCORE_REGISTER_OBJECT( xoite_builder_target_s );
-            BCORE_REGISTER_FFUNC( bcore_inst_call_init_x, xoite_builder_main_s_init_x );
-            BCORE_REGISTER_OBJECT( xoite_builder_main_s );
-            BCORE_REGISTER_TRAIT( xoite_builder, xoite );
+            // group: xoico_funcs
+            BCORE_REGISTER_OBJECT( xoico_funcs_s );
+            BCORE_REGISTER_TRAIT( xoico_funcs, xoico );
+
+            // --------------------------------------------------------------------
+            // source: xoico_group.h
+
+            // group: xoico_group
+            BCORE_REGISTER_FFUNC( xoico_parse, xoico_group_s_parse );
+            BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_group_s_get_hash );
+            BCORE_REGISTER_FFUNC( xoico_get_global_name_sc, xoico_group_s_get_global_name_sc );
+            BCORE_REGISTER_FFUNC( xoico_finalize, xoico_group_s_finalize );
+            BCORE_REGISTER_OBJECT( xoico_group_s );
+            BCORE_REGISTER_TRAIT( xoico_group, xoico );
+
+            // --------------------------------------------------------------------
+            // source: xoico_stamp.h
+
+            // group: xoico_stamp
+            BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_stamp_s_get_hash );
+            BCORE_REGISTER_FFUNC( xoico_get_global_name_sc, xoico_stamp_s_get_global_name_sc );
+            BCORE_REGISTER_FFUNC( xoico_finalize, xoico_stamp_s_finalize );
+            BCORE_REGISTER_FFUNC( xoico_expand_declaration, xoico_stamp_s_expand_declaration );
+            BCORE_REGISTER_FFUNC( xoico_expand_forward, xoico_stamp_s_expand_forward );
+            BCORE_REGISTER_FFUNC( xoico_expand_indef_declaration, xoico_stamp_s_expand_indef_declaration );
+            BCORE_REGISTER_FFUNC( xoico_expand_definition, xoico_stamp_s_expand_definition );
+            BCORE_REGISTER_FFUNC( xoico_expand_init1, xoico_stamp_s_expand_init1 );
+            BCORE_REGISTER_FFUNC( bcore_inst_call_copy_x, xoico_stamp_s_copy_x );
+            BCORE_REGISTER_OBJECT( xoico_stamp_s );
+            BCORE_REGISTER_TRAIT( xoico_stamp, xoico );
+
+            // --------------------------------------------------------------------
+            // source: xoico_nested_group.h
+
+            // group: xoico_nested_group
+            BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_nested_group_s_get_hash );
+            BCORE_REGISTER_FFUNC( xoico_expand_forward, xoico_nested_group_s_expand_forward );
+            BCORE_REGISTER_FFUNC( xoico_expand_indef_declaration, xoico_nested_group_s_expand_indef_declaration );
+            BCORE_REGISTER_OBJECT( xoico_nested_group_s );
+            BCORE_REGISTER_TRAIT( xoico_nested_group, xoico );
+
+            // --------------------------------------------------------------------
+            // source: xoico_source.h
+
+            // group: xoico_source
+            BCORE_REGISTER_FFUNC( xoico_finalize, xoico_source_s_finalize );
+            BCORE_REGISTER_OBJECT( xoico_source_s );
+            BCORE_REGISTER_TRAIT( xoico_source, xoico );
+
+            // --------------------------------------------------------------------
+            // source: xoico_target.h
+
+            // group: xoico_target
+            BCORE_REGISTER_FFUNC( xoico_finalize, xoico_target_s_finalize );
+            BCORE_REGISTER_OBJECT( xoico_target_s );
+            BCORE_REGISTER_TRAIT( xoico_target, xoico );
+
+            // --------------------------------------------------------------------
+            // source: xoico_compiler.h
+
+            // group: xoico_compiler
+            BCORE_REGISTER_FFUNC( xoico_finalize, xoico_compiler_s_finalize );
+            BCORE_REGISTER_OBJECT( xoico_compiler_s );
+            BCORE_REGISTER_TRAIT( xoico_compiler, xoico );
+
+            // --------------------------------------------------------------------
+            // source: xoico_builder.h
+
+            // group: xoico_builder
+            BCORE_REGISTER_FFUNC( bcore_via_call_source, xoico_builder_target_s_source );
+            BCORE_REGISTER_OBJECT( xoico_builder_target_s );
+            BCORE_REGISTER_FFUNC( bcore_inst_call_init_x, xoico_builder_main_s_init_x );
+            BCORE_REGISTER_OBJECT( xoico_builder_main_s );
+            BCORE_REGISTER_TRAIT( xoico_builder, xoico );
         }
         break;
         case TYPEOF_push_dependencies:
@@ -619,4 +675,4 @@ vd_t xoite_xoi_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// BETH_PLANT_SIGNATURE   10636519
+// BETH_PLANT_SIGNATURE 2703468927

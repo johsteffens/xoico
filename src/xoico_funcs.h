@@ -23,7 +23,7 @@
 
 /**********************************************************************************************************************/
 
-BETH_PLANT_DEFINE_GROUP( xoico_funcs, xoico )
+XOI_DEFINE_GROUP( xoico_funcs, xoico )
 #ifdef PLANT_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 signature bl_t exists(         const, tp_t type );

@@ -23,7 +23,7 @@
 
 /**********************************************************************************************************************/
 
-BETH_PLANT_DEFINE_GROUP( xoico_group, xoico )
+XOI_DEFINE_GROUP( xoico_group, xoico )
 #ifdef PLANT_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 signature er_t parse_name(           mutable, st_s* name, bcore_source* source );

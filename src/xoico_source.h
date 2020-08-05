@@ -23,7 +23,7 @@
 
 /**********************************************************************************************************************/
 
-BETH_PLANT_DEFINE_GROUP( xoico_source, xoico )
+XOI_DEFINE_GROUP( xoico_source, xoico )
 #ifdef PLANT_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 signature er_t push_group( mutable, xoico_group_s* group );
