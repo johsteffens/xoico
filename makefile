@@ -1,4 +1,4 @@
-TARGET = xoite
+TARGET = xoico
 
 CC      = gcc
 CFLAGS  = -Wall -O3 -std=c11 
