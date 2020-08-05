@@ -58,7 +58,7 @@ er_t xoico_source_s_parse( xoico_source_s* o, bcore_source* source )
         }
 
         /* deprecated */
-        else if( bcore_source_a_parse_bl_fa( source, "#?w'XOI_DEFINE_GROUP'" ) )
+        else if( bcore_source_a_parse_bl_fa( source, "#?w'BETH_PLANT_DEFINE_GROUP'" ) )
         {
             BLM_INIT();
             group = BLM_CREATE( xoico_group_s );
