@@ -69,6 +69,7 @@ er_t xoico_compiler_s_check_overwrite( const xoico_compiler_s* o, sc_t file )
             st_s_push_fa( s, "You can fix it in one of following ways:\n" );
             st_s_push_fa( s, "* Rename or move the file.\n" );
             st_s_push_fa( s, "* Allow overwrite by setting flag 'overwrite_unsigned_planted_files' 'true'.\n" );
+            st_s_push_fa( s, "* Use command line flag '-f'.\n" );
             BLM_RETURNV( er_t, bcore_error_push_fa( TYPEOF_general_error, "\nERROR: #<sc_t>\n", s->sc ) );
         }
     }

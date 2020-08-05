@@ -1,6 +1,6 @@
 /** This file was generated from beth-plant source code.
  *  Compiling Agent : bcore_plant_compiler (C) 2019, 2020 J.B.Steffens
- *  Last File Update: 2020-08-04T16:52:26Z
+ *  Last File Update: 2020-08-05T11:59:13Z
  *
  *  Copyright and License of this File:
  *
@@ -429,9 +429,21 @@ void xoico_builder_main_s_init_x( xoico_builder_main_s* o )
     xoico_compiler_s_setup( o->compiler );
 }
 
+er_t xoico_builder_main_s_set_dry_run( xoico_builder_main_s* o, bl_t v )
+{
+    o->dry_run = v;
+    return 0;
+}
+
 bl_t xoico_builder_main_s_get_dry_run( const xoico_builder_main_s* o )
 {
     return o->dry_run;
+}
+
+er_t xoico_builder_main_s_set_always_expand( xoico_builder_main_s* o, bl_t v )
+{
+    o->compiler->always_expand = v;
+    return 0;
 }
 
 bl_t xoico_builder_main_s_get_always_expand( const xoico_builder_main_s* o )
@@ -439,16 +451,15 @@ bl_t xoico_builder_main_s_get_always_expand( const xoico_builder_main_s* o )
     return o->compiler->always_expand;
 }
 
-er_t xoico_builder_main_s_set_dry_run( xoico_builder_main_s* o, bl_t v )
+er_t xoico_builder_main_s_set_overwrite_unsigned_planted_files( xoico_builder_main_s* o, bl_t v )
 {
-    o->dry_run = v;
+    o->compiler->overwrite_unsigned_planted_files = v;
     return 0;
 }
 
-er_t xoico_builder_main_s_set_always_expand( xoico_builder_main_s* o, bl_t v )
+bl_t xoico_builder_main_s_get_overwrite_unsigned_planted_files( const xoico_builder_main_s* o )
 {
-    o->compiler->always_expand = v;
-    return 0;
+    return o->compiler->overwrite_unsigned_planted_files;
 }
 
 /**********************************************************************************************************************/
@@ -664,4 +675,4 @@ vd_t xoico_planted_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// BETH_PLANT_SIGNATURE   99773199
+// BETH_PLANT_SIGNATURE  454148755

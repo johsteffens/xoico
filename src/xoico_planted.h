@@ -1,6 +1,6 @@
 /** This file was generated from beth-plant source code.
  *  Compiling Agent : bcore_plant_compiler (C) 2019, 2020 J.B.Steffens
- *  Last File Update: 2020-08-04T16:52:26Z
+ *  Last File Update: 2020-08-05T11:59:13Z
  *
  *  Copyright and License of this File:
  *
@@ -33,7 +33,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by the plant-compiler, reset the hash key value below to 0.
-#define HKEYOF_xoico_planted 1461367723
+#define HKEYOF_xoico_planted 1263010065
 
 #define TYPEOF_xoico_planted 3964248634
 
@@ -539,10 +539,12 @@
   er_t xoico_builder_main_s_build_from_file( xoico_builder_main_s* o, sc_t path ); \
   bl_t xoico_builder_main_s_update_required( const xoico_builder_main_s* o ); \
   er_t xoico_builder_main_s_update( const xoico_builder_main_s* o ); \
-  bl_t xoico_builder_main_s_get_dry_run( const xoico_builder_main_s* o ); \
-  bl_t xoico_builder_main_s_get_always_expand( const xoico_builder_main_s* o ); \
   er_t xoico_builder_main_s_set_dry_run( xoico_builder_main_s* o, bl_t v ); \
-  er_t xoico_builder_main_s_set_always_expand( xoico_builder_main_s* o, bl_t v );
+  bl_t xoico_builder_main_s_get_dry_run( const xoico_builder_main_s* o ); \
+  er_t xoico_builder_main_s_set_always_expand( xoico_builder_main_s* o, bl_t v ); \
+  bl_t xoico_builder_main_s_get_always_expand( const xoico_builder_main_s* o ); \
+  er_t xoico_builder_main_s_set_overwrite_unsigned_planted_files( xoico_builder_main_s* o, bl_t v ); \
+  bl_t xoico_builder_main_s_get_overwrite_unsigned_planted_files( const xoico_builder_main_s* o );
 #define BETH_EXPAND_GROUP_xoico_builder \
   BCORE_FORWARD_OBJECT( xoico_builder ); \
   BCORE_FORWARD_OBJECT( xoico_builder_target_s ); \
@@ -555,4 +557,4 @@
 vd_t xoico_planted_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_PLANTED_H
-// BETH_PLANT_SIGNATURE 1000960905
+// BETH_PLANT_SIGNATURE  299117835

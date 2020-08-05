@@ -62,10 +62,14 @@ signature er_t build_from_file( mutable, sc_t path );
 signature bl_t update_required( const );
 signature er_t update         ( const );
 
-signature er_t set_dry_run      ( mutable, bl_t v );
+signature er_t set_dry_run( mutable, bl_t v );
+signature bl_t get_dry_run( const );
+
 signature er_t set_always_expand( mutable, bl_t v );
-signature bl_t get_dry_run      ( const );
 signature bl_t get_always_expand( const );
+
+signature er_t set_overwrite_unsigned_planted_files( mutable, bl_t v );
+signature bl_t get_overwrite_unsigned_planted_files( const );
 
 stamp :main = aware :
 {
@@ -85,20 +89,15 @@ stamp :main = aware :
     func : :update_required;
     func : :update;
 
-    func : :get_dry_run =
-    {
-        return o->dry_run;
-    };
-
-    func : :get_always_expand =
-    {
-        return o->compiler->always_expand;
-    };
-
     func : :set_dry_run =
     {
         o->dry_run = v;
         return 0;
+    };
+
+    func : :get_dry_run =
+    {
+        return o->dry_run;
     };
 
     func : :set_always_expand =
@@ -107,6 +106,21 @@ stamp :main = aware :
         return 0;
     };
 
+    func : :get_always_expand =
+    {
+        return o->compiler->always_expand;
+    };
+
+    func : :set_overwrite_unsigned_planted_files =
+    {
+        o->compiler->overwrite_unsigned_planted_files = v;
+        return 0;
+    };
+
+    func : :get_overwrite_unsigned_planted_files =
+    {
+        return o->compiler->overwrite_unsigned_planted_files;
+    };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -27,8 +27,17 @@ BETH_PLANT_SIGNAL_CLOSE_PLANT( xoico )
 
 void help( bcore_sink* sink )
 {
-    bcore_sink_a_push_fa( sink, "XOI Compiler: (C) J.B.Steffens\n" );
-    bcore_sink_a_push_fa( sink, "Usage: [options] xoico <xoico-config-file> [<xoico-config-file> ...]\n" );
+    bcore_sink_a_push_fa
+    (
+        sink,
+        "XOI Compiler: (C) J.B.Steffens\n"
+        "Usage: [options] xoico <xoico-config-file> [<xoico-config-file> ...]\n"
+        "\n"
+        "Options:\n"
+        "-d : Dry run. Target files are not modified.\n"
+        "-e : Always Expand: Expands target files even if their hash has not changed.\n"
+        "-f : Force Overwrite target files. Use with care.\n"
+    );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -62,6 +71,10 @@ int main( int argc, char** argv )
                 else if( sc_t_equal( argv[ arg_idx ], "-e" ) )
                 {
                     xoico_builder_main_s_set_always_expand( builder_main, true );
+                }
+                else if( sc_t_equal( argv[ arg_idx ], "-f" ) )
+                {
+                    xoico_builder_main_s_set_overwrite_unsigned_planted_files( builder_main, true );
                 }
                 else
                 {
