@@ -18,7 +18,7 @@ $ ./xoico --help
 ## About Xoila
 
 Xoila is the name of a meta language intended to be embedded in C-Header files.
-The xoila-section is enclosed by #ifdef <tag> ... #endif. <tag> is unknown by
+The xoila-section is enclosed by #ifdef \<tag\> ... #endif. \<tag\> is unknown by
 the c-compiler, so it skips over this section. Xoico detects this definition.
 
 Xoila is used in conjunction with the core library of [beth](https://github.com/johsteffens/beth).
