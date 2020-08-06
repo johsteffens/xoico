@@ -1,6 +1,6 @@
 /** This file was generated from beth-plant source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-05T16:32:34Z
+ *  Last File Update: 2020-08-06T09:53:50Z
  *
  *  Copyright and License of this File:
  *
@@ -27,7 +27,7 @@
  *
  */
 
-#include "xoico_xoi_out.h"
+#include "xoico_xoila_out.h"
 #include "bcore_spect.h"
 #include "bcore_spect_inst.h"
 #include "bcore_sr.h"
@@ -396,7 +396,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_builder_target_s )
 "aware xoico_builder"
 "{"
     "st_s => name;"
-    "st_s => extension = \"xoi_out\";"
+    "st_s => extension = \"xoila_out\";"
     "st_s => root;"
     "private aware xoico_builder_main_s* main;"
     "bcore_arr_st_s dependencies;"
@@ -466,9 +466,9 @@ bl_t xoico_builder_main_s_get_overwrite_unsigned_planted_files( const xoico_buil
 
 vd_t bcore_general_signal_handler( const bcore_signal_s* o );
 
-vd_t xoico_xoi_out_signal_handler( const bcore_signal_s* o )
+vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
 {
-    switch( bcore_signal_s_handle_type( o, typeof( "xoico_xoi_out" ) ) )
+    switch( bcore_signal_s_handle_type( o, typeof( "xoico_xoila_out" ) ) )
     {
         case TYPEOF_init1:
         {
@@ -675,4 +675,4 @@ vd_t xoico_xoi_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// BETH_PLANT_SIGNATURE 3762563754
+// BETH_PLANT_SIGNATURE 3485527504

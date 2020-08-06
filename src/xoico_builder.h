@@ -23,16 +23,16 @@
 /**********************************************************************************************************************/
 
 XOILA_DEFINE_GROUP( xoico_builder, xoico )
-#ifdef PLANT_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 /// returns index of target
 signature er_t build( const, sz_t* target_index );
 
 stamp :target = aware :
 {
-    st_s => name;                  // target name
-    st_s => extension = "xoi_out"; // extension used for xoi output files
-    st_s => root;                  // root folder of subsequent file paths (used if they are relative)
+    st_s => name;                    // target name
+    st_s => extension = "xoila_out"; // extension used for xoila output files
+    st_s => root;                    // root folder of subsequent file paths (used if they are relative)
 
     private aware :main_s* main;
 
@@ -125,7 +125,7 @@ stamp :main = aware :
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#endif // PLANT_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 /**********************************************************************************************************************/
 /// XOICO Interface Functions

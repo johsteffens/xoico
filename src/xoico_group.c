@@ -122,13 +122,13 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             }
             else if( bcore_source_a_parse_bl_fa( source, "#?'#ifdef'" ) )
             {
-                XOICO_BLM_SOURCE_PARSE_FA( source, " PLANT_SECTION " );
+                XOICO_BLM_SOURCE_PARSE_FA( source, " XOILA_SECTION " );
                 precode_termination = " #?'#endif'";
                 break;
             }
 
             char c = bcore_source_a_get_u0( source );
-            if( c != ' ' && c != '\t' && c != '\n' ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Opening c-style comment '/*' or '#<sc_t>' expected.", "#ifdef PLANT_SECTION" );
+            if( c != ' ' && c != '\t' && c != '\n' ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Opening c-style comment '/*' or '#<sc_t>' expected.", "#ifdef XOILA_SECTION" );
         }
     }
 

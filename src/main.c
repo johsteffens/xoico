@@ -20,8 +20,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-BETH_PLANT_SIGNAL_OPEN_PLANT( xoico )
-BETH_PLANT_SIGNAL_CLOSE_PLANT( xoico )
+BETH_SIGNAL_DEFINE( xoico )
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -44,7 +43,7 @@ void help( bcore_sink* sink )
 
 int main( int argc, char** argv )
 {
-    BETH_PLANT_USE( xoico );
+    BETH_USE( xoico );
 
     BLM_INIT();
 
@@ -126,7 +125,7 @@ int main( int argc, char** argv )
 
     BLM_DOWN();
 
-    BETH_PLANT_CLOSEV( false );
+    BETH_CLOSEV( false );
 
     return ( er > 0 ) ? 1 : 0;
 }
