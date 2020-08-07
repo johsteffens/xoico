@@ -1,6 +1,6 @@
 /** This file was generated from beth-plant source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-07T17:19:19Z
+ *  Last File Update: 2020-08-07T21:19:45Z
  *
  *  Copyright and License of this File:
  *
@@ -33,9 +33,9 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by the plant-compiler, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 1826166859
+#define HKEYOF_xoico_xoila_out 12404546723022020837
 
-#define TYPEOF_xoico_xoila_out 2236217518
+#define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
 /**********************************************************************************************************************/
 // source: xoico.h
@@ -43,25 +43,25 @@
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico
 
-#define TYPEOF_xoico 1611185117
-#define TYPEOF_xoico_s 2129995343
-#define TYPEOF_mutable 990065577
-#define TYPEOF_const 1716507092
-#define TYPEOF_xoico_name_s 3519129831
-#define TYPEOF_xoico_forward_s 641783197
-#define TYPEOF_xoico_arg_s 2697500904
-#define TYPEOF_xoico_args_s 1415489545
-#define TYPEOF_xoico_signature_s 818563854
-#define TYPEOF_xoico_body_s 832339908
-#define TYPEOF_xoico_feature_s 1265401250
-#define TYPEOF_xoico_func_s 2664635946
-#define TYPEOF_xoico_funcs_s 3506790099
-#define TYPEOF_xoico_stamp_s 3712753863
-#define TYPEOF_xoico_group_s 2789250547
-#define TYPEOF_xoico_nested_group_s 1405676359
-#define TYPEOF_xoico_source_s 4260244989
-#define TYPEOF_xoico_target_s 3461861713
-#define TYPEOF_xoico_compiler_s 2657340073
+#define TYPEOF_xoico 0x21E8B04DB3E31F5Dull
+#define TYPEOF_xoico_s 0xFE9505BA71E233AFull
+#define TYPEOF_mutable 0xD3AC3C45566EFDE9ull
+#define TYPEOF_const 0x65C9718E19E3DF34ull
+#define TYPEOF_xoico_name_s 0x72C1E17E15481547ull
+#define TYPEOF_xoico_forward_s 0x67CE6DD302FEC85Dull
+#define TYPEOF_xoico_arg_s 0xDE77C40AC671BCC8ull
+#define TYPEOF_xoico_args_s 0x40F4054E83F33D09ull
+#define TYPEOF_xoico_signature_s 0xDCE5A3AFBCD17B0Eull
+#define TYPEOF_xoico_body_s 0x12DC29D312AD56E4ull
+#define TYPEOF_xoico_feature_s 0x320F5368E957D0A2ull
+#define TYPEOF_xoico_func_s 0xA748B4C2243B074Aull
+#define TYPEOF_xoico_funcs_s 0x292F82E3F2BEA6D3ull
+#define TYPEOF_xoico_stamp_s 0x012D01D78049FAE7ull
+#define TYPEOF_xoico_group_s 0x0C561A9D047FE9D3ull
+#define TYPEOF_xoico_nested_group_s 0xB4EB0E2A56FB3087ull
+#define TYPEOF_xoico_source_s 0x11BBCC12FF458D9Dull
+#define TYPEOF_xoico_target_s 0x05A0ECAFABEA8CB1ull
+#define TYPEOF_xoico_compiler_s 0xA7C0906C33CBFB69ull
 #define BETH_EXPAND_GROUP_xoico \
   BCORE_FORWARD_OBJECT( xoico ); \
   BCORE_FORWARD_OBJECT( xoico_name_s ); \
@@ -175,9 +175,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_name
 
-#define TYPEOF_xoico_name 531162629
-#define TYPEOF_xoico_name_s 3519129831
-#define TYPEOF_xoico_name_s 3519129831
+#define TYPEOF_xoico_name 0x6D4CB7095C7D7E85ull
+#define TYPEOF_xoico_name_s 0x72C1E17E15481547ull
+#define TYPEOF_xoico_name_s 0x72C1E17E15481547ull
 #define BETH_EXPAND_ITEM_xoico_name_s \
   BCORE_DECLARE_OBJECT( xoico_name_s ) \
     {aware_t _;st_s name;xoico_group_s* group;bcore_source_point_s source_point;}; \
@@ -197,9 +197,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_forward
 
-#define TYPEOF_xoico_forward 1609058635
-#define TYPEOF_xoico_forward_s 641783197
-#define TYPEOF_xoico_forward_s 641783197
+#define TYPEOF_xoico_forward 0x245CC36E5CE3FCEBull
+#define TYPEOF_xoico_forward_s 0x67CE6DD302FEC85Dull
+#define TYPEOF_xoico_forward_s 0x67CE6DD302FEC85Dull
 #define BETH_EXPAND_ITEM_xoico_forward_s \
   BCORE_DECLARE_OBJECT( xoico_forward_s ) \
     {aware_t _;st_s name;xoico_group_s* group;bcore_source_point_s source_point;}; \
@@ -220,9 +220,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_arg
 
-#define TYPEOF_xoico_arg 3316412150
-#define TYPEOF_xoico_arg_s 2697500904
-#define TYPEOF_xoico_arg_s 2697500904
+#define TYPEOF_xoico_arg 0x36BE6A9BF2DBEE36ull
+#define TYPEOF_xoico_arg_s 0xDE77C40AC671BCC8ull
+#define TYPEOF_xoico_arg_s 0xDE77C40AC671BCC8ull
 #define BETH_EXPAND_ITEM_xoico_arg_s \
   BCORE_DECLARE_OBJECT( xoico_arg_s ) \
     {aware_t _;st_s type;st_s name;xoico_group_s* group;bcore_source_point_s source_point;}; \
@@ -241,9 +241,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_args
 
-#define TYPEOF_xoico_args 3010591583
-#define TYPEOF_xoico_args_s 1415489545
-#define TYPEOF_xoico_args_s 1415489545
+#define TYPEOF_xoico_args 0xE17D6BFDABB5DF3Full
+#define TYPEOF_xoico_args_s 0x40F4054E83F33D09ull
+#define TYPEOF_xoico_args_s 0x40F4054E83F33D09ull
 #define BETH_EXPAND_ITEM_xoico_args_s \
   BCORE_DECLARE_OBJECT( xoico_args_s ) \
     {aware_t _;BCORE_ARRAY_DYN_SOLID_STATIC_S( xoico_arg_s, );xoico_group_s* group;}; \
@@ -263,9 +263,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_signature
 
-#define TYPEOF_xoico_signature 2157722668
-#define TYPEOF_xoico_signature_s 818563854
-#define TYPEOF_xoico_signature_s 818563854
+#define TYPEOF_xoico_signature 0x53D29DD556C884CCull
+#define TYPEOF_xoico_signature_s 0xDCE5A3AFBCD17B0Eull
+#define TYPEOF_xoico_signature_s 0xDCE5A3AFBCD17B0Eull
 #define BETH_EXPAND_ITEM_xoico_signature_s \
   BCORE_DECLARE_OBJECT( xoico_signature_s ) \
     {aware_t _;st_s name;st_s global_name;bl_t has_ret;st_s ret_type;xoico_args_s args;tp_t arg_o;xoico_group_s* group;bcore_source_point_s source_point;}; \
@@ -283,9 +283,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_body
 
-#define TYPEOF_xoico_body 2227670106
-#define TYPEOF_xoico_body_s 832339908
-#define TYPEOF_xoico_body_s 832339908
+#define TYPEOF_xoico_body 0x3F9760E55C8626DAull
+#define TYPEOF_xoico_body_s 0x12DC29D312AD56E4ull
+#define TYPEOF_xoico_body_s 0x12DC29D312AD56E4ull
 #define BETH_EXPAND_ITEM_xoico_body_s \
   BCORE_DECLARE_OBJECT( xoico_body_s ) \
     {aware_t _;st_s name;st_s global_name;st_s code;bl_t go_inline;xoico_group_s* group;bcore_source_point_s source_point;}; \
@@ -305,9 +305,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_feature
 
-#define TYPEOF_xoico_feature 1507275896
-#define TYPEOF_xoico_feature_s 1265401250
-#define TYPEOF_xoico_feature_s 1265401250
+#define TYPEOF_xoico_feature 0xBA3331D07ECB3518ull
+#define TYPEOF_xoico_feature_s 0x320F5368E957D0A2ull
+#define TYPEOF_xoico_feature_s 0x320F5368E957D0A2ull
 #define BETH_EXPAND_ITEM_xoico_feature_s \
   BCORE_DECLARE_OBJECT( xoico_feature_s ) \
     {aware_t _;st_s name;st_s global_name;st_s default_name;xoico_body_s* default_body;bl_t strict;bl_t flag_p;bl_t flag_t;bl_t flag_a;bl_t flag_r;bl_t has_ret;st_s ret_type;xoico_args_s args;bl_t mutable;xoico_group_s* group;bcore_source_point_s source_point;}; \
@@ -331,9 +331,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_func
 
-#define TYPEOF_xoico_func 3908734672
-#define TYPEOF_xoico_func_s 2664635946
-#define TYPEOF_xoico_func_s 2664635946
+#define TYPEOF_xoico_func 0x18E354C70B63E0D0ull
+#define TYPEOF_xoico_func_s 0xA748B4C2243B074Aull
+#define TYPEOF_xoico_func_s 0xA748B4C2243B074Aull
 #define BETH_EXPAND_ITEM_xoico_func_s \
   BCORE_DECLARE_OBJECT( xoico_func_s ) \
     {aware_t _;st_s name;st_s decl;tp_t type;bl_t overloadable;xoico_body_s* body;xoico_group_s* group;bcore_source_point_s source_point;}; \
@@ -351,9 +351,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_funcs
 
-#define TYPEOF_xoico_funcs 1701743257
-#define TYPEOF_xoico_funcs_s 3506790099
-#define TYPEOF_xoico_funcs_s 3506790099
+#define TYPEOF_xoico_funcs 0xAE29B1385AB6B4F9ull
+#define TYPEOF_xoico_funcs_s 0x292F82E3F2BEA6D3ull
+#define TYPEOF_xoico_funcs_s 0x292F82E3F2BEA6D3ull
 #define BETH_EXPAND_ITEM_xoico_funcs_s \
   BCORE_DECLARE_OBJECT( xoico_funcs_s ) \
     {aware_t _;BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_func_s, );}; \
@@ -371,9 +371,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_group
 
-#define TYPEOF_xoico_group 4176153593
-#define TYPEOF_xoico_group_s 2789250547
-#define TYPEOF_xoico_group_s 2789250547
+#define TYPEOF_xoico_group 0xF9A247075F113FF9ull
+#define TYPEOF_xoico_group_s 0x0C561A9D047FE9D3ull
+#define TYPEOF_xoico_group_s 0x0C561A9D047FE9D3ull
 #define BETH_EXPAND_ITEM_xoico_group_s \
   BCORE_DECLARE_OBJECT( xoico_group_s ) \
     {aware_t _;BCORE_ARRAY_DYN_LINK_STATIC_S( xoico, );st_s name;xoico_group_s* group;st_s trait_name;tp_t hash;bl_t expandable;bl_t has_features;bl_t is_aware;bl_t retrievable;xoico_stamp_s* extending;xoico_funcs_s funcs;xoico_source_s* source;bcore_source_point_s source_point;}; \
@@ -398,9 +398,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_stamp
 
-#define TYPEOF_xoico_stamp 1853406245
-#define TYPEOF_xoico_stamp_s 3712753863
-#define TYPEOF_xoico_stamp_s 3712753863
+#define TYPEOF_xoico_stamp 0xB3846155856B6F65ull
+#define TYPEOF_xoico_stamp_s 0x012D01D78049FAE7ull
+#define TYPEOF_xoico_stamp_s 0x012D01D78049FAE7ull
 #define BETH_EXPAND_ITEM_xoico_stamp_s \
   BCORE_DECLARE_OBJECT( xoico_stamp_s ) \
     {aware_t _;st_s name;st_s trait_name;st_s* self_source;xoico_funcs_s funcs;xoico_group_s* group;bcore_source_point_s source_point;}; \
@@ -427,9 +427,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_nested_group
 
-#define TYPEOF_xoico_nested_group 577561253
-#define TYPEOF_xoico_nested_group_s 1405676359
-#define TYPEOF_xoico_nested_group_s 1405676359
+#define TYPEOF_xoico_nested_group 0xD97B2B71D0DDAAC5ull
+#define TYPEOF_xoico_nested_group_s 0xB4EB0E2A56FB3087ull
+#define TYPEOF_xoico_nested_group_s 0xB4EB0E2A56FB3087ull
 #define BETH_EXPAND_ITEM_xoico_nested_group_s \
   BCORE_DECLARE_OBJECT( xoico_nested_group_s ) \
     {aware_t _;xoico_group_s* group;}; \
@@ -447,9 +447,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_source
 
-#define TYPEOF_xoico_source 3322080235
-#define TYPEOF_xoico_source_s 4260244989
-#define TYPEOF_xoico_source_s 4260244989
+#define TYPEOF_xoico_source 0x3D61A07AD269C22Bull
+#define TYPEOF_xoico_source_s 0x11BBCC12FF458D9Dull
+#define TYPEOF_xoico_source_s 0x11BBCC12FF458D9Dull
 #define BETH_EXPAND_ITEM_xoico_source_s \
   BCORE_DECLARE_OBJECT( xoico_source_s ) \
     {aware_t _;st_s name;st_s path;tp_t hash;BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_group_s, );xoico_target_s* target;}; \
@@ -471,9 +471,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_target
 
-#define TYPEOF_xoico_target 1096935671
-#define TYPEOF_xoico_target_s 3461861713
-#define TYPEOF_xoico_target_s 3461861713
+#define TYPEOF_xoico_target 0x01BDFA196985FBF7ull
+#define TYPEOF_xoico_target_s 0x05A0ECAFABEA8CB1ull
+#define TYPEOF_xoico_target_s 0x05A0ECAFABEA8CB1ull
 #define BETH_EXPAND_ITEM_xoico_target_s \
   BCORE_DECLARE_OBJECT( xoico_target_s ) \
     {aware_t _;st_s name;st_s path;BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_source_s, );st_s signal_handler_name;bcore_arr_sz_s dependencies;bl_t flag;bl_t modified;st_s* planted_h;st_s* planted_c;xoico_compiler_s* compiler;}; \
@@ -494,9 +494,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_compiler
 
-#define TYPEOF_xoico_compiler 2627246911
-#define TYPEOF_xoico_compiler_s 2657340073
-#define TYPEOF_xoico_compiler_s 2657340073
+#define TYPEOF_xoico_compiler 0x4C5D845108D0785Full
+#define TYPEOF_xoico_compiler_s 0xA7C0906C33CBFB69ull
+#define TYPEOF_xoico_compiler_s 0xA7C0906C33CBFB69ull
 #define BETH_EXPAND_ITEM_xoico_compiler_s \
   BCORE_DECLARE_OBJECT( xoico_compiler_s ) \
     {aware_t _;BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_target_s, );bcore_hmap_tpvd_s hmap_group;bcore_hmap_tpvd_s hmap_item;bcore_life_s life;bl_t register_plain_functions;bl_t register_signatures;bl_t overwrite_unsigned_planted_files;bl_t always_expand;bl_t dry_run;sz_t verbosity;}; \
@@ -525,15 +525,15 @@
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_builder
 
-#define TYPEOF_xoico_builder 3767869353
-#define TYPEOF_xoico_builder_s 3780197667
-#define TYPEOF_xoico_builder_target_s 3715126149
+#define TYPEOF_xoico_builder 0x2BA8E9CE5EBF4289ull
+#define TYPEOF_xoico_builder_s 0x961FA08F4A91C623ull
+#define TYPEOF_xoico_builder_target_s 0xDD8996604907B3C5ull
 #define BETH_EXPAND_ITEM_xoico_builder_target_s \
   BCORE_DECLARE_OBJECT( xoico_builder_target_s ) \
     {aware_t _;st_s* name;st_s* extension;st_s* root;xoico_builder_main_s* main;bcore_arr_st_s dependencies;bcore_arr_st_s sources;st_s* signal_handler;}; \
   void xoico_builder_target_s_source( xoico_builder_target_s* o, bcore_source* source ); \
   er_t xoico_builder_target_s_build( const xoico_builder_target_s* o, sz_t* target_index );
-#define TYPEOF_xoico_builder_main_s 1265567453
+#define TYPEOF_xoico_builder_main_s 0x10B2EBC3A7C03BBDull
 #define BETH_EXPAND_ITEM_xoico_builder_main_s \
   BCORE_DECLARE_OBJECT( xoico_builder_main_s ) \
     {aware_t _;xoico_compiler_s* compiler;bl_t dry_run;bcore_arr_st_s arr_path;}; \
@@ -559,4 +559,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// BETH_PLANT_SIGNATURE  361743793
+// BETH_PLANT_SIGNATURE 7863649887431422586

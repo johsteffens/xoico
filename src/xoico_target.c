@@ -188,7 +188,7 @@ er_t xoico_target_s_expand_h( const xoico_target_s* o, sz_t indent, bcore_sink* 
 
     bcore_sink_a_push_fa( sink, "\n" );
 
-    bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> #<tp_t>\n", indent, o->name.sc, typeof( o->name.sc ) );
+    bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o->name.sc, typeof( o->name.sc ) );
 
     for( sz_t i = 0; i < o->size; i++ ) BLM_TRY( xoico_source_s_expand_declaration( o->data[ i ], indent, sink ) );
 

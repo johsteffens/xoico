@@ -388,11 +388,11 @@ er_t xoico_group_s_expand_declaration( const xoico_group_s* o, sz_t indent, bcor
     bcore_sink_a_push_fa( sink, "#rn{ }// group: #<sc_t>\n", indent, o->name.sc );
 
     bcore_sink_a_push_fa( sink, "\n" );
-    bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> #<tp_t>\n", indent, o->name.sc, typeof( o->name.sc ) );
+    bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o->name.sc, typeof( o->name.sc ) );
 
     {
         st_s* spect_name = BLM_A_PUSH( st_s_create_fa( "#<sc_t>_s", o->name.sc ) );
-        bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> #<tp_t>\n", indent, spect_name->sc, typeof( spect_name->sc ) );
+        bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, spect_name->sc, typeof( spect_name->sc ) );
     }
 
     for( sz_t i = 0; i < o->size; i++ ) BLM_TRY( xoico_a_expand_declaration( o->data[ i ], indent, sink ) );
