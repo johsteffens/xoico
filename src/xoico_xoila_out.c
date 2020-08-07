@@ -1,6 +1,6 @@
 /** This file was generated from beth-plant source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-06T09:53:50Z
+ *  Last File Update: 2020-08-07T17:19:19Z
  *
  *  Copyright and License of this File:
  *
@@ -498,6 +498,8 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_FFUNC( xoico_expand_definition, xoico_expand_definition__ );
             BCORE_REGISTER_FEATURE( xoico_expand_init1 );
             BCORE_REGISTER_FFUNC( xoico_expand_init1, xoico_expand_init1__ );
+            BCORE_REGISTER_NAME( mutable );
+            BCORE_REGISTER_NAME( const );
             BCORE_REGISTER_SPECT( xoico );
 
             // --------------------------------------------------------------------
@@ -675,4 +677,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// BETH_PLANT_SIGNATURE 3485527504
+// BETH_PLANT_SIGNATURE 3111192576

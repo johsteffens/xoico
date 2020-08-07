@@ -1,6 +1,6 @@
 /** This file was generated from beth-plant source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-06T09:53:50Z
+ *  Last File Update: 2020-08-07T17:19:19Z
  *
  *  Copyright and License of this File:
  *
@@ -33,7 +33,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by the plant-compiler, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 3747319114
+#define HKEYOF_xoico_xoila_out 1826166859
 
 #define TYPEOF_xoico_xoila_out 2236217518
 
@@ -45,6 +45,8 @@
 
 #define TYPEOF_xoico 1611185117
 #define TYPEOF_xoico_s 2129995343
+#define TYPEOF_mutable 990065577
+#define TYPEOF_const 1716507092
 #define TYPEOF_xoico_name_s 3519129831
 #define TYPEOF_xoico_forward_s 641783197
 #define TYPEOF_xoico_arg_s 2697500904
@@ -557,4 +559,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// BETH_PLANT_SIGNATURE 2410266599
+// BETH_PLANT_SIGNATURE  361743793

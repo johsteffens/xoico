@@ -43,6 +43,9 @@ feature 'ap' er_t expand_indef_declaration  ( const, sz_t indent, bcore_sink* si
 feature 'ap' er_t expand_definition         ( const, sz_t indent, bcore_sink* sink ) = { return 0; };
 feature 'ap' er_t expand_init1              ( const, sz_t indent, bcore_sink* sink ) = { return 0; };
 
+name mutable;
+name const;
+
 forward :name_s;
 forward :forward_s;
 forward :arg_s;
