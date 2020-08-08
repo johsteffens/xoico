@@ -39,7 +39,7 @@ stamp :target = aware :
     bcore_arr_st_s dependencies;   // dependent target definitions
     bcore_arr_st_s sources;        // array of source files
 
-    /** Function name of principal signal handler for this plant
+    /** Function name of principal signal handler for this target
      *  If not defined, it is assumed that the name is <name>_general_signal_handler
      */
     st_s => signal_handler;
@@ -68,8 +68,8 @@ signature bl_t get_dry_run( const );
 signature er_t set_always_expand( mutable, bl_t v );
 signature bl_t get_always_expand( const );
 
-signature er_t set_overwrite_unsigned_planted_files( mutable, bl_t v );
-signature bl_t get_overwrite_unsigned_planted_files( const );
+signature er_t set_overwrite_unsigned_target_files( mutable, bl_t v );
+signature bl_t get_overwrite_unsigned_target_files( const );
 
 stamp :main = aware :
 {
@@ -111,15 +111,15 @@ stamp :main = aware :
         return o->compiler->always_expand;
     };
 
-    func : :set_overwrite_unsigned_planted_files =
+    func : :set_overwrite_unsigned_target_files =
     {
-        o->compiler->overwrite_unsigned_planted_files = v;
+        o->compiler->overwrite_unsigned_target_files = v;
         return 0;
     };
 
-    func : :get_overwrite_unsigned_planted_files =
+    func : :get_overwrite_unsigned_target_files =
     {
-        return o->compiler->overwrite_unsigned_planted_files;
+        return o->compiler->overwrite_unsigned_target_files;
     };
 };
 
@@ -130,13 +130,13 @@ stamp :main = aware :
 /**********************************************************************************************************************/
 /// XOICO Interface Functions
 
-/// build plant from configuration file (thread safe)
+/// build target from configuration file (thread safe)
 er_t xoico_build_from_file( sc_t path );
 
-/// Checks if compiled plants require an update of the corresponding panted files (thread safe)
+/// Checks if compiled targets require an update of the corresponding target files (thread safe)
 bl_t xoico_update_required( void );
 
-/// Updates all planted files that require an update; returns true if any file was modified. (thread safe)
+/// Updates all target files that require an update; returns true if any file was modified. (thread safe)
 er_t xoico_update( bl_t* modified );
 
 //----------------------------------------------------------------------------------------------------------------------

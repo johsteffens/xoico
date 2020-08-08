@@ -72,7 +72,7 @@ er_t xoico_builder_target_s_build( const xoico_builder_target_s* o, sz_t* p_targ
         {
             ERR_fa
             (
-                "Building source '#<sc_t>' in plant '#<sc_t>':\n"
+                "Building source '#<sc_t>' in target '#<sc_t>':\n"
                 "Target index mismatch.\n"
                 "This problem occurs when a target defines sources from different directories.\n",
                 o->sources.data[ i ]->sc,
@@ -133,7 +133,7 @@ er_t xoico_builder_main_s_build_from_file_get_target_index( xoico_builder_main_s
 
         if( xoico_compiler_s_get_verbosity( o->compiler ) > 0 )
         {
-            bcore_msg_fa( "BETH_PLANT: building #<sc_t>\n", st_path->sc );
+            bcore_msg_fa( "XOICO: building #<sc_t>\n", st_path->sc );
         }
 
         if( !bcore_file_exists( st_path->sc ) )
@@ -175,7 +175,7 @@ er_t xoico_builder_main_s_update( const xoico_builder_main_s* o )
     if( bcore_error_stack_size() > 0 ) return TYPEOF_error_stack;
     BLM_INIT();
     o->compiler->dry_run = o->dry_run;
-    BLM_TRY( xoico_compiler_s_update_planted_files( o->compiler, NULL ) );
+    BLM_TRY( xoico_compiler_s_update_target_files( o->compiler, NULL ) );
     BLM_RETURNV( er_t, 0 );
 }
 

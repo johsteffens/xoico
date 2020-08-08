@@ -34,7 +34,7 @@ signature bl_t is_cyclic( mutable ); // mutable because flag is used for cyclic 
 
 stamp : = aware :
 {
-    st_s name; // target name (e.g. "bcore_plant")
+    st_s name; // target name (e.g. "bcore")
     st_s path; // path excluding extension
     xoico_source_s => [];
     func xoico : finalize;
@@ -42,9 +42,9 @@ stamp : = aware :
     bcore_arr_sz_s dependencies; // index array to dependent targets
     bl_t flag; // general purpose flag
 
-    bl_t modified;     // target is to be modified
-    st_s => planted_h; // planted header file
-    st_s => planted_c; // planted c file
+    bl_t modified;    // target is to be modified
+    st_s => target_h; // target header file
+    st_s => target_c; // target c file
 
     private aware xoico_compiler_s* compiler;
 

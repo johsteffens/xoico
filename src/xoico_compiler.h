@@ -38,7 +38,7 @@ signature er_t setup                         ( mutable );
 signature er_t compile                       ( mutable, sc_t target_name, sc_t source_path, sz_t* p_target_index );
 signature er_t set_target_signal_handler_name( mutable, sz_t target_index, sc_t name );
 signature er_t set_target_dependencies       ( mutable, sz_t target_index, const bcore_arr_sz_s* dependencies );
-signature er_t update_planted_files          ( mutable, bl_t* p_modified );
+signature er_t update_target_files          ( mutable, bl_t* p_modified );
 signature bl_t update_required               ( mutable );
 signature sz_t get_verbosity                 ( const );
 
@@ -52,7 +52,7 @@ stamp : = aware :
     // parameters
     bl_t register_plain_functions         = true;
     bl_t register_signatures              = false;
-    bl_t overwrite_unsigned_planted_files = false;
+    bl_t overwrite_unsigned_target_files = false;
     bl_t always_expand                    = false; // true: always expands targets even when the hash has not changed;
     bl_t dry_run                          = false; // dry_run: performs target computation but does not update target files
     sz_t verbosity                        = 1;
@@ -71,7 +71,7 @@ stamp : = aware :
     func : :compile;
     func : :set_target_signal_handler_name;
     func : :set_target_dependencies;
-    func : :update_planted_files;
+    func : :update_target_files;
     func : :update_required;
     func : :get_verbosity;
 };

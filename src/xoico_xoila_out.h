@@ -1,10 +1,10 @@
-/** This file was generated from beth-plant source code.
+/** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-07T21:19:45Z
+ *  Last File Update: 2020-08-08T08:54:05Z
  *
  *  Copyright and License of this File:
  *
- *  Generated code inherits the copyright and license of the underlying beth-plant source code.
+ *  Generated code inherits the copyright and license of the underlying xoila source code.
  *  Source code defining this file is distributed across following files:
  *
  *  xoico.h
@@ -32,8 +32,8 @@
 
 #include "bcore_control.h"
 
-//To force a rebuild of this target by the plant-compiler, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 12404546723022020837
+//To force a rebuild of this target by xoico, reset the hash key value below to 0.
+#define HKEYOF_xoico_xoila_out 0x9C56484DBADCF007ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -476,7 +476,7 @@
 #define TYPEOF_xoico_target_s 0x05A0ECAFABEA8CB1ull
 #define BETH_EXPAND_ITEM_xoico_target_s \
   BCORE_DECLARE_OBJECT( xoico_target_s ) \
-    {aware_t _;st_s name;st_s path;BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_source_s, );st_s signal_handler_name;bcore_arr_sz_s dependencies;bl_t flag;bl_t modified;st_s* planted_h;st_s* planted_c;xoico_compiler_s* compiler;}; \
+    {aware_t _;st_s name;st_s path;BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_source_s, );st_s signal_handler_name;bcore_arr_sz_s dependencies;bl_t flag;bl_t modified;st_s* target_h;st_s* target_c;xoico_compiler_s* compiler;}; \
   er_t xoico_target_s_finalize( xoico_target_s* o ); \
   er_t xoico_target_s_parse( xoico_target_s* o, sc_t source_path ); \
   bl_t xoico_target_s_to_be_modified( const xoico_target_s* o ); \
@@ -499,7 +499,7 @@
 #define TYPEOF_xoico_compiler_s 0xA7C0906C33CBFB69ull
 #define BETH_EXPAND_ITEM_xoico_compiler_s \
   BCORE_DECLARE_OBJECT( xoico_compiler_s ) \
-    {aware_t _;BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_target_s, );bcore_hmap_tpvd_s hmap_group;bcore_hmap_tpvd_s hmap_item;bcore_life_s life;bl_t register_plain_functions;bl_t register_signatures;bl_t overwrite_unsigned_planted_files;bl_t always_expand;bl_t dry_run;sz_t verbosity;}; \
+    {aware_t _;BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_target_s, );bcore_hmap_tpvd_s hmap_group;bcore_hmap_tpvd_s hmap_item;bcore_life_s life;bl_t register_plain_functions;bl_t register_signatures;bl_t overwrite_unsigned_target_files;bl_t always_expand;bl_t dry_run;sz_t verbosity;}; \
   er_t xoico_compiler_s_finalize( xoico_compiler_s* o ); \
   const xoico* xoico_compiler_s_item_get( const xoico_compiler_s* o, tp_t item_id ); \
   bl_t xoico_compiler_s_item_exists( const xoico_compiler_s* o, tp_t item_id ); \
@@ -511,7 +511,7 @@
   er_t xoico_compiler_s_compile( xoico_compiler_s* o, sc_t target_name, sc_t source_path, sz_t* p_target_index ); \
   er_t xoico_compiler_s_set_target_signal_handler_name( xoico_compiler_s* o, sz_t target_index, sc_t name ); \
   er_t xoico_compiler_s_set_target_dependencies( xoico_compiler_s* o, sz_t target_index, const bcore_arr_sz_s* dependencies ); \
-  er_t xoico_compiler_s_update_planted_files( xoico_compiler_s* o, bl_t* p_modified ); \
+  er_t xoico_compiler_s_update_target_files( xoico_compiler_s* o, bl_t* p_modified ); \
   bl_t xoico_compiler_s_update_required( xoico_compiler_s* o ); \
   sz_t xoico_compiler_s_get_verbosity( const xoico_compiler_s* o );
 #define BETH_EXPAND_GROUP_xoico_compiler \
@@ -545,8 +545,8 @@
   bl_t xoico_builder_main_s_get_dry_run( const xoico_builder_main_s* o ); \
   er_t xoico_builder_main_s_set_always_expand( xoico_builder_main_s* o, bl_t v ); \
   bl_t xoico_builder_main_s_get_always_expand( const xoico_builder_main_s* o ); \
-  er_t xoico_builder_main_s_set_overwrite_unsigned_planted_files( xoico_builder_main_s* o, bl_t v ); \
-  bl_t xoico_builder_main_s_get_overwrite_unsigned_planted_files( const xoico_builder_main_s* o );
+  er_t xoico_builder_main_s_set_overwrite_unsigned_target_files( xoico_builder_main_s* o, bl_t v ); \
+  bl_t xoico_builder_main_s_get_overwrite_unsigned_target_files( const xoico_builder_main_s* o );
 #define BETH_EXPAND_GROUP_xoico_builder \
   BCORE_FORWARD_OBJECT( xoico_builder ); \
   BCORE_FORWARD_OBJECT( xoico_builder_target_s ); \
@@ -559,4 +559,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// BETH_PLANT_SIGNATURE 7863649887431422586
+// XOILA_OUT_SIGNATURE 0x9DC7F6202530CCE8ull

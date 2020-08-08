@@ -1,6 +1,6 @@
 /** This file was generated from beth-plant source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-07T21:19:45Z
+ *  Last File Update: 2020-08-08T08:49:15Z
  *
  *  Copyright and License of this File:
  *
@@ -357,8 +357,8 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_target_s )
     "bcore_arr_sz_s dependencies;"
     "bl_t flag;"
     "bl_t modified;"
-    "st_s => planted_h;"
-    "st_s => planted_c;"
+    "st_s => target_h;"
+    "st_s => target_c;"
     "private aware xoico_compiler_s* compiler;"
 "}";
 
@@ -378,7 +378,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_compiler_s )
     "hidden bcore_life_s life;"
     "bl_t register_plain_functions = true;"
     "bl_t register_signatures = false;"
-    "bl_t overwrite_unsigned_planted_files = false;"
+    "bl_t overwrite_unsigned_target_files = false;"
     "bl_t always_expand = false;"
     "bl_t dry_run = false;"
     "sz_t verbosity = 1;"
@@ -451,15 +451,15 @@ bl_t xoico_builder_main_s_get_always_expand( const xoico_builder_main_s* o )
     return o->compiler->always_expand;
 }
 
-er_t xoico_builder_main_s_set_overwrite_unsigned_planted_files( xoico_builder_main_s* o, bl_t v )
+er_t xoico_builder_main_s_set_overwrite_unsigned_target_files( xoico_builder_main_s* o, bl_t v )
 {
-    o->compiler->overwrite_unsigned_planted_files = v;
+    o->compiler->overwrite_unsigned_target_files = v;
     return 0;
 }
 
-bl_t xoico_builder_main_s_get_overwrite_unsigned_planted_files( const xoico_builder_main_s* o )
+bl_t xoico_builder_main_s_get_overwrite_unsigned_target_files( const xoico_builder_main_s* o )
 {
-    return o->compiler->overwrite_unsigned_planted_files;
+    return o->compiler->overwrite_unsigned_target_files;
 }
 
 /**********************************************************************************************************************/
@@ -677,4 +677,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// BETH_PLANT_SIGNATURE 7466590363529445488
+// XOILA_OUT_SIGNATURE 0x4F8AEB61BEFAF819ull

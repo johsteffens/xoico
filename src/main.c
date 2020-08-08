@@ -52,7 +52,6 @@ int main( int argc, char** argv )
 
     sz_t arg_idx = 1;
 
-    // plant
     if( argc > 1 )
     {
         if( sc_t_equal( argv[ arg_idx ], "--help" ) )
@@ -73,7 +72,7 @@ int main( int argc, char** argv )
                 }
                 else if( sc_t_equal( argv[ arg_idx ], "-f" ) )
                 {
-                    xoico_builder_main_s_set_overwrite_unsigned_planted_files( builder_main, true );
+                    xoico_builder_main_s_set_overwrite_unsigned_target_files( builder_main, true );
                 }
                 else
                 {

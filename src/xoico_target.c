@@ -56,7 +56,7 @@ er_t xoico_target_s_parse( xoico_target_s* o, sc_t source_path )
             BLM_TRY( xoico_source_s_parse( xsource, BLM_A_PUSH( bcore_file_open_source( source_path_h->sc ) ) ) );
         }
 
-        // parsing *.c files is generally not helpful  (currently plant code can only reside in header files)
+        // parsing *.c files is generally not helpful  (currently xoila code can only reside in header files)
         // if( bcore_file_exists( source_path_c->sc ) ) xoico_source_s_parse( xsource, BLM_A_PUSH( bcore_file_open_source( source_path_c->sc ) ) );
 
         bcore_array_a_push( ( bcore_array* )o, sr_asd( bcore_fork( xsource ) ) );
@@ -135,7 +135,7 @@ bl_t xoico_target_s_is_cyclic( xoico_target_s* o )
 er_t xoico_target_s_expand_heading( const xoico_target_s* o, sz_t indent, bcore_sink* sink )
 {
     BLM_INIT();
-    bcore_sink_a_push_fa( sink, "/** This file was generated from beth-plant source code.\n" );
+    bcore_sink_a_push_fa( sink, "/** This file was generated from xoila source code.\n" );
     bcore_sink_a_push_fa( sink, " *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens\n" );
     bcore_sink_a_push_fa( sink, " *  Last File Update: " );
     {
@@ -148,7 +148,7 @@ er_t xoico_target_s_expand_heading( const xoico_target_s* o, sz_t indent, bcore_
     bcore_sink_a_push_fa( sink, " *\n" );
     bcore_sink_a_push_fa( sink, " *  Copyright and License of this File:\n" );
     bcore_sink_a_push_fa( sink, " *\n" );
-    bcore_sink_a_push_fa( sink, " *  Generated code inherits the copyright and license of the underlying beth-plant source code.\n" );
+    bcore_sink_a_push_fa( sink, " *  Generated code inherits the copyright and license of the underlying xoila source code.\n" );
     bcore_sink_a_push_fa( sink, " *  Source code defining this file is distributed across following files:\n" );
     bcore_sink_a_push_fa( sink, " *\n" );
 
@@ -183,8 +183,8 @@ er_t xoico_target_s_expand_h( const xoico_target_s* o, sz_t indent, bcore_sink* 
 
     bcore_sink_a_push_fa( sink, "\n" );
 
-    bcore_sink_a_push_fa( sink, "#rn{ }//To force a rebuild of this target by the plant-compiler, reset the hash key value below to 0.\n", indent, o->name.sc, target_hash );
-    bcore_sink_a_push_fa( sink, "#rn{ }##define HKEYOF_#<sc_t> #<tp_t>\n", indent, o->name.sc, target_hash );
+    bcore_sink_a_push_fa( sink, "#rn{ }//To force a rebuild of this target by xoico, reset the hash key value below to 0.\n", indent, o->name.sc, target_hash );
+    bcore_sink_a_push_fa( sink, "#rn{ }##define HKEYOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o->name.sc, target_hash );
 
     bcore_sink_a_push_fa( sink, "\n" );
 
@@ -318,18 +318,18 @@ bl_t xoico_target_s_to_be_modified( const xoico_target_s* o )
 er_t xoico_target_s_expand_phase1( xoico_target_s* o, bl_t* p_modified )
 {
     BLM_INIT();
-    st_s_detach( &o->planted_h );
-    st_s_detach( &o->planted_c );
+    st_s_detach( &o->target_h );
+    st_s_detach( &o->target_c );
     o->modified = false;
 
     if( xoico_target_s_to_be_modified( o ) )
     {
-        o->planted_h = st_s_create();
-        o->planted_c = st_s_create();
+        o->target_h = st_s_create();
+        o->target_c = st_s_create();
         if( !o->compiler->dry_run )
         {
-            BLM_TRY( xoico_target_s_expand_h( o, 0, ( bcore_sink* )o->planted_h ) );
-            BLM_TRY( xoico_target_s_expand_c( o, 0, ( bcore_sink* )o->planted_c ) );
+            BLM_TRY( xoico_target_s_expand_h( o, 0, ( bcore_sink* )o->target_h ) );
+            BLM_TRY( xoico_target_s_expand_c( o, 0, ( bcore_sink* )o->target_c ) );
         }
         else
         {
@@ -354,7 +354,7 @@ static er_t write_with_signature( sc_t file, const st_s* data )
     tp_t hash = bcore_tp_fold_sc( bcore_tp_init(), data->sc );
     bcore_sink* sink = BLM_A_PUSH( bcore_file_open_sink( file ) );
     bcore_sink_a_push_data( sink, data->data, data->size );
-    bcore_sink_a_push_fa( sink, "// BETH_PLANT_SIGNATURE #pl10 {#<tp_t>}\n", hash );
+    bcore_sink_a_push_fa( sink, "// XOILA_OUT_SIGNATURE 0x#pl16'0'{#X<tp_t>}ull\n", hash );
     BLM_RETURNV( er_t, 0 );
 }
 
@@ -366,8 +366,8 @@ er_t xoico_target_s_expand_phase2( xoico_target_s* o, bl_t* p_modified )
     BLM_INIT();
     if( !o->modified ) BLM_RETURNV( er_t, 0 );
 
-    ASSERT( o->planted_h );
-    ASSERT( o->planted_c );
+    ASSERT( o->target_h );
+    ASSERT( o->target_c );
 
     st_s* file_h = BLM_A_PUSH( st_s_create_fa( "#<sc_t>.h", o->path.sc ) );
     st_s* file_c = BLM_A_PUSH( st_s_create_fa( "#<sc_t>.c", o->path.sc ) );
@@ -376,10 +376,10 @@ er_t xoico_target_s_expand_phase2( xoico_target_s* o, bl_t* p_modified )
     BLM_TRY( xoico_compiler_s_check_overwrite( o->compiler, file_c->sc ) );
 
     bcore_msg_fa( "writing '#<sc_t>'\n", file_h->sc );
-    write_with_signature( file_h->sc, o->planted_h );
+    write_with_signature( file_h->sc, o->target_h );
 
     bcore_msg_fa( "writing '#<sc_t>'\n", file_c->sc );
-    write_with_signature( file_c->sc, o->planted_c );
+    write_with_signature( file_c->sc, o->target_c );
 
     if( p_modified ) *p_modified = o->modified;
     BLM_RETURNV( er_t, 0 );

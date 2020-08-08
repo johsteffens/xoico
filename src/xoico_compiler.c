@@ -28,16 +28,16 @@ bl_t xoico_compiler_is_signed( sc_t file )
     st_s* data = BLM_CREATE( st_s );
     while( !bcore_source_a_eos( source ) ) st_s_push_char( data, bcore_source_a_get_u0( source ) );
 
-    if( data->size < bcore_strlen( "// BETH_PLANT_SIGNATURE" ) ) BLM_RETURNV( bl_t, false );
+    if( data->size < bcore_strlen( "// XOILA_OUT_SIGNATURE" ) ) BLM_RETURNV( bl_t, false );
 
     sz_t idx = data->size - 1;
     while( idx >= 0 && data->data[ idx ] != '/' ) idx--;
     if( idx > 0 ) idx--;
 
-    if( st_s_find_sc( data, idx, -1, "// BETH_PLANT_SIGNATURE" ) != idx ) BLM_RETURNV( bl_t, false );
+    if( st_s_find_sc( data, idx, -1, "// XOILA_OUT_SIGNATURE" ) != idx ) BLM_RETURNV( bl_t, false );
 
     tp_t hash = 0;
-    st_s_parse_fa( data, idx, -1, "// BETH_PLANT_SIGNATURE #<tp_t*>", &hash );
+    st_s_parse_fa( data, idx, -1, "// XOILA_OUT_SIGNATURE #<tp_t*>", &hash );
 
     data->data[ idx ] = 0;
 
@@ -57,18 +57,18 @@ er_t xoico_compiler_s_check_overwrite( const xoico_compiler_s* o, sc_t file )
     {
         st_s* s = BLM_CREATE( st_s );
         st_s_push_fa( s, "Planted file #<sc_t>: Signature check failed.\n", file );
-        st_s_push_fa( s, "This file might have been created or edited outside the plant framework.\n" );
-        if( o->overwrite_unsigned_planted_files )
+        st_s_push_fa( s, "This file might have been created or edited outside the xoico framework.\n" );
+        if( o->overwrite_unsigned_target_files )
         {
-            st_s_push_fa( s, "Flag 'overwrite_unsigned_planted_files' is 'true'. The file will be overwritten.\n" );
+            st_s_push_fa( s, "Flag 'overwrite_unsigned_target_files' is 'true'. The file will be overwritten.\n" );
             bcore_sink_a_push_fa( BCORE_STDERR, "\nWARNING: #<sc_t>\n", s->sc );
         }
         else
         {
-            st_s_push_fa( s, "The plant compiler has currently no permission to overwrite unsigned planted files.\n" );
+            st_s_push_fa( s, "Xoico has currently no permission to overwrite unsigned target files.\n" );
             st_s_push_fa( s, "You can fix it in one of following ways:\n" );
             st_s_push_fa( s, "* Rename or move the file.\n" );
-            st_s_push_fa( s, "* Allow overwrite by setting flag 'overwrite_unsigned_planted_files' 'true'.\n" );
+            st_s_push_fa( s, "* Allow overwrite by setting flag 'overwrite_unsigned_target_files' 'true'.\n" );
             st_s_push_fa( s, "* Use command line flag '-f'.\n" );
             BLM_RETURNV( er_t, bcore_error_push_fa( TYPEOF_general_error, "\nERROR: #<sc_t>\n", s->sc ) );
         }
@@ -248,7 +248,7 @@ er_t xoico_compiler_s_setup( xoico_compiler_s* o )
     if( bcore_file_find_descend( dir_name->sc, ".xoico_compiler.cfg", cfg_file ) )
     {
         bcore_txt_ml_a_from_file( o, cfg_file->sc );
-        if( o->verbosity > 0 ) bcore_msg_fa( "BETH_PLANT: Using '#<sc_t>'\n", cfg_file->sc );
+        if( o->verbosity > 0 ) bcore_msg_fa( "XOICO: Using '#<sc_t>'\n", cfg_file->sc );
     }
 
     BLM_RETURNV( er_t, 0 );
@@ -291,7 +291,7 @@ er_t xoico_compiler_s_set_target_dependencies( xoico_compiler_s* o, sz_t target_
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_compiler_s_update_planted_files( xoico_compiler_s* o, bl_t* p_modified )
+er_t xoico_compiler_s_update_target_files( xoico_compiler_s* o, bl_t* p_modified )
 {
     BLM_INIT();
     bl_t modified = false;
@@ -301,8 +301,8 @@ er_t xoico_compiler_s_update_planted_files( xoico_compiler_s* o, bl_t* p_modifie
     ABS_TIME_OF( BLM_TRY( xoico_compiler_s_expand( o, &modified ) ), time );
     if( modified )
     {
-        if( verbosity > 0 ) bcore_msg_fa( "BETH_PLANT: Expanded in #<f3_t> sec.\n", time );
-        if( verbosity > 0 ) bcore_msg_fa( "BETH_PLANT: Files were updated. Rebuild is necessary.\n" );
+        if( verbosity > 0 ) bcore_msg_fa( "XOICO: Expanded in #<f3_t> sec.\n", time );
+        if( verbosity > 0 ) bcore_msg_fa( "XOICO: Files were updated. Rebuild is necessary.\n" );
     }
 
     if( p_modified ) *p_modified = modified;
