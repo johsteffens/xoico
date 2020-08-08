@@ -206,18 +206,6 @@ er_t xoico_stamp_s_resolve_chars( const xoico_stamp_s* o, st_s* string )
             case '@':
             {
                 st_s_push_sc( buf, o->name.sc );
-                char next = string->data[ i + 1 ];
-
-                /// TODO: Remove this check when all old code has been corrected
-                if( ( next >= 'A' && next <= 'Z' ) || ( next >= 'a' && next <= 'z' )|| ( next >= '0' && next <= '9' ) )
-                {
-                    XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA
-                    (
-                        &o->source_point,
-                        "'#<sc_t>':\nCharacter '@': Automatic underscoring is deprecated. Place manual '_' please.",
-                        string->sc
-                    );
-                }
             }
             break;
 
