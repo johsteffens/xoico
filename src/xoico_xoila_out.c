@@ -1,10 +1,10 @@
-/** This file was generated from beth-plant source code.
+/** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-08T08:49:15Z
+ *  Last File Update: 2020-08-08T09:50:17Z
  *
  *  Copyright and License of this File:
  *
- *  Generated code inherits the copyright and license of the underlying beth-plant source code.
+ *  Generated code inherits the copyright and license of the underlying xoila source code.
  *  Source code defining this file is distributed across following files:
  *
  *  xoico.h
@@ -677,4 +677,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0x4F8AEB61BEFAF819ull
+// XOILA_OUT_SIGNATURE 0x3DE488F601B203CAull
