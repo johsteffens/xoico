@@ -33,6 +33,9 @@ signature er_t expand_definition(    const, sz_t indent, bcore_sink* sink );
 signature er_t expand_init1(         const, sz_t indent, bcore_sink* sink );
 signature xoico_compiler_s* get_compiler( const );
 
+/// source stack to handle includes
+stamp :source_stack = aware bcore_array { aware bcore_source -> []; };
+
 stamp : = aware :
 {
     aware xoico => []; // group elements

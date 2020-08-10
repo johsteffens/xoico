@@ -19,7 +19,7 @@ Copyright and License of generated code:
 
 Usage:
 XOILA_DEFINE_GROUP( <group_name>, <trait_name> )
-<xoila-opener>
+#ifdef XOILA_SECTION
     signature <ret> <func_name>( {plain | const | mutable}, <args> );
            plain: plain function (no object pointer as first argument)
            const:   const member function;   first argument: const @* o
@@ -46,8 +46,10 @@ XOILA_DEFINE_GROUP( <group_name>, <trait_name> )
 
     group <name> = [<trait>] { ... }; // sub-group; inheriting from parent: 'extending', 'func'
 
+    include "<include path>";
+
     ...
-<xoila-closer>
+#endif // <xoila-closer>
 
 xoila-opener:
   c-style comment-opener or '#ifdef XOILA_SECTION'
@@ -182,3 +184,8 @@ set:
             This requires extra memory and is normally not recommended.
             It is useful when objects are intended to be always reverse-traceable by trait.
 
+----------------------------------------------------------------------------------------------
+
+include:
+  Includes the content of a file into the section.
+  A relative path is considered relative to the given file location

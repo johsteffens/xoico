@@ -98,6 +98,10 @@ er_t xoico_group_s_parse_name( xoico_group_s* o, st_s* name, bcore_source* sourc
 er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
 {
     BLM_INIT();
+
+    xoico_group_source_stack_s* stack = BLM_CREATE( xoico_group_source_stack_s );
+    xoico_group_source_stack_s_push_d( stack, bcore_fork( source ) );
+
     sc_t precode_termination = NULL;
 
     bcore_source_point_s_set( &o->source_point, source );
@@ -134,27 +138,36 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
 
     bl_t extend_stump = false;
 
-    while( !bcore_source_a_parse_bl_fa( source, precode_termination ) )
+    while( stack->size >= 2 || !bcore_source_a_parse_bl_fa( source, precode_termination ) )
     {
-        if( bcore_source_a_eos( source ) ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Closing c-style comment '*/' expected." );
-
+        BLM_INIT();
         xoico* item = NULL;
 
-        if( bcore_source_a_parse_bl_fa( source, " #?w'stamp' " ) )
+        if( bcore_source_a_eos( source ) )
         {
-            BLM_INIT();
+            if( stack->size >= 2 )
+            {
+                bcore_source_a_detach( &stack->data[ stack->size - 1 ] );
+                source = stack->data[ stack->size - 2 ];
+                xoico_group_source_stack_s_set_size( stack, stack->size - 1 );
+            }
+            else
+            {
+                XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Unexpected end of file." );
+            }
+        }
+        else if( bcore_source_a_parse_bl_fa( source, " #?w'stamp' " ) )
+        {
             xoico_stamp_s* stamp = BLM_CREATE( xoico_stamp_s );
             stamp->group = o->group;
             BLM_TRY( xoico_stamp_s_parse( stamp, o, source ) );
             BLM_TRY( xoico_compiler_s_item_register( xoico_group_s_get_compiler( o ), ( xoico* )stamp, source ) );
             item = ( xoico* )bcore_fork( stamp );
-            BLM_DOWN();
         }
 
         /// stumps are 'hidden' stamps (not expanded into final code), but they can be used as template
         else if( bcore_source_a_parse_bl_fa( source, " #?w'stump' " ) )
         {
-            BLM_INIT();
             xoico_stamp_s* stump = BLM_CREATE( xoico_stamp_s );
             BLM_TRY( xoico_stamp_s_parse( stump, o, source ) );
             BLM_TRY( xoico_stamp_s_make_funcs_overloadable( stump ) );
@@ -166,33 +179,27 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
                 extend_stump = false;
             }
             item = NULL;
-            BLM_DOWN();
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'signature' " ) )
         {
-            BLM_INIT();
             xoico_signature_s* signature = BLM_CREATE( xoico_signature_s );
             signature->group = o;
             BLM_TRY( xoico_signature_s_parse( signature, source ) );
             XOICO_BLM_SOURCE_PARSE_FA( source, " ; " );
             BLM_TRY( xoico_compiler_s_item_register( xoico_group_s_get_compiler( o ), ( xoico* )signature, source ) );
             item = ( xoico* )bcore_fork( signature );
-            BLM_DOWN();
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'body' " ) )
         {
-            BLM_INIT();
             xoico_body_s* body = BLM_CREATE( xoico_body_s );
             body->group = o;
             BLM_TRY( xoico_body_s_parse( body, NULL, source ) );
             XOICO_BLM_SOURCE_PARSE_FA( source, " ; " );
             BLM_TRY( xoico_compiler_s_item_register( xoico_group_s_get_compiler( o ), ( xoico* )body, source ) );
             item = ( xoico* )bcore_fork( body );
-            BLM_DOWN();
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'feature' " ) )
         {
-            BLM_INIT();
             xoico_feature_s* feature = BLM_CREATE( xoico_feature_s );
             feature->group = o;
             BLM_TRY( xoico_feature_s_parse( feature, source ) );
@@ -200,25 +207,20 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             o->has_features = true;
             if( feature->flag_a ) o->is_aware = true;
             item = ( xoico* )bcore_fork( feature );
-            BLM_DOWN();
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'name' " ) )
         {
-            BLM_INIT();
             xoico_name_s* name = BLM_CREATE( xoico_name_s );
             name->group = o;
             BLM_TRY( xoico_name_s_parse( name, source ) );
             item = ( xoico* )bcore_fork( name );
-            BLM_DOWN();
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'forward' " ) )
         {
-            BLM_INIT();
             xoico_forward_s* forward = BLM_CREATE( xoico_forward_s );
             forward->group = o;
             BLM_TRY( xoico_forward_s_parse( forward, source ) );
             item = ( xoico* )bcore_fork( forward );
-            BLM_DOWN();
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'expandable'" ) )
         {
@@ -256,7 +258,6 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'func'" ) )
         {
-            BLM_INIT();
             xoico_func_s* func = BLM_CREATE( xoico_func_s );
             func->group = o;
             xoico_func_s_parse( func, NULL, source );
@@ -271,11 +272,9 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             {
                 bcore_array_a_push( ( bcore_array* )&o->funcs, sr_asd( bcore_fork( func ) ) );
             }
-            BLM_DOWN();
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'group' " ) )
         {
-            BLM_INIT();
             xoico_group_s* group = BLM_CREATE( xoico_group_s );
             BLM_TRY( xoico_source_s_push_group( o->source, bcore_fork( group ) ) );
             group->group       = o;
@@ -296,7 +295,6 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             xoico_nested_group_s* nested_group = BLM_CREATE( xoico_nested_group_s );
             nested_group->group = group;
             item = ( xoico* )bcore_fork( nested_group );
-            BLM_DOWN();
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'set' " ) )
         {
@@ -311,20 +309,65 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
 
             XOICO_BLM_SOURCE_PARSE_FA( source, " ;" );
         }
+        else if( bcore_source_a_parse_bl_fa( source, " #?w'include' " ) )
+        {
+            st_s* folder = BLM_A_PUSH( bcore_file_folder_path( bcore_source_a_get_file( source ) ) );
+            if( folder->size == 0 ) st_s_push_char( folder, '.' );
+            st_s* file = BLM_CREATE( st_s );
+            XOICO_BLM_SOURCE_PARSE_FA( source, " #string" , file );
+            XOICO_BLM_SOURCE_PARSE_FA( source, " ;" );
+
+            bcore_arr_st_s_push_st( &o->source->target->explicit_includes, file );
+
+            st_s* path = BLM_CREATE( st_s );
+            if( file->sc[ 0 ] == '/' )
+            {
+                st_s_copy( path, file );
+            }
+            else
+            {
+                st_s_copy_fa( path, "#<sc_t>/#<sc_t>", folder->sc, file->sc );
+            }
+
+            if( !bcore_file_exists( path->sc ) )
+            {
+                XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Xoico: File '#<sc_t>' not found.", path->sc );
+            }
+
+            // check for cyclic inclusions
+            BFOR_EACH( i, stack )
+            {
+                if( sc_t_equal( path->sc, bcore_source_a_get_file( stack->data[ i ] ) ) )
+                {
+                    XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Xoico: Cyclic inclusion." );
+                }
+            }
+
+            xoico_group_source_stack_s_push_d( stack, source = bcore_file_open_source( path->sc ) );
+        }
         else
         {
-            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Plant: syntax error." );
+            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Xoico: syntax error." );
         }
-
-        // hash group parameters
-        o->hash = bcore_tp_fold_tp( o->hash, o->retrievable ? 1 : 0 );
 
         if( item )
         {
             o->hash = bcore_tp_fold_tp( o->hash, xoico_a_get_hash( item ) );
             bcore_array_a_push( ( bcore_array* )o, sr_asd( item ) );
         }
+
+
+        BLM_DOWN();
     }
+
+    if( stack->size > 1 )
+    {
+        XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Xoico: Unexpected end of group reached." );
+    }
+
+    // hash group parameters
+    o->hash = bcore_tp_fold_tp( o->hash, o->retrievable ? 1 : 0 );
+
     BLM_RETURNV( er_t, 0 );
 }
 

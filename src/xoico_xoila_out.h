@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-08T09:50:17Z
+ *  Last File Update: 2020-08-10T14:11:58Z
  *
  *  Copyright and License of this File:
  *
@@ -33,7 +33,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x9C56484DBADCF007ull
+#define HKEYOF_xoico_xoila_out 0x6DB06129516BD4E3ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -373,6 +373,21 @@
 
 #define TYPEOF_xoico_group 0xF9A247075F113FF9ull
 #define TYPEOF_xoico_group_s 0x0C561A9D047FE9D3ull
+#define TYPEOF_xoico_group_source_stack_s 0x753CECC8CE8A05B2ull
+#define BETH_EXPAND_ITEM_xoico_group_source_stack_s \
+  BCORE_DECLARE_OBJECT( xoico_group_source_stack_s ) \
+    {aware_t _;BCORE_ARRAY_DYN_LINK_STATIC_S( bcore_source, );}; \
+  static inline xoico_group_source_stack_s* xoico_group_source_stack_s_set_space( xoico_group_source_stack_s* o, sz_t size ) { bcore_array_t_set_space( TYPEOF_xoico_group_source_stack_s, ( bcore_array* )o, size ); return o; } \
+  static inline xoico_group_source_stack_s* xoico_group_source_stack_s_set_size( xoico_group_source_stack_s* o, sz_t size ) { bcore_array_t_set_size( TYPEOF_xoico_group_source_stack_s, ( bcore_array* )o, size ); return o; } \
+  static inline xoico_group_source_stack_s* xoico_group_source_stack_s_clear( xoico_group_source_stack_s* o ) { bcore_array_t_set_space( TYPEOF_xoico_group_source_stack_s, ( bcore_array* )o, 0 ); return o; } \
+  static inline bcore_source* xoico_group_source_stack_s_push_c( xoico_group_source_stack_s* o, const bcore_source* v ) { bcore_array_t_push( TYPEOF_xoico_group_source_stack_s, ( bcore_array* )o, sr_awc( v ) ); return o->data[ o->size - 1 ]; } \
+  static inline bcore_source* xoico_group_source_stack_s_push_d( xoico_group_source_stack_s* o,       bcore_source* v ) { bcore_array_t_push( TYPEOF_xoico_group_source_stack_s, ( bcore_array* )o, sr_asd( v ) ); return o->data[ o->size - 1 ]; } \
+  static inline bcore_source* xoico_group_source_stack_s_push_t( xoico_group_source_stack_s* o, tp_t t ) \
+  { \
+      bcore_trait_assert_satisfied_type( TYPEOF_bcore_source, t ); \
+      bcore_array_t_push( TYPEOF_xoico_group_source_stack_s, ( bcore_array* )o, sr_t_create( t ) ); \
+      return o->data[ o->size - 1 ]; \
+  }
 #define TYPEOF_xoico_group_s 0x0C561A9D047FE9D3ull
 #define BETH_EXPAND_ITEM_xoico_group_s \
   BCORE_DECLARE_OBJECT( xoico_group_s ) \
@@ -389,7 +404,9 @@
   xoico_compiler_s* xoico_group_s_get_compiler( const xoico_group_s* o );
 #define BETH_EXPAND_GROUP_xoico_group \
   BCORE_FORWARD_OBJECT( xoico_group ); \
+  BCORE_FORWARD_OBJECT( xoico_group_source_stack_s ); \
   BCORE_FORWARD_OBJECT( xoico_group_s ); \
+  BETH_EXPAND_ITEM_xoico_group_source_stack_s \
   BETH_EXPAND_ITEM_xoico_group_s
 
 /**********************************************************************************************************************/
@@ -476,7 +493,7 @@
 #define TYPEOF_xoico_target_s 0x05A0ECAFABEA8CB1ull
 #define BETH_EXPAND_ITEM_xoico_target_s \
   BCORE_DECLARE_OBJECT( xoico_target_s ) \
-    {aware_t _;st_s name;st_s path;BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_source_s, );st_s signal_handler_name;bcore_arr_sz_s dependencies;bl_t flag;bl_t modified;st_s* target_h;st_s* target_c;xoico_compiler_s* compiler;}; \
+    {aware_t _;st_s name;st_s path;BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_source_s, );st_s signal_handler_name;bcore_arr_sz_s dependencies;bl_t flag;bl_t modified;st_s* target_h;st_s* target_c;bcore_arr_st_s explicit_includes;xoico_compiler_s* compiler;}; \
   er_t xoico_target_s_finalize( xoico_target_s* o ); \
   er_t xoico_target_s_parse( xoico_target_s* o, sc_t source_path ); \
   bl_t xoico_target_s_to_be_modified( const xoico_target_s* o ); \
@@ -559,4 +576,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0x1F20D48F7EF6E638ull
+// XOILA_OUT_SIGNATURE 0xA36B492F213B70AFull
