@@ -203,23 +203,24 @@ er_t xoico_stamp_s_resolve_chars( const xoico_stamp_s* o, st_s* string )
         char c = string->data[ i ];
         switch( c )
         {
-            case '/':
-            {
-                st_s_push_char( buf, c );
-                if( string->data[ i + 1 ] == '/' ) // line comment
-                {
-                    i += 2;
-                    while( string->data[ i ] != 0 && string->data[ i ] != '\n' ) i++;
-                    i--;
-                }
-                else if( string->data[ i + 1 ] == '*' ) // block comment
-                {
-                    i += 2;
-                    while( string->data[ i ] != 0 && string->data[ i ] != '*' && string->data[ i + 1 ] != '/' ) i++;
-                    i--;
-                }
-            }
-            break;
+            //TODO: comments are not correctly handled: fix it
+//            case '/':
+//            {
+//                st_s_push_char( buf, c );
+//                if( string->data[ i + 1 ] == '/' ) // line comment
+//                {
+//                    i += 2;
+//                    while( string->data[ i ] != 0 && string->data[ i ] != '\n' ) i++;
+//                    i--;
+//                }
+//                else if( string->data[ i + 1 ] == '*' ) // block comment
+//                {
+//                    i += 2;
+//                    while( string->data[ i ] != 0 && string->data[ i ] != '*' && string->data[ i + 1 ] != '/' ) i++;
+//                    i--;
+//                }
+//            }
+//            break;
 
             case '@':
             {
