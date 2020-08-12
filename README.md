@@ -1,6 +1,6 @@
 # Xoila Compiler
 
-This tool compiles xoila-code, which is embedded in c-header files.
+This tool compiles [xoila](https://github.com/johsteffens/beth#xoila)-code, which is embedded in c-header files.
 It creates or updates \*_xoila_out.{c,h} files as specified by xoico-configuration files (\*_xoico.cfg).
 
 ***More details will follow ...***
