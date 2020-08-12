@@ -21,9 +21,9 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_builder_main_s_build_from_file_get_target_index( xoico_builder_main_s* o, sc_t path, sz_t* p_target_index );
+er_t xoico_builder_main_s_build_from_file_get_target_index( xoico_builder_main_s* o, bl_t readonly, sc_t path, sz_t* p_target_index );
 
-er_t xoico_builder_target_s_build( const xoico_builder_target_s* o, sz_t* p_target_index )
+er_t xoico_builder_target_s_build( const xoico_builder_target_s* o, bl_t readonly, sz_t* p_target_index )
 {
     BLM_INIT();
     bcore_arr_sz_s* dependencies = BLM_CREATE( bcore_arr_sz_s );
@@ -35,9 +35,38 @@ er_t xoico_builder_target_s_build( const xoico_builder_target_s* o, sz_t* p_targ
         {
             if( o->root ) st_s_push_fa( file_path, "#<sc_t>/", o->root->sc );
         }
-        st_s_push_fa( file_path, "#<sc_t>", o->dependencies.data[ i ]->sc );
+
+        bl_t dep_readonly = readonly;
+        {
+            BLM_INIT();
+            bcore_source* source = BLM_A_PUSH( bcore_source_string_s_create_sc( o->dependencies.data[ i ]->sc ) );
+            BLM_TRY( bcore_source_a_parse_em_fa( source, " #:until':'", file_path ) );
+
+            if( bcore_source_a_parse_bl_fa( source, "#?':'" ) )
+            {
+                if( bcore_source_a_parse_bl_fa( source, " #?w'readonly'" ) )
+                {
+                    dep_readonly = true;
+                }
+                else
+                {
+                    BLM_RETURNV
+                    (
+                        er_t,
+                        bcore_source_a_parse_err_to_em_fa
+                        (
+                            source,
+                            TYPEOF_general_error, "Syntax error in dependency declaration:"
+                        );
+                    );
+                }
+
+            }
+            BLM_DOWN();
+        }
+
         sz_t target_index = -1;
-        BLM_TRY( xoico_builder_main_s_build_from_file_get_target_index( o->main, file_path->sc, &target_index ) );
+        BLM_TRY( xoico_builder_main_s_build_from_file_get_target_index( o->main, dep_readonly, file_path->sc, &target_index ) );
         if( target_index >= 0 ) bcore_arr_sz_s_push( dependencies, target_index );
         BLM_DOWN();
     }
@@ -89,6 +118,7 @@ er_t xoico_builder_target_s_build( const xoico_builder_target_s* o, sz_t* p_targ
         st_s* signal_handler = BLM_A_PUSH( st_s_create_fa( "#<sc_t>_general_signal_handler", o->name->sc ) );
         if( o->signal_handler ) st_s_copy( signal_handler, o->signal_handler );
         BLM_TRY( xoico_compiler_s_set_target_signal_handler_name( o->main->compiler, target_index, signal_handler->sc ) );
+        BLM_TRY( xoico_compiler_s_set_target_readonly( o->main->compiler, target_index, readonly ) );
         if( p_target_index ) *p_target_index = target_index;
     }
 
@@ -100,7 +130,7 @@ er_t xoico_builder_target_s_build( const xoico_builder_target_s* o, sz_t* p_targ
 /**********************************************************************************************************************/
 // xoico_builder interface functions
 
-er_t xoico_builder_main_s_build_from_file_get_target_index( xoico_builder_main_s* o, sc_t path, sz_t* p_target_index )
+er_t xoico_builder_main_s_build_from_file_get_target_index( xoico_builder_main_s* o, bl_t readonly, sc_t path, sz_t* p_target_index )
 {
     BLM_INIT();
 
@@ -145,7 +175,7 @@ er_t xoico_builder_main_s_build_from_file_get_target_index( xoico_builder_main_s
         xoico_builder_target_s* builder = BLM_CREATE( xoico_builder_target_s );
         builder->main = o;
         bcore_txt_ml_a_from_file( builder, st_path->sc );
-        BLM_TRY( xoico_builder_target_s_build( builder, &target_index ) );
+        BLM_TRY( xoico_builder_target_s_build( builder, readonly, &target_index ) );
     }
 
     if( p_target_index ) *p_target_index = target_index;
@@ -157,7 +187,7 @@ er_t xoico_builder_main_s_build_from_file_get_target_index( xoico_builder_main_s
 
 er_t xoico_builder_main_s_build_from_file( xoico_builder_main_s* o, sc_t path )
 {
-    return xoico_builder_main_s_build_from_file_get_target_index( o, path, NULL );
+    return xoico_builder_main_s_build_from_file_get_target_index( o, false, path, NULL );
 }
 
 //----------------------------------------------------------------------------------------------------------------------

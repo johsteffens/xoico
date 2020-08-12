@@ -31,14 +31,16 @@ signature        bl_t  item_exists(    const, tp_t item_id );
 signature        er_t  item_register(  mutable, const xoico* item,          bcore_source* source );
 signature        er_t  group_register( mutable, const xoico_group_s* group, bcore_source* source );
 signature        er_t  life_a_push(    mutable, vd_t object );
-signature        er_t  check_overwrite( const, sc_t file );
+signature        er_t  check_overwrite( const,  sc_t file );
+signature        bl_t  is_type(         const,  tp_t name ); // check if name represents a registered type (either group name or stamp name)
 
 // external interface ...
 signature er_t setup                         ( mutable );
 signature er_t compile                       ( mutable, sc_t target_name, sc_t source_path, sz_t* p_target_index );
+signature er_t set_target_readonly           ( mutable, sz_t target_index, bl_t readonly );
 signature er_t set_target_signal_handler_name( mutable, sz_t target_index, sc_t name );
 signature er_t set_target_dependencies       ( mutable, sz_t target_index, const bcore_arr_sz_s* dependencies );
-signature er_t update_target_files          ( mutable, bl_t* p_modified );
+signature er_t update_target_files           ( mutable, bl_t* p_modified );
 signature bl_t update_required               ( mutable );
 signature sz_t get_verbosity                 ( const );
 
@@ -47,15 +49,16 @@ stamp : = aware :
     hidden xoico_target_s => [];
     hidden bcore_hmap_tpvd_s hmap_group;
     hidden bcore_hmap_tpvd_s hmap_item;
-    hidden bcore_life_s      life; // lifetime manager for items generation during processing
+    hidden bcore_hmap_tp_s   hmap_types; // externally registered types
+    hidden bcore_life_s      life;       // lifetime manager for items generation during processing
 
     // parameters
-    bl_t register_plain_functions         = true;
-    bl_t register_signatures              = false;
+    bl_t register_plain_functions        = true;
+    bl_t register_signatures             = false;
     bl_t overwrite_unsigned_target_files = false;
-    bl_t always_expand                    = false; // true: always expands targets even when the hash has not changed;
-    bl_t dry_run                          = false; // dry_run: performs target computation but does not update target files
-    sz_t verbosity                        = 1;
+    bl_t always_expand                   = false; // true: always expands targets even when the hash has not changed;
+    bl_t dry_run                         = false; // dry_run: performs target computation but does not update target files
+    sz_t verbosity                       = 1;
 
     // functions
     func xoico :finalize;
@@ -63,6 +66,7 @@ stamp : = aware :
     func : :item_exists;
     func : :item_register;
     func : :group_register;
+    func : :is_type;
     func : :life_a_push;
     func : :check_overwrite;
 
@@ -71,6 +75,7 @@ stamp : = aware :
     func : :compile;
     func : :set_target_signal_handler_name;
     func : :set_target_dependencies;
+    func : :set_target_readonly;
     func : :update_target_files;
     func : :update_required;
     func : :get_verbosity;

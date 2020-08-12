@@ -139,6 +139,26 @@ bl_t xoico_compiler_s_item_exists( const xoico_compiler_s* o, tp_t item_id )
 
 //----------------------------------------------------------------------------------------------------------------------
 
+bl_t xoico_compiler_s_is_type( const xoico_compiler_s* o, tp_t name )
+{
+    if( bcore_hmap_tpvd_s_exists( &o->hmap_item, name ) )
+    {
+        const xoico* item = xoico_compiler_s_item_get( o, name );
+        if( item->_ == TYPEOF_xoico_stamp ) return true;
+    }
+    else if( bcore_hmap_tpvd_s_exists( &o->hmap_group, name ) )
+    {
+        return true;
+    }
+    else if( bcore_hmap_tp_s_exists( &o->hmap_types, name ) )
+    {
+        return true;
+    }
+    return false;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 const xoico* xoico_compiler_s_item_get( const xoico_compiler_s* o, tp_t item_id )
 {
     vd_t* ptr = bcore_hmap_tpvd_s_get( &o->hmap_item, item_id );
@@ -286,6 +306,16 @@ er_t xoico_compiler_s_set_target_dependencies( xoico_compiler_s* o, sz_t target_
     {
         return bcore_error_push_fa( TYPEOF_general_error, "Cyclic dependencies found in target '#<sc_t>'.", target->name.sc );
     }
+    return 0;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_compiler_s_set_target_readonly( xoico_compiler_s* o, sz_t target_index, bl_t readonly )
+{
+    ASSERT( target_index >= 0 && target_index < o->size );
+    xoico_target_s* target = o->data[ target_index ];
+    target->readonly = readonly;
     return 0;
 }
 

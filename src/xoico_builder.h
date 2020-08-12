@@ -26,7 +26,7 @@ XOILA_DEFINE_GROUP( xoico_builder, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 /// returns index of target
-signature er_t build( const, sz_t* target_index );
+signature er_t build( const, bl_t readonly, sz_t* target_index );
 
 stamp :target = aware :
 {

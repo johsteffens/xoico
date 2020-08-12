@@ -380,7 +380,11 @@ static er_t write_with_signature( sc_t file, const st_s* data )
 er_t xoico_target_s_expand_phase2( xoico_target_s* o, bl_t* p_modified )
 {
     BLM_INIT();
-    if( !o->modified ) BLM_RETURNV( er_t, 0 );
+    if( !o->modified )
+    {
+        if( p_modified ) *p_modified = false;
+        BLM_RETURNV( er_t, 0 );
+    }
 
     ASSERT( o->target_h );
     ASSERT( o->target_c );
@@ -388,16 +392,23 @@ er_t xoico_target_s_expand_phase2( xoico_target_s* o, bl_t* p_modified )
     st_s* file_h = BLM_A_PUSH( st_s_create_fa( "#<sc_t>.h", o->path.sc ) );
     st_s* file_c = BLM_A_PUSH( st_s_create_fa( "#<sc_t>.c", o->path.sc ) );
 
-    BLM_TRY( xoico_compiler_s_check_overwrite( o->compiler, file_h->sc ) );
-    BLM_TRY( xoico_compiler_s_check_overwrite( o->compiler, file_c->sc ) );
+    if( o->readonly )
+    {
+        bcore_msg_fa( "Affected: #<sc_t>\n", file_h->sc );
+        bcore_msg_fa( "Affected: #<sc_t>\n", file_c->sc );
+        if( p_modified ) *p_modified = false;
+    }
+    else
+    {
+        BLM_TRY( xoico_compiler_s_check_overwrite( o->compiler, file_h->sc ) );
+        BLM_TRY( xoico_compiler_s_check_overwrite( o->compiler, file_c->sc ) );
+        bcore_msg_fa( "Writing: #<sc_t>\n", file_h->sc );
+        write_with_signature( file_h->sc, o->target_h );
+        bcore_msg_fa( "Writing: #<sc_t>\n", file_c->sc );
+        write_with_signature( file_c->sc, o->target_c );
+        if( p_modified ) *p_modified = true;
+    }
 
-    bcore_msg_fa( "writing '#<sc_t>'\n", file_h->sc );
-    write_with_signature( file_h->sc, o->target_h );
-
-    bcore_msg_fa( "writing '#<sc_t>'\n", file_c->sc );
-    write_with_signature( file_c->sc, o->target_c );
-
-    if( p_modified ) *p_modified = o->modified;
     BLM_RETURNV( er_t, 0 );
 }
 

@@ -43,6 +43,7 @@ stamp : = aware :
     bl_t flag; // general purpose flag
 
     bl_t modified;    // target is to be modified
+    bl_t readonly;    // target is readonly (affects writing in phase2)
     st_s => target_h; // target header file
     st_s => target_c; // target c file
 
