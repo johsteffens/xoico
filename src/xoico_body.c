@@ -17,6 +17,7 @@
 #include "xoico_group.h"
 #include "xoico_stamp.h"
 #include "xoico_compiler.h"
+#include "xoico_cengine.h"
 
 /**********************************************************************************************************************/
 
@@ -35,6 +36,11 @@ tp_t xoico_body_s_get_hash( const xoico_body_s* o )
     hash = bcore_tp_fold_sc( hash, o->name.sc );
     hash = bcore_tp_fold_sc( hash, o->code.sc );
     hash = bcore_tp_fold_u0( hash, o->go_inline ? 1 : 0 );
+
+    if( o->apply_cengine )
+    {
+        hash = bcore_tp_fold_u0( hash, 1 );
+    }
     return hash;
 }
 
@@ -71,6 +77,7 @@ er_t xoico_body_s_parse_code( xoico_body_s* o, xoico_stamp_s* stamp, bcore_sourc
     st_s_clear( &o->code );
 
     XOICO_BLM_SOURCE_PARSE_FA( source, " {" );
+
     sz_t nest_count = 1;
     bl_t exit_loop = false;
     o->go_inline = true;
@@ -81,6 +88,24 @@ er_t xoico_body_s_parse_code( xoico_body_s* o, xoico_stamp_s* stamp, bcore_sourc
     {
         o->go_inline = false;
         while( bcore_source_a_parse_bl_fa( source, "#?' '" ) ) undo_indentation++;
+    }
+
+    if( bcore_source_a_parse_bl_fa( source, "#?'$apply_cengine'" ) )
+    {
+        XOICO_BLM_SOURCE_PARSE_FA( source, " = " );
+        if( bcore_source_a_parse_bl_fa( source, "#?'true'" ) )
+        {
+            o->apply_cengine = true;
+        }
+        else if( bcore_source_a_parse_bl_fa( source, "#?'false'" ) )
+        {
+            o->apply_cengine = false;
+        }
+        else
+        {
+            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Syntax error." );
+        }
+        XOICO_BLM_SOURCE_PARSE_FA( source, " ;" );
     }
 
     while( !bcore_source_a_eos( source ) && !exit_loop )
@@ -272,18 +297,45 @@ er_t xoico_body_s_parse( xoico_body_s* o, xoico_stamp_s* stamp, bcore_source* so
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_body_s_expand( const xoico_body_s* body, sz_t indent, bcore_sink* sink )
+er_t xoico_body_s_expand( const xoico_body_s* o, const xoico_args_s* args, sz_t indent, bcore_sink* sink )
 {
-    if( body->go_inline )
+    if( o->apply_cengine )
     {
-        bcore_sink_a_push_fa( sink, "{#<sc_t>}", body->code.sc );
+        BLM_INIT();
+        bcore_source* source = BLM_A_PUSH( bcore_source_string_s_create_sc( o->code.sc ) );
+        st_s* st_out = BLM_CREATE( st_s );
+        xoico_cengine_s* engine = BLM_CREATE( xoico_cengine_s );
+        engine->args     = bcore_fork( ( xoico_args_s* )args );
+        engine->compiler = bcore_fork( xoico_group_s_get_compiler( o->group ) );
+
+        if( xoico_cengine_s_take_block_body( engine, source, ( bcore_sink* )st_out ) )
+        {
+            er_t id = 0;
+            st_s* msg = BLM_CREATE( st_s );
+            bcore_error_pop_st( &id, msg );
+            XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA
+            (
+                &o->source_point,
+                "\ntext-offset#<sc_t>",
+                msg->sc
+            );
+        }
+
+        bcore_msg_fa( "\n#<sc_t>\n", st_out->sc );
+
+        BLM_DOWN();
+    }
+
+    if( o->go_inline )
+    {
+        bcore_sink_a_push_fa( sink, "{#<sc_t>}", o->code.sc );
     }
     else
     {
         bcore_sink_a_push_fa( sink, "{\n#rn{ }", indent + 4 );
-        for( sz_t i = 0; i < body->code.size; i++ )
+        for( sz_t i = 0; i < o->code.size; i++ )
         {
-            char c = body->code.sc[ i ];
+            char c = o->code.sc[ i ];
             bcore_sink_a_push_char( sink, c );
             if( c == '\n' ) bcore_sink_a_push_fa( sink, "#rn{ }", indent + 4 );
         }

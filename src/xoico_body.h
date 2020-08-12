@@ -27,7 +27,7 @@ XOILA_DEFINE_GROUP( xoico_body, xoico )
 
 signature er_t parse_code( mutable, xoico_stamp_s* stamp, bcore_source* source );
 signature er_t parse(      mutable, xoico_stamp_s* stamp, bcore_source* source );
-signature er_t expand(     const, sz_t indent, bcore_sink* sink );
+signature er_t expand(     const, const xoico_args_s* args, sz_t indent, bcore_sink* sink );
 
 stamp : = aware :
 {
@@ -35,6 +35,7 @@ stamp : = aware :
     st_s global_name;
     st_s code;
     bl_t go_inline;
+    bl_t apply_cengine;
 
     private aware xoico_group_s* group;
     bcore_source_point_s source_point;

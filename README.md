@@ -1,7 +1,12 @@
 # Xoila Compiler
 
-This tool compiles [xoila](https://github.com/johsteffens/beth#xoila)-code, which is embedded in c-header files.
-It creates or updates \*_xoila_out.{c,h} files as specified by xoico-configuration files (\*_xoico.cfg).
+Xoico is a self-hosting compiler for [xoila](https://github.com/johsteffens/beth#xoila)-code.
+
+It complies the meta-code and generates additional c-source code, 
+which is stored in files named `*_xoila_out.{c,h}`.
+
+Configuration files `*_xoico.cfg` specify how xoico is to navigate through the sources.
+I tried to make them self-explanatory.
 
 ***More details will follow ...***
 
@@ -17,17 +22,22 @@ $ ./bin/xoico --help
 
 ## About Xoila
 
-Xoila is the name of a meta language intended to be embedded in C-header files.
-The xoila-section is enclosed by #ifdef XOILA_SECTION ... #endif.
+Xoila is a meta-language designed along with
+the [beth](https://github.com/johsteffens/beth)-framework.
+Xoila-code is typically embedded in c-header files. 
+It can also occur in dedicated files, which have the extension `*.x`.
 
+Inside a header file the xoila-section is enclosed by #ifdef XOILA_SECTION ... #endif.
 The (pseudo-)macro XOILA_SECTION is to be unknown by the C-compiler,
-so it will not try to interpret xoila code.
-Xoico, on the other hand, uses this keyword to determine the xoila code block.
+so it will not try to interpret the enclosed code.
+Xoico, on the other hand, uses this keyword to determine the code block to be comiled.
 
 Xoila is used in conjunction with library bcore of [beth](https://github.com/johsteffens/beth).
 It provides a convenient programming layer unlocking core concepts of project beth.
 
 (*Xoila* was initially called *Beth-Plant*.)
+
+***More details will follow ...***
 
 ------
 

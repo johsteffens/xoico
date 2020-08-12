@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-10T14:11:58Z
+ *  Last File Update: 2020-08-12T15:32:21Z
  *
  *  Copyright and License of this File:
  *
@@ -24,6 +24,7 @@
  *  xoico_target.h
  *  xoico_compiler.h
  *  xoico_builder.h
+ *  xoico_cengine.h
  *
  */
 
@@ -109,8 +110,10 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_forward_s )
 BCORE_DEFINE_OBJECT_INST_P( xoico_arg_s )
 "aware xoico_arg"
 "{"
-    "st_s type;"
-    "st_s name;"
+    "st_s st_type;"
+    "st_s st_name;"
+    "tp_t tp_type;"
+    "tp_t tp_name;"
     "private aware xoico_group_s* group;"
     "bcore_source_point_s source_point;"
     "func xoico:parse;"
@@ -170,6 +173,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_body_s )
     "st_s global_name;"
     "st_s code;"
     "bl_t go_inline;"
+    "bl_t apply_cengine;"
     "private aware xoico_group_s* group;"
     "bcore_source_point_s source_point;"
     "func xoico:get_hash;"
@@ -363,6 +367,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_target_s )
     "bcore_arr_sz_s dependencies;"
     "bl_t flag;"
     "bl_t modified;"
+    "bl_t readonly;"
     "st_s => target_h;"
     "st_s => target_c;"
     "bcore_arr_st_s explicit_includes;"
@@ -382,6 +387,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_compiler_s )
     "hidden xoico_target_s => [];"
     "hidden bcore_hmap_tpvd_s hmap_group;"
     "hidden bcore_hmap_tpvd_s hmap_item;"
+    "hidden bcore_hmap_tp_s hmap_types;"
     "hidden bcore_life_s life;"
     "bl_t register_plain_functions = true;"
     "bl_t register_signatures = false;"
@@ -467,6 +473,109 @@ er_t xoico_builder_main_s_set_overwrite_unsigned_target_files( xoico_builder_mai
 bl_t xoico_builder_main_s_get_overwrite_unsigned_target_files( const xoico_builder_main_s* o )
 {
     return o->compiler->overwrite_unsigned_target_files;
+}
+
+/**********************************************************************************************************************/
+// source: xoico_cengine.h
+#include "xoico_cengine.h"
+
+//----------------------------------------------------------------------------------------------------------------------
+// group: xoico_cengine
+
+BCORE_DEFINE_OBJECT_INST_P( xoico_cengine_s )
+"aware xoico_cengine"
+"{"
+    "xoico_args_s -> args;"
+    "xoico_compiler_s -> compiler;"
+    "xoico_cengine_tn_stack_s stack;"
+"}";
+
+//----------------------------------------------------------------------------------------------------------------------
+// group: xoico_cengine_tn
+
+BCORE_DEFINE_OBJECT_INST_P( xoico_cengine_tn_unit_s )
+"bcore_inst"
+"{"
+    "tp_t type;"
+    "tp_t name;"
+    "sz_t level;"
+"}";
+
+BCORE_DEFINE_OBJECT_INST_P( xoico_cengine_tn_adl_s )
+"aware bcore_array"
+"{"
+    "xoico_cengine_tn_unit_s => [];"
+"}";
+
+BCORE_DEFINE_OBJECT_INST_P( xoico_cengine_tn_stack_s )
+"aware xoico_cengine_tn"
+"{"
+    "xoico_cengine_tn_adl_s adl;"
+    "bcore_hmap_name_s name_map;"
+"}";
+
+xoico_cengine_tn_stack_s* xoico_cengine_tn_stack_s_push( xoico_cengine_tn_stack_s* o, tp_t type, tp_t name, sz_t level )
+{
+    xoico_cengine_tn_unit_s* unit = xoico_cengine_tn_unit_s_create();
+    unit->type = type;
+    unit->name = name;
+    unit->level = level;
+    xoico_cengine_tn_adl_s_push_d( &o->adl, unit );
+    return o;
+}
+
+xoico_cengine_tn_stack_s* xoico_cengine_tn_stack_s_push_sc( xoico_cengine_tn_stack_s* o, sc_t type, sc_t name, sz_t level )
+{
+    xoico_cengine_tn_unit_s* unit = xoico_cengine_tn_unit_s_create();
+    unit->type = bcore_hmap_name_s_set_sc( &o->name_map, type );
+    unit->name = bcore_hmap_name_s_set_sc( &o->name_map, name );
+    unit->level = level;
+    xoico_cengine_tn_adl_s_push_d( &o->adl, unit );
+    return o;
+}
+
+xoico_cengine_tn_stack_s* xoico_cengine_tn_stack_s_pop( xoico_cengine_tn_stack_s* o, sz_t level )
+{
+    sz_t new_size = o->adl.size;
+    for( sz_t i = o->adl.size - 1; i >= 0; i-- )
+    {
+        if( o->adl.data[ i ]->level < level ) break;
+        new_size = i;
+    }
+    xoico_cengine_tn_adl_s_set_size( &o->adl, new_size );
+    return o;
+}
+
+tp_t xoico_cengine_tn_stack_s_get_type( xoico_cengine_tn_stack_s* o, tp_t name )
+{
+    for( sz_t i = o->adl.size - 1; i >= 0; i-- )
+    {
+        if( o->adl.data[ i ]->name == name ) return o->adl.data[ i ]->type;
+    }
+    return 0;
+}
+
+sc_t xoico_cengine_tn_stack_s_get_type_sc( xoico_cengine_tn_stack_s* o, sc_t name )
+{
+    return bcore_hmap_name_s_get_sc( &o->name_map, xoico_cengine_tn_stack_s_get_type( o, btypeof( name ) ) );
+}
+
+void xoico_cengine_tn_stack_s_clear( xoico_cengine_tn_stack_s* o )
+{
+    bcore_hmap_name_s_clear( &o->name_map );
+    xoico_cengine_tn_adl_s_clear( &o->adl );
+}
+
+void xoico_cengine_tn_stack_s_init_from_args( xoico_cengine_tn_stack_s* o, const xoico_args_s* args )
+{
+    xoico_cengine_tn_stack_s_clear( o );
+    BFOR_EACH( i, args )
+    {
+        if( args->data[ i ].tp_type && args->data[ i ].tp_name )
+        {
+            xoico_cengine_tn_stack_s_push_sc( o, args->data[ i ].st_type.sc, args->data[ i ].st_name.sc, 0 );
+        }
+    }
 }
 
 /**********************************************************************************************************************/
@@ -672,6 +781,19 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_FFUNC( bcore_inst_call_init_x, xoico_builder_main_s_init_x );
             BCORE_REGISTER_OBJECT( xoico_builder_main_s );
             BCORE_REGISTER_TRAIT( xoico_builder, xoico );
+
+            // --------------------------------------------------------------------
+            // source: xoico_cengine.h
+
+            // group: xoico_cengine
+            BCORE_REGISTER_OBJECT( xoico_cengine_s );
+            BCORE_REGISTER_TRAIT( xoico_cengine, xoico );
+
+            // group: xoico_cengine_tn
+            BCORE_REGISTER_OBJECT( xoico_cengine_tn_unit_s );
+            BCORE_REGISTER_OBJECT( xoico_cengine_tn_adl_s );
+            BCORE_REGISTER_OBJECT( xoico_cengine_tn_stack_s );
+            BCORE_REGISTER_TRAIT( xoico_cengine_tn, xoico_cengine );
         }
         break;
         case TYPEOF_push_dependencies:
@@ -685,4 +807,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0xAE05A58409C439EBull
+// XOILA_OUT_SIGNATURE 0x028857FC6B8BA51Dull

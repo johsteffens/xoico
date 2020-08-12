@@ -30,8 +30,10 @@ signature er_t expand_name( const, bcore_sink* sink );
 
 stamp : = aware :
 {
-    st_s type;
-    st_s name;
+    st_s st_type;
+    st_s st_name;
+    tp_t tp_type; // typeof( type portion in st_type ); 0 if st_type holds no valid type
+    tp_t tp_name; // typeof( st_name )
     private aware xoico_group_s* group;
     bcore_source_point_s source_point;
 

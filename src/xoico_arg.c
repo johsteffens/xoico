@@ -25,28 +25,32 @@ er_t xoico_arg_s_parse( xoico_arg_s* o, bcore_source* source )
     BLM_INIT();
     bcore_source_point_s_set( &o->source_point, source );
     st_s* s = BLM_CREATE( st_s );
-    if( bcore_source_a_parse_bl_fa( source, "#?'const' " ) ) st_s_push_sc( &o->type, "const " );
+    if( bcore_source_a_parse_bl_fa( source, "#?'const' " ) ) st_s_push_sc( &o->st_type, "const " );
 
     if( bcore_source_a_parse_bl_fa( source, "#?':' " ) )
     {
         xoico_group_s_parse_name_recursive( o->group, s, source );
+        o->tp_type = btypeof( s->sc );
     }
     else if( bcore_source_a_parse_bl_fa( source, "#?'@' " ) )
     {
         st_s_push_char( s, '@' );
+        o->tp_type = 0;
     }
     else
     {
         XOICO_BLM_SOURCE_PARSE_FA( source, "#name ", s );
         if( s->size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Argument: Type expected." );
+        o->tp_type = btypeof( s->sc );
     }
-    st_s_push_st( &o->type, s );
+    st_s_push_st( &o->st_type, s );
 
-    while( bcore_source_a_parse_bl_fa( source, "#?'*' " ) ) st_s_push_sc( &o->type, "*" );
+    while( bcore_source_a_parse_bl_fa( source, "#?'*' " ) ) st_s_push_sc( &o->st_type, "*" );
 
     XOICO_BLM_SOURCE_PARSE_FA( source, "#name ", s );
     if( s->size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Argument: Name expected." );
-    st_s_push_st( &o->name, s );
+    st_s_push_st( &o->st_name, s );
+    o->tp_name = btypeof( s->sc );
 
     BLM_RETURNV( er_t, 0 );
 }
@@ -56,8 +60,8 @@ er_t xoico_arg_s_parse( xoico_arg_s* o, bcore_source* source )
 tp_t xoico_arg_s_get_hash( const xoico_arg_s* o )
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
-    hash = bcore_tp_fold_sc( hash, o->type.sc );
-    hash = bcore_tp_fold_sc( hash, o->name.sc );
+    hash = bcore_tp_fold_sc( hash, o->st_type.sc );
+    hash = bcore_tp_fold_sc( hash, o->st_name.sc );
     return hash;
 }
 
@@ -65,7 +69,7 @@ tp_t xoico_arg_s_get_hash( const xoico_arg_s* o )
 
 er_t xoico_arg_s_expand( const xoico_arg_s* o, bcore_sink* sink )
 {
-    bcore_sink_a_push_fa( sink, "#<sc_t> #<sc_t>", o->type.sc, o->name.sc );
+    bcore_sink_a_push_fa( sink, "#<sc_t> #<sc_t>", o->st_type.sc, o->st_name.sc );
     return 0;
 }
 
@@ -73,7 +77,7 @@ er_t xoico_arg_s_expand( const xoico_arg_s* o, bcore_sink* sink )
 
 er_t xoico_arg_s_expand_name( const xoico_arg_s* o, bcore_sink* sink )
 {
-    bcore_sink_a_push_fa( sink, "#<sc_t>", o->name.sc );
+    bcore_sink_a_push_fa( sink, "#<sc_t>", o->st_name.sc );
     return 0;
 }
 

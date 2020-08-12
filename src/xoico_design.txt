@@ -189,3 +189,10 @@ set:
 include:
   Includes the content of a file into the section.
   A relative path is considered relative to the given file location
+
+----------------------------------------------------------------------------------------------
+
+directives:
+  xoila compiler specific directives are preceded by '$'
+  $R: name replacement (s. above)
+  $apply_cengine = {true|false}: sets cengine usage in body expansion
