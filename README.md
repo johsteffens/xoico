@@ -12,7 +12,7 @@ $ git clone https://github.com/johsteffens/beth
 $ git clone https://github.com/johsteffens/xoico
 $ cd xoico
 $ make
-$ ./xoico --help
+$ ./bin/xoico --help
 ```
 
 ## About Xoila
