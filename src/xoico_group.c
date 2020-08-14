@@ -215,6 +215,14 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             BLM_TRY( xoico_name_s_parse( name, source ) );
             item = ( xoico* )bcore_fork( name );
         }
+        else if( bcore_source_a_parse_bl_fa( source, " #?w'type' " ) )
+        {
+            xoico_name_s* name = BLM_CREATE( xoico_name_s );
+            name->group = o;
+            BLM_TRY( xoico_name_s_parse( name, source ) );
+            item = ( xoico* )bcore_fork( name );
+            BLM_TRY( xoico_compiler_s_type_register( xoico_group_s_get_compiler( o ), btypeof( name->name.sc ) ) );
+        }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'forward' " ) )
         {
             xoico_forward_s* forward = BLM_CREATE( xoico_forward_s );
@@ -538,14 +546,26 @@ er_t xoico_group_s_expand_init1( const xoico_group_s* o, sz_t indent, bcore_sink
 
 //----------------------------------------------------------------------------------------------------------------------
 
+xoico_source_s* xoico_group_s_get_source( const xoico_group_s* o )
+{
+    return o->source;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+xoico_target_s* xoico_group_s_get_target( const xoico_group_s* o )
+{
+    return o->source->target;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 xoico_compiler_s* xoico_group_s_get_compiler( const xoico_group_s* o )
 {
-//    assert( o );
-//    assert( o->source );
-//    assert( o->source->target );
-//    assert( o->source->target->compiler );
     return o->source->target->compiler;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 /**********************************************************************************************************************/
 

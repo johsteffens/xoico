@@ -88,11 +88,11 @@ static er_t take_whitespace( xoico_cengine_s* o, bcore_source* source, bcore_sin
         {
             take_char( source, sink );
         }
-        else if( c == '/' && bcore_source_a_parse_bl_fa( source, "#?='//'" ) )
+        else if( c == '/' && bcore_source_a_parse_bl_fa( source, "#=?'//'" ) )
         {
             BLM_TRY( take_line_comment( o, source, sink ) );
         }
-        else if( c == '/' && bcore_source_a_parse_bl_fa( source, "#?='/*'" ) )
+        else if( c == '/' && bcore_source_a_parse_bl_fa( source, "#=?'/*'" ) )
         {
             BLM_TRY( take_block_comment( o, source, sink ) );
         }
@@ -220,26 +220,30 @@ static er_t take_statement_name( xoico_cengine_s* o, sz_t level, bcore_source* s
                     st_s* st_type = BLM_A_PUSH( st_s_create_sc( sc_type ? sc_type : "" ) );
                     if( st_type->size > 0 ) // registered type -> convert function call
                     {
-                        /// if type ends in '_s' assume a stamp ...
-                        if( st_type->size >= 2 && st_type->sc[ st_type->size - 2 ] == '_' && st_type->sc[ st_type->size - 1 ] == 's' )
+                        /// if type ends in '_s' or '_t' assume a stamp(-like) object ...
+                        if
+                        (
+                               st_type->size >= 2
+                            && st_type->sc[ st_type->size - 2 ] == '_'
+                            && ( st_type->sc[ st_type->size - 1 ] == 's' || st_type->sc[ st_type->size - 1 ] == 't' )
+                        )
                         {
                             bcore_sink_a_push_fa( sink, "#<sc_t>_#<sc_t>( #<sc_t>", st_type->sc, st_fname->sc, st_name->sc );
                         }
-                        else /// ... otherwise an aware virtual type
+                        else /// ... otherwise assume an aware virtual type
                         {
                             bcore_sink_a_push_fa( sink, "#<sc_t>_a_#<sc_t>( #<sc_t>", st_type->sc, st_fname->sc, st_name->sc );
                         }
 
-                        BLM_TRY( take_whitespace( o, source, sink ) );
-
                         if( bcore_source_a_parse_bl_fa( source, "#?')'" ) ) // no arguments
                         {
-                            bcore_sink_a_push_sc( sink_buf, ")" );
+                            bcore_sink_a_push_sc( sink, " )" );
                         }
                         else
                         {
-                            bcore_sink_a_push_sc( sink_buf, ", " ); // arguments follow
+                            bcore_sink_a_push_sc( sink, "," ); // arguments follow
                         }
+                        BLM_TRY( take_whitespace( o, source, sink ) );
 
                         no_conversion = false;
                     }
@@ -276,14 +280,6 @@ static er_t take_bracket( xoico_cengine_s* o, sz_t level, bcore_source* source, 
             take_char( source, sink );
             break;
         }
-        else if( c == '/' && bcore_source_a_parse_bl_fa( source, "#?='//'" ) )
-        {
-            BLM_TRY( take_line_comment( o, source, sink ) );
-        }
-        else if( c == '/' && bcore_source_a_parse_bl_fa( source, "#?='/*'" ) )
-        {
-            BLM_TRY( take_block_comment( o, source, sink ) );
-        }
         else if( c == '"' )
         {
             BLM_TRY( take_string( o, source, sink ) );
@@ -306,6 +302,9 @@ static er_t take_bracket( xoico_cengine_s* o, sz_t level, bcore_source* source, 
 
 //----------------------------------------------------------------------------------------------------------------------
 
+/** A statement in cengine differs semantically from c-statement
+ *  It is used here for code-segmentation.
+ */
 static er_t take_statement( xoico_cengine_s* o, sz_t level, bcore_source* source, bcore_sink* sink )
 {
     BLM_INIT();
@@ -314,18 +313,14 @@ static er_t take_statement( xoico_cengine_s* o, sz_t level, bcore_source* source
         BLM_TRY( take_whitespace( o, source, sink ) );
         char c = bcore_source_a_inspect_char( source );
 
-        if( c == '{' || c == ';' ) // end of statement
+        if( c == '{' ) // end of statement
+        {
+            break;
+        }
+        else if( c == ';' ) // end of statement
         {
             take_char( source, sink );
             break;
-        }
-        else if( c == '/' && bcore_source_a_parse_bl_fa( source, "#?='//'" ) )
-        {
-            BLM_TRY( take_line_comment( o, source, sink ) );
-        }
-        else if( c == '/' && bcore_source_a_parse_bl_fa( source, "#?='/*'" ) )
-        {
-            BLM_TRY( take_block_comment( o, source, sink ) );
         }
         else if( c == '"' )
         {
@@ -355,6 +350,7 @@ static er_t take_block_body( xoico_cengine_s* o, sz_t level, bcore_source* sourc
     while( !bcore_source_a_eos( source ) )
     {
         BLM_TRY( take_whitespace( o, source, sink ) );
+
         char c = bcore_source_a_inspect_char( source );
         if( c == '{' )
         {
@@ -378,14 +374,6 @@ static er_t take_block_body( xoico_cengine_s* o, sz_t level, bcore_source* sourc
             xoico_cengine_tn_stack_s_pop( &o->stack, level );
             break;
         }
-        else if( c == '/' && bcore_source_a_parse_bl_fa( source, "#?='//'" ) )
-        {
-            BLM_TRY( take_line_comment( o, source, sink ) );
-        }
-        else if( c == '/' && bcore_source_a_parse_bl_fa( source, "#?='/*'" ) )
-        {
-            BLM_TRY( take_block_comment( o, source, sink ) );
-        }
         else if( c == '#' )
         {
             BLM_TRY( take_preprocessor( o, source, sink ) );
@@ -394,9 +382,16 @@ static er_t take_block_body( xoico_cengine_s* o, sz_t level, bcore_source* sourc
         {
             BLM_TRY( take_statement( o, level, source, sink ) );
         }
+        else if( c == '*' || c == ';' )
+        {
+            take_char( source, sink );
+        }
         else
         {
-            BLM_RETURNV( er_t, bcore_source_a_parse_err_to_em_fa( source, TYPEOF_general_error, "Syntax error." ) );
+            if( !bcore_source_a_eos( source ) )
+            {
+                BLM_RETURNV( er_t, bcore_source_a_parse_err_to_em_fa( source, TYPEOF_general_error, "block_body: invalid character '#<char>'.", c ) );
+            }
         }
     }
     BLM_RETURNV( er_t, 0 );
@@ -421,7 +416,7 @@ static er_t take_block( xoico_cengine_s* o, sz_t level, bcore_source* source, bc
 
 er_t xoico_cengine_s_take_block_body( xoico_cengine_s* o, bcore_source* source, bcore_sink* sink )
 {
-    xoico_cengine_tn_stack_s_init_from_args( &o->stack, o->args );
+    xoico_cengine_tn_stack_s_init_from_args( &o->stack, o->obj_type, "o", o->args );
     return take_block_body( o, 0, source, sink );
 }
 
@@ -429,7 +424,7 @@ er_t xoico_cengine_s_take_block_body( xoico_cengine_s* o, bcore_source* source, 
 
 er_t xoico_cengine_s_take_block( xoico_cengine_s* o, bcore_source* source, bcore_sink* sink )
 {
-    xoico_cengine_tn_stack_s_init_from_args( &o->stack, o->args );
+    xoico_cengine_tn_stack_s_init_from_args( &o->stack, o->obj_type, "o", o->args );
     return take_block( o, 0, source, sink );
 }
 

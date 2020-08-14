@@ -47,7 +47,7 @@ group :tn = :
     signature @* push_sc( mutable, sc_t type, sc_t name, sz_t level );
     signature sc_t get_type_sc( mutable, sc_t name );  // returns NULL if name is not registered
     signature void clear( mutable );
-    signature void init_from_args( mutable, const xoico_args_s* args );
+    signature void init_from_args( mutable, sc_t obj_type, sc_t obj_name, const xoico_args_s* args );
 
     stamp :stack = aware :
     {
@@ -109,6 +109,7 @@ group :tn = :
         func : :init_from_args =
         {
             @_clear( o );
+            if( obj_type ) @_push_sc( o, obj_type, obj_name, 0 );
             BFOR_EACH( i, args )
             {
                 if( args->data[ i ].tp_type && args->data[ i ].tp_name )
@@ -127,6 +128,8 @@ signature er_t take_block_body( mutable, bcore_source* source, bcore_sink* sink 
 
 stamp : = aware :
 {
+    sc_t ret_type;
+    sc_t obj_type;
     xoico_args_s     -> args;
     xoico_compiler_s -> compiler;
     :tn_stack_s stack;

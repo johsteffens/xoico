@@ -132,6 +132,15 @@ er_t xoico_compiler_s_item_register( xoico_compiler_s* o, const xoico* item, bco
 
 //----------------------------------------------------------------------------------------------------------------------
 
+/// returns false if already registered; checks for collision
+er_t xoico_compiler_s_type_register( xoico_compiler_s* o, tp_t type )
+{
+    bcore_hmap_tp_s_set( &o->hmap_type, type );
+    return 0;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 bl_t xoico_compiler_s_item_exists( const xoico_compiler_s* o, tp_t item_id )
 {
     return bcore_hmap_tpvd_s_exists( &o->hmap_item, item_id );
@@ -150,7 +159,7 @@ bl_t xoico_compiler_s_is_type( const xoico_compiler_s* o, tp_t name )
     {
         return true;
     }
-    else if( bcore_hmap_tp_s_exists( &o->hmap_types, name ) )
+    else if( bcore_hmap_tp_s_exists( &o->hmap_type, name ) )
     {
         return true;
     }
@@ -168,7 +177,7 @@ const xoico* xoico_compiler_s_item_get( const xoico_compiler_s* o, tp_t item_id 
 //----------------------------------------------------------------------------------------------------------------------
 
 /** returns target index */
-er_t xoico_compiler_s_parse( xoico_compiler_s* o, sc_t target_name, sc_t source_path, sz_t* p_target_index )
+er_t xoico_compiler_s_parse( xoico_compiler_s* o, sc_t target_name, sc_t source_path, const xoico_target_xflags_s* xflags, sz_t* p_target_index )
 {
     BLM_INIT();
 
@@ -198,6 +207,8 @@ er_t xoico_compiler_s_parse( xoico_compiler_s* o, sc_t target_name, sc_t source_
     }
 
     xoico_target_s* target = o->data[ target_index ];
+    xoico_target_s_update_xflags( target, xflags );
+
     BLM_TRY( xoico_target_s_parse( target, source_path ) );
 
     if( p_target_index ) *p_target_index = target_index;
@@ -277,17 +288,17 @@ er_t xoico_compiler_s_setup( xoico_compiler_s* o )
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns target index
-er_t xoico_compiler_s_compile( xoico_compiler_s* o, sc_t target_name, sc_t source_path, sz_t* p_target_index )
+er_t xoico_compiler_s_compile( xoico_compiler_s* o, sc_t target_name, sc_t source_path, const xoico_target_xflags_s* xflags, sz_t* p_target_index )
 {
     BLM_INIT();
-    BLM_TRY( xoico_compiler_s_parse( o, target_name, source_path, p_target_index ) );
+    BLM_TRY( xoico_compiler_s_parse( o, target_name, source_path, xflags, p_target_index ) );
     BLM_TRY( xoico_compiler_s_finalize( o ) );
     BLM_RETURNV( er_t, 0 );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_compiler_s_set_target_signal_handler_name( xoico_compiler_s* o, sz_t target_index, sc_t name )
+er_t xoico_compiler_s_target_set_signal_handler_name( xoico_compiler_s* o, sz_t target_index, sc_t name )
 {
     ASSERT( target_index >= 0 && target_index < o->size );
     xoico_target_s* target = o->data[ target_index ];
@@ -297,7 +308,7 @@ er_t xoico_compiler_s_set_target_signal_handler_name( xoico_compiler_s* o, sz_t 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_compiler_s_set_target_dependencies( xoico_compiler_s* o, sz_t target_index, const bcore_arr_sz_s* dependencies )
+er_t xoico_compiler_s_target_set_dependencies( xoico_compiler_s* o, sz_t target_index, const bcore_arr_sz_s* dependencies )
 {
     ASSERT( target_index >= 0 && target_index < o->size );
     xoico_target_s* target = o->data[ target_index ];
@@ -311,11 +322,19 @@ er_t xoico_compiler_s_set_target_dependencies( xoico_compiler_s* o, sz_t target_
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_compiler_s_set_target_readonly( xoico_compiler_s* o, sz_t target_index, bl_t readonly )
+er_t xoico_compiler_s_target_set_readonly( xoico_compiler_s* o, sz_t target_index, bl_t readonly )
 {
     ASSERT( target_index >= 0 && target_index < o->size );
-    xoico_target_s* target = o->data[ target_index ];
-    target->readonly = readonly;
+    o->data[ target_index ]->readonly = readonly;
+    return 0;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_compiler_s_target_update_xflags( xoico_compiler_s* o, sz_t target_index, const xoico_target_xflags_s* xflags )
+{
+    ASSERT( target_index >= 0 && target_index < o->size );
+    xoico_target_s_update_xflags( o->data[ target_index ], xflags );
     return 0;
 }
 

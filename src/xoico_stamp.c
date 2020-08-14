@@ -462,7 +462,11 @@ er_t xoico_stamp_s_finalize( xoico_stamp_s* o )
     {
         xoico_func_s* func = o->funcs.data[ i ];
         func->group = o->group;
-        if( func->body ) BLM_TRY( xoico_stamp_s_resolve_chars( o, &func->body->code ) );
+        if( func->body )
+        {
+            func->body->group = o->group;
+            BLM_TRY( xoico_stamp_s_resolve_chars( o, &func->body->code ) );
+        }
     }
     BLM_RETURNV( er_t, 0 );
 }
@@ -570,7 +574,7 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcor
 
                 if( go_inline )
                 {
-                    xoico_body_s_expand( func->body, &feature->args, indent, sink );
+                    xoico_body_s_expand( func->body, feature->ret_type.sc, o->name.sc, &feature->args, indent, sink );
                 }
                 else
                 {
@@ -596,6 +600,16 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcor
                     bcore_sink_a_push_fa( sink, "#<sc_t>", ( signature->arg_o == TYPEOF_mutable ) ? "" : "const " );
                     bcore_sink_a_push_fa( sink, "#<sc_t>* o", o->name.sc );
                     BLM_TRY( xoico_stamp_s_args_s_expand( o, &signature->args, false, sink ) );
+                    bcore_sink_a_push_fa( sink, " )" );
+
+                    if( go_inline )
+                    {
+                        BLM_TRY( xoico_body_s_expand( func->body, ret_type->sc, o->name.sc, &signature->args, indent, sink ) );
+                    }
+                    else
+                    {
+                        bcore_sink_a_push_fa( sink, ";" );
+                    }
                 }
                 else
                 {
@@ -607,17 +621,16 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcor
                     {
                         bcore_sink_a_push_fa( sink, "void" );
                     }
-                }
+                    bcore_sink_a_push_fa( sink, " )" );
 
-                bcore_sink_a_push_fa( sink, " )" );
-
-                if( go_inline )
-                {
-                    BLM_TRY( xoico_body_s_expand( func->body, &signature->args, indent, sink ) );
-                }
-                else
-                {
-                    bcore_sink_a_push_fa( sink, ";" );
+                    if( go_inline )
+                    {
+                        BLM_TRY( xoico_body_s_expand( func->body, ret_type->sc, NULL, &signature->args, indent, sink ) );
+                    }
+                    else
+                    {
+                        bcore_sink_a_push_fa( sink, ";" );
+                    }
                 }
             }
             else
@@ -759,7 +772,7 @@ er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore
                     bcore_sink_a_push_fa( sink, "#<sc_t>* o", o->name.sc );
                     BLM_TRY( xoico_args_s_expand( &feature->args, false, sink ) );
                     bcore_sink_a_push_fa( sink, " )\n" );
-                    BLM_TRY( xoico_body_s_expand( func->body, &feature->args, indent, sink ) );
+                    BLM_TRY( xoico_body_s_expand( func->body, feature->ret_type.sc, o->name.sc, &feature->args, indent, sink ) );
                     bcore_sink_a_push_fa( sink, "\n" );
                 }
             }
@@ -778,6 +791,9 @@ er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore
                         bcore_sink_a_push_fa( sink, "#<sc_t>", ( signature->arg_o == TYPEOF_mutable ) ? "" : "const " );
                         bcore_sink_a_push_fa( sink, "#<sc_t>* o", o->name.sc );
                         BLM_TRY( xoico_stamp_s_args_s_expand( o, &signature->args, false, sink ) );
+                        bcore_sink_a_push_fa( sink, " )\n" );
+                        BLM_TRY( xoico_body_s_expand( func->body, ret_type->sc, o->name.sc, &signature->args, indent, sink ) );
+                        bcore_sink_a_push_fa( sink, "\n" );
                     }
                     else
                     {
@@ -789,11 +805,11 @@ er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore
                         {
                             bcore_sink_a_push_fa( sink, "void" );
                         }
+                        bcore_sink_a_push_fa( sink, " )\n" );
+                        BLM_TRY( xoico_body_s_expand( func->body, ret_type->sc, NULL, &signature->args, indent, sink ) );
+                        bcore_sink_a_push_fa( sink, "\n" );
                     }
 
-                    bcore_sink_a_push_fa( sink, " )\n" );
-                    BLM_TRY( xoico_body_s_expand( func->body, &signature->args, indent, sink ) );
-                    bcore_sink_a_push_fa( sink, "\n" );
                 }
             }
             else

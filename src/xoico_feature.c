@@ -107,6 +107,7 @@ er_t xoico_feature_s_parse( xoico_feature_s* o, bcore_source* source )
             if( o->strict ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Feature is 'strict'. Default function would have no effect." );
             o->default_body = xoico_body_s_create();
             o->default_body->group = o->group;
+            bcore_source_point_s_set( &o->default_body->source_point, source );
             BLM_TRY( xoico_body_s_parse_code( o->default_body, NULL, source ) );
             st_s_copy_fa( &o->default_name, "#<sc_t>__", o->name.sc );
         }
@@ -300,7 +301,7 @@ er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t in
             bcore_sink_a_push_fa( sink, " #<sc_t>* o", o->group->name.sc );
             BLM_TRY( xoico_args_s_expand( &o->args, false, sink ) );
             bcore_sink_a_push_fa( sink, " )" );
-            BLM_TRY( xoico_body_s_expand( o->default_body, &o->args, indent, sink ) );
+            BLM_TRY( xoico_body_s_expand( o->default_body, o->ret_type.sc, o->group->name.sc, &o->args, indent, sink ) );
         }
         else
         {
@@ -329,7 +330,7 @@ er_t xoico_feature_s_expand_definition( const xoico_feature_s* o, sz_t indent, b
         bcore_sink_a_push_fa( sink, " #<sc_t>* o", o->group->name.sc );
         BLM_TRY( xoico_args_s_expand( &o->args, false, sink ) );
         bcore_sink_a_push_fa( sink, " )\n" );
-        BLM_TRY( xoico_body_s_expand( o->default_body, &o->args, indent, sink ) );
+        BLM_TRY( xoico_body_s_expand( o->default_body, o->ret_type.sc, o->group->name.sc, &o->args, indent, sink ) );
     }
     BLM_RETURNV( er_t, 0 );
 }

@@ -26,14 +26,37 @@
 XOILA_DEFINE_GROUP( xoico_target, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+// extended flags (shared with external components)
+group :xflags  = :
+{
+    /// xflags can be NULL
+    signature void update( mutable, const :s* xflags );
+
+    stamp : = aware :
+    {
+        bl_t => apply_cengine; // default setting for cengine usage in body-expansion
+
+        func : :update =
+        {
+            if( !xflags ) return;
+            if( !o->apply_cengine )
+            {
+                o->apply_cengine = bcore_inst_t_clone( TYPEOF_bl_t, ( bcore_inst* )xflags->apply_cengine );
+            }
+        };
+    };
+};
+
 signature er_t parse( mutable, sc_t source_path );
 signature bl_t to_be_modified( const );
 signature er_t expand_phase1( mutable, bl_t* p_modified );
 signature er_t expand_phase2( mutable, bl_t* p_modified );
 signature bl_t is_cyclic( mutable ); // mutable because flag is used for cyclic test
+signature void update_xflags( mutable, const :xflags_s* xflags );
 
 stamp : = aware :
 {
+    :xflags_s xflags;
     st_s name; // target name (e.g. "bcore")
     st_s path; // path excluding extension
     xoico_source_s => [];
@@ -41,7 +64,6 @@ stamp : = aware :
     st_s signal_handler_name;    // name of governing signal handler
     bcore_arr_sz_s dependencies; // index array to dependent targets
     bl_t flag; // general purpose flag
-
     bl_t modified;    // target is to be modified
     bl_t readonly;    // target is readonly (affects writing in phase2)
     st_s => target_h; // target header file
@@ -60,6 +82,8 @@ stamp : = aware :
     func : :expand_phase1;
     func : :expand_phase2;
     func : :is_cyclic;
+
+    func : :update_xflags = { :xflags_s_update( &o->xflags, xflags ); };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

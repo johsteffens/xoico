@@ -31,6 +31,9 @@ signature er_t parse_name_recursive( mutable, st_s* name, bcore_source* source )
 signature er_t expand_declaration(   const, sz_t indent, bcore_sink* sink );
 signature er_t expand_definition(    const, sz_t indent, bcore_sink* sink );
 signature er_t expand_init1(         const, sz_t indent, bcore_sink* sink );
+
+signature xoico_source_s*   get_source( const );
+signature xoico_target_s*   get_target( const );
 signature xoico_compiler_s* get_compiler( const );
 
 /// source stack to handle includes
@@ -73,6 +76,8 @@ stamp : = aware :
     func : :expand_definition;
     func : :expand_init1;
 
+    func : :get_source;
+    func : :get_target;
     func : :get_compiler;
 
 };

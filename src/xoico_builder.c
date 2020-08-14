@@ -21,7 +21,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_builder_main_s_build_from_file_get_target_index( xoico_builder_main_s* o, bl_t readonly, sc_t path, sz_t* p_target_index );
+er_t xoico_builder_main_s_build_from_file_get_target_index( xoico_builder_main_s* o, bl_t readonly, sc_t path, const xoico_target_xflags_s* xflags, sz_t* p_target_index );
 
 er_t xoico_builder_target_s_build( const xoico_builder_target_s* o, bl_t readonly, sz_t* p_target_index )
 {
@@ -37,6 +37,7 @@ er_t xoico_builder_target_s_build( const xoico_builder_target_s* o, bl_t readonl
         }
 
         bl_t dep_readonly = readonly;
+
         {
             BLM_INIT();
             bcore_source* source = BLM_A_PUSH( bcore_source_string_s_create_sc( o->dependencies.data[ i ]->sc ) );
@@ -66,7 +67,7 @@ er_t xoico_builder_target_s_build( const xoico_builder_target_s* o, bl_t readonl
         }
 
         sz_t target_index = -1;
-        BLM_TRY( xoico_builder_main_s_build_from_file_get_target_index( o->main, dep_readonly, file_path->sc, &target_index ) );
+        BLM_TRY( xoico_builder_main_s_build_from_file_get_target_index( o->main, dep_readonly, file_path->sc, &o->target_xflags, &target_index ) );
         if( target_index >= 0 ) bcore_arr_sz_s_push( dependencies, target_index );
         BLM_DOWN();
     }
@@ -95,7 +96,7 @@ er_t xoico_builder_target_s_build( const xoico_builder_target_s* o, bl_t readonl
         st_s* xoi_target_name = BLM_A_PUSH( st_s_create_fa( "#<sc_t>_#<sc_t>", o->name->sc, o->extension->sc ) );
 
         sz_t index = -1;
-        BLM_TRY( xoico_compiler_s_compile( o->main->compiler, xoi_target_name->sc, file_path->sc, &index ) );
+        BLM_TRY( xoico_compiler_s_compile( o->main->compiler, xoi_target_name->sc, file_path->sc, &o->target_xflags, &index ) );
         target_index = ( target_index == -1 ) ? index : target_index;
         if( index != target_index )
         {
@@ -114,11 +115,11 @@ er_t xoico_builder_target_s_build( const xoico_builder_target_s* o, bl_t readonl
 
     if( target_index >= 0 )
     {
-        BLM_TRY( xoico_compiler_s_set_target_dependencies( o->main->compiler, target_index, dependencies ) );
+        BLM_TRY( xoico_compiler_s_target_set_dependencies( o->main->compiler, target_index, dependencies ) );
         st_s* signal_handler = BLM_A_PUSH( st_s_create_fa( "#<sc_t>_general_signal_handler", o->name->sc ) );
         if( o->signal_handler ) st_s_copy( signal_handler, o->signal_handler );
-        BLM_TRY( xoico_compiler_s_set_target_signal_handler_name( o->main->compiler, target_index, signal_handler->sc ) );
-        BLM_TRY( xoico_compiler_s_set_target_readonly( o->main->compiler, target_index, readonly ) );
+        BLM_TRY( xoico_compiler_s_target_set_signal_handler_name( o->main->compiler, target_index, signal_handler->sc ) );
+        BLM_TRY( xoico_compiler_s_target_set_readonly( o->main->compiler, target_index, readonly ) );
         if( p_target_index ) *p_target_index = target_index;
     }
 
@@ -130,7 +131,7 @@ er_t xoico_builder_target_s_build( const xoico_builder_target_s* o, bl_t readonl
 /**********************************************************************************************************************/
 // xoico_builder interface functions
 
-er_t xoico_builder_main_s_build_from_file_get_target_index( xoico_builder_main_s* o, bl_t readonly, sc_t path, sz_t* p_target_index )
+er_t xoico_builder_main_s_build_from_file_get_target_index( xoico_builder_main_s* o, bl_t readonly, sc_t path, const xoico_target_xflags_s* xflags, sz_t* p_target_index )
 {
     BLM_INIT();
 
@@ -175,6 +176,9 @@ er_t xoico_builder_main_s_build_from_file_get_target_index( xoico_builder_main_s
         xoico_builder_target_s* builder = BLM_CREATE( xoico_builder_target_s );
         builder->main = o;
         bcore_txt_ml_a_from_file( builder, st_path->sc );
+
+        xoico_target_xflags_s_update( &builder->target_xflags, xflags );
+
         BLM_TRY( xoico_builder_target_s_build( builder, readonly, &target_index ) );
     }
 
@@ -187,7 +191,7 @@ er_t xoico_builder_main_s_build_from_file_get_target_index( xoico_builder_main_s
 
 er_t xoico_builder_main_s_build_from_file( xoico_builder_main_s* o, sc_t path )
 {
-    return xoico_builder_main_s_build_from_file_get_target_index( o, false, path, NULL );
+    return xoico_builder_main_s_build_from_file_get_target_index( o, false, path, NULL, NULL );
 }
 
 //----------------------------------------------------------------------------------------------------------------------

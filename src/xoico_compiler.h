@@ -30,16 +30,19 @@ signature const xoico* item_get(       const, tp_t item_id );
 signature        bl_t  item_exists(    const, tp_t item_id );
 signature        er_t  item_register(  mutable, const xoico* item,          bcore_source* source );
 signature        er_t  group_register( mutable, const xoico_group_s* group, bcore_source* source );
+signature        er_t  type_register(  mutable, tp_t type );
+
 signature        er_t  life_a_push(    mutable, vd_t object );
 signature        er_t  check_overwrite( const,  sc_t file );
 signature        bl_t  is_type(         const,  tp_t name ); // check if name represents a registered type (either group name or stamp name)
 
 // external interface ...
 signature er_t setup                         ( mutable );
-signature er_t compile                       ( mutable, sc_t target_name, sc_t source_path, sz_t* p_target_index );
-signature er_t set_target_readonly           ( mutable, sz_t target_index, bl_t readonly );
-signature er_t set_target_signal_handler_name( mutable, sz_t target_index, sc_t name );
-signature er_t set_target_dependencies       ( mutable, sz_t target_index, const bcore_arr_sz_s* dependencies );
+signature er_t compile                       ( mutable, sc_t target_name, sc_t source_path, const xoico_target_xflags_s* xflags, sz_t* p_target_index );
+signature er_t target_set_readonly           ( mutable, sz_t target_index, bl_t readonly );
+signature er_t target_set_signal_handler_name( mutable, sz_t target_index, sc_t name );
+signature er_t target_set_dependencies       ( mutable, sz_t target_index, const bcore_arr_sz_s* dependencies );
+signature er_t target_update_xflags          ( mutable, sz_t target_index, const xoico_target_xflags_s* xflags );
 signature er_t update_target_files           ( mutable, bl_t* p_modified );
 signature bl_t update_required               ( mutable );
 signature sz_t get_verbosity                 ( const );
@@ -49,7 +52,7 @@ stamp : = aware :
     hidden xoico_target_s => [];
     hidden bcore_hmap_tpvd_s hmap_group;
     hidden bcore_hmap_tpvd_s hmap_item;
-    hidden bcore_hmap_tp_s   hmap_types; // externally registered types
+    hidden bcore_hmap_tp_s   hmap_type;  // externally registered types
     hidden bcore_life_s      life;       // lifetime manager for items generation during processing
 
     // parameters
@@ -66,6 +69,7 @@ stamp : = aware :
     func : :item_exists;
     func : :item_register;
     func : :group_register;
+    func : :type_register;
     func : :is_type;
     func : :life_a_push;
     func : :check_overwrite;
@@ -73,9 +77,10 @@ stamp : = aware :
     // external interface ...
     func : :setup;
     func : :compile;
-    func : :set_target_signal_handler_name;
-    func : :set_target_dependencies;
-    func : :set_target_readonly;
+    func : :target_set_signal_handler_name;
+    func : :target_set_dependencies;
+    func : :target_set_readonly;
+    func : :target_update_xflags;
     func : :update_target_files;
     func : :update_required;
     func : :get_verbosity;

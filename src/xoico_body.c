@@ -73,6 +73,7 @@ er_t xoico_body_s_append( xoico_body_s* o, sz_t indent, const xoico_body_s* body
 er_t xoico_body_s_parse_code( xoico_body_s* o, xoico_stamp_s* stamp, bcore_source* source )
 {
     BLM_INIT();
+    if( !o->group ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Body has no group assigned." );
 
     st_s_clear( &o->code );
 
@@ -88,6 +89,11 @@ er_t xoico_body_s_parse_code( xoico_body_s* o, xoico_stamp_s* stamp, bcore_sourc
     {
         o->go_inline = false;
         while( bcore_source_a_parse_bl_fa( source, "#?' '" ) ) undo_indentation++;
+    }
+
+    if( xoico_group_s_get_target( o->group )->xflags.apply_cengine )
+    {
+        o->apply_cengine = *xoico_group_s_get_target( o->group )->xflags.apply_cengine;
     }
 
     if( bcore_source_a_parse_bl_fa( source, "#?'$apply_cengine'" ) )
@@ -159,6 +165,7 @@ er_t xoico_body_s_parse_code( xoico_body_s* o, xoico_stamp_s* stamp, bcore_sourc
                     }
                     xoico_body_s* body = BLM_CREATE( xoico_body_s );
                     body->group = o->group;
+                    bcore_source_point_s_set( &body->source_point, source );
                     BLM_TRY( xoico_body_s_parse_expression( body, stamp, source ) );
                     XOICO_BLM_SOURCE_PARSE_FA( source, " ;" ); // embedded body expression must close with a semicolon
                     BLM_TRY( xoico_body_s_append( o, indent, body ) );
@@ -223,6 +230,7 @@ er_t xoico_body_s_parse_code( xoico_body_s* o, xoico_stamp_s* stamp, bcore_sourc
 er_t xoico_body_s_parse_expression( xoico_body_s* o, xoico_stamp_s* stamp, bcore_source* source )
 {
     BLM_INIT();
+
     if( bcore_source_a_parse_bl_fa( source, " #=?'{'" ) )
     {
         BLM_TRY( xoico_body_s_parse_code( o, stamp, source ) );
@@ -261,6 +269,7 @@ er_t xoico_body_s_parse_expression( xoico_body_s* o, xoico_stamp_s* stamp, bcore
         }
         xoico_body_s* body = BLM_CREATE( xoico_body_s );
         body->group = o->group;
+        bcore_source_point_s_set( &body->source_point, source );
         BLM_TRY( xoico_body_s_parse_expression( body, stamp, source ) );
         st_s_push_char( &o->code, '\n' );
         o->go_inline = false;
@@ -275,6 +284,7 @@ er_t xoico_body_s_parse_expression( xoico_body_s* o, xoico_stamp_s* stamp, bcore
 er_t xoico_body_s_parse( xoico_body_s* o, xoico_stamp_s* stamp, bcore_source* source )
 {
     BLM_INIT();
+    if( !o->group ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Body has no group assigned." );
 
     st_s* string = BLM_CREATE( st_s );
 
@@ -297,14 +307,18 @@ er_t xoico_body_s_parse( xoico_body_s* o, xoico_stamp_s* stamp, bcore_source* so
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_body_s_expand( const xoico_body_s* o, const xoico_args_s* args, sz_t indent, bcore_sink* sink )
+er_t xoico_body_s_expand( const xoico_body_s* o, sc_t ret_type, sc_t obj_type, const xoico_args_s* args, sz_t indent, bcore_sink* sink )
 {
+    BLM_INIT();
+    const st_s* final_code = &o->code;
+    st_s* st_out = BLM_CREATE( st_s );
     if( o->apply_cengine )
     {
-        BLM_INIT();
+        if( !o->group ) XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA( &o->source_point, "Body has no group assigned." );
         bcore_source* source = BLM_A_PUSH( bcore_source_string_s_create_sc( o->code.sc ) );
-        st_s* st_out = BLM_CREATE( st_s );
         xoico_cengine_s* engine = BLM_CREATE( xoico_cengine_s );
+        engine->ret_type = ret_type;
+        engine->obj_type = obj_type;
         engine->args     = bcore_fork( ( xoico_args_s* )args );
         engine->compiler = bcore_fork( xoico_group_s_get_compiler( o->group ) );
 
@@ -316,32 +330,30 @@ er_t xoico_body_s_expand( const xoico_body_s* o, const xoico_args_s* args, sz_t 
             XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA
             (
                 &o->source_point,
-                "\ntext-offset#<sc_t>",
+                "\ncengine-error: #<sc_t>",
                 msg->sc
             );
         }
 
-        bcore_msg_fa( "\n#<sc_t>\n", st_out->sc );
-
-        BLM_DOWN();
+        final_code = st_out;
     }
 
     if( o->go_inline )
     {
-        bcore_sink_a_push_fa( sink, "{#<sc_t>}", o->code.sc );
+        bcore_sink_a_push_fa( sink, "{#<sc_t>}", final_code->sc );
     }
     else
     {
         bcore_sink_a_push_fa( sink, "{\n#rn{ }", indent + 4 );
-        for( sz_t i = 0; i < o->code.size; i++ )
+        for( sz_t i = 0; i < final_code->size; i++ )
         {
-            char c = o->code.sc[ i ];
+            char c = final_code->sc[ i ];
             bcore_sink_a_push_char( sink, c );
             if( c == '\n' ) bcore_sink_a_push_fa( sink, "#rn{ }", indent + 4 );
         }
         bcore_sink_a_push_fa( sink, "\n#rn{ }}", indent );
     }
-    return 0;
+    BLM_RETURNV( er_t, 0 );
 }
 
 //----------------------------------------------------------------------------------------------------------------------

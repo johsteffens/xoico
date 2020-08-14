@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-12T15:32:21Z
+ *  Last File Update: 2020-08-14T12:43:15Z
  *
  *  Copyright and License of this File:
  *
@@ -359,6 +359,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_source_s )
 BCORE_DEFINE_OBJECT_INST_P( xoico_target_s )
 "aware xoico_target"
 "{"
+    "xoico_target_xflags_s xflags;"
     "st_s name;"
     "st_s path;"
     "xoico_source_s => [];"
@@ -374,6 +375,24 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_target_s )
     "private aware xoico_compiler_s* compiler;"
 "}";
 
+//----------------------------------------------------------------------------------------------------------------------
+// group: xoico_target_xflags
+
+BCORE_DEFINE_OBJECT_INST_P( xoico_target_xflags_s )
+"aware xoico_target_xflags"
+"{"
+    "bl_t => apply_cengine;"
+"}";
+
+void xoico_target_xflags_s_update( xoico_target_xflags_s* o, const xoico_target_xflags_s* xflags )
+{
+    if( !xflags ) return;
+    if( !o->apply_cengine )
+    {
+        o->apply_cengine = bcore_inst_t_clone( TYPEOF_bl_t, ( bcore_inst* )xflags->apply_cengine );
+    }
+}
+
 /**********************************************************************************************************************/
 // source: xoico_compiler.h
 #include "xoico_compiler.h"
@@ -387,7 +406,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_compiler_s )
     "hidden xoico_target_s => [];"
     "hidden bcore_hmap_tpvd_s hmap_group;"
     "hidden bcore_hmap_tpvd_s hmap_item;"
-    "hidden bcore_hmap_tp_s hmap_types;"
+    "hidden bcore_hmap_tp_s hmap_type;"
     "hidden bcore_life_s life;"
     "bl_t register_plain_functions = true;"
     "bl_t register_signatures = false;"
@@ -411,6 +430,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_builder_target_s )
     "st_s => name;"
     "st_s => extension = \"xoila_out\";"
     "st_s => root;"
+    "xoico_target_xflags_s target_xflags;"
     "private aware xoico_builder_main_s* main;"
     "bcore_arr_st_s dependencies;"
     "bcore_arr_st_s sources;"
@@ -485,6 +505,8 @@ bl_t xoico_builder_main_s_get_overwrite_unsigned_target_files( const xoico_build
 BCORE_DEFINE_OBJECT_INST_P( xoico_cengine_s )
 "aware xoico_cengine"
 "{"
+    "sc_t ret_type;"
+    "sc_t obj_type;"
     "xoico_args_s -> args;"
     "xoico_compiler_s -> compiler;"
     "xoico_cengine_tn_stack_s stack;"
@@ -566,9 +588,10 @@ void xoico_cengine_tn_stack_s_clear( xoico_cengine_tn_stack_s* o )
     xoico_cengine_tn_adl_s_clear( &o->adl );
 }
 
-void xoico_cengine_tn_stack_s_init_from_args( xoico_cengine_tn_stack_s* o, const xoico_args_s* args )
+void xoico_cengine_tn_stack_s_init_from_args( xoico_cengine_tn_stack_s* o, sc_t obj_type, sc_t obj_name, const xoico_args_s* args )
 {
     xoico_cengine_tn_stack_s_clear( o );
+    if( obj_type ) xoico_cengine_tn_stack_s_push_sc( o, obj_type, obj_name, 0 );
     BFOR_EACH( i, args )
     {
         if( args->data[ i ].tp_type && args->data[ i ].tp_name )
@@ -764,6 +787,10 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_OBJECT( xoico_target_s );
             BCORE_REGISTER_TRAIT( xoico_target, xoico );
 
+            // group: xoico_target_xflags
+            BCORE_REGISTER_OBJECT( xoico_target_xflags_s );
+            BCORE_REGISTER_TRAIT( xoico_target_xflags, xoico_target );
+
             // --------------------------------------------------------------------
             // source: xoico_compiler.h
 
@@ -807,4 +834,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0x028857FC6B8BA51Dull
+// XOILA_OUT_SIGNATURE 0xB60C309F500DED9Cull

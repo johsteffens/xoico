@@ -19,6 +19,8 @@
 /**********************************************************************************************************************/
 
 #include "xoico.h"
+#include "xoico_target.h"
+#include "xoico_compiler.h"
 
 /**********************************************************************************************************************/
 
@@ -33,6 +35,9 @@ stamp :target = aware :
     st_s => name;                    // target name
     st_s => extension = "xoila_out"; // extension used for xoila output files
     st_s => root;                    // root folder of subsequent file paths (used if they are relative)
+
+    /// xflags affect this target and update dependencies
+    xoico_target_xflags_s target_xflags;
 
     private aware :main_s* main;
 
