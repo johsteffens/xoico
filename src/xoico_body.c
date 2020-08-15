@@ -30,17 +30,25 @@ sc_t xoico_body_s_get_global_name_sc( const xoico_body_s* o )
 
 //----------------------------------------------------------------------------------------------------------------------
 
+er_t xoico_body_s_set_group( xoico_body_s* o, xoico_group_s* group )
+{
+    o->group = group;
+    if( xoico_group_s_get_target( o->group )->xflags.apply_cengine )
+    {
+        o->apply_cengine = *xoico_group_s_get_target( o->group )->xflags.apply_cengine;
+    }
+    return 0;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 tp_t xoico_body_s_get_hash( const xoico_body_s* o )
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
     hash = bcore_tp_fold_sc( hash, o->name.sc );
     hash = bcore_tp_fold_sc( hash, o->code.sc );
-    hash = bcore_tp_fold_u0( hash, o->go_inline ? 1 : 0 );
-
-    if( o->apply_cengine )
-    {
-        hash = bcore_tp_fold_u0( hash, 1 );
-    }
+    hash = bcore_tp_fold_bl( hash, o->go_inline );
+    hash = bcore_tp_fold_bl( hash, o->apply_cengine );
     return hash;
 }
 
@@ -89,11 +97,6 @@ er_t xoico_body_s_parse_code( xoico_body_s* o, xoico_stamp_s* stamp, bcore_sourc
     {
         o->go_inline = false;
         while( bcore_source_a_parse_bl_fa( source, "#?' '" ) ) undo_indentation++;
-    }
-
-    if( xoico_group_s_get_target( o->group )->xflags.apply_cengine )
-    {
-        o->apply_cengine = *xoico_group_s_get_target( o->group )->xflags.apply_cengine;
     }
 
     if( bcore_source_a_parse_bl_fa( source, "#?'$apply_cengine'" ) )
@@ -164,7 +167,8 @@ er_t xoico_body_s_parse_code( xoico_body_s* o, xoico_stamp_s* stamp, bcore_sourc
                         if( o->code.sc[ i ] == ' ') indent++; else break;
                     }
                     xoico_body_s* body = BLM_CREATE( xoico_body_s );
-                    body->group = o->group;
+                    BLM_TRY( xoico_body_s_set_group( body, o->group ) );
+
                     bcore_source_point_s_set( &body->source_point, source );
                     BLM_TRY( xoico_body_s_parse_expression( body, stamp, source ) );
                     XOICO_BLM_SOURCE_PARSE_FA( source, " ;" ); // embedded body expression must close with a semicolon
@@ -268,7 +272,7 @@ er_t xoico_body_s_parse_expression( xoico_body_s* o, xoico_stamp_s* stamp, bcore
             XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Whitespace after ':' expected." );
         }
         xoico_body_s* body = BLM_CREATE( xoico_body_s );
-        body->group = o->group;
+        BLM_TRY( xoico_body_s_set_group( body, o->group ) );
         bcore_source_point_s_set( &body->source_point, source );
         BLM_TRY( xoico_body_s_parse_expression( body, stamp, source ) );
         st_s_push_char( &o->code, '\n' );
@@ -330,10 +334,16 @@ er_t xoico_body_s_expand( const xoico_body_s* o, sc_t ret_type, sc_t obj_type, c
             XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA
             (
                 &o->source_point,
-                "\ncengine-error: #<sc_t>",
+                "\ncengine-error: #<sc_t>\n"
+                "\n",
                 msg->sc
             );
         }
+
+//        if( !st_s_equal_st( st_out, &o->code ) )
+//        {
+//            bcore_msg_fa( "#<sc_t>\n", st_out->sc );
+//        }
 
         final_code = st_out;
     }

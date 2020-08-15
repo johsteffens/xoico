@@ -464,7 +464,7 @@ er_t xoico_stamp_s_finalize( xoico_stamp_s* o )
         func->group = o->group;
         if( func->body )
         {
-            func->body->group = o->group;
+            BLM_TRY( xoico_body_s_set_group( func->body, o->group ) );
             BLM_TRY( xoico_stamp_s_resolve_chars( o, &func->body->code ) );
         }
     }

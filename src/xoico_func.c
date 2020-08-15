@@ -80,7 +80,8 @@ er_t xoico_func_s_parse( xoico_func_s* o, xoico_stamp_s* stamp, bcore_source* so
     if( bcore_source_a_parse_bl_fa( source, " #=?'='" ) )
     {
         o->body = xoico_body_s_create();
-        o->body->group = o->group;
+        BLM_TRY( xoico_body_s_set_group( o->body, o->group ) );
+
         BLM_TRY( xoico_body_s_parse( o->body, stamp, source ) );
     }
 

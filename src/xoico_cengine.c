@@ -374,6 +374,10 @@ static er_t take_block_body( xoico_cengine_s* o, sz_t level, bcore_source* sourc
             xoico_cengine_tn_stack_s_pop( &o->stack, level );
             break;
         }
+        else if( c == '(' )
+        {
+            BLM_TRY( take_statement( o, level, source, sink ) );
+        }
         else if( c == '#' )
         {
             BLM_TRY( take_preprocessor( o, source, sink ) );

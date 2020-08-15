@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-14T12:43:15Z
+ *  Last File Update: 2020-08-15T13:27:59Z
  *
  *  Copyright and License of this File:
  *
@@ -173,7 +173,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_body_s )
     "st_s global_name;"
     "st_s code;"
     "bl_t go_inline;"
-    "bl_t apply_cengine;"
+    "bl_t apply_cengine = true;"
     "private aware xoico_group_s* group;"
     "bcore_source_point_s source_point;"
     "func xoico:get_hash;"
@@ -834,4 +834,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0xB60C309F500DED9Cull
+// XOILA_OUT_SIGNATURE 0x12A7862A34204799ull

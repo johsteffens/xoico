@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-14T12:43:15Z
+ *  Last File Update: 2020-08-15T13:27:59Z
  *
  *  Copyright and License of this File:
  *
@@ -34,7 +34,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0xDC50DEA01B80920Eull
+#define HKEYOF_xoico_xoila_out 0xBFE0884FD4EE422Eull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -294,7 +294,8 @@
   sc_t xoico_body_s_get_global_name_sc( const xoico_body_s* o ); \
   er_t xoico_body_s_parse_code( xoico_body_s* o, xoico_stamp_s* stamp, bcore_source* source ); \
   er_t xoico_body_s_parse( xoico_body_s* o, xoico_stamp_s* stamp, bcore_source* source ); \
-  er_t xoico_body_s_expand( const xoico_body_s* o, sc_t ret_type, sc_t obj_type, const xoico_args_s* args, sz_t indent, bcore_sink* sink );
+  er_t xoico_body_s_expand( const xoico_body_s* o, sc_t ret_type, sc_t obj_type, const xoico_args_s* args, sz_t indent, bcore_sink* sink ); \
+  er_t xoico_body_s_set_group( xoico_body_s* o, xoico_group_s* group );
 #define BETH_EXPAND_GROUP_xoico_body \
   BCORE_FORWARD_OBJECT( xoico_body ); \
   BCORE_FORWARD_OBJECT( xoico_body_s ); \
@@ -665,4 +666,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0xC4650A2A26983AE6ull
+// XOILA_OUT_SIGNATURE 0x1836AB7B72179F70ull

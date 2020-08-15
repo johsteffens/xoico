@@ -106,7 +106,8 @@ er_t xoico_feature_s_parse( xoico_feature_s* o, bcore_source* source )
         {
             if( o->strict ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Feature is 'strict'. Default function would have no effect." );
             o->default_body = xoico_body_s_create();
-            o->default_body->group = o->group;
+            BLM_TRY( xoico_body_s_set_group( o->default_body, o->group ) );
+
             bcore_source_point_s_set( &o->default_body->source_point, source );
             BLM_TRY( xoico_body_s_parse_code( o->default_body, NULL, source ) );
             st_s_copy_fa( &o->default_name, "#<sc_t>__", o->name.sc );
