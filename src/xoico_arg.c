@@ -30,18 +30,15 @@ er_t xoico_arg_s_parse( xoico_arg_s* o, bcore_source* source )
     if( bcore_source_a_parse_bl_fa( source, "#?':' " ) )
     {
         xoico_group_s_parse_name_recursive( o->group, s, source );
-        o->tp_type = btypeof( s->sc );
     }
     else if( bcore_source_a_parse_bl_fa( source, "#?'@' " ) )
     {
         st_s_push_char( s, '@' );
-        o->tp_type = 0;
     }
     else
     {
         XOICO_BLM_SOURCE_PARSE_FA( source, "#name ", s );
         if( s->size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Argument: Type expected." );
-        o->tp_type = btypeof( s->sc );
     }
     st_s_push_st( &o->st_type, s );
 
@@ -49,8 +46,7 @@ er_t xoico_arg_s_parse( xoico_arg_s* o, bcore_source* source )
 
     XOICO_BLM_SOURCE_PARSE_FA( source, "#name ", s );
     if( s->size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Argument: Name expected." );
-    st_s_push_st( &o->st_name, s );
-    o->tp_name = btypeof( s->sc );
+    st_s_copy( &o->st_name, s );
 
     BLM_RETURNV( er_t, 0 );
 }

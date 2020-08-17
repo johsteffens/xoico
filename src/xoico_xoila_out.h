@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-17T16:08:51Z
+ *  Last File Update: 2020-08-17T18:21:09Z
  *
  *  Copyright and License of this File:
  *
@@ -34,7 +34,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0xDE90ED247262B6F7ull
+#define HKEYOF_xoico_xoila_out 0x0B6983F280A8A97Bull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -226,7 +226,7 @@
 #define TYPEOF_xoico_arg_s 0xDE77C40AC671BCC8ull
 #define BETH_EXPAND_ITEM_xoico_arg_s \
   BCORE_DECLARE_OBJECT( xoico_arg_s ) \
-    {aware_t _;st_s st_type;st_s st_name;tp_t tp_type;tp_t tp_name;xoico_group_s* group;bcore_source_point_s source_point;}; \
+    {aware_t _;st_s st_type;st_s st_name;xoico_group_s* group;bcore_source_point_s source_point;}; \
   er_t xoico_arg_s_parse( xoico_arg_s* o, bcore_source* source ); \
   tp_t xoico_arg_s_get_hash( const xoico_arg_s* o ); \
   er_t xoico_arg_s_expand( const xoico_arg_s* o, bcore_sink* sink ); \
@@ -666,4 +666,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0x849412FC39635C1Aull
+// XOILA_OUT_SIGNATURE 0x1E27C98B3E1A1C80ull

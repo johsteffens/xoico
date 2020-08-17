@@ -112,10 +112,14 @@ group :tn = :
             if( obj_type ) @_push_sc( o, obj_type, obj_name, 0 );
             BFOR_EACH( i, args )
             {
-                if( args->data[ i ].tp_type && args->data[ i ].tp_name )
+                BLM_INIT();
+                st_s* s = BLM_CREATE( st_s );
+                st_s_parse_fa( &args->data[ i ].st_type, 0, -1, "#name", s );
+                if( s->size > 0 )
                 {
-                    @_push_sc( o, args->data[ i ].st_type.sc, args->data[ i ].st_name.sc, 0 );
+                    @_push_sc( o, s->sc, args->data[ i ].st_name.sc, 0 );
                 }
+                BLM_DOWN();
             }
         };
     };

@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-17T16:08:51Z
+ *  Last File Update: 2020-08-17T18:21:09Z
  *
  *  Copyright and License of this File:
  *
@@ -112,8 +112,6 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_arg_s )
 "{"
     "st_s st_type;"
     "st_s st_name;"
-    "tp_t tp_type;"
-    "tp_t tp_name;"
     "private aware xoico_group_s* group;"
     "bcore_source_point_s source_point;"
     "func xoico:parse;"
@@ -594,10 +592,14 @@ void xoico_cengine_tn_stack_s_init_from_args( xoico_cengine_tn_stack_s* o, sc_t 
     if( obj_type ) xoico_cengine_tn_stack_s_push_sc( o, obj_type, obj_name, 0 );
     BFOR_EACH( i, args )
     {
-        if( args->data[ i ].tp_type && args->data[ i ].tp_name )
+        BLM_INIT();
+        st_s* s = BLM_CREATE( st_s );
+        st_s_parse_fa( &args->data[ i ].st_type, 0, -1, "#name", s );
+        if( s->size > 0 )
         {
-            xoico_cengine_tn_stack_s_push_sc( o, args->data[ i ].st_type.sc, args->data[ i ].st_name.sc, 0 );
+            xoico_cengine_tn_stack_s_push_sc( o, s->sc, args->data[ i ].st_name.sc, 0 );
         }
+        BLM_DOWN();
     }
 }
 
@@ -834,4 +836,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0x61C188802D2D2456ull
+// XOILA_OUT_SIGNATURE 0xDE5659FB54A45FE9ull
