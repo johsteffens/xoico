@@ -228,40 +228,6 @@ er_t xoico_stamp_s_resolve_chars( const xoico_stamp_s* o, st_s* string )
             }
             break;
 
-            case '$':
-            {
-                i++;
-                c = string->data[ i ];
-                switch( c )
-                {
-                    case 'R':
-                    {
-                        sc_t rel_name = xoico_stamp_s_get_rel_name_sc( o );
-                        sz_t size = bcore_strlen( rel_name );
-                        if( size >= 2 && sc_t_equal( rel_name + size - 2, "_s" ) )
-                        {
-                            st_s_push_sc_n( buf, rel_name, size - 2 );
-                        }
-                        else
-                        {
-                            st_s_push_sc( buf, rel_name );
-                        }
-                    }
-                    break;
-
-                    default :
-                    {
-                        XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA
-                        (
-                            &o->source_point,
-                            "'#<sc_t>':\nInvalid character following '$'.",
-                            string->sc
-                        );
-                    }
-                }
-            }
-            break;
-
             default:
             {
                 st_s_push_char( buf, c );

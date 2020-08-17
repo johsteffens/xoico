@@ -99,24 +99,6 @@ er_t xoico_body_s_parse_code( xoico_body_s* o, xoico_stamp_s* stamp, bcore_sourc
         while( bcore_source_a_parse_bl_fa( source, "#?' '" ) ) undo_indentation++;
     }
 
-    if( bcore_source_a_parse_bl_fa( source, "#?'$apply_cengine'" ) )
-    {
-        XOICO_BLM_SOURCE_PARSE_FA( source, " = " );
-        if( bcore_source_a_parse_bl_fa( source, "#?'true'" ) )
-        {
-            o->apply_cengine = true;
-        }
-        else if( bcore_source_a_parse_bl_fa( source, "#?'false'" ) )
-        {
-            o->apply_cengine = false;
-        }
-        else
-        {
-            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Syntax error." );
-        }
-        XOICO_BLM_SOURCE_PARSE_FA( source, " ;" );
-    }
-
     while( !bcore_source_a_eos( source ) && !exit_loop )
     {
         u0_t c = bcore_source_a_get_u0( source );
@@ -195,7 +177,7 @@ er_t xoico_body_s_parse_code( xoico_body_s* o, xoico_stamp_s* stamp, bcore_sourc
             // ordinary c-code using ':' should append a whitespace or prepend escape '\:'
             case ':':
             {
-                if( bcore_source_a_parse_bl_fa( source, "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]==':'||[0]=='*'||[0]=='@'||[0]=='$')" ) )
+                if( bcore_source_a_parse_bl_fa( source, "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]==':'||[0]=='*'||[0]=='@')" ) )
                 {
                     BLM_INIT();
                     st_s* name = BLM_CREATE( st_s );

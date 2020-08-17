@@ -62,13 +62,6 @@ er_t xoico_group_s_parse_name_recursive( xoico_group_s* o, st_s* name, bcore_sou
         st_s* s = BLM_CREATE( st_s );
         XOICO_BLM_SOURCE_PARSE_FA( source, " #name", s );
 
-        // include certain key-characters in name
-        if( bcore_source_a_parse_bl_fa( source, "#?'$'" ) )
-        {
-            st_s_push_char( s, '$' );
-            XOICO_BLM_SOURCE_PARSE_FA( source, " #:name", s );
-        }
-
         if( s->size > 0 )
         {
             st_s_push_fa( name, "_#<sc_t>", s->sc );
