@@ -36,7 +36,7 @@ stamp : = aware :
     st_s global_name;
     st_s code;
     bl_t go_inline;
-    bl_t apply_cengine = false;
+    bl_t apply_cengine = true;
 
     /// use set_group to set this variable
     private aware xoico_group_s* group;
