@@ -124,7 +124,7 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
     while
     (
         stack->size >= 2 ||
-        ( group_termination ? !bcore_source_a_parse_bl_fa( source, group_termination ) : bcore_source_a_eos( source ) )
+        ( group_termination ? !bcore_source_a_parse_bl_fa( source, group_termination ) : !bcore_source_a_eos( source ) )
     )
     {
         BLM_INIT();
@@ -308,29 +308,29 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
 
             XOICO_BLM_SOURCE_PARSE_FA( source, " ;" );
         }
-        else if( bcore_source_a_parse_bl_fa( source, " #?w'include' " ) )
+        else if( bcore_source_a_parse_bl_fa( source, " #?w'embed' " ) )
         {
             st_s* folder = BLM_A_PUSH( bcore_file_folder_path( bcore_source_a_get_file( source ) ) );
             if( folder->size == 0 ) st_s_push_char( folder, '.' );
             st_s* include_file = BLM_CREATE( st_s );
             XOICO_BLM_SOURCE_PARSE_FA( source, " #string" , include_file );
             XOICO_BLM_SOURCE_PARSE_FA( source, " ;" );
-            bcore_arr_st_s_push_st( &o->source->target->explicit_includes, include_file );
+            bcore_arr_st_s_push_st( &o->source->target->explicit_embeddings, include_file );
 
-            bcore_source* include_source = NULL;
-            BLM_TRY( xoico_include_file_open( source, include_file->sc, &include_source ) );
+            bcore_source* embed_source = NULL;
+            BLM_TRY( xoico_embed_file_open( source, include_file->sc, &embed_source ) );
 
             // check for cyclic inclusions
             BFOR_EACH( i, stack )
             {
-                sc_t path = bcore_source_a_get_file( include_source );
+                sc_t path = bcore_source_a_get_file( embed_source );
                 if( sc_t_equal( path, bcore_source_a_get_file( stack->data[ i ] ) ) )
                 {
                     XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Xoico: Cyclic inclusion." );
                 }
             }
 
-            xoico_group_source_stack_s_push_d( stack, source = include_source );
+            xoico_group_source_stack_s_push_d( stack, source = embed_source );
         }
         else
         {

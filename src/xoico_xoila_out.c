@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-16T11:09:13Z
+ *  Last File Update: 2020-08-17T16:08:51Z
  *
  *  Copyright and License of this File:
  *
@@ -371,7 +371,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_target_s )
     "bl_t readonly;"
     "st_s => target_h;"
     "st_s => target_c;"
-    "bcore_arr_st_s explicit_includes;"
+    "bcore_arr_st_s explicit_embeddings;"
     "private aware xoico_compiler_s* compiler;"
 "}";
 
@@ -834,4 +834,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0xEFD2E3ADA2E070E4ull
+// XOILA_OUT_SIGNATURE 0x61C188802D2D2456ull

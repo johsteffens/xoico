@@ -158,9 +158,9 @@ er_t xoico_target_s_expand_heading( const xoico_target_s* o, sz_t indent, bcore_
         bcore_sink_a_push_fa( sink, " *  #<sc_t>.h\n", source->name.sc );
     }
 
-    if( o->explicit_includes.size > 0 )
+    if( o->explicit_embeddings.size > 0 )
     {
-        bcore_arr_st_s* arr = bcore_arr_st_s_sort( BLM_CLONE( bcore_arr_st_s, &o->explicit_includes ), 1 );
+        bcore_arr_st_s* arr = bcore_arr_st_s_sort( BLM_CLONE( bcore_arr_st_s, &o->explicit_embeddings ), 1 );
         st_s* prev_file = NULL;
         BFOR_EACH( i, arr )
         {

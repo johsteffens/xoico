@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-16T11:09:13Z
+ *  Last File Update: 2020-08-17T16:08:51Z
  *
  *  Copyright and License of this File:
  *
@@ -34,7 +34,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0xBFE0884FD4EE422Eull
+#define HKEYOF_xoico_xoila_out 0xDE90ED247262B6F7ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -497,7 +497,7 @@
 #define TYPEOF_xoico_target_s 0x05A0ECAFABEA8CB1ull
 #define BETH_EXPAND_ITEM_xoico_target_s \
   BCORE_DECLARE_OBJECT( xoico_target_s ) \
-    {aware_t _;xoico_target_xflags_s xflags;st_s name;st_s path;BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_source_s, );st_s signal_handler_name;bcore_arr_sz_s dependencies;bl_t flag;bl_t modified;bl_t readonly;st_s* target_h;st_s* target_c;bcore_arr_st_s explicit_includes;xoico_compiler_s* compiler;}; \
+    {aware_t _;xoico_target_xflags_s xflags;st_s name;st_s path;BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_source_s, );st_s signal_handler_name;bcore_arr_sz_s dependencies;bl_t flag;bl_t modified;bl_t readonly;st_s* target_h;st_s* target_c;bcore_arr_st_s explicit_embeddings;xoico_compiler_s* compiler;}; \
   er_t xoico_target_s_finalize( xoico_target_s* o ); \
   er_t xoico_target_s_parse( xoico_target_s* o, sc_t source_path ); \
   bl_t xoico_target_s_to_be_modified( const xoico_target_s* o ); \
@@ -666,4 +666,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0x4F8F88D80A95E37Dull
+// XOILA_OUT_SIGNATURE 0x849412FC39635C1Aull

@@ -47,11 +47,10 @@ er_t xoico_source_s_parse( xoico_source_s* o, bcore_source* source )
             {
                 st_s* include_file = BLM_CREATE( st_s );
                 XOICO_BLM_SOURCE_PARSE_FA( source, " #string )", include_file );
-                bcore_arr_st_s_push_st( &o->target->explicit_includes, include_file );
+                bcore_arr_st_s_push_st( &o->target->explicit_embeddings, include_file );
                 bcore_source* include_source = NULL;
-                BLM_TRY( xoico_include_file_open( source, include_file->sc, &include_source ) );
-                BLM_A_PUSH( include_source );
-                BLM_TRY( xoico_group_s_parse( group, include_source ) );
+                BLM_TRY( xoico_embed_file_open( source, include_file->sc, &include_source ) );
+                BLM_TRY( xoico_group_s_parse( group, BLM_A_PUSH( include_source ) ) );
             }
             else
             {

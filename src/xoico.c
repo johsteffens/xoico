@@ -19,7 +19,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_include_file_open( bcore_source* parent, sc_t file_name, bcore_source** include_source )
+er_t xoico_embed_file_open( bcore_source* parent, sc_t file_name, bcore_source** include_source )
 {
     BLM_INIT();
     st_s* folder = BLM_A_PUSH( bcore_file_folder_path( bcore_source_a_get_file( parent ) ) );

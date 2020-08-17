@@ -73,7 +73,7 @@ stamp : = aware :
      *  Used to list all sources comtributing to this target in
      *  copyright and license info.
      */
-    bcore_arr_st_s explicit_includes;
+    bcore_arr_st_s explicit_embeddings;
 
     private aware xoico_compiler_s* compiler;
 
