@@ -84,6 +84,11 @@ tp_t xoico_target_s_get_hash( const xoico_target_s* o )
         hash = bcore_tp_fold_tp( hash, xoico_target_s_get_hash( dep_target ) );
     }
 
+    BFOR_EACH( i, &o->explicit_embeddings )
+    {
+        hash = bcore_tp_fold_sc( hash, o->explicit_embeddings.data[ i ]->sc );
+    }
+
     return hash;
 }
 
