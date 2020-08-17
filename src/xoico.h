@@ -70,6 +70,12 @@ forward :compiler_s;
 #endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 //----------------------------------------------------------------------------------------------------------------------
+// functions
+
+/// opens an include file from an include directive in parent
+er_t xoico_include_file_open( bcore_source* parent, sc_t file_name, bcore_source** include_source );
+
+//----------------------------------------------------------------------------------------------------------------------
 // macros
 
 #define XOICO_BLM_SOURCE_PARSE_ERR_FA( source, ... ) \

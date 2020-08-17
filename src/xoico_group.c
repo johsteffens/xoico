@@ -95,7 +95,7 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
     xoico_group_source_stack_s* stack = BLM_CREATE( xoico_group_source_stack_s );
     xoico_group_source_stack_s_push_d( stack, bcore_fork( source ) );
 
-    sc_t precode_termination = NULL;
+    sc_t group_termination = NULL;
 
     bcore_source_point_s_set( &o->source_point, source );
     o->hash = bcore_tp_init();
@@ -105,33 +105,27 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
     if( o->group ) // this group is nested in another group, the group body is enclosed in { ... }
     {
         XOICO_BLM_SOURCE_PARSE_FA( source, " {" );
-        precode_termination = " #?'}'";
+        group_termination = " #?'}'";
     }
-    else // this group is root, the group body is enclosed in an non-parsable section of c source
+    else // this group is root
     {
-        while( !bcore_source_a_eos( source ) )
+        if( bcore_source_a_parse_bl_fa( source, " #?'#ifdef XOILA_SECTION'" ) )
         {
-            if( bcore_source_a_parse_bl_fa( source, "#?'/*'" ) )
-            {
-                XOICO_BLM_SOURCE_PARSE_FA( source, "#skip'*'" );
-                precode_termination = " #?'*/'";
-                break;
-            }
-            else if( bcore_source_a_parse_bl_fa( source, "#?'#ifdef'" ) )
-            {
-                XOICO_BLM_SOURCE_PARSE_FA( source, " XOILA_SECTION " );
-                precode_termination = " #?'#endif'";
-                break;
-            }
-
-            char c = bcore_source_a_get_u0( source );
-            if( c != ' ' && c != '\t' && c != '\n' ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Opening c-style comment '/*' or '#<sc_t>' expected.", "#ifdef XOILA_SECTION" );
+            group_termination = " #?'#endif'";
+        }
+        else
+        {
+            group_termination = NULL;
         }
     }
 
     bl_t extend_stump = false;
 
-    while( stack->size >= 2 || !bcore_source_a_parse_bl_fa( source, precode_termination ) )
+    while
+    (
+        stack->size >= 2 ||
+        ( group_termination ? !bcore_source_a_parse_bl_fa( source, group_termination ) : bcore_source_a_eos( source ) )
+    )
     {
         BLM_INIT();
         xoico* item = NULL;
@@ -144,9 +138,13 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
                 source = stack->data[ stack->size - 2 ];
                 xoico_group_source_stack_s_set_size( stack, stack->size - 1 );
             }
-            else
+            else if( group_termination )
             {
                 XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Unexpected end of file." );
+            }
+            else
+            {
+                BLM_BREAK();
             }
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'stamp' " ) )
@@ -314,37 +312,25 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
         {
             st_s* folder = BLM_A_PUSH( bcore_file_folder_path( bcore_source_a_get_file( source ) ) );
             if( folder->size == 0 ) st_s_push_char( folder, '.' );
-            st_s* file = BLM_CREATE( st_s );
-            XOICO_BLM_SOURCE_PARSE_FA( source, " #string" , file );
+            st_s* include_file = BLM_CREATE( st_s );
+            XOICO_BLM_SOURCE_PARSE_FA( source, " #string" , include_file );
             XOICO_BLM_SOURCE_PARSE_FA( source, " ;" );
+            bcore_arr_st_s_push_st( &o->source->target->explicit_includes, include_file );
 
-            bcore_arr_st_s_push_st( &o->source->target->explicit_includes, file );
-
-            st_s* path = BLM_CREATE( st_s );
-            if( file->sc[ 0 ] == '/' )
-            {
-                st_s_copy( path, file );
-            }
-            else
-            {
-                st_s_copy_fa( path, "#<sc_t>/#<sc_t>", folder->sc, file->sc );
-            }
-
-            if( !bcore_file_exists( path->sc ) )
-            {
-                XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Xoico: File '#<sc_t>' not found.", path->sc );
-            }
+            bcore_source* include_source = NULL;
+            BLM_TRY( xoico_include_file_open( source, include_file->sc, &include_source ) );
 
             // check for cyclic inclusions
             BFOR_EACH( i, stack )
             {
-                if( sc_t_equal( path->sc, bcore_source_a_get_file( stack->data[ i ] ) ) )
+                sc_t path = bcore_source_a_get_file( include_source );
+                if( sc_t_equal( path, bcore_source_a_get_file( stack->data[ i ] ) ) )
                 {
                     XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Xoico: Cyclic inclusion." );
                 }
             }
 
-            xoico_group_source_stack_s_push_d( stack, source = bcore_file_open_source( path->sc ) );
+            xoico_group_source_stack_s_push_d( stack, source = include_source );
         }
         else
         {
@@ -356,7 +342,6 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             o->hash = bcore_tp_fold_tp( o->hash, xoico_a_get_hash( item ) );
             bcore_array_a_push( ( bcore_array* )o, sr_asd( item ) );
         }
-
 
         BLM_DOWN();
     }

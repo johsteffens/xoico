@@ -15,4 +15,39 @@
 
 #include "xoico.h"
 
+/**********************************************************************************************************************/
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_include_file_open( bcore_source* parent, sc_t file_name, bcore_source** include_source )
+{
+    BLM_INIT();
+    st_s* folder = BLM_A_PUSH( bcore_file_folder_path( bcore_source_a_get_file( parent ) ) );
+    if( folder->size == 0 ) st_s_push_char( folder, '.' );
+
+    st_s* path = BLM_CREATE( st_s );
+    if( file_name[ 0 ] == '/' )
+    {
+        st_s_copy_sc( path, file_name );
+    }
+    else
+    {
+        st_s_copy_fa( path, "#<sc_t>/#<sc_t>", folder->sc, file_name );
+    }
+
+    if( !bcore_file_exists( path->sc ) )
+    {
+        XOICO_BLM_SOURCE_PARSE_ERR_FA( parent, "Xoico: File '#<sc_t>' not found.", path->sc );
+    }
+
+    *include_source = bcore_file_open_source( path->sc );
+
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**********************************************************************************************************************/
+
+
 

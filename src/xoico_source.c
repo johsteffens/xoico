@@ -36,22 +36,31 @@ er_t xoico_source_s_parse( xoico_source_s* o, bcore_source* source )
     {
         xoico_group_s* group = NULL;
 
-        if( bcore_source_a_parse_bl_fa( source, "#?w'XOILA_DEFINE_GROUP'" ) )
+        if( bcore_source_a_parse_bl_fa( source, " #?w'XOILA_DEFINE_GROUP'" ) )
         {
             BLM_INIT();
             group = BLM_CREATE( xoico_group_s );
             BLM_TRY( xoico_source_s_push_group( o, bcore_fork( group ) ) );
             group->source = o;
-            XOICO_BLM_SOURCE_PARSE_FA( source, " ( #name, #name )", &group->name, &group->trait_name );
-            BLM_DOWN();
-        }
-
-        if( group )
-        {
-            if( group->trait_name.size == 0 ) st_s_copy_sc( &group->trait_name, "bcore_inst" );
-            BLM_TRY( xoico_group_s_parse( group, source ) );
-            o->hash = bcore_tp_fold_tp( o->hash, group->hash );
+            XOICO_BLM_SOURCE_PARSE_FA( source, " ( #name, #name", &group->name, &group->trait_name );
+            if( bcore_source_a_parse_bl_fa( source, "#?','" ) )
+            {
+                st_s* include_file = BLM_CREATE( st_s );
+                XOICO_BLM_SOURCE_PARSE_FA( source, " #string )", include_file );
+                bcore_arr_st_s_push_st( &o->target->explicit_includes, include_file );
+                bcore_source* include_source = NULL;
+                BLM_TRY( xoico_include_file_open( source, include_file->sc, &include_source ) );
+                BLM_A_PUSH( include_source );
+                BLM_TRY( xoico_group_s_parse( group, include_source ) );
+            }
+            else
+            {
+                XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
+                BLM_TRY( xoico_group_s_parse( group, source ) );
+            }
             BLM_TRY( xoico_compiler_s_group_register( o->target->compiler, group, source ) );
+            o->hash = bcore_tp_fold_tp( o->hash, group->hash );
+            BLM_DOWN();
         }
         else
         {
