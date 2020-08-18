@@ -25,29 +25,53 @@
 XOILA_DEFINE_GROUP( xoico_body, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-signature er_t parse_code( mutable, xoico_stamp_s* stamp, bcore_source* source );
-signature er_t parse(      mutable, xoico_stamp_s* stamp, bcore_source* source );
+signature er_t parse_expression( mutable, bcore_source* source );
+signature er_t parse(      mutable, bcore_source* source );
+signature er_t finalize(   mutable );
 signature er_t expand(     const, sc_t ret_type, sc_t obj_type, const xoico_args_s* args, sz_t indent, bcore_sink* sink );
 signature er_t set_group(  mutable, xoico_group_s* group );
+signature er_t set_stamp(  mutable, xoico_stamp_s* stamp );
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+stamp :code = aware :
+{
+    bl_t single_line;
+    st_s st;
+
+    private aware xoico_group_s* group;
+    private aware xoico_stamp_s* stamp;
+    bcore_source_point_s source_point;
+
+    func : : parse;
+    func xoico : get_hash;
+};
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 stamp : = aware :
 {
     st_s name;
     st_s global_name;
-    st_s code;
+
+    :code_s => code;
+
     bl_t go_inline;
     bl_t apply_cengine = true;
 
     /// use set_group to set this variable
     private aware xoico_group_s* group;
+    private aware xoico_stamp_s* stamp;
     bcore_source_point_s source_point;
 
     func xoico : get_hash;
     func xoico : get_global_name_sc;
-    func     : : parse_code;
+    func     : : parse_expression;
     func     : : parse;
+    func     : : finalize;
     func     : : expand;
     func     : : set_group;
+    func     : : set_stamp;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

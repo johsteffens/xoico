@@ -184,7 +184,7 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
         {
             xoico_body_s* body = BLM_CREATE( xoico_body_s );
             BLM_TRY( xoico_body_s_set_group( body, o ) );
-            BLM_TRY( xoico_body_s_parse( body, NULL, source ) );
+            BLM_TRY( xoico_body_s_parse( body, source ) );
             XOICO_BLM_SOURCE_PARSE_FA( source, " ; " );
             BLM_TRY( xoico_compiler_s_item_register( xoico_group_s_get_compiler( o ), ( xoico* )body, source ) );
             item = ( xoico* )bcore_fork( body );

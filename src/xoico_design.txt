@@ -193,3 +193,8 @@ include:
   A relative path is considered relative to the given file location
 
 ----------------------------------------------------------------------------------------------
+
+
+
+TODO:
+  - detect duplicate member in stamps

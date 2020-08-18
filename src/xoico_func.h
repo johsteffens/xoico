@@ -28,6 +28,7 @@ XOILA_DEFINE_GROUP( xoico_func, xoico )
 
 signature tp_t get_hash( const );
 signature er_t parse( mutable, xoico_stamp_s* stamp, bcore_source* source );
+signature er_t finalize(   mutable );
 signature bl_t registerable( const );
 
 stamp : = aware :
@@ -37,11 +38,14 @@ stamp : = aware :
     tp_t type;
     bl_t overloadable = false;
     xoico_body_s => body;
+
     private aware xoico_group_s* group;
+    private aware xoico_stamp_s* stamp;
     bcore_source_point_s source_point;
 
     func : :get_hash;
     func : :parse;
+    func : :finalize;
     func : :registerable;
 };
 

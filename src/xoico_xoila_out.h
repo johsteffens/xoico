@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-17T18:21:09Z
+ *  Last File Update: 2020-08-18T11:41:46Z
  *
  *  Copyright and License of this File:
  *
@@ -34,7 +34,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x0B6983F280A8A97Bull
+#define HKEYOF_xoico_xoila_out 0xCE56CA4909CE3DA5ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -286,19 +286,29 @@
 
 #define TYPEOF_xoico_body 0x3F9760E55C8626DAull
 #define TYPEOF_xoico_body_s 0x12DC29D312AD56E4ull
+#define TYPEOF_xoico_body_code_s 0x65495B39D833B530ull
+#define BETH_EXPAND_ITEM_xoico_body_code_s \
+  BCORE_DECLARE_OBJECT( xoico_body_code_s ) \
+    {aware_t _;bl_t single_line;st_s st;xoico_group_s* group;xoico_stamp_s* stamp;bcore_source_point_s source_point;}; \
+  er_t xoico_body_code_s_parse( xoico_body_code_s* o, bcore_source* source ); \
+  tp_t xoico_body_code_s_get_hash( const xoico_body_code_s* o );
 #define TYPEOF_xoico_body_s 0x12DC29D312AD56E4ull
 #define BETH_EXPAND_ITEM_xoico_body_s \
   BCORE_DECLARE_OBJECT( xoico_body_s ) \
-    {aware_t _;st_s name;st_s global_name;st_s code;bl_t go_inline;bl_t apply_cengine;xoico_group_s* group;bcore_source_point_s source_point;}; \
+    {aware_t _;st_s name;st_s global_name;xoico_body_code_s* code;bl_t go_inline;bl_t apply_cengine;xoico_group_s* group;xoico_stamp_s* stamp;bcore_source_point_s source_point;}; \
   tp_t xoico_body_s_get_hash( const xoico_body_s* o ); \
   sc_t xoico_body_s_get_global_name_sc( const xoico_body_s* o ); \
-  er_t xoico_body_s_parse_code( xoico_body_s* o, xoico_stamp_s* stamp, bcore_source* source ); \
-  er_t xoico_body_s_parse( xoico_body_s* o, xoico_stamp_s* stamp, bcore_source* source ); \
+  er_t xoico_body_s_parse_expression( xoico_body_s* o, bcore_source* source ); \
+  er_t xoico_body_s_parse( xoico_body_s* o, bcore_source* source ); \
+  er_t xoico_body_s_finalize( xoico_body_s* o ); \
   er_t xoico_body_s_expand( const xoico_body_s* o, sc_t ret_type, sc_t obj_type, const xoico_args_s* args, sz_t indent, bcore_sink* sink ); \
-  er_t xoico_body_s_set_group( xoico_body_s* o, xoico_group_s* group );
+  er_t xoico_body_s_set_group( xoico_body_s* o, xoico_group_s* group ); \
+  er_t xoico_body_s_set_stamp( xoico_body_s* o, xoico_stamp_s* stamp );
 #define BETH_EXPAND_GROUP_xoico_body \
   BCORE_FORWARD_OBJECT( xoico_body ); \
+  BCORE_FORWARD_OBJECT( xoico_body_code_s ); \
   BCORE_FORWARD_OBJECT( xoico_body_s ); \
+  BETH_EXPAND_ITEM_xoico_body_code_s \
   BETH_EXPAND_ITEM_xoico_body_s
 
 /**********************************************************************************************************************/
@@ -338,9 +348,10 @@
 #define TYPEOF_xoico_func_s 0xA748B4C2243B074Aull
 #define BETH_EXPAND_ITEM_xoico_func_s \
   BCORE_DECLARE_OBJECT( xoico_func_s ) \
-    {aware_t _;st_s name;st_s decl;tp_t type;bl_t overloadable;xoico_body_s* body;xoico_group_s* group;bcore_source_point_s source_point;}; \
+    {aware_t _;st_s name;st_s decl;tp_t type;bl_t overloadable;xoico_body_s* body;xoico_group_s* group;xoico_stamp_s* stamp;bcore_source_point_s source_point;}; \
   tp_t xoico_func_s_get_hash( const xoico_func_s* o ); \
   er_t xoico_func_s_parse( xoico_func_s* o, xoico_stamp_s* stamp, bcore_source* source ); \
+  er_t xoico_func_s_finalize( xoico_func_s* o ); \
   bl_t xoico_func_s_registerable( const xoico_func_s* o );
 #define BETH_EXPAND_GROUP_xoico_func \
   BCORE_FORWARD_OBJECT( xoico_func ); \
@@ -666,4 +677,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0x1E27C98B3E1A1C80ull
+// XOILA_OUT_SIGNATURE 0xD76DFDA7600EC303ull

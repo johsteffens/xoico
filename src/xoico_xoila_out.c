@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-17T18:21:09Z
+ *  Last File Update: 2020-08-18T11:41:46Z
  *
  *  Copyright and License of this File:
  *
@@ -164,15 +164,27 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_signature_s )
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_body
 
+BCORE_DEFINE_OBJECT_INST_P( xoico_body_code_s )
+"aware xoico_body"
+"{"
+    "bl_t single_line;"
+    "st_s st;"
+    "private aware xoico_group_s* group;"
+    "private aware xoico_stamp_s* stamp;"
+    "bcore_source_point_s source_point;"
+    "func xoico:get_hash;"
+"}";
+
 BCORE_DEFINE_OBJECT_INST_P( xoico_body_s )
 "aware xoico_body"
 "{"
     "st_s name;"
     "st_s global_name;"
-    "st_s code;"
+    "xoico_body_code_s => code;"
     "bl_t go_inline;"
     "bl_t apply_cengine = true;"
     "private aware xoico_group_s* group;"
+    "private aware xoico_stamp_s* stamp;"
     "bcore_source_point_s source_point;"
     "func xoico:get_hash;"
     "func xoico:get_global_name_sc;"
@@ -230,6 +242,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_func_s )
     "bl_t overloadable = false;"
     "xoico_body_s => body;"
     "private aware xoico_group_s* group;"
+    "private aware xoico_stamp_s* stamp;"
     "bcore_source_point_s source_point;"
 "}";
 
@@ -700,6 +713,8 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             // source: xoico_body.h
 
             // group: xoico_body
+            BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_body_code_s_get_hash );
+            BCORE_REGISTER_OBJECT( xoico_body_code_s );
             BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_body_s_get_hash );
             BCORE_REGISTER_FFUNC( xoico_get_global_name_sc, xoico_body_s_get_global_name_sc );
             BCORE_REGISTER_OBJECT( xoico_body_s );
@@ -836,4 +851,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0xDE5659FB54A45FE9ull
+// XOILA_OUT_SIGNATURE 0x7247001255393702ull

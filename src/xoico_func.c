@@ -81,8 +81,8 @@ er_t xoico_func_s_parse( xoico_func_s* o, xoico_stamp_s* stamp, bcore_source* so
     {
         o->body = xoico_body_s_create();
         BLM_TRY( xoico_body_s_set_group( o->body, o->group ) );
-
-        BLM_TRY( xoico_body_s_parse( o->body, stamp, source ) );
+        BLM_TRY( xoico_body_s_set_stamp( o->body, stamp ) );
+        BLM_TRY( xoico_body_s_parse( o->body, source ) );
     }
 
     XOICO_BLM_SOURCE_PARSE_FA( source, " ; " );
@@ -112,6 +112,20 @@ bl_t xoico_func_s_registerable( const xoico_func_s* o )
     {
         return true;
     }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_func_s_finalize( xoico_func_s* o )
+{
+    BLM_INIT();
+    if( o->body )
+    {
+        BLM_TRY( xoico_body_s_set_group( o->body, o->group ) );
+        BLM_TRY( xoico_body_s_set_stamp( o->body, o->stamp ) );
+        BLM_TRY( xoico_body_s_finalize( o->body ) );
+    }
+    BLM_RETURNV( er_t, 0 );
 }
 
 //----------------------------------------------------------------------------------------------------------------------

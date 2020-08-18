@@ -428,11 +428,8 @@ er_t xoico_stamp_s_finalize( xoico_stamp_s* o )
     {
         xoico_func_s* func = o->funcs.data[ i ];
         func->group = o->group;
-        if( func->body )
-        {
-            BLM_TRY( xoico_body_s_set_group( func->body, o->group ) );
-            BLM_TRY( xoico_stamp_s_resolve_chars( o, &func->body->code ) );
-        }
+        func->stamp = o;
+        BLM_TRY( xoico_func_s_finalize( func ) );
     }
     BLM_RETURNV( er_t, 0 );
 }
