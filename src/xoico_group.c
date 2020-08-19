@@ -540,6 +540,7 @@ xoico_target_s* xoico_group_s_get_target( const xoico_group_s* o )
 
 xoico_compiler_s* xoico_group_s_get_compiler( const xoico_group_s* o )
 {
+    //assert( o );
     return o->source->target->compiler;
 }
 

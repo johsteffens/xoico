@@ -27,7 +27,7 @@ XOILA_DEFINE_GROUP( xoico_args, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 signature er_t append(      mutable, bcore_source* source );
-signature er_t expand(      const, bl_t first, bcore_sink* sink );
+signature er_t expand(      const, bl_t first, const xoico_stamp_s* stamp, bcore_sink* sink );
 signature er_t expand_name( const, bl_t first, bcore_sink* sink );
 
 stamp : = aware :
@@ -41,6 +41,8 @@ stamp : = aware :
     func     : : append;
     func     : : expand;
     func     : : expand_name;
+
+    func bcore_inst_call : copy_x = { o->group = ( (@*)src )->group; };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

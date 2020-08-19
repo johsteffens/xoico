@@ -53,11 +53,6 @@ stamp : = aware :
     func : : parse;
     func : : resolve_chars;
     func : : make_funcs_overloadable;
-
-    func bcore_inst_call : copy_x =
-    {
-        BFOR_EACH( i, &o->funcs ) o->funcs.data[ i ]->group = o->group;
-    };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

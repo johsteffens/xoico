@@ -136,6 +136,7 @@ er_t xoico_signature_s_parse( xoico_signature_s* o, bcore_source* source )
     o->has_ret = !st_s_equal_sc( &o->ret_type, "void" );
 
     // get or append args
+    ASSERT( o->group );
     o->args.group = o->group;
     if( !predefined )
     {

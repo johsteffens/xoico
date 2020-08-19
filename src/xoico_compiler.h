@@ -46,6 +46,8 @@ signature er_t target_update_xflags          ( mutable, sz_t target_index, const
 signature er_t update_target_files           ( mutable, bl_t* p_modified );
 signature bl_t update_required               ( mutable );
 signature sz_t get_verbosity                 ( const );
+signature tp_t entypeof                      ( mutable, sc_t name );
+signature sc_t nameof                        ( const,   tp_t type ); // returns null in case type is not registered
 
 stamp : = aware :
 {
@@ -54,6 +56,7 @@ stamp : = aware :
     hidden bcore_hmap_tpvd_s hmap_item;
     hidden bcore_hmap_tp_s   hmap_type;  // externally registered types
     hidden bcore_life_s      life;       // lifetime manager for items generation during processing
+    hidden bcore_hmap_name_s name_map;   // name manager
 
     // parameters
     bl_t register_plain_functions        = true;
@@ -84,6 +87,10 @@ stamp : = aware :
     func : :update_target_files;
     func : :update_required;
     func : :get_verbosity;
+
+    func : :entypeof = { return bcore_hmap_name_s_set_sc( &o->name_map, name ); };
+    func : :nameof   = { return bcore_hmap_name_s_get_sc( &o->name_map, type ); };
+
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -108,18 +108,14 @@ group :tn = :
 
         func : :init_from_args =
         {
+            const xoico_compiler_s* compiler = xoico_group_s_get_compiler( args->group );
             @_clear( o );
             if( obj_type ) @_push_sc( o, obj_type, obj_name, 0 );
             BFOR_EACH( i, args )
             {
-                BLM_INIT();
-                st_s* s = BLM_CREATE( st_s );
-                st_s_parse_fa( &args->data[ i ].st_type, 0, -1, "#name", s );
-                if( s->size > 0 )
-                {
-                    @_push_sc( o, s->sc, args->data[ i ].st_name.sc, 0 );
-                }
-                BLM_DOWN();
+                sc_t sc_type = xoico_compiler_s_nameof( compiler, args->data[ i ].type );
+                sc_t sc_name = xoico_compiler_s_nameof( compiler, args->data[ i ].name );
+                @_push_sc( o, sc_type, sc_name, 0 );
             }
         };
     };

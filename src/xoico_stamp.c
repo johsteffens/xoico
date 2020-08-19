@@ -203,25 +203,6 @@ er_t xoico_stamp_s_resolve_chars( const xoico_stamp_s* o, st_s* string )
         char c = string->data[ i ];
         switch( c )
         {
-            //TODO: comments are not correctly handled: fix it
-//            case '/':
-//            {
-//                st_s_push_char( buf, c );
-//                if( string->data[ i + 1 ] == '/' ) // line comment
-//                {
-//                    i += 2;
-//                    while( string->data[ i ] != 0 && string->data[ i ] != '\n' ) i++;
-//                    i--;
-//                }
-//                else if( string->data[ i + 1 ] == '*' ) // block comment
-//                {
-//                    i += 2;
-//                    while( string->data[ i ] != 0 && string->data[ i ] != '*' && string->data[ i + 1 ] != '/' ) i++;
-//                    i--;
-//                }
-//            }
-//            break;
-
             case '@':
             {
                 st_s_push_sc( buf, o->name.sc );
@@ -264,6 +245,7 @@ er_t xoico_stamp_s_extend( xoico_stamp_s* o, bcore_source* source, bl_t verbatim
             BLM_INIT();
             xoico_func_s* func = BLM_CREATE( xoico_func_s );
             func->group = o->group;
+            func->stamp = o;
             BLM_TRY( xoico_func_s_parse( func, o, source ) );
 
             bl_t register_func = xoico_func_s_registerable( func );
@@ -464,31 +446,6 @@ er_t xoico_stamp_s_expand_indef_declaration( const xoico_stamp_s* o, sz_t indent
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_stamp_s_arg_s_expand( const xoico_stamp_s* o, const xoico_arg_s* arg, bcore_sink* sink )
-{
-    BLM_INIT();
-    st_s* arg_type = BLM_CLONE( st_s, &arg->st_type );
-    BLM_TRY( xoico_stamp_s_resolve_chars( o, arg_type ) );
-    bcore_sink_a_push_fa( sink, "#<sc_t> #<sc_t>", arg_type->sc, arg->st_name.sc );
-    BLM_RETURNV( er_t, 0 );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-er_t xoico_stamp_s_args_s_expand( const xoico_stamp_s* o, const xoico_args_s* args, bl_t first, bcore_sink* sink )
-{
-    BLM_INIT();
-    for( sz_t i = 0; i < args->size; i++ )
-    {
-        if( !first ) bcore_sink_a_push_fa( sink, ", " );
-        first = false;
-        BLM_TRY( xoico_stamp_s_arg_s_expand( o, &args->data[ i ], sink ) );
-    }
-    BLM_RETURNV( er_t, 0 );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink )
 {
     BLM_INIT();
@@ -532,7 +489,7 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcor
                 bcore_sink_a_push_fa( sink, "#<sc_t> #<sc_t>_#<sc_t>( ", feature->ret_type.sc, o->name.sc, func->name.sc );
                 bcore_sink_a_push_fa( sink, "#<sc_t>", feature->mutable ? "" : "const " );
                 bcore_sink_a_push_fa( sink, "#<sc_t>* o", o->name.sc );
-                BLM_TRY( xoico_args_s_expand( &feature->args, false, sink ) );
+                BLM_TRY( xoico_args_s_expand( &feature->args, false, NULL, sink ) );
                 bcore_sink_a_push_fa( sink, " )" );
 
                 if( go_inline )
@@ -562,7 +519,7 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcor
                 {
                     bcore_sink_a_push_fa( sink, "#<sc_t>", ( signature->arg_o == TYPEOF_mutable ) ? "" : "const " );
                     bcore_sink_a_push_fa( sink, "#<sc_t>* o", o->name.sc );
-                    BLM_TRY( xoico_stamp_s_args_s_expand( o, &signature->args, false, sink ) );
+                    BLM_TRY( xoico_args_s_expand( &signature->args, false, o, sink ) );
                     bcore_sink_a_push_fa( sink, " )" );
 
                     if( go_inline )
@@ -578,7 +535,7 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcor
                 {
                     if( signature->args.size > 0 )
                     {
-                        BLM_TRY( xoico_stamp_s_args_s_expand( o, &signature->args, true, sink ) );
+                        BLM_TRY( xoico_args_s_expand( &signature->args, true, o, sink ) );
                     }
                     else
                     {
@@ -733,7 +690,7 @@ er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore
                     bcore_sink_a_push_fa( sink, "#rn{ }#<sc_t> #<sc_t>_#<sc_t>( ", indent, feature->ret_type.sc, o->name.sc, func->name.sc );
                     bcore_sink_a_push_fa( sink, "#<sc_t>", feature->mutable ? "" : "const " );
                     bcore_sink_a_push_fa( sink, "#<sc_t>* o", o->name.sc );
-                    BLM_TRY( xoico_args_s_expand( &feature->args, false, sink ) );
+                    BLM_TRY( xoico_args_s_expand( &feature->args, false, NULL, sink ) );
                     bcore_sink_a_push_fa( sink, " )\n" );
                     BLM_TRY( xoico_body_s_expand( func->body, feature->ret_type.sc, o->name.sc, &feature->args, indent, sink ) );
                     bcore_sink_a_push_fa( sink, "\n" );
@@ -753,7 +710,7 @@ er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore
                     {
                         bcore_sink_a_push_fa( sink, "#<sc_t>", ( signature->arg_o == TYPEOF_mutable ) ? "" : "const " );
                         bcore_sink_a_push_fa( sink, "#<sc_t>* o", o->name.sc );
-                        BLM_TRY( xoico_stamp_s_args_s_expand( o, &signature->args, false, sink ) );
+                        BLM_TRY( xoico_args_s_expand( &signature->args, false, o, sink ) );
                         bcore_sink_a_push_fa( sink, " )\n" );
                         BLM_TRY( xoico_body_s_expand( func->body, ret_type->sc, o->name.sc, &signature->args, indent, sink ) );
                         bcore_sink_a_push_fa( sink, "\n" );
@@ -762,7 +719,7 @@ er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore
                     {
                         if( signature->args.size > 0 )
                         {
-                            BLM_TRY( xoico_stamp_s_args_s_expand( o, &signature->args, true, sink ) );
+                            BLM_TRY( xoico_args_s_expand( &signature->args, true, o, sink ) );
                         }
                         else
                         {

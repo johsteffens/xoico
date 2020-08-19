@@ -41,6 +41,12 @@ stamp : = aware :
 
     private aware xoico_group_s* group;
     private aware xoico_stamp_s* stamp;
+    func bcore_inst_call : copy_x =
+    {
+        o->group = ( (@*)src )->group;
+        o->stamp = ( (@*)src )->stamp;
+    };
+
     bcore_source_point_s source_point;
 
     func : :get_hash;

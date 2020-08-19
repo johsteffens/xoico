@@ -39,12 +39,18 @@ stamp :code = aware :
     bl_t single_line;
     st_s st;
 
-    private aware xoico_group_s* group;
-    private aware xoico_stamp_s* stamp;
     bcore_source_point_s source_point;
 
     func : : parse;
     func xoico : get_hash;
+
+    private aware xoico_group_s* group;
+    private aware xoico_stamp_s* stamp;
+    func bcore_inst_call : copy_x =
+    {
+        o->group = ( (@*)src )->group;
+        o->stamp = ( (@*)src )->stamp;
+    };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -59,10 +65,15 @@ stamp : = aware :
     bl_t go_inline;
     bl_t apply_cengine = true;
 
-    /// use set_group to set this variable
+    bcore_source_point_s source_point;
+
     private aware xoico_group_s* group;
     private aware xoico_stamp_s* stamp;
-    bcore_source_point_s source_point;
+    func bcore_inst_call : copy_x =
+    {
+        o->group = ( (@*)src )->group;
+        o->stamp = ( (@*)src )->stamp;
+    };
 
     func xoico : get_hash;
     func xoico : get_global_name_sc;
