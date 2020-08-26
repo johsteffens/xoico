@@ -80,6 +80,15 @@ er_t xoico_source_s_finalize( xoico_source_s* o )
 
 //----------------------------------------------------------------------------------------------------------------------
 
+er_t xoico_source_s_expand_setup( xoico_source_s* o )
+{
+    BLM_INIT();
+    for( sz_t i = 0; i < o->size; i++ ) BLM_TRY( xoico_group_s_expand_setup( o->data[ i ] ) );
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 er_t xoico_source_s_expand_declaration( const xoico_source_s* o, sz_t indent, bcore_sink* sink )
 {
     BLM_INIT();

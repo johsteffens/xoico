@@ -13,46 +13,34 @@
  *  limitations under the License.
  */
 
-#ifndef XOICO_FEATURE_H
-#define XOICO_FEATURE_H
+#ifndef XOICO_TYPESPEC_H
+#define XOICO_TYPESPEC_H
 
 /**********************************************************************************************************************/
 
 #include "xoico.h"
-#include "xoico_args.h"
-#include "xoico_body.h"
-#include "xoico_signature.h"
 
 /**********************************************************************************************************************/
 
-XOILA_DEFINE_GROUP( xoico_feature, xoico )
+XOILA_DEFINE_GROUP( xoico_typespec, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+signature er_t expand( const, const xoico_stamp_s* stamp, bcore_sink* sink );
 
 stamp : = aware :
 {
-    xoico_signature_s signature;
-
-    st_s st_default_name;
-    xoico_body_s => default_body;
-
-    bl_t strict;
-    bl_t flag_p;
-    bl_t flag_t;
-    bl_t flag_a;
-    bl_t flag_r;
-
     private aware xoico_group_s* group;
+    func bcore_inst_call : copy_x = { o->group = src->group; };
     bcore_source_point_s source_point;
+
+    bl_t is_const;
+    tp_t type;
+    tp_t alt_type; // alternative type in case type is not applicable; e.g. when @ is used as type on a feature
+    sz_t ref_count;
 
     func xoico : parse;
     func xoico : get_hash;
-    func xoico : get_global_name_sc;
-    func xoico : expand_indef_typedef;
-    func xoico : expand_spect_declaration;
-    func xoico : expand_spect_definition;
-    func xoico : expand_indef_declaration;
-    func xoico : expand_definition;
-    func xoico : expand_init1;
+    func     : : expand;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -61,4 +49,4 @@ stamp : = aware :
 
 /**********************************************************************************************************************/
 
-#endif // XOICO_FEATURE_H
+#endif // XOICO_TYPESPEC_H

@@ -28,7 +28,7 @@ XOILA_DEFINE_GROUP( xoico_body, xoico )
 signature er_t parse_expression( mutable, bcore_source* source );
 signature er_t parse(      mutable, bcore_source* source );
 signature er_t finalize(   mutable );
-signature er_t expand(     const, sc_t ret_type, sc_t obj_type, const xoico_args_s* args, sz_t indent, bcore_sink* sink );
+signature er_t expand(     const, sc_t obj_type, const xoico_args_s* args, sz_t indent, bcore_sink* sink );
 signature er_t set_group(  mutable, xoico_group_s* group );
 signature er_t set_stamp(  mutable, xoico_stamp_s* stamp );
 
@@ -48,8 +48,8 @@ stamp :code = aware :
     private aware xoico_stamp_s* stamp;
     func bcore_inst_call : copy_x =
     {
-        o->group = ( (@*)src )->group;
-        o->stamp = ( (@*)src )->stamp;
+        o->group = src->group;
+        o->stamp = src->stamp;
     };
 };
 
@@ -71,8 +71,8 @@ stamp : = aware :
     private aware xoico_stamp_s* stamp;
     func bcore_inst_call : copy_x =
     {
-        o->group = ( (@*)src )->group;
-        o->stamp = ( (@*)src )->stamp;
+        o->group = src->group;
+        o->stamp = src->stamp;
     };
 
     func xoico : get_hash;

@@ -20,19 +20,50 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bl_t xoico_funcs_s_exists( const xoico_funcs_s* o, tp_t type )
+/// returns -1 if not found
+sz_t xoico_funcs_s_get_index_from_type( const xoico_funcs_s* o, tp_t type )
 {
-    for( sz_t i = 0; i < o->size; i++ ) if( o->data[ i ]->type == type ) return true;
-    return false;
+    for( sz_t i = 0; i < o->size; i++ ) if( o->data[ i ]->type == type ) return i;
+    return -1;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns -1 if not found
-sz_t xoico_funcs_s_get_index( const xoico_funcs_s* o, tp_t type )
+sz_t xoico_funcs_s_get_index_from_name( const xoico_funcs_s* o, tp_t name )
 {
-    for( sz_t i = 0; i < o->size; i++ ) if( o->data[ i ]->type == type ) return i;
+    for( sz_t i = 0; i < o->size; i++ ) if( o->data[ i ]->name == name ) return i;
     return -1;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bl_t xoico_funcs_s_exists_from_type( const xoico_funcs_s* o, tp_t type )
+{
+    return ( xoico_funcs_s_get_index_from_type( o, type ) >= 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bl_t xoico_funcs_s_exists_from_name( const xoico_funcs_s* o, tp_t name )
+{
+    return ( xoico_funcs_s_get_index_from_type( o, name ) >= 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+xoico_func_s* xoico_funcs_s_get_func_from_name( const xoico_funcs_s* o, tp_t name )
+{
+    sz_t idx = xoico_funcs_s_get_index_from_type( o, name );
+    return ( idx >= 0 ) ? o->data[ idx ] : NULL;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+xoico_func_s* xoico_funcs_s_get_func_from_type( const xoico_funcs_s* o, tp_t type )
+{
+    sz_t idx = xoico_funcs_s_get_index_from_type( o, type );
+    return ( idx >= 0 ) ? o->data[ idx ] : NULL;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

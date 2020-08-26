@@ -329,7 +329,7 @@ er_t xoico_body_s_finalize( xoico_body_s* o )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_body_s_expand( const xoico_body_s* o, sc_t ret_type, sc_t obj_type, const xoico_args_s* args, sz_t indent, bcore_sink* sink )
+er_t xoico_body_s_expand( const xoico_body_s* o, sc_t obj_type, const xoico_args_s* args, sz_t indent, bcore_sink* sink )
 {
     BLM_INIT();
     const st_s* final_code = o->code ? &o->code->st : BLM_CREATE( st_s );
@@ -339,7 +339,6 @@ er_t xoico_body_s_expand( const xoico_body_s* o, sc_t ret_type, sc_t obj_type, c
         if( !o->group ) XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA( &o->source_point, "Body has no group assigned." );
         bcore_source* source = BLM_A_PUSH( bcore_source_string_s_create_sc( o->code->st.sc ) );
         xoico_cengine_s* engine = BLM_CREATE( xoico_cengine_s );
-        engine->ret_type = ret_type;
         engine->obj_type = obj_type;
         engine->args     = bcore_fork( ( xoico_args_s* )args );
         engine->compiler = bcore_fork( xoico_group_s_get_compiler( o->group ) );

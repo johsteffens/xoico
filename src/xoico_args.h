@@ -42,7 +42,7 @@ stamp : = aware :
     func     : : expand;
     func     : : expand_name;
 
-    func bcore_inst_call : copy_x = { o->group = ( (@*)src )->group; };
+    func bcore_inst_call : copy_x = { o->group = src->group; };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

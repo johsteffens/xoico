@@ -35,6 +35,7 @@ stamp : = aware :
     st_s    name;
     st_s    trait_name;
     st_s => self_source;
+    bcore_self_s => self; // created in expand_setup
     xoico_funcs_s funcs;
 
     private aware xoico_group_s* group;
@@ -44,6 +45,7 @@ stamp : = aware :
     func xoico : get_global_name_sc;
     func xoico : finalize;
 
+    func xoico : expand_setup;
     func xoico : expand_declaration;
     func xoico : expand_forward;
     func xoico : expand_indef_declaration;

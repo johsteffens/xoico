@@ -26,8 +26,8 @@
 tp_t xoico_func_s_get_hash( const xoico_func_s* o )
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
-    hash = bcore_tp_fold_sc( hash, o->name.sc );
-    hash = bcore_tp_fold_sc( hash, o->decl.sc );
+    hash = bcore_tp_fold_tp( hash, o->name );
+    hash = bcore_tp_fold_sc( hash, o->flect_decl.sc );
     hash = bcore_tp_fold_tp( hash, o->type );
     if( o->body ) hash = bcore_tp_fold_tp( hash, xoico_body_s_get_hash( o->body ) );
     return hash;
@@ -40,42 +40,48 @@ er_t xoico_func_s_parse( xoico_func_s* o, xoico_stamp_s* stamp, bcore_source* so
 {
     BLM_INIT();
 
-    /// global name of function
-    st_s* type_name = BLM_CREATE( st_s );
+    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+
+    // global name signature
+    st_s* st_type = BLM_CREATE( st_s );
 
     bcore_source_point_s_set( &o->source_point, source );
 
-    st_s_push_sc( &o->decl, "func " );
+    st_s_push_sc( &o->flect_decl, "func " );
 
     if( bcore_source_a_parse_bl_fa( source, " #?'^'" ) )
     {
         if( !stamp ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "'^' is only inside a stamp allowed." );
-        st_s_copy( type_name, &stamp->trait_name );
-        st_s_push_fa( &o->decl, "^" );
+        st_s_copy( st_type, &stamp->trait_name );
+        st_s_push_fa( &o->flect_decl, "^" );
     }
     else
     {
-        BLM_TRY( xoico_group_s_parse_name( o->group, type_name, source ) );
+        BLM_TRY( xoico_group_s_parse_name( o->group, st_type, source ) );
 
-        if( stamp && st_s_equal_st( type_name, &stamp->trait_name ) )
+        if( stamp && st_s_equal_st( st_type, &stamp->trait_name ) )
         {
-            st_s_push_fa( &o->decl, "^" );
+            st_s_push_fa( &o->flect_decl, "^" );
         }
         else
         {
-            st_s_push_fa( &o->decl, "#<sc_t>", type_name->sc );
+            st_s_push_fa( &o->flect_decl, "#<sc_t>", st_type->sc );
         }
     }
 
     XOICO_BLM_SOURCE_PARSE_FA( source, " :" );
-    st_s_push_sc( &o->decl, ":" );
+    st_s_push_sc( &o->flect_decl, ":" );
 
-    XOICO_BLM_SOURCE_PARSE_FA( source, " #name", &o->name );
-    if( o->name.size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Function name expected." );
-    st_s_push_sc( &o->decl, o->name.sc );
+    st_s* st_name = BLM_CREATE( st_s );
 
-    st_s_push_fa( type_name, "_#<sc_t>", o->name.sc );
-    o->type = typeof( type_name->sc );
+    XOICO_BLM_SOURCE_PARSE_FA( source, " #name", st_name );
+    if( st_name->size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Function name expected." );
+    o->name = xoico_compiler_s_entypeof( compiler, st_name->sc );
+
+    st_s_push_sc( &o->flect_decl, st_name->sc );
+
+    st_s_push_fa( st_type, "_#<sc_t>", st_name->sc );
+    o->type = xoico_compiler_s_entypeof( compiler, st_type->sc );
 
     if( bcore_source_a_parse_bl_fa( source, " #=?'='" ) )
     {
@@ -86,7 +92,7 @@ er_t xoico_func_s_parse( xoico_func_s* o, xoico_stamp_s* stamp, bcore_source* so
     }
 
     XOICO_BLM_SOURCE_PARSE_FA( source, " ; " );
-    st_s_push_sc( &o->decl, ";" );
+    st_s_push_sc( &o->flect_decl, ";" );
     BLM_RETURNV( er_t, 0 );
 }
 

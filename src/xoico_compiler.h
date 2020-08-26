@@ -29,12 +29,25 @@ XOILA_DEFINE_GROUP( xoico_compiler, xoico )
 signature const xoico* item_get(       const, tp_t item_id );
 signature        bl_t  item_exists(    const, tp_t item_id );
 signature        er_t  item_register(  mutable, const xoico* item,          bcore_source* source );
+
 signature        er_t  group_register( mutable, const xoico_group_s* group, bcore_source* source );
 signature        er_t  type_register(  mutable, tp_t type );
 
 signature        er_t  life_a_push(    mutable, vd_t object );
 signature        er_t  check_overwrite( const,  sc_t file );
 signature        bl_t  is_type(         const,  tp_t name ); // check if name represents a registered type (either group name or stamp name)
+signature        bl_t  get_self(        const,  tp_t type, const bcore_self_s** self ); // returns success
+
+signature const xoico_signature_s* get_signature( const, tp_t item_id ); // returns NULL in case item-Id cannot be resolved to a signature
+
+stamp :element_info = aware :
+{
+    tp_t type;             // in case of a function signature != NULL and type represents typeof( <functoion_name> )
+    sz_t reference_depth;
+    xoico_signature_s -> signature;
+};
+
+signature bl_t  get_type_element_info( const,  tp_t type, tp_t name, :element_info_s* info );
 
 // external interface ...
 signature er_t setup                         ( mutable );
@@ -59,6 +72,13 @@ stamp : = aware :
     hidden bcore_hmap_name_s name_map;   // name manager
 
     // parameters
+
+    /** target_pre_hash: Changing this value changes the hash of all targets.
+     *  Purpose: To force rebuild all targets created by an older compiler.
+     *  This is used during development or when a new version changes the
+     *  target_out files in a material way.
+     */
+    tp_t target_pre_hash                 = 5;
     bl_t register_plain_functions        = true;
     bl_t register_signatures             = false;
     bl_t overwrite_unsigned_target_files = false;
@@ -68,6 +88,7 @@ stamp : = aware :
 
     // functions
     func xoico :finalize;
+    func xoico :expand_setup;
     func : :item_get;
     func : :item_exists;
     func : :item_register;
@@ -76,6 +97,9 @@ stamp : = aware :
     func : :is_type;
     func : :life_a_push;
     func : :check_overwrite;
+    func : :get_self;
+    func : :get_type_element_info;
+    func : :get_signature;
 
     // external interface ...
     func : :setup;

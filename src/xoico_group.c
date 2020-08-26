@@ -263,9 +263,9 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             func->overloadable = true;
             o->hash = bcore_tp_fold_tp( o->hash, xoico_func_s_get_hash( func ) );
 
-            if( xoico_funcs_s_exists( &o->funcs, func->type ) )
+            if( xoico_funcs_s_exists_from_type( &o->funcs, func->type ) )
             {
-                BLM_TRY( xoico_funcs_s_replace_fork( &o->funcs, xoico_funcs_s_get_index( &o->funcs, func->type ), func ) );
+                BLM_TRY( xoico_funcs_s_replace_fork( &o->funcs, xoico_funcs_s_get_index_from_type( &o->funcs, func->type ), func ) );
             }
             else
             {
@@ -365,6 +365,18 @@ er_t xoico_group_s_finalize( xoico_group_s* o )
     for( sz_t i = 0; i < o->size; i++ )
     {
         BLM_TRY( xoico_a_finalize( o->data[ i ] ) );
+    }
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_group_s_expand_setup( xoico_group_s* o )
+{
+    BLM_INIT();
+    for( sz_t i = 0; i < o->size; i++ )
+    {
+        BLM_TRY( xoico_a_expand_setup( o->data[ i ] ) );
     }
     BLM_RETURNV( er_t, 0 );
 }

@@ -60,7 +60,7 @@ stamp : = aware :
     st_s name; // target name (e.g. "bcore")
     st_s path; // path excluding extension
     xoico_source_s => [];
-    func xoico : finalize;
+
     st_s signal_handler_name;    // name of governing signal handler
     bcore_arr_sz_s dependencies; // index array to dependent targets
     bl_t flag; // general purpose flag
@@ -79,6 +79,8 @@ stamp : = aware :
 
     func : :parse;
     func : :to_be_modified;
+    func xoico : finalize;
+    func xoico : expand_setup;
     func : :expand_phase1;
     func : :expand_phase2;
     func : :is_cyclic;

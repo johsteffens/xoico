@@ -17,6 +17,8 @@
 #include "xoico_group.h"
 #include "xoico_target.h"
 #include "xoico_source.h"
+#include "xoico_stamp.h"
+#include "xoico_feature.h"
 
 /**********************************************************************************************************************/
 
@@ -176,6 +178,26 @@ const xoico* xoico_compiler_s_item_get( const xoico_compiler_s* o, tp_t item_id 
 
 //----------------------------------------------------------------------------------------------------------------------
 
+const xoico_signature_s* xoico_compiler_s_get_signature( const xoico_compiler_s* o, tp_t item_id )
+{
+    const xoico* item = xoico_compiler_s_item_get( o, item_id );
+    if( item )
+    {
+        if( *(aware_t*)item == TYPEOF_xoico_feature_s )
+        {
+            return &( ( xoico_feature_s* )item )->signature;
+        }
+        else if( *(aware_t*)item == TYPEOF_xoico_signature_s )
+        {
+            return ( const xoico_signature_s* )item;
+        }
+    }
+
+    return NULL;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 /** returns target index */
 er_t xoico_compiler_s_parse( xoico_compiler_s* o, sc_t target_name, sc_t source_path, const xoico_target_xflags_s* xflags, sz_t* p_target_index )
 {
@@ -227,6 +249,21 @@ er_t xoico_compiler_s_finalize( xoico_compiler_s* o )
 
 //----------------------------------------------------------------------------------------------------------------------
 
+er_t xoico_compiler_s_expand_setup( xoico_compiler_s* o )
+{
+    BLM_INIT();
+    for( sz_t i = 0; i < o->size; i++ ) BLM_TRY( xoico_target_s_expand_setup( o->data[ i ] ) );
+
+    /* We obtain all names from the global map.
+     * This is necessary because names of reflection elements are parsed outside
+     * this framework and remembered by the global map.
+     */
+    bcore_name_push_all( &o->name_map );
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 /// returns true if a file will be modified in function xoico_compiler_s_expand
 bl_t xoico_compiler_s_to_be_modified( const xoico_compiler_s* o )
 {
@@ -245,6 +282,7 @@ er_t xoico_compiler_s_expand( xoico_compiler_s* o, bl_t* p_modified )
     BLM_INIT();
     bl_t modified = false;
 
+    BLM_TRY( xoico_compiler_s_expand_setup( o ) );
     for( sz_t i = 0; i < o->size; i++ ) BLM_TRY( xoico_target_s_expand_phase1( o->data[ i ], &modified ) );
     for( sz_t i = 0; i < o->size; i++ ) BLM_TRY( xoico_target_s_expand_phase2( o->data[ i ], &modified ) );
 
@@ -259,6 +297,85 @@ er_t xoico_compiler_s_life_a_push( xoico_compiler_s* o, vd_t object )
 {
     bcore_life_s_push_aware( &o->life, object );
     return 0;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bl_t xoico_compiler_s_get_self( const xoico_compiler_s* o, tp_t type, const bcore_self_s** self )
+{
+    const xoico** p_item = ( const xoico** )bcore_hmap_tpvd_s_get( &o->hmap_item, type );
+    if( !p_item ) return false;
+
+    const xoico* item = *p_item;
+
+    if( item->_ == TYPEOF_xoico_stamp_s )
+    {
+        const xoico_stamp_s* stamp = ( const xoico_stamp_s* )item;
+        if( self ) *self = stamp->self;
+        return true;
+    }
+
+    return false;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t type, tp_t name, xoico_compiler_element_info_s* info )
+{
+    const xoico** p_item = ( const xoico** )bcore_hmap_tpvd_s_get( &o->hmap_item, type );
+    if( !p_item ) return false;
+
+    const xoico* item = *p_item;
+
+    if( item->_ == TYPEOF_xoico_stamp_s )
+    {
+        const xoico_stamp_s* stamp = ( const xoico_stamp_s* )item;
+        const bcore_self_s* self = stamp->self;
+        if( !xoico_compiler_s_get_self( o, type, &self ) ) return false;
+
+        const bcore_self_item_s* item = bcore_self_s_get_item_by_name( self, name ); // returns NULL in case of no match
+
+        if( item )
+        {
+            sz_t rd_l = 0;
+            switch( item->caps )
+            {
+                case BCORE_CAPS_SOLID_STATIC: rd_l = 0; break;
+                case BCORE_CAPS_LINK_STATIC:  rd_l = 1; break;
+                case BCORE_CAPS_LINK_TYPED:   rd_l = 1; break;
+                case BCORE_CAPS_LINK_AWARE:   rd_l = 1; break;
+                case BCORE_CAPS_ARRAY_DYN_SOLID_STATIC:
+                case BCORE_CAPS_ARRAY_DYN_SOLID_TYPED:
+                case BCORE_CAPS_ARRAY_DYN_LINK_STATIC:
+                case BCORE_CAPS_ARRAY_DYN_LINK_TYPED:
+                case BCORE_CAPS_ARRAY_DYN_LINK_AWARE:
+                case BCORE_CAPS_ARRAY_FIX_SOLID_STATIC:
+                case BCORE_CAPS_ARRAY_FIX_LINK_STATIC:
+                case BCORE_CAPS_ARRAY_FIX_LINK_AWARE:
+                {
+                    /// arrays are handled separately
+                    return false;
+                }
+                break;
+
+                case BCORE_CAPS_EXTERNAL_FUNC:
+                {
+
+                }
+                break;
+            }
+
+            info->reference_depth = rd_l;
+            info->type = item->type;
+            return true;
+        }
+    }
+    else
+    {
+        return false;
+    }
+
+    return false;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

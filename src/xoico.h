@@ -33,7 +33,8 @@ XOILA_DEFINE_GROUP( xoico, bcore_inst )
 feature 'ap' er_t parse                     ( mutable, bcore_source* source );
 feature 'ap' tp_t get_hash                  ( const   );
 feature 'ap' sc_t get_global_name_sc        ( const   );
-feature 'ap' er_t finalize                  ( mutable )                              = { return 0; };
+feature 'ap' er_t finalize                  ( mutable )                              = { return 0; };  // final stage in the compilation phase
+feature 'ap' er_t expand_setup              ( mutable )                              = { return 0; };  // first stage in the expansion phase
 feature 'ap' er_t expand_forward            ( const, sz_t indent, bcore_sink* sink ) = { return 0; };
 feature 'ap' er_t expand_indef_typedef      ( const, sz_t indent, bcore_sink* sink ) = { return 0; };
 feature 'ap' er_t expand_spect_declaration  ( const, sz_t indent, bcore_sink* sink ) = { return 0; };

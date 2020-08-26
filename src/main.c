@@ -20,17 +20,16 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-BETH_SIGNAL_DEFINE( xoico )
-
-//----------------------------------------------------------------------------------------------------------------------
-
 void help( bcore_sink* sink )
 {
     bcore_sink_a_push_fa
     (
         sink,
         "Xoila Compiler: (C) J.B.Steffens\n"
-        "Usage: [options] xoico <xoico-config-file> [<xoico-config-file> ...]\n"
+        "Usage:\n"
+        "$ xoico [options] xoico <xoico-config-file> [<xoico-config-file> ...]   #normal operation\n"
+        "$ xoico --help                                                          #displays this text\n"
+        "$ xoico --selftest <source-name>                                        #sends signal 'selftest' to handler specified by source-name\n"
         "\n"
         "Options:\n"
         "-d : Dry run. Target files are not modified.\n"
@@ -57,6 +56,12 @@ int main( int argc, char** argv )
         if( sc_t_equal( argv[ arg_idx ], "--help" ) )
         {
             help( BCORE_STDOUT );
+        }
+        if( sc_t_equal( argv[ arg_idx ], "--selftest" ) )
+        {
+            arg_idx++;
+            ASSERT( arg_idx < argc );
+            bcore_run_signal_selftest( btypeof( argv[ arg_idx ] ), NULL );
         }
         else
         {

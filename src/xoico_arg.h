@@ -19,6 +19,7 @@
 /**********************************************************************************************************************/
 
 #include "xoico.h"
+#include "xoico_typespec.h"
 
 /**********************************************************************************************************************/
 
@@ -31,13 +32,11 @@ signature er_t expand_name( const, bcore_sink* sink );
 stamp : = aware :
 {
     private aware xoico_group_s* group;
-    func bcore_inst_call : copy_x = { o->group = ( (@*)src )->group; };
+    func bcore_inst_call : copy_x = { o->group = src->group; };
 
     bcore_source_point_s source_point;
 
-    bl_t is_const;
-    tp_t type;
-    sz_t ref_count;
+    xoico_typespec_s typespec;
     tp_t name;
 
     func xoico : parse;

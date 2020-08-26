@@ -113,7 +113,7 @@ group :tn = :
             if( obj_type ) @_push_sc( o, obj_type, obj_name, 0 );
             BFOR_EACH( i, args )
             {
-                sc_t sc_type = xoico_compiler_s_nameof( compiler, args->data[ i ].type );
+                sc_t sc_type = xoico_compiler_s_nameof( compiler, args->data[ i ].typespec.type );
                 sc_t sc_name = xoico_compiler_s_nameof( compiler, args->data[ i ].name );
                 @_push_sc( o, sc_type, sc_name, 0 );
             }
@@ -128,7 +128,6 @@ signature er_t take_block_body( mutable, bcore_source* source, bcore_sink* sink 
 
 stamp : = aware :
 {
-    sc_t ret_type;
     sc_t obj_type;
     xoico_args_s     -> args;
     xoico_compiler_s -> compiler;

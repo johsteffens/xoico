@@ -69,6 +69,7 @@ stamp : = aware :
     func xoico :get_hash;
     func xoico :get_global_name_sc;
     func xoico :finalize;
+    func xoico :expand_setup;
 
     func : :parse_name;
     func : :parse_name_recursive;

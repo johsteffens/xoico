@@ -26,10 +26,12 @@
 XOILA_DEFINE_GROUP( xoico_signature, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+signature er_t expand_declaration( const, const xoico_stamp_s* stamp, sc_t sc_func_name, sz_t indent, bcore_sink* sink );
+
 stamp : = aware :
 {
-    st_s name;
-    st_s global_name;
+    st_s st_name;
+    st_s st_global_name;
     bl_t has_ret;        // returns a value
     st_s ret_type;       // return type
     xoico_args_s args;   // e.g.: sz_t a, sz_t b
@@ -40,6 +42,7 @@ stamp : = aware :
     func xoico : parse;
     func xoico : get_hash;
     func xoico : get_global_name_sc;
+    func     : : expand_declaration;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

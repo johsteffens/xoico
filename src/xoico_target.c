@@ -56,9 +56,6 @@ er_t xoico_target_s_parse( xoico_target_s* o, sc_t source_path )
             BLM_TRY( xoico_source_s_parse( xsource, BLM_A_PUSH( bcore_file_open_source( source_path_h->sc ) ) ) );
         }
 
-        // parsing *.c files is generally not helpful  (currently xoila code can only reside in header files)
-        // if( bcore_file_exists( source_path_c->sc ) ) xoico_source_s_parse( xsource, BLM_A_PUSH( bcore_file_open_source( source_path_c->sc ) ) );
-
         bcore_array_a_push( ( bcore_array* )o, sr_asd( bcore_fork( xsource ) ) );
         BLM_DOWN();
     }
@@ -72,6 +69,7 @@ tp_t xoico_target_s_get_hash( const xoico_target_s* o )
 {
     tp_t hash = bcore_tp_init();
 
+    hash = bcore_tp_fold_tp( hash, o->compiler->target_pre_hash );
     hash = bcore_tp_fold_tp( hash, o->_ );
     hash = bcore_tp_fold_sc( hash, o->name.sc );
 
@@ -98,6 +96,15 @@ er_t xoico_target_s_finalize( xoico_target_s* o )
 {
     BLM_INIT();
     for( sz_t i = 0; i < o->size; i++ ) BLM_TRY( xoico_source_s_finalize( o->data[ i ] ) );
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_target_s_expand_setup( xoico_target_s* o )
+{
+    BLM_INIT();
+    for( sz_t i = 0; i < o->size; i++ ) BLM_TRY( xoico_source_s_expand_setup( o->data[ i ] ) );
     BLM_RETURNV( er_t, 0 );
 }
 

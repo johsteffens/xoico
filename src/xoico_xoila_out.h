@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-19T13:58:43Z
+ *  Last File Update: 2020-08-26T15:25:08Z
  *
  *  Copyright and License of this File:
  *
@@ -10,6 +10,7 @@
  *  xoico.h
  *  xoico_name.h
  *  xoico_forward.h
+ *  xoico_typespec.h
  *  xoico_arg.h
  *  xoico_args.h
  *  xoico_signature.h
@@ -25,6 +26,7 @@
  *  xoico_compiler.h
  *  xoico_builder.h
  *  xoico_cengine.h
+ *  xoico_xce.h
  *
  */
 
@@ -34,7 +36,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x834875F44D4415F7ull
+#define HKEYOF_xoico_xoila_out 0xAB57D2C7035F3BF5ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -84,6 +86,7 @@
   typedef tp_t (*xoico_get_hash)( const xoico* o ); \
   typedef sc_t (*xoico_get_global_name_sc)( const xoico* o ); \
   typedef er_t (*xoico_finalize)( xoico* o ); \
+  typedef er_t (*xoico_expand_setup)( xoico* o ); \
   typedef er_t (*xoico_expand_forward)( const xoico* o, sz_t indent, bcore_sink* sink ); \
   typedef er_t (*xoico_expand_indef_typedef)( const xoico* o, sz_t indent, bcore_sink* sink ); \
   typedef er_t (*xoico_expand_spect_declaration)( const xoico* o, sz_t indent, bcore_sink* sink ); \
@@ -99,6 +102,7 @@
       xoico_get_hash get_hash; \
       xoico_get_global_name_sc get_global_name_sc; \
       xoico_finalize finalize; \
+      xoico_expand_setup expand_setup; \
       xoico_expand_forward expand_forward; \
       xoico_expand_indef_typedef expand_indef_typedef; \
       xoico_expand_spect_declaration expand_spect_declaration; \
@@ -129,6 +133,11 @@
   static inline bl_t xoico_p_defines_finalize( const xoico_s* __p ) { return true; } \
   static inline bl_t xoico_a_defines_finalize( const xoico* o ) { return true; } \
   static inline er_t xoico_finalize__( xoico* o ){return 0;} \
+  static inline er_t xoico_p_expand_setup( const xoico_s* __p, xoico* o ) { assert( __p->expand_setup ); return __p->expand_setup( o ); } \
+  static inline er_t xoico_a_expand_setup( xoico* o ) { const xoico_s* p = xoico_s_get_aware( o ); assert( p->expand_setup ); return p->expand_setup( o ); } \
+  static inline bl_t xoico_p_defines_expand_setup( const xoico_s* __p ) { return true; } \
+  static inline bl_t xoico_a_defines_expand_setup( const xoico* o ) { return true; } \
+  static inline er_t xoico_expand_setup__( xoico* o ){return 0;} \
   static inline er_t xoico_p_expand_forward( const xoico_s* __p, const xoico* o, sz_t indent, bcore_sink* sink ) { assert( __p->expand_forward ); return __p->expand_forward( o, indent, sink ); } \
   static inline er_t xoico_a_expand_forward( const xoico* o, sz_t indent, bcore_sink* sink ) { const xoico_s* p = xoico_s_get_aware( o ); assert( p->expand_forward ); return p->expand_forward( o, indent, sink ); } \
   static inline bl_t xoico_p_defines_expand_forward( const xoico_s* __p ) { return true; } \
@@ -216,6 +225,27 @@
   BETH_EXPAND_ITEM_xoico_forward_s
 
 /**********************************************************************************************************************/
+// source: xoico_typespec.h
+
+//----------------------------------------------------------------------------------------------------------------------
+// group: xoico_typespec
+
+#define TYPEOF_xoico_typespec 0x4DA483D36BB5ED71ull
+#define TYPEOF_xoico_typespec_s 0x9BEEEFCA6BCF163Bull
+#define TYPEOF_xoico_typespec_s 0x9BEEEFCA6BCF163Bull
+#define BETH_EXPAND_ITEM_xoico_typespec_s \
+  BCORE_DECLARE_OBJECT( xoico_typespec_s ) \
+    {aware_t _;xoico_group_s* group;bcore_source_point_s source_point;bl_t is_const;tp_t type;tp_t alt_type;sz_t ref_count;}; \
+  static inline void xoico_typespec_s_copy_x( xoico_typespec_s* o, const xoico_typespec_s* src ){o->group = src->group;} \
+  er_t xoico_typespec_s_parse( xoico_typespec_s* o, bcore_source* source ); \
+  tp_t xoico_typespec_s_get_hash( const xoico_typespec_s* o ); \
+  er_t xoico_typespec_s_expand( const xoico_typespec_s* o, const xoico_stamp_s* stamp, bcore_sink* sink );
+#define BETH_EXPAND_GROUP_xoico_typespec \
+  BCORE_FORWARD_OBJECT( xoico_typespec ); \
+  BCORE_FORWARD_OBJECT( xoico_typespec_s ); \
+  BETH_EXPAND_ITEM_xoico_typespec_s
+
+/**********************************************************************************************************************/
 // source: xoico_arg.h
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -226,8 +256,8 @@
 #define TYPEOF_xoico_arg_s 0xDE77C40AC671BCC8ull
 #define BETH_EXPAND_ITEM_xoico_arg_s \
   BCORE_DECLARE_OBJECT( xoico_arg_s ) \
-    {aware_t _;xoico_group_s* group;bcore_source_point_s source_point;bl_t is_const;tp_t type;sz_t ref_count;tp_t name;}; \
-  static inline void xoico_arg_s_copy_x( xoico_arg_s* o, const bcore_inst* src ){o->group = ( (xoico_arg_s*)src )->group;} \
+    {aware_t _;xoico_group_s* group;bcore_source_point_s source_point;xoico_typespec_s typespec;tp_t name;}; \
+  static inline void xoico_arg_s_copy_x( xoico_arg_s* o, const xoico_arg_s* src ){o->group = src->group;} \
   er_t xoico_arg_s_parse( xoico_arg_s* o, bcore_source* source ); \
   tp_t xoico_arg_s_get_hash( const xoico_arg_s* o ); \
   er_t xoico_arg_s_expand( const xoico_arg_s* o, const xoico_stamp_s* stamp, bcore_sink* sink ); \
@@ -254,7 +284,7 @@
   er_t xoico_args_s_append( xoico_args_s* o, bcore_source* source ); \
   er_t xoico_args_s_expand( const xoico_args_s* o, bl_t first, const xoico_stamp_s* stamp, bcore_sink* sink ); \
   er_t xoico_args_s_expand_name( const xoico_args_s* o, bl_t first, bcore_sink* sink ); \
-  static inline void xoico_args_s_copy_x( xoico_args_s* o, const bcore_inst* src ){o->group = ( (xoico_args_s*)src )->group;}
+  static inline void xoico_args_s_copy_x( xoico_args_s* o, const xoico_args_s* src ){o->group = src->group;}
 #define BETH_EXPAND_GROUP_xoico_args \
   BCORE_FORWARD_OBJECT( xoico_args ); \
   BCORE_FORWARD_OBJECT( xoico_args_s ); \
@@ -271,10 +301,11 @@
 #define TYPEOF_xoico_signature_s 0xDCE5A3AFBCD17B0Eull
 #define BETH_EXPAND_ITEM_xoico_signature_s \
   BCORE_DECLARE_OBJECT( xoico_signature_s ) \
-    {aware_t _;st_s name;st_s global_name;bl_t has_ret;st_s ret_type;xoico_args_s args;tp_t arg_o;xoico_group_s* group;bcore_source_point_s source_point;}; \
+    {aware_t _;st_s st_name;st_s st_global_name;bl_t has_ret;st_s ret_type;xoico_args_s args;tp_t arg_o;xoico_group_s* group;bcore_source_point_s source_point;}; \
   er_t xoico_signature_s_parse( xoico_signature_s* o, bcore_source* source ); \
   tp_t xoico_signature_s_get_hash( const xoico_signature_s* o ); \
-  sc_t xoico_signature_s_get_global_name_sc( const xoico_signature_s* o );
+  sc_t xoico_signature_s_get_global_name_sc( const xoico_signature_s* o ); \
+  er_t xoico_signature_s_expand_declaration( const xoico_signature_s* o, const xoico_stamp_s* stamp, sc_t sc_func_name, sz_t indent, bcore_sink* sink );
 #define BETH_EXPAND_GROUP_xoico_signature \
   BCORE_FORWARD_OBJECT( xoico_signature ); \
   BCORE_FORWARD_OBJECT( xoico_signature_s ); \
@@ -294,18 +325,18 @@
     {aware_t _;bl_t single_line;st_s st;bcore_source_point_s source_point;xoico_group_s* group;xoico_stamp_s* stamp;}; \
   er_t xoico_body_code_s_parse( xoico_body_code_s* o, bcore_source* source ); \
   tp_t xoico_body_code_s_get_hash( const xoico_body_code_s* o ); \
-  void xoico_body_code_s_copy_x( xoico_body_code_s* o, const bcore_inst* src );
+  void xoico_body_code_s_copy_x( xoico_body_code_s* o, const xoico_body_code_s* src );
 #define TYPEOF_xoico_body_s 0x12DC29D312AD56E4ull
 #define BETH_EXPAND_ITEM_xoico_body_s \
   BCORE_DECLARE_OBJECT( xoico_body_s ) \
     {aware_t _;st_s name;st_s global_name;xoico_body_code_s* code;bl_t go_inline;bl_t apply_cengine;bcore_source_point_s source_point;xoico_group_s* group;xoico_stamp_s* stamp;}; \
-  void xoico_body_s_copy_x( xoico_body_s* o, const bcore_inst* src ); \
+  void xoico_body_s_copy_x( xoico_body_s* o, const xoico_body_s* src ); \
   tp_t xoico_body_s_get_hash( const xoico_body_s* o ); \
   sc_t xoico_body_s_get_global_name_sc( const xoico_body_s* o ); \
   er_t xoico_body_s_parse_expression( xoico_body_s* o, bcore_source* source ); \
   er_t xoico_body_s_parse( xoico_body_s* o, bcore_source* source ); \
   er_t xoico_body_s_finalize( xoico_body_s* o ); \
-  er_t xoico_body_s_expand( const xoico_body_s* o, sc_t ret_type, sc_t obj_type, const xoico_args_s* args, sz_t indent, bcore_sink* sink ); \
+  er_t xoico_body_s_expand( const xoico_body_s* o, sc_t obj_type, const xoico_args_s* args, sz_t indent, bcore_sink* sink ); \
   er_t xoico_body_s_set_group( xoico_body_s* o, xoico_group_s* group ); \
   er_t xoico_body_s_set_stamp( xoico_body_s* o, xoico_stamp_s* stamp );
 #define BETH_EXPAND_GROUP_xoico_body \
@@ -326,7 +357,7 @@
 #define TYPEOF_xoico_feature_s 0x320F5368E957D0A2ull
 #define BETH_EXPAND_ITEM_xoico_feature_s \
   BCORE_DECLARE_OBJECT( xoico_feature_s ) \
-    {aware_t _;st_s name;st_s global_name;st_s default_name;xoico_body_s* default_body;bl_t strict;bl_t flag_p;bl_t flag_t;bl_t flag_a;bl_t flag_r;bl_t has_ret;st_s ret_type;xoico_args_s args;bl_t mutable;xoico_group_s* group;bcore_source_point_s source_point;}; \
+    {aware_t _;xoico_signature_s signature;st_s st_default_name;xoico_body_s* default_body;bl_t strict;bl_t flag_p;bl_t flag_t;bl_t flag_a;bl_t flag_r;xoico_group_s* group;bcore_source_point_s source_point;}; \
   er_t xoico_feature_s_parse( xoico_feature_s* o, bcore_source* source ); \
   tp_t xoico_feature_s_get_hash( const xoico_feature_s* o ); \
   sc_t xoico_feature_s_get_global_name_sc( const xoico_feature_s* o ); \
@@ -352,8 +383,8 @@
 #define TYPEOF_xoico_func_s 0xA748B4C2243B074Aull
 #define BETH_EXPAND_ITEM_xoico_func_s \
   BCORE_DECLARE_OBJECT( xoico_func_s ) \
-    {aware_t _;st_s name;st_s decl;tp_t type;bl_t overloadable;xoico_body_s* body;xoico_group_s* group;xoico_stamp_s* stamp;bcore_source_point_s source_point;}; \
-  void xoico_func_s_copy_x( xoico_func_s* o, const bcore_inst* src ); \
+    {aware_t _;tp_t name;tp_t type;st_s flect_decl;bl_t overloadable;xoico_body_s* body;xoico_group_s* group;xoico_stamp_s* stamp;bcore_source_point_s source_point;}; \
+  void xoico_func_s_copy_x( xoico_func_s* o, const xoico_func_s* src ); \
   tp_t xoico_func_s_get_hash( const xoico_func_s* o ); \
   er_t xoico_func_s_parse( xoico_func_s* o, xoico_stamp_s* stamp, bcore_source* source ); \
   er_t xoico_func_s_finalize( xoico_func_s* o ); \
@@ -375,8 +406,10 @@
 #define BETH_EXPAND_ITEM_xoico_funcs_s \
   BCORE_DECLARE_OBJECT( xoico_funcs_s ) \
     {aware_t _;BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_func_s, );}; \
-  bl_t xoico_funcs_s_exists( const xoico_funcs_s* o, tp_t type ); \
-  sz_t xoico_funcs_s_get_index( const xoico_funcs_s* o, tp_t type ); \
+  bl_t xoico_funcs_s_exists_from_type( const xoico_funcs_s* o, tp_t type ); \
+  bl_t xoico_funcs_s_exists_from_name( const xoico_funcs_s* o, tp_t name ); \
+  sz_t xoico_funcs_s_get_index_from_type( const xoico_funcs_s* o, tp_t type ); \
+  sz_t xoico_funcs_s_get_index_from_name( const xoico_funcs_s* o, tp_t name ); \
   er_t xoico_funcs_s_replace_fork( xoico_funcs_s* o, sz_t idx, xoico_func_s* func );
 #define BETH_EXPAND_GROUP_xoico_funcs \
   BCORE_FORWARD_OBJECT( xoico_funcs ); \
@@ -414,6 +447,7 @@
   tp_t xoico_group_s_get_hash( const xoico_group_s* o ); \
   sc_t xoico_group_s_get_global_name_sc( const xoico_group_s* o ); \
   er_t xoico_group_s_finalize( xoico_group_s* o ); \
+  er_t xoico_group_s_expand_setup( xoico_group_s* o ); \
   er_t xoico_group_s_parse_name( xoico_group_s* o, st_s* name, bcore_source* source ); \
   er_t xoico_group_s_parse_name_recursive( xoico_group_s* o, st_s* name, bcore_source* source ); \
   er_t xoico_group_s_expand_declaration( const xoico_group_s* o, sz_t indent, bcore_sink* sink ); \
@@ -440,10 +474,11 @@
 #define TYPEOF_xoico_stamp_s 0x012D01D78049FAE7ull
 #define BETH_EXPAND_ITEM_xoico_stamp_s \
   BCORE_DECLARE_OBJECT( xoico_stamp_s ) \
-    {aware_t _;st_s name;st_s trait_name;st_s* self_source;xoico_funcs_s funcs;xoico_group_s* group;bcore_source_point_s source_point;}; \
+    {aware_t _;st_s name;st_s trait_name;st_s* self_source;bcore_self_s* self;xoico_funcs_s funcs;xoico_group_s* group;bcore_source_point_s source_point;}; \
   tp_t xoico_stamp_s_get_hash( const xoico_stamp_s* o ); \
   sc_t xoico_stamp_s_get_global_name_sc( const xoico_stamp_s* o ); \
   er_t xoico_stamp_s_finalize( xoico_stamp_s* o ); \
+  er_t xoico_stamp_s_expand_setup( xoico_stamp_s* o ); \
   er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_stamp_s_expand_forward( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_stamp_s_expand_indef_declaration( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink ); \
@@ -490,6 +525,7 @@
   BCORE_DECLARE_OBJECT( xoico_source_s ) \
     {aware_t _;st_s name;st_s path;tp_t hash;BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_group_s, );xoico_target_s* target;}; \
   er_t xoico_source_s_finalize( xoico_source_s* o ); \
+  er_t xoico_source_s_expand_setup( xoico_source_s* o ); \
   er_t xoico_source_s_push_group( xoico_source_s* o, xoico_group_s* group ); \
   er_t xoico_source_s_parse( xoico_source_s* o, bcore_source* source ); \
   er_t xoico_source_s_finalize( xoico_source_s* o ); \
@@ -513,9 +549,10 @@
 #define BETH_EXPAND_ITEM_xoico_target_s \
   BCORE_DECLARE_OBJECT( xoico_target_s ) \
     {aware_t _;xoico_target_xflags_s xflags;st_s name;st_s path;BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_source_s, );st_s signal_handler_name;bcore_arr_sz_s dependencies;bl_t flag;bl_t modified;bl_t readonly;st_s* target_h;st_s* target_c;bcore_arr_st_s explicit_embeddings;xoico_compiler_s* compiler;}; \
-  er_t xoico_target_s_finalize( xoico_target_s* o ); \
   er_t xoico_target_s_parse( xoico_target_s* o, sc_t source_path ); \
   bl_t xoico_target_s_to_be_modified( const xoico_target_s* o ); \
+  er_t xoico_target_s_finalize( xoico_target_s* o ); \
+  er_t xoico_target_s_expand_setup( xoico_target_s* o ); \
   er_t xoico_target_s_expand_phase1( xoico_target_s* o, bl_t* p_modified ); \
   er_t xoico_target_s_expand_phase2( xoico_target_s* o, bl_t* p_modified ); \
   bl_t xoico_target_s_is_cyclic( xoico_target_s* o ); \
@@ -550,11 +587,16 @@
 
 #define TYPEOF_xoico_compiler 0x4C5D845108D0785Full
 #define TYPEOF_xoico_compiler_s 0xA7C0906C33CBFB69ull
+#define TYPEOF_xoico_compiler_element_info_s 0x2B083548D3276FD7ull
+#define BETH_EXPAND_ITEM_xoico_compiler_element_info_s \
+  BCORE_DECLARE_OBJECT( xoico_compiler_element_info_s ) \
+    {aware_t _;tp_t type;sz_t reference_depth;xoico_signature_s* signature;};
 #define TYPEOF_xoico_compiler_s 0xA7C0906C33CBFB69ull
 #define BETH_EXPAND_ITEM_xoico_compiler_s \
   BCORE_DECLARE_OBJECT( xoico_compiler_s ) \
-    {aware_t _;BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_target_s, );bcore_hmap_tpvd_s hmap_group;bcore_hmap_tpvd_s hmap_item;bcore_hmap_tp_s hmap_type;bcore_life_s life;bcore_hmap_name_s name_map;bl_t register_plain_functions;bl_t register_signatures;bl_t overwrite_unsigned_target_files;bl_t always_expand;bl_t dry_run;sz_t verbosity;}; \
+    {aware_t _;BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_target_s, );bcore_hmap_tpvd_s hmap_group;bcore_hmap_tpvd_s hmap_item;bcore_hmap_tp_s hmap_type;bcore_life_s life;bcore_hmap_name_s name_map;tp_t target_pre_hash;bl_t register_plain_functions;bl_t register_signatures;bl_t overwrite_unsigned_target_files;bl_t always_expand;bl_t dry_run;sz_t verbosity;}; \
   er_t xoico_compiler_s_finalize( xoico_compiler_s* o ); \
+  er_t xoico_compiler_s_expand_setup( xoico_compiler_s* o ); \
   const xoico* xoico_compiler_s_item_get( const xoico_compiler_s* o, tp_t item_id ); \
   bl_t xoico_compiler_s_item_exists( const xoico_compiler_s* o, tp_t item_id ); \
   er_t xoico_compiler_s_item_register( xoico_compiler_s* o, const xoico* item, bcore_source* source ); \
@@ -563,6 +605,9 @@
   bl_t xoico_compiler_s_is_type( const xoico_compiler_s* o, tp_t name ); \
   er_t xoico_compiler_s_life_a_push( xoico_compiler_s* o, vd_t object ); \
   er_t xoico_compiler_s_check_overwrite( const xoico_compiler_s* o, sc_t file ); \
+  bl_t xoico_compiler_s_get_self( const xoico_compiler_s* o, tp_t type, const bcore_self_s** self ); \
+  bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t type, tp_t name, xoico_compiler_element_info_s* info ); \
+  const xoico_signature_s* xoico_compiler_s_get_signature( const xoico_compiler_s* o, tp_t item_id ); \
   er_t xoico_compiler_s_setup( xoico_compiler_s* o ); \
   er_t xoico_compiler_s_compile( xoico_compiler_s* o, sc_t target_name, sc_t source_path, const xoico_target_xflags_s* xflags, sz_t* p_target_index ); \
   er_t xoico_compiler_s_target_set_signal_handler_name( xoico_compiler_s* o, sz_t target_index, sc_t name ); \
@@ -576,7 +621,9 @@
   static inline sc_t xoico_compiler_s_nameof( const xoico_compiler_s* o, tp_t type ){return bcore_hmap_name_s_get_sc( &o->name_map, type );}
 #define BETH_EXPAND_GROUP_xoico_compiler \
   BCORE_FORWARD_OBJECT( xoico_compiler ); \
+  BCORE_FORWARD_OBJECT( xoico_compiler_element_info_s ); \
   BCORE_FORWARD_OBJECT( xoico_compiler_s ); \
+  BETH_EXPAND_ITEM_xoico_compiler_element_info_s \
   BETH_EXPAND_ITEM_xoico_compiler_s
 
 /**********************************************************************************************************************/
@@ -625,7 +672,7 @@
 #define TYPEOF_xoico_cengine_s 0x91C1D2A46756ECCBull
 #define BETH_EXPAND_ITEM_xoico_cengine_s \
   BCORE_DECLARE_OBJECT( xoico_cengine_s ) \
-    {aware_t _;sc_t ret_type;sc_t obj_type;xoico_args_s* args;xoico_compiler_s* compiler;xoico_cengine_tn_stack_s stack;}; \
+    {aware_t _;sc_t obj_type;xoico_args_s* args;xoico_compiler_s* compiler;xoico_cengine_tn_stack_s stack;}; \
   er_t xoico_cengine_s_take_block( xoico_cengine_s* o, bcore_source* source, bcore_sink* sink ); \
   er_t xoico_cengine_s_take_block_body( xoico_cengine_s* o, bcore_source* source, bcore_sink* sink );
 #define BETH_EXPAND_GROUP_xoico_cengine \
@@ -679,8 +726,72 @@
   BETH_EXPAND_ITEM_xoico_cengine_tn_stack_s
 
 /**********************************************************************************************************************/
+// source: xoico_xce.h
+
+//----------------------------------------------------------------------------------------------------------------------
+// group: xoico_xce
+
+#define TYPEOF_xoico_xce 0xFDB72B9C637BB77Aull
+#define TYPEOF_xoico_xce_s 0xD5A1FA3A107FCD44ull
+#define TYPEOF_xoico_xce_s 0xD5A1FA3A107FCD44ull
+#define BETH_EXPAND_ITEM_xoico_xce_s \
+  BCORE_DECLARE_OBJECT( xoico_xce_s ) \
+    {aware_t _;bcore_source* source;bcore_sink* sink;xoico_compiler_s* compiler;sz_t level;xoico_xce_ltn_stack_s stack;bcore_hmap_name_s hmap_name;}; \
+  static inline tp_t xoico_xce_s_entypeof( xoico_xce_s* o, sc_t name ){return bcore_hmap_name_s_set_sc( &o->hmap_name, name );} \
+  static inline sc_t xoico_xce_s_nameof( xoico_xce_s* o, tp_t type ){return bcore_hmap_name_s_get_sc( &o->hmap_name, type );} \
+  static inline void xoico_xce_s_push_tn( xoico_xce_s* o, tp_t t, tp_t n ){xoico_xce_ltn_stack_s_push_ltn( &o->stack, o->level, t, n );} \
+  er_t xoico_xce_s_setup( xoico_xce_s* o, tp_t obj_type, tp_t obj_name, const xoico_args_s* args );
+#define BETH_EXPAND_GROUP_xoico_xce \
+  BCORE_FORWARD_OBJECT( xoico_xce ); \
+  BCORE_FORWARD_OBJECT( xoico_xce_ltn ); \
+  BCORE_FORWARD_OBJECT( xoico_xce_s ); \
+  BETH_EXPAND_GROUP_xoico_xce_ltn \
+  BETH_EXPAND_ITEM_xoico_xce_s
+
+//----------------------------------------------------------------------------------------------------------------------
+// group: xoico_xce_ltn
+
+#define TYPEOF_xoico_xce_ltn 0x5D2F3FEDB4F1ED6Bull
+#define TYPEOF_xoico_xce_ltn_s 0x7E3AF9685A7BCCDDull
+#define TYPEOF_xoico_xce_ltn_unit_s 0xA207B4304746C27Cull
+#define BETH_EXPAND_ITEM_xoico_xce_ltn_unit_s \
+  BCORE_DECLARE_OBJECT( xoico_xce_ltn_unit_s ) \
+    {sz_t l;tp_t t;tp_t n;}; \
+  xoico_xce_ltn_unit_s* xoico_xce_ltn_unit_s_create_ltn( sz_t l, tp_t t, tp_t n );
+#define TYPEOF_xoico_xce_ltn_unit_adl_s 0xF669E6665F81B094ull
+#define BETH_EXPAND_ITEM_xoico_xce_ltn_unit_adl_s \
+  BCORE_DECLARE_OBJECT( xoico_xce_ltn_unit_adl_s ) \
+    {aware_t _;BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_xce_ltn_unit_s, );}; \
+  static inline xoico_xce_ltn_unit_adl_s* xoico_xce_ltn_unit_adl_s_set_space( xoico_xce_ltn_unit_adl_s* o, sz_t size ) { bcore_array_t_set_space( TYPEOF_xoico_xce_ltn_unit_adl_s, ( bcore_array* )o, size ); return o; } \
+  static inline xoico_xce_ltn_unit_adl_s* xoico_xce_ltn_unit_adl_s_set_size( xoico_xce_ltn_unit_adl_s* o, sz_t size ) { bcore_array_t_set_size( TYPEOF_xoico_xce_ltn_unit_adl_s, ( bcore_array* )o, size ); return o; } \
+  static inline xoico_xce_ltn_unit_adl_s* xoico_xce_ltn_unit_adl_s_clear( xoico_xce_ltn_unit_adl_s* o ) { bcore_array_t_set_space( TYPEOF_xoico_xce_ltn_unit_adl_s, ( bcore_array* )o, 0 ); return o; } \
+  static inline xoico_xce_ltn_unit_s* xoico_xce_ltn_unit_adl_s_push_c( xoico_xce_ltn_unit_adl_s* o, const xoico_xce_ltn_unit_s* v ) { bcore_array_t_push( TYPEOF_xoico_xce_ltn_unit_adl_s, ( bcore_array* )o, sr_twc( TYPEOF_xoico_xce_ltn_unit_s, v ) ); return o->data[ o->size - 1 ]; } \
+  static inline xoico_xce_ltn_unit_s* xoico_xce_ltn_unit_adl_s_push_d( xoico_xce_ltn_unit_adl_s* o,       xoico_xce_ltn_unit_s* v ) { bcore_array_t_push( TYPEOF_xoico_xce_ltn_unit_adl_s, ( bcore_array* )o, sr_tsd( TYPEOF_xoico_xce_ltn_unit_s, v ) ); return o->data[ o->size - 1 ]; } \
+  static inline xoico_xce_ltn_unit_s* xoico_xce_ltn_unit_adl_s_push( xoico_xce_ltn_unit_adl_s* o ) \
+  { \
+      bcore_array_t_push( TYPEOF_xoico_xce_ltn_unit_adl_s, ( bcore_array* )o, sr_t_create( TYPEOF_xoico_xce_ltn_unit_s ) ); \
+      return o->data[ o->size - 1 ]; \
+  }
+#define TYPEOF_xoico_xce_ltn_stack_s 0xA2BDBF679396FED6ull
+#define BETH_EXPAND_ITEM_xoico_xce_ltn_stack_s \
+  BCORE_DECLARE_OBJECT( xoico_xce_ltn_stack_s ) \
+    {aware_t _;xoico_xce_ltn_unit_adl_s adl;}; \
+  static inline xoico_xce_ltn_stack_s* xoico_xce_ltn_stack_s_push_ltn( xoico_xce_ltn_stack_s* o, sz_t l, tp_t t, tp_t n ){xoico_xce_ltn_unit_adl_s_push_d( &o->adl, xoico_xce_ltn_unit_s_create_ltn( l, t, n) );  return o;} \
+  xoico_xce_ltn_stack_s* xoico_xce_ltn_stack_s_pop_l( xoico_xce_ltn_stack_s* o, sz_t l ); \
+  tp_t xoico_xce_ltn_stack_s_get_t( const xoico_xce_ltn_stack_s* o, tp_t n ); \
+  static inline void xoico_xce_ltn_stack_s_clear( xoico_xce_ltn_stack_s* o ){xoico_xce_ltn_unit_adl_s_clear( &o->adl );}
+#define BETH_EXPAND_GROUP_xoico_xce_ltn \
+  BCORE_FORWARD_OBJECT( xoico_xce_ltn ); \
+  BCORE_FORWARD_OBJECT( xoico_xce_ltn_unit_s ); \
+  BCORE_FORWARD_OBJECT( xoico_xce_ltn_unit_adl_s ); \
+  BCORE_FORWARD_OBJECT( xoico_xce_ltn_stack_s ); \
+  BETH_EXPAND_ITEM_xoico_xce_ltn_unit_s \
+  BETH_EXPAND_ITEM_xoico_xce_ltn_unit_adl_s \
+  BETH_EXPAND_ITEM_xoico_xce_ltn_stack_s
+
+/**********************************************************************************************************************/
 
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0xA31BD2C7EBDAB319ull
+// XOILA_OUT_SIGNATURE 0xDE6601DF49DB87EEull

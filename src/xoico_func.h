@@ -33,9 +33,11 @@ signature bl_t registerable( const );
 
 stamp : = aware :
 {
-    st_s name;
-    st_s decl;
-    tp_t type;
+    tp_t name; // declarative name (not global name)
+    tp_t type; // signature-type name
+
+    st_s flect_decl; // reflection declaration
+
     bl_t overloadable = false;
     xoico_body_s => body;
 
@@ -43,8 +45,8 @@ stamp : = aware :
     private aware xoico_stamp_s* stamp;
     func bcore_inst_call : copy_x =
     {
-        o->group = ( (@*)src )->group;
-        o->stamp = ( (@*)src )->stamp;
+        o->group = src->group;
+        o->stamp = src->stamp;
     };
 
     bcore_source_point_s source_point;
