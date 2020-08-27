@@ -18,6 +18,7 @@
 #include "xoico_target.h"
 #include "xoico_source.h"
 #include "xoico_stamp.h"
+#include "xoico_funcs.h"
 #include "xoico_feature.h"
 
 /**********************************************************************************************************************/
@@ -323,6 +324,8 @@ bl_t xoico_compiler_s_get_self( const xoico_compiler_s* o, tp_t type, const bcor
 bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t type, tp_t name, xoico_compiler_element_info_s* info )
 {
     const xoico** p_item = ( const xoico** )bcore_hmap_tpvd_s_get( &o->hmap_item, type );
+    bl_t success = false;
+
     if( !p_item ) return false;
 
     const xoico* item = *p_item;
@@ -334,16 +337,17 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
         if( !xoico_compiler_s_get_self( o, type, &self ) ) return false;
 
         const bcore_self_item_s* item = bcore_self_s_get_item_by_name( self, name ); // returns NULL in case of no match
+        bl_t found = true;
+        sz_t ref_count = 0;
 
         if( item )
         {
-            sz_t rd_l = 0;
             switch( item->caps )
             {
-                case BCORE_CAPS_SOLID_STATIC: rd_l = 0; break;
-                case BCORE_CAPS_LINK_STATIC:  rd_l = 1; break;
-                case BCORE_CAPS_LINK_TYPED:   rd_l = 1; break;
-                case BCORE_CAPS_LINK_AWARE:   rd_l = 1; break;
+                case BCORE_CAPS_SOLID_STATIC: ref_count = 0; break;
+                case BCORE_CAPS_LINK_STATIC:  ref_count = 1; break;
+                case BCORE_CAPS_LINK_TYPED:   ref_count = 1; break;
+                case BCORE_CAPS_LINK_AWARE:   ref_count = 1; break;
                 case BCORE_CAPS_ARRAY_DYN_SOLID_STATIC:
                 case BCORE_CAPS_ARRAY_DYN_SOLID_TYPED:
                 case BCORE_CAPS_ARRAY_DYN_LINK_STATIC:
@@ -360,22 +364,45 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
 
                 case BCORE_CAPS_EXTERNAL_FUNC:
                 {
-
+                    found = false;
                 }
                 break;
             }
-
-            info->reference_depth = rd_l;
-            info->type = item->type;
-            return true;
         }
-    }
-    else
-    {
-        return false;
+        else
+        {
+            found = false;
+        }
+
+        info->typespec.group = stamp->group;
+        info->typespec.is_const = false;
+
+        if( !found ) // try function
+        {
+            xoico_func_s* func = xoico_funcs_s_get_func_from_name( &stamp->funcs, name );
+            if( func )
+            {
+                info->typespec.type = func->global_name;
+                info->typespec.ref_count = 0;
+                info->signature = ( xoico_signature_s* )xoico_compiler_s_get_signature( o, func->type );
+                success = true;
+            }
+            else
+            {
+                success = false;
+            }
+        }
+        else
+        {
+            info->typespec.type = item->type;
+            info->typespec.ref_count = ref_count;
+            info->signature = NULL;
+            success = true;
+        }
+
     }
 
-    return false;
+    return success;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

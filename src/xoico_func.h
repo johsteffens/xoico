@@ -34,7 +34,8 @@ signature bl_t registerable( const );
 stamp : = aware :
 {
     tp_t name; // declarative name (not global name)
-    tp_t type; // signature-type name
+    tp_t global_name; // full implementation name
+    tp_t type; // signature-type
 
     st_s flect_decl; // reflection declaration
 

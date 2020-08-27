@@ -17,6 +17,7 @@
 #include "xoico_group.h"
 #include "xoico_stamp.h"
 #include "xoico_compiler.h"
+#include "xoico_signature.h"
 
 /**********************************************************************************************************************/
 
@@ -96,10 +97,15 @@ static inline er_t selftest( void )
 
     xoico_compiler_element_info_s* info = BLM_CREATE( xoico_compiler_element_info_s );
 
-    if( xoico_compiler_s_get_type_element_info( compiler, btypeof( "bhvm_holor_s" ), btypeof( "s" ), info ) )
+    if( xoico_compiler_s_get_type_element_info( compiler, btypeof( "bhvm_mcode_hbase_s" ), btypeof( "push_hm" ), info ) )
     {
-        bcore_msg_fa( "member type: #<sc_t>\n", xoico_compiler_s_nameof( compiler, info->type ) );
-        bcore_msg_fa( "member rc: #<sz_t>\n", info->reference_depth );
+        bcore_msg_fa( "member type: #<sc_t>\n", xoico_compiler_s_nameof( compiler, info->typespec.type ) );
+        bcore_msg_fa( "member rc: #<sz_t>\n", info->typespec.ref_count );
+
+        if( info->signature )
+        {
+            bcore_msg_fa( "signature name: #<sc_t>\n", info->signature->st_name.sc );
+        }
     }
 
     BLM_RETURNV( er_t, 0 );

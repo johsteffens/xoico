@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-27T09:57:38Z
+ *  Last File Update: 2020-08-27T12:52:48Z
  *
  *  Copyright and License of this File:
  *
@@ -154,9 +154,9 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_args_s )
 "{"
     "xoico_arg_s [];"
     "private aware xoico_group_s* group;"
+    "func bcore_inst_call:copy_x;"
     "func xoico:parse;"
     "func xoico:get_hash;"
-    "func bcore_inst_call:copy_x;"
 "}";
 
 /**********************************************************************************************************************/
@@ -270,6 +270,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_func_s )
 "aware xoico_func"
 "{"
     "tp_t name;"
+    "tp_t global_name;"
     "tp_t type;"
     "st_s flect_decl;"
     "bl_t overloadable = false;"
@@ -453,9 +454,9 @@ void xoico_target_xflags_s_update( xoico_target_xflags_s* o, const xoico_target_
 BCORE_DEFINE_OBJECT_INST_P( xoico_compiler_element_info_s )
 "aware xoico_compiler"
 "{"
-    "tp_t type;"
-    "sz_t reference_depth;"
-    "xoico_signature_s -> signature;"
+    "xoico_typespec_s typespec;"
+    "private xoico_signature_s* signature;"
+    "func bcore_inst_call:copy_x;"
 "}";
 
 BCORE_DEFINE_OBJECT_INST_P( xoico_compiler_s )
@@ -467,7 +468,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_compiler_s )
     "hidden bcore_hmap_tp_s hmap_type;"
     "hidden bcore_life_s life;"
     "hidden bcore_hmap_name_s name_map;"
-    "tp_t target_pre_hash = 10;"
+    "tp_t target_pre_hash = 11;"
     "bl_t register_plain_functions = true;"
     "bl_t register_signatures = false;"
     "bl_t overwrite_unsigned_target_files = false;"
@@ -852,9 +853,9 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             // source: xoico_args.h
 
             // group: xoico_args
+            BCORE_REGISTER_FFUNC( bcore_inst_call_copy_x, xoico_args_s_copy_x );
             BCORE_REGISTER_FFUNC( xoico_parse, xoico_args_s_parse );
             BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_args_s_get_hash );
-            BCORE_REGISTER_FFUNC( bcore_inst_call_copy_x, xoico_args_s_copy_x );
             BCORE_REGISTER_OBJECT( xoico_args_s );
             BCORE_REGISTER_TRAIT( xoico_args, xoico );
 
@@ -977,6 +978,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             // source: xoico_compiler.h
 
             // group: xoico_compiler
+            BCORE_REGISTER_FFUNC( bcore_inst_call_copy_x, xoico_compiler_element_info_s_copy_x );
             BCORE_REGISTER_OBJECT( xoico_compiler_element_info_s );
             BCORE_REGISTER_FFUNC( xoico_finalize, xoico_compiler_s_finalize );
             BCORE_REGISTER_FFUNC( xoico_expand_setup, xoico_compiler_s_expand_setup );
@@ -1031,4 +1033,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0xFB7BF0F1AEBEB5B4ull
+// XOILA_OUT_SIGNATURE 0x9C47E4B4ED4818A9ull

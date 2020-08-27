@@ -477,7 +477,7 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcor
 
             if( go_inline ) bcore_sink_a_push_fa( sink, "static inline " );
 
-            xoico_signature_s_expand_declaration( signature, o, XOICO_NAMEOF( func->name ), indent, sink );
+            xoico_signature_s_expand_declaration( signature, o, XOICO_NAMEOF( func->global_name ), indent, sink );
 
             if( go_inline )
             {
@@ -629,7 +629,7 @@ er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore
             {
                 bcore_sink_a_push_fa( sink, "\n" );
                 bcore_sink_a_push_fa( sink, "#rn{ }", indent );
-                xoico_signature_s_expand_declaration( signature, o, XOICO_NAMEOF( func->name ), indent, sink );
+                xoico_signature_s_expand_declaration( signature, o, XOICO_NAMEOF( func->global_name ), indent, sink );
                 bcore_sink_a_push_fa( sink, "\n" );
                 BLM_TRY( xoico_body_s_expand( func->body, ( signature->arg_o ) ? o->name.sc : NULL, &signature->args, indent, sink ) );
                 bcore_sink_a_push_fa( sink, "\n" );

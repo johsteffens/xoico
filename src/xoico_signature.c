@@ -98,12 +98,12 @@ er_t xoico_signature_s_parse( xoico_signature_s* o, bcore_source* source )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_signature_s_expand_declaration( const xoico_signature_s* o, const xoico_stamp_s* stamp, sc_t sc_func_name, sz_t indent, bcore_sink* sink )
+er_t xoico_signature_s_expand_declaration( const xoico_signature_s* o, const xoico_stamp_s* stamp, sc_t sc_func_global_name, sz_t indent, bcore_sink* sink )
 {
     BLM_INIT();
     sc_t sc_name = stamp->name.sc;
     xoico_typespec_s_expand( &o->typespec_ret, sc_name, sink );
-    bcore_sink_a_push_fa( sink, " #<sc_t>_#<sc_t>( ", sc_name, sc_func_name );
+    bcore_sink_a_push_fa( sink, " #<sc_t>( ", sc_func_global_name );
 
     if( o->arg_o )
     {

@@ -20,6 +20,7 @@
 
 #include "xoico.h"
 #include "xoico_target.h"
+#include "xoico_typespec.h"
 
 /**********************************************************************************************************************/
 
@@ -42,9 +43,10 @@ signature const xoico_signature_s* get_signature( const, tp_t item_id ); // retu
 
 stamp :element_info = aware :
 {
-    tp_t type;             // in case of a function signature != NULL and type represents typeof( <functoion_name> )
-    sz_t reference_depth;
-    xoico_signature_s -> signature;
+    xoico_typespec_s typespec;
+    private xoico_signature_s* signature;
+    func bcore_inst_call : copy_x = { o->signature = src->signature; };
+
 };
 
 signature bl_t  get_type_element_info( const,  tp_t type, tp_t name, :element_info_s* info );
@@ -78,7 +80,7 @@ stamp : = aware :
      *  This is used during development or when a new version changes the
      *  target_out files in a material way.
      */
-    tp_t target_pre_hash                 = 10;
+    tp_t target_pre_hash                 = 11;
     bl_t register_plain_functions        = true;
     bl_t register_signatures             = false;
     bl_t overwrite_unsigned_target_files = false;

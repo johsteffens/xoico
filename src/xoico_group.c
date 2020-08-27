@@ -257,6 +257,8 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'func'" ) )
         {
+            bcore_source_a_parse_msg_fa( source, "Declaring a group-level function will be repurposed. Use a stump instead." );
+
             xoico_func_s* func = BLM_CREATE( xoico_func_s );
             func->group = o;
             xoico_func_s_parse( func, NULL, source );

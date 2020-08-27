@@ -47,14 +47,14 @@ bl_t xoico_funcs_s_exists_from_type( const xoico_funcs_s* o, tp_t type )
 
 bl_t xoico_funcs_s_exists_from_name( const xoico_funcs_s* o, tp_t name )
 {
-    return ( xoico_funcs_s_get_index_from_type( o, name ) >= 0 );
+    return ( xoico_funcs_s_get_index_from_name( o, name ) >= 0 );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 xoico_func_s* xoico_funcs_s_get_func_from_name( const xoico_funcs_s* o, tp_t name )
 {
-    sz_t idx = xoico_funcs_s_get_index_from_type( o, name );
+    sz_t idx = xoico_funcs_s_get_index_from_name( o, name );
     return ( idx >= 0 ) ? o->data[ idx ] : NULL;
 }
 

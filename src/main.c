@@ -57,7 +57,7 @@ int main( int argc, char** argv )
         {
             help( BCORE_STDOUT );
         }
-        if( sc_t_equal( argv[ arg_idx ], "--selftest" ) )
+        else if( sc_t_equal( argv[ arg_idx ], "--selftest" ) )
         {
             arg_idx++;
             ASSERT( arg_idx < argc );

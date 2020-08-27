@@ -34,6 +34,7 @@ stamp : = aware :
 {
     xoico_arg_s [];
     private aware xoico_group_s* group;
+    func bcore_inst_call : copy_x = { o->group = src->group; };
 
     func xoico : parse;
     func xoico : get_hash;
@@ -42,7 +43,6 @@ stamp : = aware :
     func     : : expand;
     func     : : expand_name;
 
-    func bcore_inst_call : copy_x = { o->group = src->group; };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

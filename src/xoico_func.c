@@ -35,6 +35,29 @@ tp_t xoico_func_s_get_hash( const xoico_func_s* o )
 
 //----------------------------------------------------------------------------------------------------------------------
 
+er_t xoico_func_s_set_global_name( xoico_func_s* o )
+{
+    BLM_INIT();
+    st_s* st_global_name = BLM_CREATE( st_s );
+
+    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    sc_t sc_name = xoico_compiler_s_nameof( compiler, o->name );
+
+    if( o->stamp )
+    {
+        st_s_push_fa( st_global_name, "#<sc_t>_#<sc_t>", o->stamp->name.sc, sc_name );
+    }
+    else
+    {
+        st_s_push_fa( st_global_name, "#<sc_t>_#<sc_t>", o->group->name.sc, sc_name );
+    }
+
+    o->global_name = xoico_compiler_s_entypeof( compiler, st_global_name->sc );
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 /// stamp should be NULL func is not parsed inside a stamp
 er_t xoico_func_s_parse( xoico_func_s* o, xoico_stamp_s* stamp, bcore_source* source )
 {
@@ -81,7 +104,9 @@ er_t xoico_func_s_parse( xoico_func_s* o, xoico_stamp_s* stamp, bcore_source* so
     st_s_push_sc( &o->flect_decl, st_name->sc );
 
     st_s_push_fa( st_type, "_#<sc_t>", st_name->sc );
+
     o->type = xoico_compiler_s_entypeof( compiler, st_type->sc );
+    BLM_TRY( xoico_func_s_set_global_name( o ) );
 
     if( bcore_source_a_parse_bl_fa( source, " #=?'='" ) )
     {
@@ -125,6 +150,7 @@ bl_t xoico_func_s_registerable( const xoico_func_s* o )
 er_t xoico_func_s_finalize( xoico_func_s* o )
 {
     BLM_INIT();
+    BLM_TRY( xoico_func_s_set_global_name( o ) );
     if( o->body )
     {
         BLM_TRY( xoico_body_s_set_group( o->body, o->group ) );

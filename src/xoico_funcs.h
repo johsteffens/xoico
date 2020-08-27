@@ -41,6 +41,8 @@ stamp : = aware :
     func : :exists_from_name;
     func : :get_index_from_type;
     func : :get_index_from_name;
+    func : :get_func_from_type;
+    func : :get_func_from_name;
     func : :replace_fork;
 };
 
