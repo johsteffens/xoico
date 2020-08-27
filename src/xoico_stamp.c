@@ -504,9 +504,6 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcor
                 );
             }
 
-            st_s* ret_type = BLM_CLONE( st_s, &signature->ret_type );
-            BLM_TRY( xoico_stamp_s_resolve_chars( o, ret_type ) );
-
             if( go_inline ) bcore_sink_a_push_fa( sink, "static inline " );
 
             xoico_signature_s_expand_declaration( signature, o, XOICO_NAMEOF( func->name ), indent, sink );

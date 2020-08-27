@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-27T08:57:36Z
+ *  Last File Update: 2020-08-27T09:32:57Z
  *
  *  Copyright and License of this File:
  *
@@ -36,7 +36,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0xE2C9A37D442755DBull
+#define HKEYOF_xoico_xoila_out 0xF9B5F1750DE14098ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -302,7 +302,7 @@
 #define TYPEOF_xoico_signature_s 0xDCE5A3AFBCD17B0Eull
 #define BETH_EXPAND_ITEM_xoico_signature_s \
   BCORE_DECLARE_OBJECT( xoico_signature_s ) \
-    {aware_t _;st_s st_name;st_s st_global_name;bl_t has_ret;st_s ret_type;xoico_typespec_s typespec_ret;xoico_args_s args;tp_t arg_o;xoico_group_s* group;bcore_source_point_s source_point;}; \
+    {aware_t _;st_s st_name;st_s st_global_name;xoico_typespec_s typespec_ret;xoico_args_s args;tp_t arg_o;xoico_group_s* group;bcore_source_point_s source_point;}; \
   er_t xoico_signature_s_parse( xoico_signature_s* o, bcore_source* source ); \
   tp_t xoico_signature_s_get_hash( const xoico_signature_s* o ); \
   sc_t xoico_signature_s_get_global_name_sc( const xoico_signature_s* o ); \
@@ -795,4 +795,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0xC1C6E0E87186CB82ull
+// XOILA_OUT_SIGNATURE 0xACF4BD3B077ABEF0ull

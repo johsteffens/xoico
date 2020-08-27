@@ -33,8 +33,8 @@ stamp : = aware :
     st_s st_name;
     st_s st_global_name;
 
-    bl_t has_ret;        // returns a value
-    st_s ret_type;       // return type
+    //bl_t has_ret;        // returns a value
+    //st_s ret_type;       // return type
 
     xoico_typespec_s typespec_ret; // return type
     xoico_args_s args;   // e.g.: sz_t a, sz_t b
