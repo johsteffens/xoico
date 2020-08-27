@@ -193,35 +193,6 @@ tp_t xoico_stamp_s_get_hash( const xoico_stamp_s* o )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// resolve special characters in a string
-er_t xoico_stamp_s_resolve_chars( const xoico_stamp_s* o, st_s* string )
-{
-    BLM_INIT();
-    st_s* buf = BLM_CREATE( st_s );
-    for( sz_t i = 0; i < string->size; i++ )
-    {
-        char c = string->data[ i ];
-        switch( c )
-        {
-            case '@':
-            {
-                st_s_push_sc( buf, o->name.sc );
-            }
-            break;
-
-            default:
-            {
-                st_s_push_char( buf, c );
-            }
-            break;
-        }
-    }
-    st_s_copy( string, buf );
-    BLM_RETURNV( er_t, 0 );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 er_t xoico_stamp_s_parse_extend( xoico_stamp_s* o, bcore_source* source, bl_t verbatim )
 {
     BLM_INIT();
@@ -404,8 +375,8 @@ er_t xoico_stamp_s_parse( xoico_stamp_s* o, xoico_group_s* group, bcore_source* 
 er_t xoico_stamp_s_finalize( xoico_stamp_s* o )
 {
     BLM_INIT();
-    // resolve special characters in self string and function bodies
-    BLM_TRY( xoico_stamp_s_resolve_chars( o, o->self_source ) );
+    st_s_replace_sc_sc( o->self_source, "@", o->name.sc );
+
     for( sz_t i = 0; i < o->funcs.size; i++ )
     {
         xoico_func_s* func = o->funcs.data[ i ];

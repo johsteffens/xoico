@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-27T09:32:57Z
+ *  Last File Update: 2020-08-27T09:57:38Z
  *
  *  Copyright and License of this File:
  *
@@ -467,7 +467,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_compiler_s )
     "hidden bcore_hmap_tp_s hmap_type;"
     "hidden bcore_life_s life;"
     "hidden bcore_hmap_name_s name_map;"
-    "tp_t target_pre_hash = 8;"
+    "tp_t target_pre_hash = 10;"
     "bl_t register_plain_functions = true;"
     "bl_t register_signatures = false;"
     "bl_t overwrite_unsigned_target_files = false;"
@@ -1031,4 +1031,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0xA48B154B1D3E36A7ull
+// XOILA_OUT_SIGNATURE 0xFB7BF0F1AEBEB5B4ull

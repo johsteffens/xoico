@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-27T09:32:57Z
+ *  Last File Update: 2020-08-27T09:57:38Z
  *
  *  Copyright and License of this File:
  *
@@ -36,7 +36,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0xF9B5F1750DE14098ull
+#define HKEYOF_xoico_xoila_out 0x5F74685CAE72B7D3ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -486,7 +486,6 @@
   er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_stamp_s_expand_init1( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_stamp_s_parse( xoico_stamp_s* o, xoico_group_s* group, bcore_source* source ); \
-  er_t xoico_stamp_s_resolve_chars( const xoico_stamp_s* o, st_s* string ); \
   er_t xoico_stamp_s_make_funcs_overloadable( xoico_stamp_s* o );
 #define BETH_EXPAND_GROUP_xoico_stamp \
   BCORE_FORWARD_OBJECT( xoico_stamp ); \
@@ -795,4 +794,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0xACF4BD3B077ABEF0ull
+// XOILA_OUT_SIGNATURE 0xB26C871B573E266Cull
