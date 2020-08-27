@@ -41,9 +41,7 @@ er_t xoico_typespec_s_parse( xoico_typespec_s* o, bcore_source* source )
             o->type = XOICO_ENTYPEOF( "@" );
             if( bcore_source_a_parse_bl_fa( source, "#?'|' " ) )
             {
-                XOICO_BLM_SOURCE_PARSE_FA( source, "#name ", s );
-                if( s->size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Argument: Type expected." );
-                o->alt_type = XOICO_ENTYPEOF( s->sc );
+                XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Use of '|' is deprecated." );
             }
         }
         else
@@ -72,36 +70,16 @@ tp_t xoico_typespec_s_get_hash( const xoico_typespec_s* o )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_typespec_s_expand( const xoico_typespec_s* o, const xoico_stamp_s* stamp, bcore_sink* sink )
+er_t xoico_typespec_s_expand( const xoico_typespec_s* o, sc_t sc_obj_type, bcore_sink* sink )
 {
     BLM_INIT();
-    if( o->is_const ) bcore_sink_a_push_fa( sink, "const " );
-    sc_t sc_type = XOICO_NAMEOF( o->type );
-    if( sc_type[ 0 ] == '@' && !stamp ) sc_type = XOICO_NAMEOF( o->alt_type );
+    st_s* st_type = BLM_A_PUSH( st_s_create_sc( XOICO_NAMEOF( o->type ) ) );
 
-    if( sc_type[ 0 ] == '@' )
-    {
-        st_s* s = BLM_CREATE( st_s );
-        if( !stamp )
-        {
-            XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA
-            (
-                &o->source_point,
-                "'@' cannot be used 'standalone' in this context.\n"
-                "You may specify a compatible alternative type using directive '|' : E.g. '@|bcore_inst *"
-            );
-        }
-        else
-        {
-            st_s_copy_sc( s, stamp->name.sc );
-            st_s_push_sc( s, sc_type + 1 );
-            bcore_sink_a_push_fa( sink, "#<sc_t>", s->sc );
-        }
-    }
-    else
-    {
-        bcore_sink_a_push_fa( sink, "#<sc_t>", sc_type );
-    }
+    if( sc_obj_type ) st_s_replace_sc_sc( st_type, "@", sc_obj_type );
+
+    sc_t sc_type = st_type->sc;
+    if( o->is_const ) bcore_sink_a_push_fa( sink, "const " );
+    bcore_sink_a_push_fa( sink, "#<sc_t>", sc_type );
 
     for( sz_t i = 0; i < o->ref_count; i++ ) bcore_sink_a_push_fa( sink, "*" );
     BLM_RETURNV( er_t, 0 );

@@ -25,7 +25,7 @@
 XOILA_DEFINE_GROUP( xoico_typespec, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-signature er_t expand( const, const xoico_stamp_s* stamp, bcore_sink* sink );
+signature er_t expand( const, sc_t sc_obj_type, bcore_sink* sink );
 
 stamp : = aware :
 {
@@ -35,7 +35,6 @@ stamp : = aware :
 
     bl_t is_const;
     tp_t type;
-    tp_t alt_type; // alternative type in case type is not applicable; e.g. when @ is used as type on a feature
     sz_t ref_count;
 
     func xoico : parse;

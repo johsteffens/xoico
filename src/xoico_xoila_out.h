@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-26T15:25:08Z
+ *  Last File Update: 2020-08-27T08:57:36Z
  *
  *  Copyright and License of this File:
  *
@@ -36,7 +36,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0xAB57D2C7035F3BF5ull
+#define HKEYOF_xoico_xoila_out 0xE2C9A37D442755DBull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -50,6 +50,7 @@
 #define TYPEOF_xoico_s 0xFE9505BA71E233AFull
 #define TYPEOF_mutable 0xD3AC3C45566EFDE9ull
 #define TYPEOF_const 0x65C9718E19E3DF34ull
+#define TYPEOF_void 0x3173C900E37AE1DFull
 #define TYPEOF_xoico_name_s 0x72C1E17E15481547ull
 #define TYPEOF_xoico_forward_s 0x67CE6DD302FEC85Dull
 #define TYPEOF_xoico_arg_s 0xDE77C40AC671BCC8ull
@@ -235,11 +236,11 @@
 #define TYPEOF_xoico_typespec_s 0x9BEEEFCA6BCF163Bull
 #define BETH_EXPAND_ITEM_xoico_typespec_s \
   BCORE_DECLARE_OBJECT( xoico_typespec_s ) \
-    {aware_t _;xoico_group_s* group;bcore_source_point_s source_point;bl_t is_const;tp_t type;tp_t alt_type;sz_t ref_count;}; \
+    {aware_t _;xoico_group_s* group;bcore_source_point_s source_point;bl_t is_const;tp_t type;sz_t ref_count;}; \
   static inline void xoico_typespec_s_copy_x( xoico_typespec_s* o, const xoico_typespec_s* src ){o->group = src->group;} \
   er_t xoico_typespec_s_parse( xoico_typespec_s* o, bcore_source* source ); \
   tp_t xoico_typespec_s_get_hash( const xoico_typespec_s* o ); \
-  er_t xoico_typespec_s_expand( const xoico_typespec_s* o, const xoico_stamp_s* stamp, bcore_sink* sink );
+  er_t xoico_typespec_s_expand( const xoico_typespec_s* o, sc_t sc_obj_type, bcore_sink* sink );
 #define BETH_EXPAND_GROUP_xoico_typespec \
   BCORE_FORWARD_OBJECT( xoico_typespec ); \
   BCORE_FORWARD_OBJECT( xoico_typespec_s ); \
@@ -260,7 +261,7 @@
   static inline void xoico_arg_s_copy_x( xoico_arg_s* o, const xoico_arg_s* src ){o->group = src->group;} \
   er_t xoico_arg_s_parse( xoico_arg_s* o, bcore_source* source ); \
   tp_t xoico_arg_s_get_hash( const xoico_arg_s* o ); \
-  er_t xoico_arg_s_expand( const xoico_arg_s* o, const xoico_stamp_s* stamp, bcore_sink* sink ); \
+  er_t xoico_arg_s_expand( const xoico_arg_s* o, sc_t sc_obj_type, bcore_sink* sink ); \
   er_t xoico_arg_s_expand_name( const xoico_arg_s* o, bcore_sink* sink );
 #define BETH_EXPAND_GROUP_xoico_arg \
   BCORE_FORWARD_OBJECT( xoico_arg ); \
@@ -282,7 +283,7 @@
   er_t xoico_args_s_parse( xoico_args_s* o, bcore_source* source ); \
   tp_t xoico_args_s_get_hash( const xoico_args_s* o ); \
   er_t xoico_args_s_append( xoico_args_s* o, bcore_source* source ); \
-  er_t xoico_args_s_expand( const xoico_args_s* o, bl_t first, const xoico_stamp_s* stamp, bcore_sink* sink ); \
+  er_t xoico_args_s_expand( const xoico_args_s* o, bl_t first, sc_t sc_obj_type, bcore_sink* sink ); \
   er_t xoico_args_s_expand_name( const xoico_args_s* o, bl_t first, bcore_sink* sink ); \
   static inline void xoico_args_s_copy_x( xoico_args_s* o, const xoico_args_s* src ){o->group = src->group;}
 #define BETH_EXPAND_GROUP_xoico_args \
@@ -301,7 +302,7 @@
 #define TYPEOF_xoico_signature_s 0xDCE5A3AFBCD17B0Eull
 #define BETH_EXPAND_ITEM_xoico_signature_s \
   BCORE_DECLARE_OBJECT( xoico_signature_s ) \
-    {aware_t _;st_s st_name;st_s st_global_name;bl_t has_ret;st_s ret_type;xoico_args_s args;tp_t arg_o;xoico_group_s* group;bcore_source_point_s source_point;}; \
+    {aware_t _;st_s st_name;st_s st_global_name;bl_t has_ret;st_s ret_type;xoico_typespec_s typespec_ret;xoico_args_s args;tp_t arg_o;xoico_group_s* group;bcore_source_point_s source_point;}; \
   er_t xoico_signature_s_parse( xoico_signature_s* o, bcore_source* source ); \
   tp_t xoico_signature_s_get_hash( const xoico_signature_s* o ); \
   sc_t xoico_signature_s_get_global_name_sc( const xoico_signature_s* o ); \
@@ -794,4 +795,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0xDE6601DF49DB87EEull
+// XOILA_OUT_SIGNATURE 0xC1C6E0E87186CB82ull

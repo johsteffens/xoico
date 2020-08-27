@@ -67,7 +67,6 @@ er_t xoico_signature_s_parse( xoico_signature_s* o, bcore_source* source )
         XOICO_BLM_SOURCE_PARSE_FA( source, " #name", name_buf );
         if( name_buf->size == 0 )  XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Signature name missing." );
         st_s_copy( &o->st_name, name_buf );
-        st_s_copy_fa( &o->st_global_name, "#<sc_t>_#<sc_t>", o->group->name.sc, o->st_name.sc );
         XOICO_BLM_SOURCE_PARSE_FA( source, " (" );
         BLM_TRY( xoico_args_s_append( &o->args, source ) );
         XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
@@ -119,19 +118,18 @@ er_t xoico_signature_s_parse( xoico_signature_s* o, bcore_source* source )
         ASSERT( o->group );
         o->args.group = o->group;
         {
-            XOICO_BLM_SOURCE_PARSE_FA( source, " ( " );
+            XOICO_BLM_SOURCE_PARSE_FA( source, " (" );
             if(      bcore_source_a_parse_bl_fa(  source, " #?'mutable' " ) ) o->arg_o = TYPEOF_mutable;
             else if( bcore_source_a_parse_bl_fa(  source, " #?'const' "   ) ) o->arg_o = TYPEOF_const;
             else if( bcore_source_a_parse_bl_fa(  source, " #?'plain' "   ) ) o->arg_o = 0;
             else     XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "'plain', mutable' or 'const' expected." );
 
             BLM_TRY( xoico_args_s_parse( &o->args, source ) );
-            XOICO_BLM_SOURCE_PARSE_FA( source, " ) " );
+            XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
         }
-
-        st_s_copy_fa( &o->st_global_name, "#<sc_t>_#<sc_t>", o->group->name.sc, o->st_name.sc );
     }
 
+    st_s_copy_fa( &o->st_global_name, "#<sc_t>_#<sc_t>", o->group->name.sc, o->st_name.sc );
     BLM_RETURNV( er_t, 0 );
 }
 
@@ -151,14 +149,14 @@ er_t xoico_signature_s_expand_declaration( const xoico_signature_s* o, const xoi
     {
         bcore_sink_a_push_fa( sink, "#<sc_t>", ( o->arg_o == TYPEOF_mutable ) ? "" : "const " );
         bcore_sink_a_push_fa( sink, "#<sc_t>* o", sc_name );
-        BLM_TRY( xoico_args_s_expand( &o->args, false, stamp, sink ) );
+        BLM_TRY( xoico_args_s_expand( &o->args, false, sc_name, sink ) );
         bcore_sink_a_push_fa( sink, " )" );
     }
     else
     {
         if( o->args.size > 0 )
         {
-            BLM_TRY( xoico_args_s_expand( &o->args, true, stamp, sink ) );
+            BLM_TRY( xoico_args_s_expand( &o->args, true, sc_name, sink ) );
         }
         else
         {

@@ -61,14 +61,14 @@ er_t xoico_args_s_append( xoico_args_s* o, bcore_source* source )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_args_s_expand( const xoico_args_s* o, bl_t first, const xoico_stamp_s* stamp, bcore_sink* sink )
+er_t xoico_args_s_expand( const xoico_args_s* o, bl_t first, sc_t sc_obj_type, bcore_sink* sink )
 {
     er_t er = 0;
     for( sz_t i = 0; i < o->size && !er; i++ )
     {
         if( !first ) bcore_sink_a_push_fa( sink, ", " );
         first = false;
-        er = xoico_arg_s_expand( &o->data[ i ], stamp, sink );
+        er = xoico_arg_s_expand( &o->data[ i ], sc_obj_type, sink );
     }
     return er;
 }

@@ -27,8 +27,7 @@ XOILA_DEFINE_GROUP( <group_name>, <trait_name> )
            const:   const member function;   first argument: const @* o
            mutable: mutable member function; first argument:       @* o
 
-    signature <signature> <func_name>[( <additional-args> )];
-    signature [ [<signature-group>] : ] <signature-name> [<func_name>] [( <additional-args> )];
+    signature extending <signature> <func_name>[( <additional-args> )];
 
     feature [strict] '<flags>' <syntax-of-signature> [ = <body> ];
 
@@ -160,9 +159,10 @@ stamp:
     can be outside the stamp. Replacement happens in all stamps to which
     they are assigned.
 
-    '@' : is replaced with the stamp's full type name.
-          Example: In stamp 'bcore_fog_s'
-             @ -> "bcore_fog_s"
+    '@' : is replaced by the stamp's type name if expansion happens in a stamp.
+        Otherwise it is replaced by the groups type name.
+          Example: In stamp 'foo_s'
+             @ is replaced by "foo_s"
 
   Special traits:
     bcore_array: expands additional array-functions

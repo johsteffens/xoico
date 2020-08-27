@@ -46,6 +46,7 @@ feature 'ap' er_t expand_init1              ( const, sz_t indent, bcore_sink* si
 
 name mutable;
 name const;
+name void;
 
 forward :name_s;
 forward :forward_s;

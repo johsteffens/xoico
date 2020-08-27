@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-08-26T15:25:08Z
+ *  Last File Update: 2020-08-27T08:57:36Z
  *
  *  Copyright and License of this File:
  *
@@ -118,7 +118,6 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_typespec_s )
     "bcore_source_point_s source_point;"
     "bl_t is_const;"
     "tp_t type;"
-    "tp_t alt_type;"
     "sz_t ref_count;"
     "func xoico:parse;"
     "func xoico:get_hash;"
@@ -174,6 +173,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_signature_s )
     "st_s st_global_name;"
     "bl_t has_ret;"
     "st_s ret_type;"
+    "xoico_typespec_s typespec_ret;"
     "xoico_args_s args;"
     "tp_t arg_o;"
     "private aware xoico_group_s* group;"
@@ -469,7 +469,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_compiler_s )
     "hidden bcore_hmap_tp_s hmap_type;"
     "hidden bcore_life_s life;"
     "hidden bcore_hmap_name_s name_map;"
-    "tp_t target_pre_hash = 5;"
+    "tp_t target_pre_hash = 7;"
     "bl_t register_plain_functions = true;"
     "bl_t register_signatures = false;"
     "bl_t overwrite_unsigned_target_files = false;"
@@ -802,6 +802,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_FFUNC( xoico_expand_init1, xoico_expand_init1__ );
             BCORE_REGISTER_NAME( mutable );
             BCORE_REGISTER_NAME( const );
+            BCORE_REGISTER_NAME( void );
             BCORE_REGISTER_SPECT( xoico );
 
             // --------------------------------------------------------------------
@@ -1032,4 +1033,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0xB87BC90291295401ull
+// XOILA_OUT_SIGNATURE 0x038A84A3F6C64799ull

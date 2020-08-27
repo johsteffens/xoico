@@ -125,7 +125,7 @@ er_t xoico_feature_s_expand_indef_typedef( const xoico_feature_s* o, sz_t indent
     bcore_sink_a_push_fa( sink, " \\\n#rn{ }  typedef #<sc_t> (*#<sc_t>_#<sc_t>)(", indent, o->signature.ret_type.sc, o->group->name.sc, o->signature.st_name.sc );
     if( o->signature.arg_o == TYPEOF_const ) bcore_sink_a_push_fa( sink, " const" );
     bcore_sink_a_push_fa( sink, " #<sc_t>* o", o->group->name.sc );
-    BLM_TRY( xoico_args_s_expand( &o->signature.args, false, NULL, sink ) );
+    BLM_TRY( xoico_args_s_expand( &o->signature.args, false, o->group->name.sc, sink ) );
     bcore_sink_a_push_fa( sink, " );" );
     BLM_RETURNV( er_t, 0 );
 }
@@ -173,7 +173,7 @@ er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t in
         bcore_sink_a_push_fa( sink, " \\\n#rn{ }  static inline #<sc_t> #<sc_t>_p_#<sc_t>( const #<sc_t>_s* __p,", indent, sc_ret_type, sc_group_name, sc_name, sc_group_name );
         if( is_const ) bcore_sink_a_push_fa( sink, " const" );
         bcore_sink_a_push_fa( sink, " #<sc_t>* o", sc_group_name );
-        BLM_TRY( xoico_args_s_expand( &o->signature.args, false, NULL, sink ) );
+        BLM_TRY( xoico_args_s_expand( &o->signature.args, false, sc_group_name, sink ) );
         bcore_sink_a_push_fa( sink, " ) { " );
         bcore_sink_a_push_fa( sink, "assert( __p->#<sc_t> ); ", sc_name );
         if( o->signature.has_ret ) bcore_sink_a_push_fa( sink, "return " );
@@ -188,7 +188,7 @@ er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t in
         bcore_sink_a_push_fa( sink, " \\\n#rn{ }  static inline #<sc_t> #<sc_t>_t_#<sc_t>( tp_t __t,", indent, sc_ret_type, sc_group_name, sc_name, sc_group_name );
         if( is_const ) bcore_sink_a_push_fa( sink, " const" );
         bcore_sink_a_push_fa( sink, " #<sc_t>* o", sc_group_name );
-        BLM_TRY( xoico_args_s_expand( &o->signature.args, false, NULL, sink ) );
+        BLM_TRY( xoico_args_s_expand( &o->signature.args, false, sc_group_name, sink ) );
         bcore_sink_a_push_fa( sink, " ) { " );
         bcore_sink_a_push_fa( sink, "const #<sc_t>_s* p = #<sc_t>_s_get_typed( __t ); ", sc_group_name, sc_group_name );
         bcore_sink_a_push_fa( sink, "assert( p->#<sc_t> ); ", sc_name );
@@ -204,7 +204,7 @@ er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t in
         bcore_sink_a_push_fa( sink, " \\\n#rn{ }  static inline #<sc_t> #<sc_t>_a_#<sc_t>(", indent, sc_ret_type, sc_group_name, sc_name );
         if( is_const ) bcore_sink_a_push_fa( sink, " const" );
         bcore_sink_a_push_fa( sink, " #<sc_t>* o", sc_group_name );
-        BLM_TRY( xoico_args_s_expand( &o->signature.args, false, NULL, sink ) );
+        BLM_TRY( xoico_args_s_expand( &o->signature.args, false, sc_group_name, sink ) );
         bcore_sink_a_push_fa( sink, " ) { " );
         bcore_sink_a_push_fa( sink, "const #<sc_t>_s* p = #<sc_t>_s_get_aware( o ); ", sc_group_name, sc_group_name );
         bcore_sink_a_push_fa( sink, "assert( p->#<sc_t> ); ", sc_name );
@@ -219,7 +219,7 @@ er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t in
         // static inline ret_t feature_r_func( const sr_s* o, arg_t arg1 ) { const features_s* p = (const features_s*)ch_spect_p( o->p, TYPEOF_feature_s ) ); assert( p->func ); return p->func( o->o, arg1 ); }
         bcore_sink_a_push_fa( sink, " \\\n#rn{ }  static inline #<sc_t> #<sc_t>_r_#<sc_t>(", indent, sc_ret_type, sc_group_name, sc_name );
         bcore_sink_a_push_fa( sink, " const sr_s* o" );
-        BLM_TRY( xoico_args_s_expand( &o->signature.args, false, NULL, sink ) );
+        BLM_TRY( xoico_args_s_expand( &o->signature.args, false, sc_group_name, sink ) );
         bcore_sink_a_push_fa( sink, " ) { " );
         if( !is_const ) bcore_sink_a_push_fa( sink, "ASSERT( !sr_s_is_const( o ) ); ", indent );
         bcore_sink_a_push_fa( sink, "const #<sc_t>_s* p = (const #<sc_t>_s*)ch_spect_p( o->p, TYPEOF_#<sc_t>_s ); ", sc_group_name, sc_group_name, sc_group_name );
@@ -294,7 +294,7 @@ er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t in
             bcore_sink_a_push_fa( sink, " \\\n#rn{ }  static inline #<sc_t> #<sc_t>_#<sc_t>(", indent, sc_ret_type, sc_group_name, sc_default_name );
             if( is_const ) bcore_sink_a_push_fa( sink, " const" );
             bcore_sink_a_push_fa( sink, " #<sc_t>* o", sc_group_name );
-            BLM_TRY( xoico_args_s_expand( &o->signature.args, false, NULL, sink ) );
+            BLM_TRY( xoico_args_s_expand( &o->signature.args, false, sc_group_name, sink ) );
             bcore_sink_a_push_fa( sink, " )" );
             BLM_TRY( xoico_body_s_expand( o->default_body, sc_group_name, &o->signature.args, indent, sink ) );
         }
@@ -304,7 +304,7 @@ er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t in
             bcore_sink_a_push_fa( sink, " \\\n#rn{ }  #<sc_t> #<sc_t>_#<sc_t>(", indent, sc_ret_type, sc_group_name, sc_default_name );
             if( is_const ) bcore_sink_a_push_fa( sink, " const" );
             bcore_sink_a_push_fa( sink, " #<sc_t>* o", sc_group_name );
-            BLM_TRY( xoico_args_s_expand( &o->signature.args, false, NULL, sink ) );
+            BLM_TRY( xoico_args_s_expand( &o->signature.args, false, sc_group_name, sink ) );
             bcore_sink_a_push_fa( sink, " );" );
         }
     }
@@ -322,7 +322,7 @@ er_t xoico_feature_s_expand_definition( const xoico_feature_s* o, sz_t indent, b
         bcore_sink_a_push_fa( sink, "\n#<sc_t> #<sc_t>_#<sc_t>(", o->signature.ret_type.sc, o->group->name.sc, o->st_default_name.sc );
         if( o->signature.arg_o == TYPEOF_const ) bcore_sink_a_push_fa( sink, " const" );
         bcore_sink_a_push_fa( sink, " #<sc_t>* o", o->group->name.sc );
-        BLM_TRY( xoico_args_s_expand( &o->signature.args, false, NULL, sink ) );
+        BLM_TRY( xoico_args_s_expand( &o->signature.args, false, o->group->name.sc, sink ) );
         bcore_sink_a_push_fa( sink, " )\n" );
         BLM_TRY( xoico_body_s_expand( o->default_body, o->group->name.sc, &o->signature.args, indent, sink ) );
     }
