@@ -26,6 +26,7 @@
 XOILA_DEFINE_GROUP( xoico_signature, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+signature er_t relent( mutable, tp_t tp_obj_type );
 signature er_t expand_declaration( const, const xoico_stamp_s* stamp, sc_t sc_func_name, sz_t indent, bcore_sink* sink );
 
 stamp : = aware :
@@ -37,11 +38,14 @@ stamp : = aware :
     xoico_args_s args;   // e.g.: sz_t a, sz_t b
     tp_t arg_o;          // first argument: mutable | const | 0
     private aware xoico_group_s* group;
+    func bcore_inst_call : copy_x = { o->group = src->group; };
+
     bcore_source_point_s source_point;
 
     func xoico : parse;
     func xoico : get_hash;
     func xoico : get_global_name_sc;
+    func     : : relent;
     func     : : expand_declaration;
 };
 

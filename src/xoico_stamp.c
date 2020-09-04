@@ -448,9 +448,10 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcor
 
     bcore_sink_a_push_fa( sink, "#rn{ }##define BETH_EXPAND_ITEM_#<sc_t>", indent, sc_name, sc_name );
     bcore_sink_a_push_fa( sink, " \\\n#rn{ }  BCORE_DECLARE_OBJECT( #<sc_t> )", indent, sc_name );
-    bcore_sink_a_push_fa( sink, " \\\n#rn{ }    ", indent );
+    bcore_sink_a_push_fa( sink, " \\\n" );
 
-    bcore_self_s_struct_body_to_sink_single_line( o->self, sink );
+    //bcore_self_s_struct_body_to_sink_single_line( o->self, sink );
+    bcore_self_s_struct_body_to_sink_newline_escaped( o->self, indent + 2, sink );
     bcore_sink_a_push_fa( sink, ";" );
 
     for( sz_t i = 0; i < o->funcs.size; i++ )

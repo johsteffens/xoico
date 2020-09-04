@@ -44,7 +44,7 @@ signature const xoico_signature_s* get_signature( const, tp_t item_id ); // retu
 stamp :element_info = aware :
 {
     xoico_typespec_s typespec;
-    private xoico_signature_s* signature;
+    xoico_signature_s -> signature;
     func bcore_inst_call : copy_x = { o->signature = src->signature; };
 
 };
@@ -80,7 +80,7 @@ stamp : = aware :
      *  This is used during development or when a new version changes the
      *  target_out files in a material way.
      */
-    tp_t target_pre_hash                 = 11;
+    tp_t target_pre_hash                 = 13;
     bl_t register_plain_functions        = true;
     bl_t register_signatures             = false;
     bl_t overwrite_unsigned_target_files = false;

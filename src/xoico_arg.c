@@ -26,10 +26,9 @@ er_t xoico_arg_s_parse( xoico_arg_s* o, bcore_source* source )
 {
     BLM_INIT();
     bcore_source_point_s_set( &o->source_point, source );
-    o->typespec.group = o->group;
-    BLM_TRY( xoico_typespec_s_parse( &o->typespec, source ) );
+    BLM_TRY( xoico_typespec_s_parse( &o->typespec, o->group, source ) );
 
-    if( o->typespec.type == TYPEOF_void && o->typespec.ref_count == 0 )
+    if( o->typespec.type == TYPEOF_void && o->typespec.indirection == 0 )
     {
         XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA( &o->source_point, "'void' is misplaced here." );
     }
@@ -64,10 +63,17 @@ er_t xoico_arg_s_expand_name( const xoico_arg_s* o, bcore_sink* sink )
 
 //----------------------------------------------------------------------------------------------------------------------
 
+er_t xoico_arg_s_relent( xoico_arg_s* o, tp_t tp_obj_type )
+{
+    return xoico_typespec_s_relent( &o->typespec, o->group, tp_obj_type );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 er_t xoico_arg_s_expand( const xoico_arg_s* o, sc_t sc_obj_type, bcore_sink* sink )
 {
     BLM_INIT();
-    BLM_TRY( xoico_typespec_s_expand( &o->typespec, sc_obj_type, sink ) );
+    BLM_TRY( xoico_typespec_s_expand( &o->typespec, o->group, sc_obj_type, sink ) );
     bcore_sink_a_push_fa( sink, " " );
     xoico_arg_s_expand_name( o, sink );
     BLM_RETURNV( er_t, 0 );

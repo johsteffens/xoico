@@ -59,7 +59,6 @@ er_t xoico_signature_s_parse( xoico_signature_s* o, bcore_source* source )
         }
 
         xoico_typespec_s_copy( &o->typespec_ret, &signature->typespec_ret );
-        o->typespec_ret.group = o->group;
         xoico_args_s_copy( &o->args, &signature->args );
         o->arg_o = signature->arg_o;
 
@@ -72,8 +71,7 @@ er_t xoico_signature_s_parse( xoico_signature_s* o, bcore_source* source )
     }
     else
     {
-        o->typespec_ret.group = o->group;
-        BLM_TRY( xoico_typespec_s_parse( &o->typespec_ret, source ) );
+        BLM_TRY( xoico_typespec_s_parse( &o->typespec_ret, o->group, source ) );
 
         // get name
         XOICO_BLM_SOURCE_PARSE_FA( source, " #name", &o->st_name );
@@ -98,11 +96,21 @@ er_t xoico_signature_s_parse( xoico_signature_s* o, bcore_source* source )
 
 //----------------------------------------------------------------------------------------------------------------------
 
+er_t xoico_signature_s_relent( xoico_signature_s* o, tp_t tp_obj_type )
+{
+    er_t er = 0;
+    if( ( er = xoico_args_s_relent( &o->args, tp_obj_type ) ) ) return er;
+    if( ( er = xoico_typespec_s_relent( &o->typespec_ret, o->group, tp_obj_type ) ) ) return er;
+    return er;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 er_t xoico_signature_s_expand_declaration( const xoico_signature_s* o, const xoico_stamp_s* stamp, sc_t sc_func_global_name, sz_t indent, bcore_sink* sink )
 {
     BLM_INIT();
     sc_t sc_name = stamp->name.sc;
-    xoico_typespec_s_expand( &o->typespec_ret, sc_name, sink );
+    xoico_typespec_s_expand( &o->typespec_ret, o->group, sc_name, sink );
     bcore_sink_a_push_fa( sink, " #<sc_t>( ", sc_func_global_name );
 
     if( o->arg_o )

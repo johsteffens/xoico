@@ -338,16 +338,16 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
 
         const bcore_self_item_s* item = bcore_self_s_get_item_by_name( self, name ); // returns NULL in case of no match
         bl_t found = true;
-        sz_t ref_count = 0;
+        sz_t indirection = 0;
 
         if( item )
         {
             switch( item->caps )
             {
-                case BCORE_CAPS_SOLID_STATIC: ref_count = 0; break;
-                case BCORE_CAPS_LINK_STATIC:  ref_count = 1; break;
-                case BCORE_CAPS_LINK_TYPED:   ref_count = 1; break;
-                case BCORE_CAPS_LINK_AWARE:   ref_count = 1; break;
+                case BCORE_CAPS_SOLID_STATIC: indirection = 0; break;
+                case BCORE_CAPS_LINK_STATIC:  indirection = 1; break;
+                case BCORE_CAPS_LINK_TYPED:   indirection = 1; break;
+                case BCORE_CAPS_LINK_AWARE:   indirection = 1; break;
                 case BCORE_CAPS_ARRAY_DYN_SOLID_STATIC:
                 case BCORE_CAPS_ARRAY_DYN_SOLID_TYPED:
                 case BCORE_CAPS_ARRAY_DYN_LINK_STATIC:
@@ -374,7 +374,6 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
             found = false;
         }
 
-        info->typespec.group = stamp->group;
         info->typespec.is_const = false;
 
         if( !found ) // try function
@@ -383,8 +382,9 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
             if( func )
             {
                 info->typespec.type = func->global_name;
-                info->typespec.ref_count = 0;
-                info->signature = ( xoico_signature_s* )xoico_compiler_s_get_signature( o, func->type );
+                info->typespec.indirection = 0;
+                xoico_signature_s_attach( &info->signature, xoico_signature_s_clone( ( xoico_signature_s* )xoico_compiler_s_get_signature( o, func->type ) ) );
+                xoico_signature_s_relent( info->signature, self->type );
                 success = true;
             }
             else
@@ -395,7 +395,7 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
         else
         {
             info->typespec.type = item->type;
-            info->typespec.ref_count = ref_count;
+            info->typespec.indirection = indirection;
             info->signature = NULL;
             success = true;
         }

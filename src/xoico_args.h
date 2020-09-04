@@ -27,6 +27,7 @@ XOILA_DEFINE_GROUP( xoico_args, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 signature er_t append(      mutable, bcore_source* source );
+signature er_t relent(      mutable, tp_t tp_obj_type );
 signature er_t expand(      const, bl_t first, sc_t sc_obj_type, bcore_sink* sink );
 signature er_t expand_name( const, bl_t first, bcore_sink* sink );
 
@@ -40,6 +41,7 @@ stamp : = aware :
     func xoico : get_hash;
 
     func     : : append;
+    func     : : relent;
     func     : : expand;
     func     : : expand_name;
 

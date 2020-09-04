@@ -61,6 +61,18 @@ er_t xoico_args_s_append( xoico_args_s* o, bcore_source* source )
 
 //----------------------------------------------------------------------------------------------------------------------
 
+er_t xoico_args_s_relent( xoico_args_s* o, tp_t tp_obj_type )
+{
+    er_t er = 0;
+    for( sz_t i = 0; i < o->size && !er; i++ )
+    {
+        er = xoico_arg_s_relent( &o->data[ i ], tp_obj_type );
+    }
+    return er;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 er_t xoico_args_s_expand( const xoico_args_s* o, bl_t first, sc_t sc_obj_type, bcore_sink* sink )
 {
     er_t er = 0;

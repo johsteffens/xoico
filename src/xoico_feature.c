@@ -125,7 +125,7 @@ er_t xoico_feature_s_expand_indef_typedef( const xoico_feature_s* o, sz_t indent
 
     bcore_sink_a_push_fa( sink, " \\\n#rn{ }  typedef ", indent );
 
-    xoico_typespec_s_expand( &o->signature.typespec_ret, o->group->name.sc, sink );
+    xoico_typespec_s_expand( &o->signature.typespec_ret, o->group, o->group->name.sc, sink );
 
     bcore_sink_a_push_fa( sink, " (*#<sc_t>_#<sc_t>)(", o->group->name.sc, o->signature.st_name.sc );
 
@@ -172,7 +172,7 @@ er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t in
     sc_t sc_group_name   = o->group->name.sc;
 
     st_s* st_ret_spec = BLM_CREATE( st_s );
-    xoico_typespec_s_expand( &o->signature.typespec_ret, sc_group_name, ( bcore_sink* )st_ret_spec );
+    xoico_typespec_s_expand( &o->signature.typespec_ret, o->group, sc_group_name, ( bcore_sink* )st_ret_spec );
     bl_t has_ret = ( o->signature.typespec_ret.type != TYPEOF_void );
 
     sc_t sc_ret_spec     = st_ret_spec->sc;
@@ -333,7 +333,7 @@ er_t xoico_feature_s_expand_definition( const xoico_feature_s* o, sz_t indent, b
         sc_t sc_group_name = o->group->name.sc;
 
         st_s* st_ret_spec = BLM_CREATE( st_s );
-        xoico_typespec_s_expand( &o->signature.typespec_ret, sc_group_name, ( bcore_sink* )st_ret_spec );
+        xoico_typespec_s_expand( &o->signature.typespec_ret, o->group, sc_group_name, ( bcore_sink* )st_ret_spec );
 
         bcore_sink_a_push_fa( sink, "\n" );
         bcore_sink_a_push_fa( sink, "\n#<sc_t> #<sc_t>_#<sc_t>(", st_ret_spec->sc, sc_group_name, o->st_default_name.sc );
