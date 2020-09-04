@@ -135,7 +135,13 @@ stamp : = aware :
 
 group sim = :
 {
-    signature @* setup( mutable, const @* src );
+    feature 'atpr' @* setup( mutable, const @* src );
+
+    stamp : = aware :
+    {
+        bl_t bl;
+        func : :setup = { return o; };
+    };
 
     stamp :foo0 = aware :
     {

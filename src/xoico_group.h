@@ -31,6 +31,7 @@ signature er_t parse_name_recursive( mutable, st_s* name, bcore_source* source )
 signature er_t expand_declaration(   const, sz_t indent, bcore_sink* sink );
 signature er_t expand_definition(    const, sz_t indent, bcore_sink* sink );
 signature er_t expand_init1(         const, sz_t indent, bcore_sink* sink );
+signature st_s* create_spect_name( const );
 
 signature xoico_source_s*   get_source( const );
 signature xoico_target_s*   get_target( const );
@@ -50,12 +51,25 @@ stamp : = aware :
     st_s trait_name = "bcore_inst"; // trait name
     tp_t hash;
 
+    /** Beta values > 0 represent experimental or transitional states in development
+     *  They can be specified using the set directive: e.g. set beta = 1;
+     */
+    tp_t beta = 0;
+
     // 'expandable' is set 'false' for groups that is not intended to be expanded into actual code
     // but may contain information referenced in other groups (e.g. global features)
     bl_t expandable = true;
     bl_t has_features;
     bl_t is_aware;
     bl_t retrievable;
+
+    /** Activates using the short perspective type name.
+     *  Normally the perspective type of a group is '<group_name>_spect_s'
+     *  The short version is '<group_name>_s' can clash with stamp names.
+     *  It should only be used for mapping low level perspectives into the xoila framework.
+     *  (e.g. in inexpandable groups)
+     */
+    bl_t short_spect_name;
 
     private xoico_stamp_s -> extending; // !=NULL: extends this stamp on subsequent stamps
 
@@ -71,6 +85,7 @@ stamp : = aware :
     func xoico :finalize;
     func xoico :expand_setup;
 
+    func : :create_spect_name;
     func : :parse_name;
     func : :parse_name_recursive;
     func : :expand_declaration;

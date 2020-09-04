@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-09-03T20:07:41Z
+ *  Last File Update: 2020-09-04T17:45:31Z
  *
  *  Copyright and License of this File:
  *
@@ -44,7 +44,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico
 
-BCORE_DEFINE_SPECT( bcore_inst, xoico )
+XOILA_DEFINE_SPECT( bcore_inst, xoico )
 "{"
     "bcore_spect_header_s header;"
     "feature aware xoico : parse;"
@@ -318,10 +318,12 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_group_s )
     "private xoico_group_s* group;"
     "st_s trait_name = \"bcore_inst\";"
     "tp_t hash;"
+    "tp_t beta = 0;"
     "bl_t expandable = true;"
     "bl_t has_features;"
     "bl_t is_aware;"
     "bl_t retrievable;"
+    "bl_t short_spect_name;"
     "private xoico_stamp_s -> extending;"
     "xoico_funcs_s funcs;"
     "private aware xoico_source_s* source;"
@@ -465,7 +467,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_compiler_s )
     "hidden bcore_hmap_tp_s hmap_type;"
     "hidden bcore_life_s life;"
     "hidden bcore_hmap_name_s name_map;"
-    "tp_t target_pre_hash = 13;"
+    "tp_t target_pre_hash = 16;"
     "bl_t register_plain_functions = true;"
     "bl_t register_signatures = false;"
     "bl_t overwrite_unsigned_target_files = false;"
@@ -755,16 +757,25 @@ const xoico_typespec_s* xoico_xce_stack_s_get_typespec( const xoico_xce_stack_s*
 //----------------------------------------------------------------------------------------------------------------------
 // group: sim
 
+BCORE_DEFINE_OBJECT_INST_P( sim_s )
+"aware sim"
+"{"
+    "bl_t bl;"
+    "func ^:setup;"
+"}";
+
 BCORE_DEFINE_OBJECT_INST_P( sim_foo0_s )
 "aware sim"
 "{"
     "st_s st;"
+    "func ^:setup;"
 "}";
 
 BCORE_DEFINE_OBJECT_INST_P( sim_foo1_s )
 "aware sim"
 "{"
     "sim_foo0_s f0;"
+    "func ^:setup;"
 "}";
 
 BCORE_DEFINE_OBJECT_INST_P( sim_foo2_s )
@@ -772,6 +783,13 @@ BCORE_DEFINE_OBJECT_INST_P( sim_foo2_s )
 "{"
     "sim_foo1_s => f1!;"
     "sim_foo2_s => f2;"
+    "func ^:setup;"
+"}";
+
+XOILA_DEFINE_SPECT( xoico_xce, sim )
+"{"
+    "bcore_spect_header_s header;"
+    "feature aware sim : setup;"
 "}";
 
 /**********************************************************************************************************************/
@@ -815,7 +833,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_NAME( mutable );
             BCORE_REGISTER_NAME( const );
             BCORE_REGISTER_NAME( void );
-            BCORE_REGISTER_SPECT( xoico );
+            XOILA_REGISTER_SPECT( xoico );
 
             // --------------------------------------------------------------------
             // source: xoico_name.h
@@ -1034,10 +1052,16 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_TRAIT( xoico_xce_stack, xoico_xce );
 
             // group: sim
+            BCORE_REGISTER_FEATURE( sim_setup );
+            BCORE_REGISTER_FFUNC( sim_setup, sim_s_setup );
+            BCORE_REGISTER_OBJECT( sim_s );
+            BCORE_REGISTER_FFUNC( sim_setup, sim_foo0_s_setup );
             BCORE_REGISTER_OBJECT( sim_foo0_s );
+            BCORE_REGISTER_FFUNC( sim_setup, sim_foo1_s_setup );
             BCORE_REGISTER_OBJECT( sim_foo1_s );
+            BCORE_REGISTER_FFUNC( sim_setup, sim_foo2_s_setup );
             BCORE_REGISTER_OBJECT( sim_foo2_s );
-            BCORE_REGISTER_TRAIT( sim, xoico_xce );
+            XOILA_REGISTER_SPECT( sim );
         }
         break;
         case TYPEOF_push_dependencies:
@@ -1051,4 +1075,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0xAE7ACCC89B48629Aull
+// XOILA_OUT_SIGNATURE 0x9F3B9E0BF872288Full

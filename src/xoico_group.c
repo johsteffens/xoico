@@ -42,6 +42,20 @@ tp_t xoico_group_s_get_hash( const xoico_group_s* o )
 
 //----------------------------------------------------------------------------------------------------------------------
 
+st_s* xoico_group_s_create_spect_name( const xoico_group_s* o )
+{
+    if( o->short_spect_name )
+    {
+        return st_s_create_fa( "#<sc_t>_s", o->name.sc );
+    }
+    else
+    {
+        return st_s_create_fa( "#<sc_t>_spect_s", o->name.sc );
+    }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 er_t xoico_group_s_parse_name_recursive( xoico_group_s* o, st_s* name, bcore_source* source )
 {
     BLM_INIT();
@@ -302,6 +316,17 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             if( bcore_source_a_parse_bl_fa( source, " #?w'retrievable' " ) )
             {
                 o->retrievable = true;
+                o->hash = bcore_tp_fold_bl( o->hash, o->retrievable );
+            }
+            if( bcore_source_a_parse_bl_fa( source, " #?w'short_spect_name' " ) )
+            {
+                o->short_spect_name = true;
+                o->hash = bcore_tp_fold_bl( o->hash, o->short_spect_name );
+            }
+            else if( bcore_source_a_parse_bl_fa( source, " #?w'beta' " ) )
+            {
+                XOICO_BLM_SOURCE_PARSE_FA( source, " = #<tp_t*>", &o->beta );
+                o->hash = bcore_tp_fold_tp( o->hash, o->beta );
             }
             else
             {
@@ -400,7 +425,15 @@ er_t xoico_group_s_expand_spect_declaration( const xoico_group_s* o, sz_t indent
 {
     BLM_INIT();
     if( !o->expandable ) BLM_RETURNV( er_t, 0 );
-    bcore_sink_a_push_fa( sink, " \\\n#rn{ }BCORE_DECLARE_SPECT( #<sc_t> )", indent, o->name.sc );
+    if( o->short_spect_name )
+    {
+        bcore_sink_a_push_fa( sink, " \\\n#rn{ }BCORE_DECLARE_SPECT( #<sc_t> )", indent, o->name.sc );
+    }
+    else
+    {
+        bcore_sink_a_push_fa( sink, " \\\n#rn{ }XOILA_DECLARE_SPECT( #<sc_t> )", indent, o->name.sc );
+    }
+
     bcore_sink_a_push_fa( sink, " \\\n#rn{ }{", indent );
     bcore_sink_a_push_fa( sink, " \\\n#rn{ }    bcore_spect_header_s header;", indent );
     for( sz_t i = 0; i < o->size; i++ ) BLM_TRY( xoico_a_expand_spect_declaration( o->data[ i ], indent + 4, sink ) );
@@ -433,9 +466,11 @@ er_t xoico_group_s_expand_declaration( const xoico_group_s* o, sz_t indent, bcor
     bcore_sink_a_push_fa( sink, "\n" );
     bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o->name.sc, typeof( o->name.sc ) );
 
+    st_s* st_spect_name = BLM_A_PUSH( xoico_group_s_create_spect_name( o ) );
+    sc_t  sc_spect_name = st_spect_name->sc;
+
     {
-        st_s* spect_name = BLM_A_PUSH( st_s_create_fa( "#<sc_t>_s", o->name.sc ) );
-        bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, spect_name->sc, typeof( spect_name->sc ) );
+        bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, sc_spect_name, typeof( sc_spect_name ) );
     }
 
     for( sz_t i = 0; i < o->size; i++ ) BLM_TRY( xoico_a_expand_declaration( o->data[ i ], indent, sink ) );
@@ -462,7 +497,15 @@ er_t xoico_group_s_expand_spect_definition( const xoico_group_s* o, sz_t indent,
     BLM_INIT();
     if( !o->expandable ) BLM_RETURNV( er_t, 0 );
     bcore_sink_a_push_fa( sink, "\n" );
-    bcore_sink_a_push_fa( sink, "#rn{ }BCORE_DEFINE_SPECT( #<sc_t>, #<sc_t> )\n", indent, o->trait_name.sc, o->name.sc );
+    if( o->short_spect_name )
+    {
+        bcore_sink_a_push_fa( sink, "#rn{ }BCORE_DEFINE_SPECT( #<sc_t>, #<sc_t> )\n", indent, o->trait_name.sc, o->name.sc );
+    }
+    else
+    {
+        bcore_sink_a_push_fa( sink, "#rn{ }XOILA_DEFINE_SPECT( #<sc_t>, #<sc_t> )\n", indent, o->trait_name.sc, o->name.sc );
+    }
+
     bcore_sink_a_push_fa( sink, "#rn{ }\"{\"\n", indent );
     bcore_sink_a_push_fa( sink, "#rn{ }    \"bcore_spect_header_s header;\"\n", indent );
     for( sz_t i = 0; i < o->size; i++ ) BLM_TRY( xoico_a_expand_spect_definition( o->data[ i ], indent + 4, sink ) );
@@ -515,7 +558,14 @@ er_t xoico_group_s_expand_init1( const xoico_group_s* o, sz_t indent, bcore_sink
 
     if( o->has_features )
     {
-        bcore_sink_a_push_fa( sink, "#rn{ }BCORE_REGISTER_SPECT( #<sc_t> );\n", indent, o->name.sc );
+        if( o->short_spect_name )
+        {
+            bcore_sink_a_push_fa( sink, "#rn{ }BCORE_REGISTER_SPECT( #<sc_t> );\n", indent, o->name.sc );
+        }
+        else
+        {
+            bcore_sink_a_push_fa( sink, "#rn{ }XOILA_REGISTER_SPECT( #<sc_t> );\n", indent, o->name.sc );
+        }
     }
     else
     {

@@ -171,18 +171,30 @@ er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t in
     sc_t sc_name         = o->signature.st_name.sc;
     sc_t sc_group_name   = o->group->name.sc;
 
-    st_s* st_ret_spec = BLM_CREATE( st_s );
-    xoico_typespec_s_expand( &o->signature.typespec_ret, o->group, sc_group_name, ( bcore_sink* )st_ret_spec );
+    st_s* st_ret_typespec = BLM_CREATE( st_s );
+    st_s* st_spect_name = BLM_A_PUSH( xoico_group_s_create_spect_name( o->group ) );
+    sc_t  sc_spect_name = st_spect_name->sc;
+
+    xoico_typespec_s_expand( &o->signature.typespec_ret, o->group, sc_group_name, ( bcore_sink* )st_ret_typespec );
     bl_t has_ret = ( o->signature.typespec_ret.type != TYPEOF_void );
 
-    sc_t sc_ret_spec     = st_ret_spec->sc;
+    sc_t sc_ret_typespec = st_ret_typespec->sc;
     sc_t sc_default_name = o->st_default_name.sc;
     bl_t is_const        = o->signature.arg_o == TYPEOF_const;
 
     if( o->flag_p )
     {
-        // static inline ret_t feature_p_func( const spect* __p, feature* o, arg_t arg1 ) { assert( __p->func ); return __p->func( o, arg1 ); }
-        bcore_sink_a_push_fa( sink, " \\\n#rn{ }  static inline #<sc_t> #<sc_t>_p_#<sc_t>( const #<sc_t>_s* __p,", indent, sc_ret_spec, sc_group_name, sc_name, sc_group_name );
+        bcore_sink_a_push_fa
+        (
+            sink,
+            " \\\n#rn{ }  static inline #<sc_t> #<sc_t>_p_#<sc_t>( const #<sc_t>* __p,",
+            indent,
+            sc_ret_typespec,
+            sc_group_name,
+            sc_name,
+            sc_spect_name
+        );
+
         if( is_const ) bcore_sink_a_push_fa( sink, " const" );
         bcore_sink_a_push_fa( sink, " #<sc_t>* o", sc_group_name );
         BLM_TRY( xoico_args_s_expand( &o->signature.args, false, sc_group_name, sink ) );
@@ -196,13 +208,22 @@ er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t in
 
     if( o->flag_t )
     {
-        // static inline ret_t feature_t_func( tp_t __t, feature* o, arg_t arg1 ) { features_s* p = features_s_get_typed( __t ); assert( p->func ); return features_s_get_typed( __t )->func( o, arg1 ); }
-        bcore_sink_a_push_fa( sink, " \\\n#rn{ }  static inline #<sc_t> #<sc_t>_t_#<sc_t>( tp_t __t,", indent, sc_ret_spec, sc_group_name, sc_name, sc_group_name );
+        bcore_sink_a_push_fa
+        (
+            sink,
+            " \\\n#rn{ }  static inline #<sc_t> #<sc_t>_t_#<sc_t>( tp_t __t,",
+            indent,
+            sc_ret_typespec,
+            sc_group_name,
+            sc_name,
+            sc_group_name
+        );
+
         if( is_const ) bcore_sink_a_push_fa( sink, " const" );
         bcore_sink_a_push_fa( sink, " #<sc_t>* o", sc_group_name );
         BLM_TRY( xoico_args_s_expand( &o->signature.args, false, sc_group_name, sink ) );
         bcore_sink_a_push_fa( sink, " ) { " );
-        bcore_sink_a_push_fa( sink, "const #<sc_t>_s* p = #<sc_t>_s_get_typed( __t ); ", sc_group_name, sc_group_name );
+        bcore_sink_a_push_fa( sink, "const #<sc_t>* p = #<sc_t>_get_typed( __t ); ", sc_spect_name, sc_spect_name );
         bcore_sink_a_push_fa( sink, "assert( p->#<sc_t> ); ", sc_name );
         if( has_ret ) bcore_sink_a_push_fa( sink, "return " );
         bcore_sink_a_push_fa( sink, "p->#<sc_t>( o", sc_name );
@@ -212,13 +233,21 @@ er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t in
 
     if( o->flag_a )
     {
-        // static inline ret_t feature_a_func( feature* o, arg_t arg1 ) { const features_s* p = features_s_get_aware( o ); assert( p->func ); return p->func( o, arg1 ); }
-        bcore_sink_a_push_fa( sink, " \\\n#rn{ }  static inline #<sc_t> #<sc_t>_a_#<sc_t>(", indent, sc_ret_spec, sc_group_name, sc_name );
+        bcore_sink_a_push_fa
+        (
+            sink,
+            " \\\n#rn{ }  static inline #<sc_t> #<sc_t>_a_#<sc_t>(",
+            indent,
+            sc_ret_typespec,
+            sc_group_name,
+            sc_name
+        );
+
         if( is_const ) bcore_sink_a_push_fa( sink, " const" );
         bcore_sink_a_push_fa( sink, " #<sc_t>* o", sc_group_name );
         BLM_TRY( xoico_args_s_expand( &o->signature.args, false, sc_group_name, sink ) );
         bcore_sink_a_push_fa( sink, " ) { " );
-        bcore_sink_a_push_fa( sink, "const #<sc_t>_s* p = #<sc_t>_s_get_aware( o ); ", sc_group_name, sc_group_name );
+        bcore_sink_a_push_fa( sink, "const #<sc_t>* p = #<sc_t>_get_aware( o ); ", sc_spect_name, sc_spect_name );
         bcore_sink_a_push_fa( sink, "assert( p->#<sc_t> ); ", sc_name );
         if( has_ret ) bcore_sink_a_push_fa( sink, "return " );
         bcore_sink_a_push_fa( sink, "p->#<sc_t>( o", sc_name );
@@ -228,13 +257,29 @@ er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t in
 
     if( o->flag_r )
     {
-        // static inline ret_t feature_r_func( const sr_s* o, arg_t arg1 ) { const features_s* p = (const features_s*)ch_spect_p( o->p, TYPEOF_feature_s ) ); assert( p->func ); return p->func( o->o, arg1 ); }
-        bcore_sink_a_push_fa( sink, " \\\n#rn{ }  static inline #<sc_t> #<sc_t>_r_#<sc_t>(", indent, sc_ret_spec, sc_group_name, sc_name );
+        bcore_sink_a_push_fa
+        (
+            sink,
+            " \\\n#rn{ }  static inline #<sc_t> #<sc_t>_r_#<sc_t>(",
+            indent,
+            sc_ret_typespec,
+            sc_group_name,
+            sc_name
+        );
+
         bcore_sink_a_push_fa( sink, " const sr_s* o" );
         BLM_TRY( xoico_args_s_expand( &o->signature.args, false, sc_group_name, sink ) );
         bcore_sink_a_push_fa( sink, " ) { " );
         if( !is_const ) bcore_sink_a_push_fa( sink, "ASSERT( !sr_s_is_const( o ) ); ", indent );
-        bcore_sink_a_push_fa( sink, "const #<sc_t>_s* p = (const #<sc_t>_s*)ch_spect_p( o->p, TYPEOF_#<sc_t>_s ); ", sc_group_name, sc_group_name, sc_group_name );
+        bcore_sink_a_push_fa
+        (
+            sink,
+            "const #<sc_t>* p = (const #<sc_t>*)ch_spect_p( o->p, TYPEOF_#<sc_t> ); ",
+            sc_spect_name,
+            sc_spect_name,
+            sc_spect_name
+        );
+
         bcore_sink_a_push_fa( sink, "assert( p->#<sc_t> ); ", sc_name );
         if( has_ret ) bcore_sink_a_push_fa( sink, "return " );
         bcore_sink_a_push_fa( sink, "p->#<sc_t>( o->o", sc_name );
@@ -244,8 +289,16 @@ er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t in
 
     if( o->flag_p )
     {
-        // static inline bl_t feature_p_defines_func( const spect* __p ) { return __p->func != NULL; }
-        bcore_sink_a_push_fa( sink, " \\\n#rn{ }  static inline bl_t #<sc_t>_p_defines_#<sc_t>( const #<sc_t>_s* __p ) ", indent, sc_group_name, sc_name, sc_group_name );
+        bcore_sink_a_push_fa
+        (
+            sink,
+            " \\\n#rn{ }  static inline bl_t #<sc_t>_p_defines_#<sc_t>( const #<sc_t>* __p ) ",
+            indent,
+            sc_group_name,
+            sc_name,
+            sc_spect_name
+        );
+
         if( o->strict || o->default_body || o->st_default_name.size > 0 )
         {
             bcore_sink_a_push_fa( sink, "{ return true; }", sc_name );
@@ -258,43 +311,65 @@ er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t in
 
     if( o->flag_t )
     {
-        // static inline bl_t feature_t_defines_func( tp_t __t ) { return features_s_get_typed( __t )->func != NULL; }
-        bcore_sink_a_push_fa( sink, " \\\n#rn{ }  static inline bl_t #<sc_t>_t_defines_#<sc_t>( tp_t __t ) ", indent, sc_group_name, sc_name );
+        bcore_sink_a_push_fa
+        (
+            sink,
+            " \\\n#rn{ }  static inline bl_t #<sc_t>_t_defines_#<sc_t>( tp_t __t ) ",
+            indent,
+            sc_group_name,
+            sc_name
+        );
+
         if( o->strict || o->default_body || o->st_default_name.size > 0 )
         {
             bcore_sink_a_push_fa( sink, "{ return true; }", sc_name );
         }
         else
         {
-            bcore_sink_a_push_fa( sink, "{ return #<sc_t>_s_get_typed( __t )->#<sc_t> != NULL; }", sc_group_name, sc_name );
+            bcore_sink_a_push_fa( sink, "{ return #<sc_t>_get_typed( __t )->#<sc_t> != NULL; }", sc_spect_name, sc_name );
         }
     }
 
     if( o->flag_a )
     {
-        // static inline bl_t feature_a_defines_func( const feature* o) { return features_s_get_aware( o )->func != NULL; }
-        bcore_sink_a_push_fa( sink, " \\\n#rn{ }  static inline bl_t #<sc_t>_a_defines_#<sc_t>( const #<sc_t>* o ) ", indent, sc_group_name, sc_name, sc_group_name );
+        bcore_sink_a_push_fa
+        (
+            sink,
+            " \\\n#rn{ }  static inline bl_t #<sc_t>_a_defines_#<sc_t>( const #<sc_t>* o ) ",
+            indent,
+            sc_group_name,
+            sc_name,
+            sc_group_name
+        );
+
         if( o->strict || o->default_body || o->st_default_name.size > 0 )
         {
             bcore_sink_a_push_fa( sink, "{ return true; }", sc_name );
         }
         else
         {
-            bcore_sink_a_push_fa( sink, "{ return #<sc_t>_s_get_aware( o )->#<sc_t> != NULL; }", sc_group_name, sc_name );
+            bcore_sink_a_push_fa( sink, "{ return #<sc_t>_get_aware( o )->#<sc_t> != NULL; }", sc_spect_name, sc_name );
         }
     }
 
     if( o->flag_r )
     {
-        // static inline bl_t feature_r_defines_func( const feature* o) { return features_s_get_typed( o->o_type )->func != NULL; }
-        bcore_sink_a_push_fa( sink, " \\\n#rn{ }  static inline bl_t #<sc_t>_r_defines_#<sc_t>( const sr_s* o ) ", indent, sc_group_name, sc_name );
+        bcore_sink_a_push_fa
+        (
+            sink,
+            " \\\n#rn{ }  static inline bl_t #<sc_t>_r_defines_#<sc_t>( const sr_s* o ) ",
+            indent,
+            sc_group_name,
+            sc_name
+        );
+
         if( o->strict || o->default_body || o->st_default_name.size > 0 )
         {
             bcore_sink_a_push_fa( sink, "{ return true; }", sc_name );
         }
         else
         {
-            bcore_sink_a_push_fa( sink, "{ return ( (#<sc_t>_s*)ch_spect_p( o->p, TYPEOF_#<sc_t>_s ) )->#<sc_t> != NULL; }", sc_group_name, sc_group_name, sc_name );
+            bcore_sink_a_push_fa( sink, "{ return ( (#<sc_t>*)ch_spect_p( o->p, TYPEOF_#<sc_t> ) )->#<sc_t> != NULL; }", sc_spect_name, sc_spect_name, sc_name );
         }
     }
 
@@ -302,8 +377,16 @@ er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t in
     {
         if( o->default_body && o->default_body->go_inline )
         {
-            // ret_t feature_default( feature* o, arg_t arg1 );
-            bcore_sink_a_push_fa( sink, " \\\n#rn{ }  static inline #<sc_t> #<sc_t>_#<sc_t>(", indent, sc_ret_spec, sc_group_name, sc_default_name );
+            bcore_sink_a_push_fa
+            (
+                sink,
+                " \\\n#rn{ }  static inline #<sc_t> #<sc_t>_#<sc_t>(",
+                indent,
+                sc_ret_typespec,
+                sc_group_name,
+                sc_default_name
+            );
+
             if( is_const ) bcore_sink_a_push_fa( sink, " const" );
             bcore_sink_a_push_fa( sink, " #<sc_t>* o", sc_group_name );
             BLM_TRY( xoico_args_s_expand( &o->signature.args, false, sc_group_name, sink ) );
@@ -313,7 +396,7 @@ er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t in
         else
         {
             // ret_t feature_default( feature* o, arg_t arg1 );
-            bcore_sink_a_push_fa( sink, " \\\n#rn{ }  #<sc_t> #<sc_t>_#<sc_t>(", indent, sc_ret_spec, sc_group_name, sc_default_name );
+            bcore_sink_a_push_fa( sink, " \\\n#rn{ }  #<sc_t> #<sc_t>_#<sc_t>(", indent, sc_ret_typespec, sc_group_name, sc_default_name );
             if( is_const ) bcore_sink_a_push_fa( sink, " const" );
             bcore_sink_a_push_fa( sink, " #<sc_t>* o", sc_group_name );
             BLM_TRY( xoico_args_s_expand( &o->signature.args, false, sc_group_name, sink ) );
@@ -332,11 +415,11 @@ er_t xoico_feature_s_expand_definition( const xoico_feature_s* o, sz_t indent, b
     {
         sc_t sc_group_name = o->group->name.sc;
 
-        st_s* st_ret_spec = BLM_CREATE( st_s );
-        xoico_typespec_s_expand( &o->signature.typespec_ret, o->group, sc_group_name, ( bcore_sink* )st_ret_spec );
+        st_s* st_ret_typespec = BLM_CREATE( st_s );
+        xoico_typespec_s_expand( &o->signature.typespec_ret, o->group, sc_group_name, ( bcore_sink* )st_ret_typespec );
 
         bcore_sink_a_push_fa( sink, "\n" );
-        bcore_sink_a_push_fa( sink, "\n#<sc_t> #<sc_t>_#<sc_t>(", st_ret_spec->sc, sc_group_name, o->st_default_name.sc );
+        bcore_sink_a_push_fa( sink, "\n#<sc_t> #<sc_t>_#<sc_t>(", st_ret_typespec->sc, sc_group_name, o->st_default_name.sc );
         if( o->signature.arg_o == TYPEOF_const ) bcore_sink_a_push_fa( sink, " const" );
         bcore_sink_a_push_fa( sink, " #<sc_t>* o", sc_group_name );
         BLM_TRY( xoico_args_s_expand( &o->signature.args, false, sc_group_name, sink ) );

@@ -263,6 +263,9 @@ static inline er_t selftest2( void )
 
     bcore_msg_fa( "#<sc_t>\n", buf->sc );
 
+    BLM_CREATE( sim_s );
+    BLM_CREATE( sim_foo0_s );
+
     BLM_RETURNV( er_t, 0 );
 }
 
