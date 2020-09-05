@@ -454,14 +454,29 @@ er_t xoico_compiler_s_target_set_signal_handler_name( xoico_compiler_s* o, sz_t 
 
 er_t xoico_compiler_s_target_set_dependencies( xoico_compiler_s* o, sz_t target_index, const bcore_arr_sz_s* dependencies )
 {
+    BLM_INIT();
     ASSERT( target_index >= 0 && target_index < o->size );
     xoico_target_s* target = o->data[ target_index ];
-    bcore_arr_sz_s_copy( &target->dependencies, dependencies );
+
+    /// sort, remove duplicates, copy
+    {
+        bcore_arr_sz_s* dst = &target->dependencies;
+        bcore_arr_sz_s_set_size( dst, 0 );
+        bcore_arr_sz_s* src = bcore_arr_sz_s_sort( BLM_CLONE( bcore_arr_sz_s, dependencies ), 1 );
+        BFOR_EACH( i, src ) if( i == 0 || src->data[ i ] != src->data[ i - 1 ] )
+        {
+            sz_t idx = src->data[ i ];
+            ASSERT( idx >= 0 && idx < o->size );
+            bcore_arr_sz_s_push( dst, idx );
+        }
+    }
+
     if( xoico_target_s_is_cyclic( target ) )
     {
         return bcore_error_push_fa( TYPEOF_general_error, "Cyclic dependencies found in target '#<sc_t>'.", target->name.sc );
     }
-    return 0;
+
+    BLM_RETURNV( er_t, 0 );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
