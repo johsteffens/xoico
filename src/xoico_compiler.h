@@ -52,7 +52,6 @@ stamp :element_info = aware :
 signature bl_t  get_type_element_info( const,  tp_t type, tp_t name, :element_info_s* info );
 
 // external interface ...
-signature er_t setup                         ( mutable );
 signature er_t compile                       ( mutable, sc_t target_name, sc_t source_path, const xoico_target_xflags_s* xflags, sz_t* p_target_index );
 signature er_t target_set_readonly           ( mutable, sz_t target_index, bl_t readonly );
 signature er_t target_set_signal_handler_name( mutable, sz_t target_index, sc_t name );
@@ -80,7 +79,7 @@ stamp : = aware :
      *  This is used during development or when a new version changes the
      *  target_out files in a material way.
      */
-    tp_t target_pre_hash                 = 17;
+    tp_t target_pre_hash                 = 18;
     bl_t register_plain_functions        = true;
     bl_t register_signatures             = false;
     bl_t overwrite_unsigned_target_files = false;
@@ -104,7 +103,6 @@ stamp : = aware :
     func : :get_signature;
 
     // external interface ...
-    func : :setup;
     func : :compile;
     func : :target_set_signal_handler_name;
     func : :target_set_dependencies; // removes duplicates

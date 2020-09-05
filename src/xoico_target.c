@@ -67,6 +67,7 @@ er_t xoico_target_s_parse( xoico_target_s* o, sc_t source_path )
 
 tp_t xoico_target_s_get_hash( const xoico_target_s* o )
 {
+    BLM_INIT();
     tp_t hash = bcore_tp_init();
 
     hash = bcore_tp_fold_tp( hash, o->compiler->target_pre_hash );
@@ -75,11 +76,24 @@ tp_t xoico_target_s_get_hash( const xoico_target_s* o )
 
     BFOR_EACH( i, o ) hash = bcore_tp_fold_tp( hash, o->data[ i ]->hash );
 
-    BFOR_EACH( i, &o->dependencies )
+    if( o->dependencies.size > 0 )
     {
-        sz_t idx = o->dependencies.data[ i ];
-        xoico_target_s* dep_target = o->compiler->data[ idx ];
-        hash = bcore_tp_fold_tp( hash, xoico_target_s_get_hash( dep_target ) );
+        bcore_arr_tp_s* arr_tp = BLM_CREATE( bcore_arr_tp_s );
+
+        BFOR_EACH( i, &o->dependencies )
+        {
+            sz_t idx = o->dependencies.data[ i ];
+            xoico_target_s* dep_target = o->compiler->data[ idx ];
+            bcore_arr_tp_s_push( arr_tp, xoico_target_s_get_hash( dep_target ) );
+        }
+
+        // the accrued hash should be independent of the order of dependencies
+        bcore_arr_tp_s_sort( arr_tp, 1 );
+
+        BFOR_EACH( i, arr_tp )
+        {
+            hash = bcore_tp_fold_tp( hash, arr_tp->data[ i ] );
+        }
     }
 
     BFOR_EACH( i, &o->explicit_embeddings )
@@ -87,7 +101,7 @@ tp_t xoico_target_s_get_hash( const xoico_target_s* o )
         hash = bcore_tp_fold_sc( hash, o->explicit_embeddings.data[ i ]->sc );
     }
 
-    return hash;
+    BLM_RETURNV( tp_t, hash );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -118,8 +132,12 @@ bl_t xoico_target_s_is_cyclic_recursive( xoico_target_s* o )
     BFOR_EACH( i, &o->dependencies )
     {
         sz_t idx = o->dependencies.data[ i ];
-        if( xoico_target_s_is_cyclic_recursive( o->compiler->data[ idx ] ) ) return true;
+        if( xoico_target_s_is_cyclic_recursive( o->compiler->data[ idx ] ) )
+        {
+            return true;
+        }
     }
+    o->flag = false;
     return false;
 }
 

@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-09-04T17:45:31Z
+ *  Last File Update: 2020-09-05T14:59:09Z
  *
  *  Copyright and License of this File:
  *
@@ -467,7 +467,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_compiler_s )
     "hidden bcore_hmap_tp_s hmap_type;"
     "hidden bcore_life_s life;"
     "hidden bcore_hmap_name_s name_map;"
-    "tp_t target_pre_hash = 16;"
+    "tp_t target_pre_hash = 18;"
     "bl_t register_plain_functions = true;"
     "bl_t register_signatures = false;"
     "bl_t overwrite_unsigned_target_files = false;"
@@ -485,53 +485,77 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_compiler_s )
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_builder
 
+BCORE_DEFINE_OBJECT_INST_P( xoico_builder_arr_target_s )
+"aware bcore_array"
+"{"
+    "xoico_builder_target_s => [];"
+"}";
+
 BCORE_DEFINE_OBJECT_INST_P( xoico_builder_target_s )
 "aware xoico_builder"
 "{"
     "st_s => name;"
     "st_s => extension = \"xoila_out\";"
-    "st_s => root;"
+    "st_s => root_folder;"
+    "bl_t readonly;"
     "xoico_target_xflags_s target_xflags;"
-    "private aware xoico_builder_main_s* main;"
     "bcore_arr_st_s dependencies;"
     "bcore_arr_st_s sources;"
     "st_s => signal_handler;"
+    "private xoico_builder_target_s* parent;"
+    "private xoico_builder_target_s* root;"
+    "hidden aware xoico_builder_arr_target_s => dependencies_target;"
+    "hidden st_s full_path;"
+    "hidden xoico_compiler_s -> compiler;"
+    "hidden sz_t target_index = -1;"
+    "hidden bcore_hmap_tpvd_s => hmap_built_target;"
     "func bcore_via_call:source;"
 "}";
 
 void xoico_builder_target_s_source( xoico_builder_target_s* o, bcore_source* source )
 {
-    if( !o->root )
+    if( !o->root_folder )
     {
-        o->root = bcore_file_folder_path( bcore_source_a_get_file( source ) );
-        st_s_attach( &o->root, bcore_file_path_minimized( o->root->sc ) );
+        o->root_folder = bcore_file_folder_path( bcore_source_a_get_file( source ) );
+        st_s_attach( &o->root_folder, bcore_file_path_minimized( o->root_folder->sc ) );
+    }
+}
+
+const xoico_builder_target_s* xoico_builder_target_s_name_match( const xoico_builder_target_s* o, sc_t name )
+{
+    if( o->name && sc_t_equal( name, o->name->sc ) ) return o;
+    if( o->parent ) return xoico_builder_target_s_name_match( o->parent, name );
+    return NULL;
+}
+
+void xoico_builder_target_s_push_target_index_to_arr( const xoico_builder_target_s* o, bcore_arr_sz_s* arr )
+{
+    if( o->target_index != -1 )
+    {
+         bcore_arr_sz_s_push( arr, o->target_index );
+    }
+    else
+    {
+        BFOR_EACH( i, o->dependencies_target ) xoico_builder_target_s_push_target_index_to_arr( o->dependencies_target->data[ i ], arr );
     }
 }
 
 BCORE_DEFINE_OBJECT_INST_P( xoico_builder_main_s )
 "aware xoico_builder"
 "{"
-    "xoico_compiler_s => compiler;"
-    "bl_t dry_run = false;"
-    "bcore_arr_st_s arr_path;"
-    "func bcore_inst_call:init_x;"
+    "xoico_compiler_s => compiler!;"
+    "xoico_builder_target_s => target;"
 "}";
-
-void xoico_builder_main_s_init_x( xoico_builder_main_s* o )
-{
-    o->compiler = xoico_compiler_s_create();
-    xoico_compiler_s_setup( o->compiler );
-}
 
 er_t xoico_builder_main_s_set_dry_run( xoico_builder_main_s* o, bl_t v )
 {
-    o->dry_run = v;
+    o->compiler->dry_run = v;
     return 0;
 }
 
 bl_t xoico_builder_main_s_get_dry_run( const xoico_builder_main_s* o )
 {
-    return o->dry_run;
+    return o->compiler->dry_run;
 }
 
 er_t xoico_builder_main_s_set_always_expand( xoico_builder_main_s* o, bl_t v )
@@ -1019,9 +1043,9 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             // source: xoico_builder.h
 
             // group: xoico_builder
+            BCORE_REGISTER_OBJECT( xoico_builder_arr_target_s );
             BCORE_REGISTER_FFUNC( bcore_via_call_source, xoico_builder_target_s_source );
             BCORE_REGISTER_OBJECT( xoico_builder_target_s );
-            BCORE_REGISTER_FFUNC( bcore_inst_call_init_x, xoico_builder_main_s_init_x );
             BCORE_REGISTER_OBJECT( xoico_builder_main_s );
             BCORE_REGISTER_TRAIT( xoico_builder, xoico );
 
@@ -1075,4 +1099,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0x9F3B9E0BF872288Full
+// XOILA_OUT_SIGNATURE 0x3738160D2A38F228ull

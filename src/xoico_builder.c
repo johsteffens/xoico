@@ -21,63 +21,128 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_builder_main_s_build_from_file_get_target_index( xoico_builder_main_s* o, bl_t readonly, sc_t path, const xoico_target_xflags_s* xflags, sz_t* p_target_index );
-
-er_t xoico_builder_target_s_build( const xoico_builder_target_s* o, bl_t readonly, sz_t* p_target_index )
+er_t xoico_builder_target_s_load( xoico_builder_target_s* o, bl_t readonly, sc_t path )
 {
     BLM_INIT();
-    bcore_arr_sz_s* dependencies = BLM_CREATE( bcore_arr_sz_s );
+
+    st_s* st_path = BLM_A_PUSH( st_s_create_sc( path ) );
+    if( st_path->sc[ 0 ] != '/' )
+    {
+        st_s* current_folder = BLM_CREATE( st_s );
+        bcore_folder_get_current( current_folder );
+        st_path = BLM_A_PUSH( st_s_create_fa( "#<sc_t>/#<sc_t>", current_folder->sc, st_path->sc ) );
+    }
+
+    st_path = BLM_A_PUSH( bcore_file_path_minimized( st_path->sc ) );
+
+    bcore_txt_ml_a_from_file( o, st_path->sc );
+    st_s_copy( &o->full_path, st_path );
+    if( readonly ) o->readonly = true;
+
+    if( !o->name )
+    {
+        BLM_RETURNV
+        (
+            er_t,
+            bcore_error_push_fa( TYPEOF_general_error, "In target file: '#<sc_t>'\nTarget name must be specified.", st_path->sc );
+        );
+    }
+
+    /// check for dependency cycles
+    if( o->parent )
+    {
+        const xoico_builder_target_s* match = xoico_builder_target_s_name_match( o->parent, o->name->sc );
+        if( match )
+        {
+            if( st_s_equal_st( &match->full_path, &o->full_path ) )
+            {
+                BLM_ERR_FA( "In target file: '#<sc_t>'\nCyclic dependency detected.", st_path->sc );
+            }
+            else
+            {
+                BLM_ERR_FA( "Same target name '#<sc_t>' used in different target files:\n#<sc_t>\n#<sc_t>", o->name->sc, st_path->sc, match->full_path.sc );
+            }
+        }
+    }
+
     BFOR_EACH( i, &o->dependencies )
     {
         BLM_INIT();
+        if( !o->dependencies_target ) o->dependencies_target = xoico_builder_arr_target_s_create();
+
         st_s* file_path = BLM_CREATE( st_s );
         if( o->dependencies.data[ i ]->sc[ 0 ] != '/' )
         {
-            if( o->root ) st_s_push_fa( file_path, "#<sc_t>/", o->root->sc );
+            if( o->root_folder ) st_s_push_fa( file_path, "#<sc_t>/", o->root_folder->sc );
         }
 
-        bl_t dep_readonly = readonly;
+        bl_t dep_readonly = o->readonly;
 
+        bcore_source* source = BLM_A_PUSH( bcore_source_string_s_create_sc( o->dependencies.data[ i ]->sc ) );
+        BLM_TRY( bcore_source_a_parse_em_fa( source, " #:until':'", file_path ) );
+
+        /// remove trailing spaces
+        while( file_path->sc[ 0 ] == ' ' || file_path->sc[ 0 ] == '\t' ) st_s_pop_char( file_path );
+
+        if( bcore_source_a_parse_bl_fa( source, "#?':'" ) )
         {
-            BLM_INIT();
-            bcore_source* source = BLM_A_PUSH( bcore_source_string_s_create_sc( o->dependencies.data[ i ]->sc ) );
-            BLM_TRY( bcore_source_a_parse_em_fa( source, " #:until':'", file_path ) );
-
-            if( bcore_source_a_parse_bl_fa( source, "#?':'" ) )
+            if( bcore_source_a_parse_bl_fa( source, " #?w'readonly'" ) )
             {
-                if( bcore_source_a_parse_bl_fa( source, " #?w'readonly'" ) )
-                {
-                    dep_readonly = true;
-                }
-                else
-                {
-                    BLM_RETURNV
-                    (
-                        er_t,
-                        bcore_source_a_parse_err_to_em_fa
-                        (
-                            source,
-                            TYPEOF_general_error, "Syntax error in dependency declaration:"
-                        );
-                    );
-                }
-
+                dep_readonly = true;
             }
-            BLM_DOWN();
+            else
+            {
+                XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Syntax error in dependency declaration." );
+            }
         }
 
-        sz_t target_index = -1;
-        BLM_TRY( xoico_builder_main_s_build_from_file_get_target_index( o->main, dep_readonly, file_path->sc, &o->target_xflags, &target_index ) );
-        if( target_index >= 0 ) bcore_arr_sz_s_push( dependencies, target_index );
+        xoico_builder_target_s* target = xoico_builder_arr_target_s_push_d( o->dependencies_target, xoico_builder_target_s_create() );
+        target->parent = o;
+
+        BLM_TRY( xoico_builder_target_s_load( target, dep_readonly, file_path->sc ) );
+
         BLM_DOWN();
     }
 
-    sz_t target_index = -1;
+    BLM_RETURNV( er_t, 0 );
+}
 
-    if( !o->name && o->sources.size > 0 )
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_builder_target_s_build( xoico_builder_target_s* o )
+{
+    BLM_INIT();
+
+    if( !o->root     ) o->root     = ( o->parent ) ? o->parent->root : o;
+    if( !o->compiler ) o->compiler = ( o->parent ) ? bcore_fork( o->parent->compiler ) : xoico_compiler_s_create();
+
+    if( o == o->root )
     {
-        ERR_fa( "Plant name is missing." );
+        if( !o->hmap_built_target ) o->hmap_built_target = bcore_hmap_tpvd_s_create();
     }
+
+    ASSERT( o->compiler );
+    ASSERT( o->root );
+
+    tp_t tp_target_name = bentypeof( o->name->sc );
+
+    BFOR_EACH( i, o->dependencies_target )
+    {
+        BLM_TRY( xoico_builder_target_s_build( o->dependencies_target->data[ i ] ) );
+    }
+
+    if( bcore_hmap_tpvd_s_exists( o->root->hmap_built_target, tp_target_name ) )
+    {
+        xoico_builder_target_s* target = *bcore_hmap_tpvd_s_get( o->root->hmap_built_target, tp_target_name );
+        o->target_index = target->target_index;
+        BLM_RETURNV( er_t, 0 );
+    }
+
+    bcore_hmap_tpvd_s_set( o->root->hmap_built_target, tp_target_name, o );
+
+    o->target_index = -1;
+
+    bcore_msg_fa( "XOICO: compiling #<sc_t>\n", o->full_path.sc );
 
     BFOR_EACH( i, &o->sources )
     {
@@ -86,19 +151,18 @@ er_t xoico_builder_target_s_build( const xoico_builder_target_s* o, bl_t readonl
         st_s* file_path = BLM_CREATE( st_s );
         if( o->sources.data[ i ]->sc[ 0 ] != '/' )
         {
-            if( o->root ) st_s_push_fa( file_path, "#<sc_t>/", o->root->sc );
+            if( o->root_folder ) st_s_push_fa( file_path, "#<sc_t>/", o->root_folder->sc );
         }
         st_s_push_fa( file_path, "#<sc_t>", o->sources.data[ i ]->sc );
 
         ASSERT( o->name );
         ASSERT( o->extension );
-
         st_s* xoi_target_name = BLM_A_PUSH( st_s_create_fa( "#<sc_t>_#<sc_t>", o->name->sc, o->extension->sc ) );
 
         sz_t index = -1;
-        BLM_TRY( xoico_compiler_s_compile( o->main->compiler, xoi_target_name->sc, file_path->sc, &o->target_xflags, &index ) );
-        target_index = ( target_index == -1 ) ? index : target_index;
-        if( index != target_index )
+        BLM_TRY( xoico_compiler_s_compile( o->compiler, xoi_target_name->sc, file_path->sc, &o->target_xflags, &index ) );
+        if( o->target_index == -1 ) o->target_index = index;
+        if( index != o->target_index )
         {
             ERR_fa
             (
@@ -113,16 +177,38 @@ er_t xoico_builder_target_s_build( const xoico_builder_target_s* o, bl_t readonl
         BLM_DOWN();
     }
 
-    if( target_index >= 0 )
+    if( o->target_index >= 0 )
     {
-        BLM_TRY( xoico_compiler_s_target_set_dependencies( o->main->compiler, target_index, dependencies ) );
+        bcore_arr_sz_s* dependencies = BLM_CREATE( bcore_arr_sz_s );
+        BFOR_EACH( i, o->dependencies_target )
+        {
+            xoico_builder_target_s_push_target_index_to_arr( o->dependencies_target->data[ i ], dependencies );
+        }
+
+        BLM_TRY( xoico_compiler_s_target_set_dependencies( o->compiler, o->target_index, dependencies ) );
         st_s* signal_handler = BLM_A_PUSH( st_s_create_fa( "#<sc_t>_general_signal_handler", o->name->sc ) );
         if( o->signal_handler ) st_s_copy( signal_handler, o->signal_handler );
-        BLM_TRY( xoico_compiler_s_target_set_signal_handler_name( o->main->compiler, target_index, signal_handler->sc ) );
-        BLM_TRY( xoico_compiler_s_target_set_readonly( o->main->compiler, target_index, readonly ) );
-        if( p_target_index ) *p_target_index = target_index;
+        BLM_TRY( xoico_compiler_s_target_set_signal_handler_name( o->compiler, o->target_index, signal_handler->sc ) );
+        BLM_TRY( xoico_compiler_s_target_set_readonly( o->compiler, o->target_index, o->readonly ) );
     }
 
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bl_t xoico_builder_target_s_update_required( const xoico_builder_target_s* o )
+{
+    return xoico_compiler_s_update_required( o->compiler );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_builder_target_s_update( const xoico_builder_target_s* o )
+{
+    if( bcore_error_stack_size() > 0 ) return TYPEOF_error_stack;
+    BLM_INIT();
+    BLM_TRY( xoico_compiler_s_update_target_files( o->compiler, NULL ) );
     BLM_RETURNV( er_t, 0 );
 }
 
@@ -131,86 +217,67 @@ er_t xoico_builder_target_s_build( const xoico_builder_target_s* o, bl_t readonl
 /**********************************************************************************************************************/
 // xoico_builder interface functions
 
-er_t xoico_builder_main_s_build_from_file_get_target_index( xoico_builder_main_s* o, bl_t readonly, sc_t path, const xoico_target_xflags_s* xflags, sz_t* p_target_index )
-{
-    BLM_INIT();
-
-    st_s* st_path = BLM_A_PUSH( st_s_create_sc( path ) );
-    if( st_path->sc[ 0 ] != '/' )
-    {
-        st_s* current_folder = BLM_CREATE( st_s );
-        bcore_folder_get_current( current_folder );
-        st_path = BLM_A_PUSH( st_s_create_fa( "#<sc_t>/#<sc_t>", current_folder->sc, st_path->sc ) );
-    }
-
-    st_path = BLM_A_PUSH( bcore_file_path_minimized( st_path->sc ) );
-
-    bl_t new_path = true;
-
-    BFOR_EACH( i, &o->arr_path )
-    {
-        if( st_s_equal_st( o->arr_path.data[ i ], st_path ) )
-        {
-            new_path = false;
-            break;
-        }
-    }
-
-    sz_t target_index = -1;
-
-    if( new_path )
-    {
-        bcore_arr_st_s_push_st( &o->arr_path, st_path );
-
-        if( xoico_compiler_s_get_verbosity( o->compiler ) > 0 )
-        {
-            bcore_msg_fa( "XOICO: building #<sc_t>\n", st_path->sc );
-        }
-
-        if( !bcore_file_exists( st_path->sc ) )
-        {
-            bcore_error_push_fa( TYPEOF_general_error, "#<sc_t>: File does not exist or cannot be opened.", st_path->sc );
-            BLM_RETURNV( er_t, TYPEOF_general_error );
-        }
-
-        xoico_builder_target_s* builder = BLM_CREATE( xoico_builder_target_s );
-        builder->main = o;
-        bcore_txt_ml_a_from_file( builder, st_path->sc );
-
-        xoico_target_xflags_s_update( &builder->target_xflags, xflags );
-
-        BLM_TRY( xoico_builder_target_s_build( builder, readonly, &target_index ) );
-    }
-
-    if( p_target_index ) *p_target_index = target_index;
-
-    BLM_RETURNV( er_t, 0 );
-}
-
 //----------------------------------------------------------------------------------------------------------------------
 
 er_t xoico_builder_main_s_build_from_file( xoico_builder_main_s* o, sc_t path )
 {
-    return xoico_builder_main_s_build_from_file_get_target_index( o, false, path, NULL, NULL );
+    BLM_INIT();
+    xoico_builder_target_s_attach( &o->target, xoico_builder_target_s_create() );
+    o->target->compiler = bcore_fork( o->compiler );
+    BLM_TRY( xoico_builder_target_s_load( o->target, false, path ) );
+    BLM_TRY( xoico_builder_target_s_build( o->target ) );
+    BLM_RETURNV( er_t, 0 );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 bl_t xoico_builder_main_s_update_required( const xoico_builder_main_s* o )
 {
-    bl_t retv = xoico_compiler_s_update_required( o->compiler );
-    return retv;
+    return xoico_builder_target_s_update_required( o->target );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 er_t xoico_builder_main_s_update( const xoico_builder_main_s* o )
 {
-    if( bcore_error_stack_size() > 0 ) return TYPEOF_error_stack;
+    return xoico_builder_target_s_update( o->target );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**********************************************************************************************************************/
+
+static void selftest( void )
+{
     BLM_INIT();
-    o->compiler->dry_run = o->dry_run;
-    BLM_TRY( xoico_compiler_s_update_target_files( o->compiler, NULL ) );
-    BLM_RETURNV( er_t, 0 );
+    xoico_builder_target_s* target = BLM_CREATE( xoico_builder_target_s );
+    xoico_builder_target_s_load( target, true, "../badapt_dev/src/main_xoico.cfg" );
+    xoico_builder_target_s_build( target );
+    BLM_DOWN();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+vd_t xoico_builder_signal_handler( const bcore_signal_s* o )
+{
+    switch( bcore_signal_s_handle_type( o, typeof( "xoico_builder" ) ) )
+    {
+        case TYPEOF_init1:
+        {
+        }
+        break;
+
+        case TYPEOF_selftest:
+        {
+            selftest();
+            return NULL;
+        }
+        break;
+
+        default: break;
+    }
+
+    return NULL;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

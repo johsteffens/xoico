@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-09-04T17:45:31Z
+ *  Last File Update: 2020-09-05T14:59:09Z
  *
  *  Copyright and License of this File:
  *
@@ -36,7 +36,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x6546991B659A111Cull
+#define HKEYOF_xoico_xoila_out 0xCB0E9C903D0EA885ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -769,7 +769,6 @@
   bl_t xoico_compiler_s_get_self( const xoico_compiler_s* o, tp_t type, const bcore_self_s** self ); \
   bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t type, tp_t name, xoico_compiler_element_info_s* info ); \
   const xoico_signature_s* xoico_compiler_s_get_signature( const xoico_compiler_s* o, tp_t item_id ); \
-  er_t xoico_compiler_s_setup( xoico_compiler_s* o ); \
   er_t xoico_compiler_s_compile( xoico_compiler_s* o, sc_t target_name, sc_t source_path, const xoico_target_xflags_s* xflags, sz_t* p_target_index ); \
   er_t xoico_compiler_s_target_set_signal_handler_name( xoico_compiler_s* o, sz_t target_index, sc_t name ); \
   er_t xoico_compiler_s_target_set_dependencies( xoico_compiler_s* o, sz_t target_index, const bcore_arr_sz_s* dependencies ); \
@@ -795,6 +794,23 @@
 
 #define TYPEOF_xoico_builder 0x2BA8E9CE5EBF4289ull
 #define TYPEOF_xoico_builder_spect_s 0x2AFB714AC45A87C5ull
+#define TYPEOF_xoico_builder_arr_target_s 0x5DC3F6669CA63055ull
+#define BETH_EXPAND_ITEM_xoico_builder_arr_target_s \
+  BCORE_DECLARE_OBJECT( xoico_builder_arr_target_s ) \
+  { \
+      aware_t _; \
+      BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_builder_target_s, ); \
+  }; \
+  static inline xoico_builder_arr_target_s* xoico_builder_arr_target_s_set_space( xoico_builder_arr_target_s* o, sz_t size ) { bcore_array_t_set_space( TYPEOF_xoico_builder_arr_target_s, ( bcore_array* )o, size ); return o; } \
+  static inline xoico_builder_arr_target_s* xoico_builder_arr_target_s_set_size( xoico_builder_arr_target_s* o, sz_t size ) { bcore_array_t_set_size( TYPEOF_xoico_builder_arr_target_s, ( bcore_array* )o, size ); return o; } \
+  static inline xoico_builder_arr_target_s* xoico_builder_arr_target_s_clear( xoico_builder_arr_target_s* o ) { bcore_array_t_set_space( TYPEOF_xoico_builder_arr_target_s, ( bcore_array* )o, 0 ); return o; } \
+  static inline xoico_builder_target_s* xoico_builder_arr_target_s_push_c( xoico_builder_arr_target_s* o, const xoico_builder_target_s* v ) { bcore_array_t_push( TYPEOF_xoico_builder_arr_target_s, ( bcore_array* )o, sr_twc( TYPEOF_xoico_builder_target_s, v ) ); return o->data[ o->size - 1 ]; } \
+  static inline xoico_builder_target_s* xoico_builder_arr_target_s_push_d( xoico_builder_arr_target_s* o,       xoico_builder_target_s* v ) { bcore_array_t_push( TYPEOF_xoico_builder_arr_target_s, ( bcore_array* )o, sr_tsd( TYPEOF_xoico_builder_target_s, v ) ); return o->data[ o->size - 1 ]; } \
+  static inline xoico_builder_target_s* xoico_builder_arr_target_s_push( xoico_builder_arr_target_s* o ) \
+  { \
+      bcore_array_t_push( TYPEOF_xoico_builder_arr_target_s, ( bcore_array* )o, sr_t_create( TYPEOF_xoico_builder_target_s ) ); \
+      return o->data[ o->size - 1 ]; \
+  }
 #define TYPEOF_xoico_builder_target_s 0xDD8996604907B3C5ull
 #define BETH_EXPAND_ITEM_xoico_builder_target_s \
   BCORE_DECLARE_OBJECT( xoico_builder_target_s ) \
@@ -802,25 +818,33 @@
       aware_t _; \
       st_s* name; \
       st_s* extension; \
-      st_s* root; \
+      st_s* root_folder; \
+      bl_t readonly; \
       xoico_target_xflags_s target_xflags; \
-      xoico_builder_main_s* main; \
       bcore_arr_st_s dependencies; \
       bcore_arr_st_s sources; \
       st_s* signal_handler; \
+      xoico_builder_target_s* parent; \
+      xoico_builder_target_s* root; \
+      xoico_builder_arr_target_s* dependencies_target; \
+      st_s full_path; \
+      xoico_compiler_s* compiler; \
+      sz_t target_index; \
+      bcore_hmap_tpvd_s* hmap_built_target; \
   }; \
   void xoico_builder_target_s_source( xoico_builder_target_s* o, bcore_source* source ); \
-  er_t xoico_builder_target_s_build( const xoico_builder_target_s* o, bl_t readonly, sz_t* target_index );
+  const xoico_builder_target_s* xoico_builder_target_s_name_match( const xoico_builder_target_s* o, sc_t name ); \
+  void xoico_builder_target_s_push_target_index_to_arr( const xoico_builder_target_s* o, bcore_arr_sz_s* arr ); \
+  er_t xoico_builder_target_s_load( xoico_builder_target_s* o, bl_t readonly, sc_t path ); \
+  er_t xoico_builder_target_s_build( xoico_builder_target_s* o );
 #define TYPEOF_xoico_builder_main_s 0x10B2EBC3A7C03BBDull
 #define BETH_EXPAND_ITEM_xoico_builder_main_s \
   BCORE_DECLARE_OBJECT( xoico_builder_main_s ) \
   { \
       aware_t _; \
       xoico_compiler_s* compiler; \
-      bl_t dry_run; \
-      bcore_arr_st_s arr_path; \
+      xoico_builder_target_s* target; \
   }; \
-  void xoico_builder_main_s_init_x( xoico_builder_main_s* o ); \
   er_t xoico_builder_main_s_build_from_file( xoico_builder_main_s* o, sc_t path ); \
   bl_t xoico_builder_main_s_update_required( const xoico_builder_main_s* o ); \
   er_t xoico_builder_main_s_update( const xoico_builder_main_s* o ); \
@@ -832,8 +856,10 @@
   bl_t xoico_builder_main_s_get_overwrite_unsigned_target_files( const xoico_builder_main_s* o );
 #define BETH_EXPAND_GROUP_xoico_builder \
   BCORE_FORWARD_OBJECT( xoico_builder ); \
+  BCORE_FORWARD_OBJECT( xoico_builder_arr_target_s ); \
   BCORE_FORWARD_OBJECT( xoico_builder_target_s ); \
   BCORE_FORWARD_OBJECT( xoico_builder_main_s ); \
+  BETH_EXPAND_ITEM_xoico_builder_arr_target_s \
   BETH_EXPAND_ITEM_xoico_builder_target_s \
   BETH_EXPAND_ITEM_xoico_builder_main_s
 
@@ -1070,4 +1096,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0x2418EC7443A77195ull
+// XOILA_OUT_SIGNATURE 0xE5AA121017B299D3ull

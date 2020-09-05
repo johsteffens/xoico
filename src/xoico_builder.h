@@ -28,36 +28,70 @@ XOILA_DEFINE_GROUP( xoico_builder, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 /// returns index of target
-signature er_t build( const, bl_t readonly, sz_t* target_index );
+signature er_t load( mutable, bl_t readonly, sc_t path );
+signature er_t build( mutable );
+signature const @* name_match( const, sc_t name );
+
+signature void push_target_index_to_arr( const, bcore_arr_sz_s* arr );
+
+stamp :arr_target = aware bcore_array { :target_s => []; };
 
 stamp :target = aware :
 {
-    st_s => name;                    // target name
+    st_s => name;                    // unique target name
     st_s => extension = "xoila_out"; // extension used for xoila output files
-    st_s => root;                    // root folder of subsequent file paths (used if they are relative)
+    st_s => root_folder;             // root folder of subsequent file paths (used if they are relative)
+    bl_t readonly;
 
     /// xflags affect this target and update dependencies
     xoico_target_xflags_s target_xflags;
 
-    private aware :main_s* main;
-
-    bcore_arr_st_s dependencies;   // dependent target definitions
-    bcore_arr_st_s sources;        // array of source files
+    bcore_arr_st_s dependencies; // dependent target definitions
+    bcore_arr_st_s sources;      // array of source files
 
     /** Function name of principal signal handler for this target
      *  If not defined, it is assumed that the name is <name>_general_signal_handler
      */
     st_s => signal_handler;
 
+    // Runtime data
+    private :target_s* parent;
+    private :target_s* root;
+    hidden  aware :arr_target_s => dependencies_target;
+    hidden  st_s full_path;
+    hidden  xoico_compiler_s -> compiler;
+    hidden  sz_t target_index = -1; /// Index for target on the compiler; -1 if this target has no representation
+    hidden  bcore_hmap_tpvd_s => hmap_built_target; // map of targets that have already been built
+
     func bcore_via_call : source =
     {
-        if( !o->root )
+        if( !o->root_folder )
         {
-            o->root = bcore_file_folder_path( bcore_source_a_get_file( source ) );
-            st_s_attach( &o->root, bcore_file_path_minimized( o->root->sc ) );
+            o->root_folder = bcore_file_folder_path( bcore_source_a_get_file( source ) );
+            st_s_attach( &o->root_folder, bcore_file_path_minimized( o->root_folder->sc ) );
         }
     };
 
+    func : : name_match =
+    {
+        if( o->name && sc_t_equal( name, o->name->sc ) ) return o;
+        if( o->parent ) return @_name_match( o->parent, name );
+        return NULL;
+    };
+
+    func : : push_target_index_to_arr =
+    {
+        if( o->target_index != -1 )
+        {
+             bcore_arr_sz_s_push( arr, o->target_index );
+        }
+        else
+        {
+            BFOR_EACH( i, o->dependencies_target ) @_push_target_index_to_arr( o->dependencies_target->data[ i ], arr );
+        }
+    };
+
+    func : : load;
     func : : build;
 };
 
@@ -78,17 +112,8 @@ signature bl_t get_overwrite_unsigned_target_files( const );
 
 stamp :main = aware :
 {
-    xoico_compiler_s => compiler;
-
-    bl_t dry_run = false;
-
-    bcore_arr_st_s arr_path;
-
-    func bcore_inst_call : init_x =
-    {
-        o->compiler = xoico_compiler_s_create();
-        xoico_compiler_s_setup( o->compiler );
-    };
+    xoico_compiler_s => compiler!;
+    :target_s => target;
 
     func : :build_from_file;
     func : :update_required;
@@ -96,13 +121,13 @@ stamp :main = aware :
 
     func : :set_dry_run =
     {
-        o->dry_run = v;
+        o->compiler->dry_run = v;
         return 0;
     };
 
     func : :get_dry_run =
     {
-        return o->dry_run;
+        return o->compiler->dry_run;
     };
 
     func : :set_always_expand =
@@ -145,6 +170,10 @@ bl_t xoico_update_required( void );
 er_t xoico_update( bl_t* modified );
 
 //----------------------------------------------------------------------------------------------------------------------
+
+/**********************************************************************************************************************/
+
+vd_t xoico_builder_signal_handler( const bcore_signal_s* o );
 
 /**********************************************************************************************************************/
 

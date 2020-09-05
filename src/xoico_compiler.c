@@ -412,25 +412,6 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_compiler_s_setup( xoico_compiler_s* o )
-{
-    BLM_INIT();
-
-    st_s* dir_name = BLM_CREATE( st_s );
-    st_s* cfg_file = BLM_CREATE( st_s );
-    bcore_folder_get_current( dir_name );
-
-    if( bcore_file_find_descend( dir_name->sc, ".xoico_compiler.cfg", cfg_file ) )
-    {
-        bcore_txt_ml_a_from_file( o, cfg_file->sc );
-        if( o->verbosity > 0 ) bcore_msg_fa( "XOICO: Using '#<sc_t>'\n", cfg_file->sc );
-    }
-
-    BLM_RETURNV( er_t, 0 );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 /// returns target index
 er_t xoico_compiler_s_compile( xoico_compiler_s* o, sc_t target_name, sc_t source_path, const xoico_target_xflags_s* xflags, sz_t* p_target_index )
 {

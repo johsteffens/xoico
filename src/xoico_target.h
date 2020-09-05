@@ -70,7 +70,7 @@ stamp : = aware :
     st_s => target_c; // target c file
 
     /** List of files explicitly included by include directive.
-     *  Used to list all sources comtributing to this target in
+     *  Used to list all sources contributing to this target in
      *  copyright and license info.
      */
     bcore_arr_st_s explicit_embeddings;
