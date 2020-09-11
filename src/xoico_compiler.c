@@ -70,8 +70,7 @@ er_t xoico_compiler_s_check_overwrite( const xoico_compiler_s* o, sc_t file )
         {
             st_s_push_fa( s, "Xoico has currently no permission to overwrite unsigned target files.\n" );
             st_s_push_fa( s, "You can fix it in one of following ways:\n" );
-            st_s_push_fa( s, "* Rename or move the file.\n" );
-            st_s_push_fa( s, "* Allow overwrite by setting flag 'overwrite_unsigned_target_files' 'true'.\n" );
+            st_s_push_fa( s, "* Rename or (re)move the file.\n" );
             st_s_push_fa( s, "* Use command line flag '-f'.\n" );
             BLM_RETURNV( er_t, bcore_error_push_fa( TYPEOF_general_error, "\nERROR: #<sc_t>\n", s->sc ) );
         }
@@ -200,7 +199,7 @@ const xoico_signature_s* xoico_compiler_s_get_signature( const xoico_compiler_s*
 //----------------------------------------------------------------------------------------------------------------------
 
 /** returns target index */
-er_t xoico_compiler_s_parse( xoico_compiler_s* o, sc_t target_name, sc_t source_path, const xoico_target_xflags_s* xflags, sz_t* p_target_index )
+er_t xoico_compiler_s_parse( xoico_compiler_s* o, sc_t target_name, sc_t source_path, sz_t* p_target_index )
 {
     BLM_INIT();
 
@@ -230,7 +229,6 @@ er_t xoico_compiler_s_parse( xoico_compiler_s* o, sc_t target_name, sc_t source_
     }
 
     xoico_target_s* target = o->data[ target_index ];
-    xoico_target_s_update_xflags( target, xflags );
 
     BLM_TRY( xoico_target_s_parse( target, source_path ) );
 
@@ -413,10 +411,10 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns target index
-er_t xoico_compiler_s_compile( xoico_compiler_s* o, sc_t target_name, sc_t source_path, const xoico_target_xflags_s* xflags, sz_t* p_target_index )
+er_t xoico_compiler_s_compile( xoico_compiler_s* o, sc_t target_name, sc_t source_path, sz_t* p_target_index )
 {
     BLM_INIT();
-    BLM_TRY( xoico_compiler_s_parse( o, target_name, source_path, xflags, p_target_index ) );
+    BLM_TRY( xoico_compiler_s_parse( o, target_name, source_path, p_target_index ) );
     BLM_TRY( xoico_compiler_s_finalize( o ) );
     BLM_RETURNV( er_t, 0 );
 }
@@ -466,15 +464,6 @@ er_t xoico_compiler_s_target_set_readonly( xoico_compiler_s* o, sz_t target_inde
 {
     ASSERT( target_index >= 0 && target_index < o->size );
     o->data[ target_index ]->readonly = readonly;
-    return 0;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-er_t xoico_compiler_s_target_update_xflags( xoico_compiler_s* o, sz_t target_index, const xoico_target_xflags_s* xflags )
-{
-    ASSERT( target_index >= 0 && target_index < o->size );
-    xoico_target_s_update_xflags( o->data[ target_index ], xflags );
     return 0;
 }
 

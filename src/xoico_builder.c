@@ -36,7 +36,7 @@ er_t xoico_builder_target_s_load( xoico_builder_target_s* o, bl_t readonly, sc_t
     st_path = BLM_A_PUSH( bcore_file_path_minimized( st_path->sc ) );
 
     bcore_txt_ml_a_from_file( o, st_path->sc );
-    st_s_copy( &o->full_path, st_path );
+    st_s_copy( &o->full_path_, st_path );
     if( readonly ) o->readonly = true;
 
     if( !o->name )
@@ -49,18 +49,18 @@ er_t xoico_builder_target_s_load( xoico_builder_target_s* o, bl_t readonly, sc_t
     }
 
     /// check for dependency cycles
-    if( o->parent )
+    if( o->parent_ )
     {
-        const xoico_builder_target_s* match = xoico_builder_target_s_name_match( o->parent, o->name->sc );
+        const xoico_builder_target_s* match = xoico_builder_target_s_name_match( o->parent_, o->name->sc );
         if( match )
         {
-            if( st_s_equal_st( &match->full_path, &o->full_path ) )
+            if( st_s_equal_st( &match->full_path_, &o->full_path_ ) )
             {
                 BLM_ERR_FA( "In target file: '#<sc_t>'\nCyclic dependency detected.", st_path->sc );
             }
             else
             {
-                BLM_ERR_FA( "Same target name '#<sc_t>' used in different target files:\n#<sc_t>\n#<sc_t>", o->name->sc, st_path->sc, match->full_path.sc );
+                BLM_ERR_FA( "Same target name '#<sc_t>' used in different target files:\n#<sc_t>\n#<sc_t>", o->name->sc, st_path->sc, match->full_path_.sc );
             }
         }
     }
@@ -68,7 +68,7 @@ er_t xoico_builder_target_s_load( xoico_builder_target_s* o, bl_t readonly, sc_t
     BFOR_EACH( i, &o->dependencies )
     {
         BLM_INIT();
-        if( !o->dependencies_target ) o->dependencies_target = xoico_builder_arr_target_s_create();
+        if( !o->dependencies_target_ ) o->dependencies_target_ = xoico_builder_arr_target_s_create();
 
         st_s* file_path = BLM_CREATE( st_s );
         if( o->dependencies.data[ i ]->sc[ 0 ] != '/' )
@@ -96,8 +96,8 @@ er_t xoico_builder_target_s_load( xoico_builder_target_s* o, bl_t readonly, sc_t
             }
         }
 
-        xoico_builder_target_s* target = xoico_builder_arr_target_s_push_d( o->dependencies_target, xoico_builder_target_s_create() );
-        target->parent = o;
+        xoico_builder_target_s* target = xoico_builder_arr_target_s_push_d( o->dependencies_target_, xoico_builder_target_s_create() );
+        target->parent_ = o;
 
         BLM_TRY( xoico_builder_target_s_load( target, dep_readonly, file_path->sc ) );
 
@@ -113,36 +113,36 @@ er_t xoico_builder_target_s_build( xoico_builder_target_s* o )
 {
     BLM_INIT();
 
-    if( !o->root     ) o->root     = ( o->parent ) ? o->parent->root : o;
-    if( !o->compiler ) o->compiler = ( o->parent ) ? bcore_fork( o->parent->compiler ) : xoico_compiler_s_create();
+    if( !o->root_    ) o->root_    = ( o->parent_ ) ? o->parent_->root_     : o;
+    if( !o->compiler ) o->compiler = ( o->parent_ ) ? o->parent_->compiler : NULL;
 
-    if( o == o->root )
+    if( o == o->root_ )
     {
-        if( !o->hmap_built_target ) o->hmap_built_target = bcore_hmap_tpvd_s_create();
+        if( !o->hmap_built_target_ ) o->hmap_built_target_ = bcore_hmap_tpvd_s_create();
     }
 
     ASSERT( o->compiler );
-    ASSERT( o->root );
+    ASSERT( o->root_ );
 
     tp_t tp_target_name = bentypeof( o->name->sc );
 
-    BFOR_EACH( i, o->dependencies_target )
+    BFOR_EACH( i, o->dependencies_target_ )
     {
-        BLM_TRY( xoico_builder_target_s_build( o->dependencies_target->data[ i ] ) );
+        BLM_TRY( xoico_builder_target_s_build( o->dependencies_target_->data[ i ] ) );
     }
 
-    if( bcore_hmap_tpvd_s_exists( o->root->hmap_built_target, tp_target_name ) )
+    if( bcore_hmap_tpvd_s_exists( o->root_->hmap_built_target_, tp_target_name ) )
     {
-        xoico_builder_target_s* target = *bcore_hmap_tpvd_s_get( o->root->hmap_built_target, tp_target_name );
-        o->target_index = target->target_index;
+        xoico_builder_target_s* target = *bcore_hmap_tpvd_s_get( o->root_->hmap_built_target_, tp_target_name );
+        o->target_index_ = target->target_index_;
         BLM_RETURNV( er_t, 0 );
     }
 
-    bcore_hmap_tpvd_s_set( o->root->hmap_built_target, tp_target_name, o );
+    bcore_hmap_tpvd_s_set( o->root_->hmap_built_target_, tp_target_name, o );
 
-    o->target_index = -1;
+    o->target_index_ = -1;
 
-    bcore_msg_fa( "XOICO: compiling #<sc_t>\n", o->full_path.sc );
+    bcore_msg_fa( "XOICO: compiling #<sc_t>\n", o->full_path_.sc );
 
     BFOR_EACH( i, &o->sources )
     {
@@ -160,9 +160,9 @@ er_t xoico_builder_target_s_build( xoico_builder_target_s* o )
         st_s* xoi_target_name = BLM_A_PUSH( st_s_create_fa( "#<sc_t>_#<sc_t>", o->name->sc, o->extension->sc ) );
 
         sz_t index = -1;
-        BLM_TRY( xoico_compiler_s_compile( o->compiler, xoi_target_name->sc, file_path->sc, &o->target_xflags, &index ) );
-        if( o->target_index == -1 ) o->target_index = index;
-        if( index != o->target_index )
+        BLM_TRY( xoico_compiler_s_compile( o->compiler, xoi_target_name->sc, file_path->sc, &index ) );
+        if( o->target_index_ == -1 ) o->target_index_ = index;
+        if( index != o->target_index_ )
         {
             ERR_fa
             (
@@ -177,19 +177,19 @@ er_t xoico_builder_target_s_build( xoico_builder_target_s* o )
         BLM_DOWN();
     }
 
-    if( o->target_index >= 0 )
+    if( o->target_index_ >= 0 )
     {
         bcore_arr_sz_s* dependencies = BLM_CREATE( bcore_arr_sz_s );
-        BFOR_EACH( i, o->dependencies_target )
+        BFOR_EACH( i, o->dependencies_target_ )
         {
-            xoico_builder_target_s_push_target_index_to_arr( o->dependencies_target->data[ i ], dependencies );
+            xoico_builder_target_s_push_target_index_to_arr( o->dependencies_target_->data[ i ], dependencies );
         }
 
-        BLM_TRY( xoico_compiler_s_target_set_dependencies( o->compiler, o->target_index, dependencies ) );
+        BLM_TRY( xoico_compiler_s_target_set_dependencies( o->compiler, o->target_index_, dependencies ) );
         st_s* signal_handler = BLM_A_PUSH( st_s_create_fa( "#<sc_t>_general_signal_handler", o->name->sc ) );
         if( o->signal_handler ) st_s_copy( signal_handler, o->signal_handler );
-        BLM_TRY( xoico_compiler_s_target_set_signal_handler_name( o->compiler, o->target_index, signal_handler->sc ) );
-        BLM_TRY( xoico_compiler_s_target_set_readonly( o->compiler, o->target_index, o->readonly ) );
+        BLM_TRY( xoico_compiler_s_target_set_signal_handler_name( o->compiler, o->target_index_, signal_handler->sc ) );
+        BLM_TRY( xoico_compiler_s_target_set_readonly( o->compiler, o->target_index_, o->readonly ) );
     }
 
     BLM_RETURNV( er_t, 0 );
@@ -222,9 +222,10 @@ er_t xoico_builder_target_s_update( const xoico_builder_target_s* o )
 er_t xoico_builder_main_s_build_from_file( xoico_builder_main_s* o, sc_t path )
 {
     BLM_INIT();
-    xoico_builder_target_s_attach( &o->target, xoico_builder_target_s_create() );
-    o->target->compiler = bcore_fork( o->compiler );
-    BLM_TRY( xoico_builder_target_s_load( o->target, false, path ) );
+    xoico_builder_target_s* target = xoico_builder_target_s_create();
+    BLM_TRY( xoico_builder_target_s_load( target, false, path ) );
+    target->compiler = o->compiler;
+    xoico_builder_target_s_attach( &o->target, target );
     BLM_TRY( xoico_builder_target_s_build( o->target ) );
     BLM_RETURNV( er_t, 0 );
 }
@@ -249,11 +250,6 @@ er_t xoico_builder_main_s_update( const xoico_builder_main_s* o )
 
 static void selftest( void )
 {
-    BLM_INIT();
-    xoico_builder_target_s* target = BLM_CREATE( xoico_builder_target_s );
-    xoico_builder_target_s_load( target, true, "../badapt_dev/src/main_xoico.cfg" );
-    xoico_builder_target_s_build( target );
-    BLM_DOWN();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

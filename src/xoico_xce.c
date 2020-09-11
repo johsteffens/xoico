@@ -23,67 +23,14 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-//bl_t is_alphanumeric( bcore_source* source );
-//tp_t get_name( bcore_source* source );
-//
-//static er_t trans( tp_t type, bcore_source* source, st_s* buf )
-//{
-//    BLM_INIT();
-//    if( is_alphanumeric( source ) )
-//    {
-//        tp_t id = get_name( source, buf );
-//        type = get_type( type, id );
-//        trans( type, source, buf );
-//    }
-//    else if( bcore_source_a_parse_bl_fa( source, "#?'->'" ) ) // member
-//    {
-//        tp_t id = get_name( source, buf );
-//        type = get_member_type( type, id );
-//        if( bcore_source_a_parse_bl_fa( source, " #?'('" ) ) // member function
-//        {
-//            st_s* arg_obj = BLM_CLONE( st_s, buf );
-//            bcore_arr_st_s* arr_arg = BLM_CREATE( bcore_arr_st_s );
-//            bl_t first = true;
-//            while( !bcore_source_a_parse_bl_fa( source, " #?')'" ) )
-//            {
-//                if( !first ) bcore_source_a_parse_fa( source, " ," );
-//                trans( 0, source, bcore_arr_st_s_push_st_d( arr_arg, st_s_create() ) );
-//                first = false;
-//            }
-//            st_s_set_size( buf, 0 );
-//            st_s_push_fa( buf, "#<sc_t>( ", get_name_sc( type ) );
-//            BFOR_EACH( i, arr_arg )
-//            {
-//                st_s_push_fa( buf, ", #<sc_t>", arr_arg->data[ i ]->sc );
-//            }
-//            st_s_push_fa( buf, " )", get_name_sc( type ) );
-//        }
-//    }
-//    else if( bcore_source_a_parse_bl_fa( source, "#?'('" ) ) // function
-//    {
-//        type = get_return_type( type );
-//
-//
-//
-//    }
-//    else if( eos || bcore_source_a_parse_bl_fa( source, "#?([0]==','||[0]==';'||[0]==')'||[0]=='}')" ) ) // done
-//    {
-//        return 0;
-//    }
-//    else
-//    {
-//        /// consume whitespace and operators then trans
-//    }
-//
-//    BLM_RETURNV( er_t, 0 );
-//}
 
+/** parses name and enrolls it and returns hash */
 tp_t xoico_xce_s_trans_name( xoico_xce_s* o, bcore_source* source, st_s* buf )
 {
     BLM_INIT();
     st_s* st_name = BLM_CREATE( st_s );
     bcore_source_a_parse_fa( source, "#name", st_name );
-    //bcore_msg_fa( "trans_name: #<sc_t>\n", st_name->sc );
+    if( st_name->size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Name expected." );
     st_s_push_st( buf, st_name );
     tp_t tp_name = xoico_xce_s_entypeof( o, st_name->sc );
     BLM_RETURNV( tp_t, tp_name );
@@ -91,29 +38,204 @@ tp_t xoico_xce_s_trans_name( xoico_xce_s* o, bcore_source* source, st_s* buf )
 
 //----------------------------------------------------------------------------------------------------------------------
 
+/** parses number: (all integer, hex and float encodings)*/
+tp_t xoico_xce_s_trans_number_literal( xoico_xce_s* o, bcore_source* source, st_s* buf )
+{
+    BLM_INIT();
+    bl_t hex = false;
+    if( bcore_source_a_parse_bl_fa( source, "#?'0x'" ) )
+    {
+        st_s_push_sc( buf, "0x" );
+        hex = true;;
+    }
+    else if( bcore_source_a_parse_bl_fa( source, "#?'0X'" ) )
+    {
+        st_s_push_sc( buf, "0X" );
+        hex = true;;
+        while( bcore_source_a_parse_bl_fa( source, "#?(([0]>='0'&&[0]<='9')||([0]>='a'&&[0]<='f')||([0]>='A'&&[0]<='F'))" ) )
+        {
+            st_s_push_char( buf, bcore_source_a_get_char( source ) );
+        }
+    }
+
+    if( hex )
+    {
+        while( bcore_source_a_parse_bl_fa( source, "#?(([0]>='0'&&[0]<='9')||([0]>='a'&&[0]<='f')||([0]>='A'&&[0]<='F'))" ) )
+        {
+            st_s_push_char( buf, bcore_source_a_get_char( source ) );
+        }
+    }
+    else // decimal
+    {
+        while( bcore_source_a_parse_bl_fa( source, "#?([0]>='0'&&[0]<='9')" ) )
+        {
+            st_s_push_char( buf, bcore_source_a_get_char( source ) );
+        }
+    }
+
+    bl_t fraction = false;
+
+    if( bcore_source_a_parse_bl_fa( source, "#?([0]=='.')" ) )
+    {
+        st_s_push_char( buf, bcore_source_a_get_char( source ) );
+        fraction = true;
+    }
+
+    if( fraction )
+    {
+        while( bcore_source_a_parse_bl_fa( source, "#?([0]>='0'&&[0]<='9')" ) )
+        {
+            st_s_push_char( buf, bcore_source_a_get_char( source ) );
+        }
+    }
+
+    bl_t exponent = false;
+
+    if( bcore_source_a_parse_bl_fa( source, "#?([0]=='e'&&[0]=='E')" ) )
+    {
+        st_s_push_char( buf, bcore_source_a_get_char( source ) );
+        exponent = true;
+    }
+
+    if( exponent )
+    {
+        if( bcore_source_a_parse_bl_fa( source, "#?([0]=='+'||[0]=='-')" ) )
+        {
+            st_s_push_char( buf, bcore_source_a_get_char( source ) );
+        }
+
+        while( bcore_source_a_parse_bl_fa( source, "#?([0]>='0'&&[0]<='9')" ) )
+        {
+            st_s_push_char( buf, bcore_source_a_get_char( source ) );
+        }
+    }
+
+    // suffix
+    while( bcore_source_a_parse_bl_fa( source, "#?([0]=='l'||[0]<='L'[0]=='u'||[0]<='U'[0]=='f'||[0]<='F')" ) )
+    {
+        st_s_push_char( buf, bcore_source_a_get_char( source ) );
+    }
+
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/** parses whitespaces including comments */
+er_t xoico_xce_s_trans_whitespace( xoico_xce_s* o, bcore_source* source, st_s* buf )
+{
+    bl_t exit_loop = false;
+    while( !exit_loop && !bcore_source_a_eos( source ) )
+    {
+        char c = bcore_source_a_inspect_char( source );
+        switch( c )
+        {
+            case ' ' :
+            case '\t':
+            case '\n':
+            {
+                st_s_push_char( buf, bcore_source_a_get_char( source ) );
+            }
+            break;
+
+            case '/':
+            {
+                if( bcore_source_a_parse_bl_fa( source, "#?'//'" ) )
+                {
+                    st_s_push_sc( buf, "//" );
+                    while( !bcore_source_a_eos( source ) )
+                    {
+                        char c = bcore_source_a_get_char( source );
+                        st_s_push_char( buf, c );
+                        if( c == '\n' ) break;
+                    }
+                }
+                else if( bcore_source_a_parse_bl_fa( source, "#?'/*'" ) )
+                {
+                    st_s_push_sc( buf, "/*" );
+                    while( !bcore_source_a_eos( source ) )
+                    {
+                        if( bcore_source_a_parse_bl_fa( source, "#?'*/'" ) )
+                        {
+                            st_s_push_sc( buf, "*/" );
+                            break;
+                        }
+                        st_s_push_char( buf, bcore_source_a_get_char( source ) );
+                    }
+                }
+                else
+                {
+                    exit_loop = true;
+                }
+            }
+            break;
+
+            default:
+            {
+                exit_loop = true;
+            }
+            break;
+        }
+    }
+    return 0;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 er_t xoico_xce_s_trans_expression
 (
     xoico_xce_s* o,
-    const xoico_typespec_s* in_typespec,
     bcore_source* source,
     st_s* buf,
-    const xoico_typespec_s** out_typespec
+    const xoico_typespec_s* in_typespec,
+    xoico_typespec_s* out_typespec
 )
 {
     BLM_INIT();
+
+    BLM_TRY( xoico_xce_s_trans_whitespace( o, source, buf ) );
+
     if( !in_typespec )
     {
+        // identifier
         if( bcore_source_a_parse_bl_fa( source, "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]=='_')" ) )
         {
             tp_t tp_name = xoico_xce_s_trans_name( o, source, buf );
             const xoico_typespec_s* typespec = xoico_xce_stack_s_get_typespec( &o->stack, tp_name );
-            xoico_xce_s_entypeof( o, xoico_compiler_s_nameof( o->compiler, typespec->type ) );
-            BLM_TRY( xoico_xce_s_trans_expression( o, typespec, source, buf, out_typespec ) );
+            if( typespec )
+            {
+                BLM_TRY( xoico_xce_s_trans_expression( o, source, buf, typespec, out_typespec ) );
+            }
+            else
+            {
+                BLM_TRY( xoico_xce_s_trans_expression( o, source, buf, NULL, NULL ) );
+            }
+        }
+        // number literal
+        else if( bcore_source_a_parse_bl_fa( source, "#?([0]>='0'&&[0]<='9')" ) )
+        {
+            BLM_TRY( xoico_xce_s_trans_number_literal( o, source, buf ) );
+        }
+        else if( bcore_source_a_parse_bl_fa( source, "#?'.'" ) )
+        {
+            st_s_push_fa( buf, "." );
+            BLM_TRY( xoico_xce_s_trans_whitespace( o, source, buf ) );
+            xoico_xce_s_trans_name( o, source, buf );
+            BLM_TRY( xoico_xce_s_trans_expression( o, source, buf, NULL, NULL ) );
+        }
+        else if( bcore_source_a_parse_bl_fa( source, "#?'->'" ) )
+        {
+            st_s_push_fa( buf, "->" );
+            BLM_TRY( xoico_xce_s_trans_whitespace( o, source, buf ) );
+            xoico_xce_s_trans_name( o, source, buf );
+            BLM_TRY( xoico_xce_s_trans_expression( o, source, buf, NULL, NULL ) );
         }
     }
     else
     {
-        if( bcore_source_a_parse_bl_fa( source, "#?'.'" ) )
+        bl_t member_access = bcore_source_a_parse_bl_fa( source, "#?'.'" ) ||
+                             bcore_source_a_parse_bl_fa( source, "#?'->'" );
+        if( member_access )
         {
             st_s* buf_ = BLM_CREATE( st_s );
             tp_t tp_name = xoico_xce_s_trans_name( o, source, buf_ );
@@ -143,13 +265,12 @@ er_t xoico_xce_s_trans_expression
                         st_s* buf_ = BLM_CREATE( st_s );
                         XOICO_BLM_SOURCE_PARSE_FA( source, " " );
                         if( i > 0 ) bcore_source_a_parse_fa( source, " ," );
-                        const xoico_typespec_s* typespec = NULL;
-                        BLM_TRY( xoico_xce_s_trans_expression( o, NULL, source, buf_, &typespec ) );
-                        ASSERT( typespec );
+                        xoico_typespec_s* typespec = BLM_CREATE( xoico_typespec_s );
+                        BLM_TRY( xoico_xce_s_trans_expression( o, source, buf_, NULL, typespec ) );
 
                         st_s_push_fa( buf, ", " );
 
-                        if( typespec )
+                        if( typespec->type )
                         {
                             if( typespec->type != arg->typespec.type )
                             {
@@ -192,14 +313,12 @@ er_t xoico_xce_s_trans_expression
                     XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
                     st_s_push_fa( buf, " )" );
 
-                    //bcore_msg_fa( "typespec_ret: #<sc_t>\n", xoico_compiler_s_nameof( o->compiler, info->signature->typespec_ret.type ) );
-
-                    BLM_TRY( xoico_xce_s_trans_expression( o, &info->signature->typespec_ret, source, buf, out_typespec ) );
+                    BLM_TRY( xoico_xce_s_trans_expression( o, source, buf, &info->signature->typespec_ret, out_typespec ) );
                 }
                 else // member element
                 {
                     st_s_push_fa( buf, "#<sc_t>#<sc_t>", ( in_typespec->indirection == 1 ) ? "->" : ".", buf_->sc );
-                    BLM_TRY( xoico_xce_s_trans_expression( o, &info->typespec, source, buf, out_typespec ) );
+                    BLM_TRY( xoico_xce_s_trans_expression( o, source, buf, &info->typespec, out_typespec ) );
                 }
             }
             else
@@ -215,9 +334,15 @@ er_t xoico_xce_s_trans_expression
         }
         else
         {
-            if( out_typespec ) *out_typespec = in_typespec;
+            if( out_typespec ) xoico_typespec_s_copy( out_typespec, in_typespec );
         }
     }
+
+    BLM_TRY( xoico_xce_s_trans_whitespace( o, source, buf ) );
+
+
+
+
     BLM_RETURNV( er_t, 0 );
 }
 
@@ -259,7 +384,7 @@ static inline er_t selftest2( void )
     bcore_source* expression = BLM_A_PUSH( bcore_source_string_s_create_sc( "f2.f1.f0.setup( f1.f0 ).setup( f0 )" ) );
     st_s* buf = BLM_CREATE( st_s );
 
-    BLM_TRY( xoico_xce_s_trans_expression( xce, NULL, expression, buf, NULL ) );
+    BLM_TRY( xoico_xce_s_trans_expression( xce, expression, buf, NULL, NULL ) );
 
     bcore_msg_fa( "#<sc_t>\n", buf->sc );
 

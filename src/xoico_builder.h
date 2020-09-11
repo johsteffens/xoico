@@ -43,9 +43,6 @@ stamp :target = aware :
     st_s => root_folder;             // root folder of subsequent file paths (used if they are relative)
     bl_t readonly;
 
-    /// xflags affect this target and update dependencies
-    xoico_target_xflags_s target_xflags;
-
     bcore_arr_st_s dependencies; // dependent target definitions
     bcore_arr_st_s sources;      // array of source files
 
@@ -54,14 +51,15 @@ stamp :target = aware :
      */
     st_s => signal_handler;
 
+    private xoico_compiler_s* compiler;
+
     // Runtime data
-    private :target_s* parent;
-    private :target_s* root;
-    hidden  aware :arr_target_s => dependencies_target;
-    hidden  st_s full_path;
-    hidden  xoico_compiler_s -> compiler;
-    hidden  sz_t target_index = -1; /// Index for target on the compiler; -1 if this target has no representation
-    hidden  bcore_hmap_tpvd_s => hmap_built_target; // map of targets that have already been built
+    private :target_s*             parent_;
+    private :target_s*             root_;
+    hidden  aware :arr_target_s => dependencies_target_;
+    hidden  st_s                   full_path_;
+    hidden  sz_t                   target_index_ = -1; // Index for target on the compiler; -1 if this target has no representation
+    hidden  bcore_hmap_tpvd_s   => hmap_built_target_; // map of targets that have already been built
 
     func bcore_via_call : source =
     {
@@ -75,19 +73,19 @@ stamp :target = aware :
     func : : name_match =
     {
         if( o->name && sc_t_equal( name, o->name->sc ) ) return o;
-        if( o->parent ) return @_name_match( o->parent, name );
+        if( o->parent_ ) return @_name_match( o->parent_, name );
         return NULL;
     };
 
     func : : push_target_index_to_arr =
     {
-        if( o->target_index != -1 )
+        if( o->target_index_ != -1 )
         {
-             bcore_arr_sz_s_push( arr, o->target_index );
+             bcore_arr_sz_s_push( arr, o->target_index_ );
         }
         else
         {
-            BFOR_EACH( i, o->dependencies_target ) @_push_target_index_to_arr( o->dependencies_target->data[ i ], arr );
+            BFOR_EACH( i, o->dependencies_target_ ) @_push_target_index_to_arr( o->dependencies_target_->data[ i ], arr );
         }
     };
 

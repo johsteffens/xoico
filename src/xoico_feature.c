@@ -391,7 +391,8 @@ er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t in
             bcore_sink_a_push_fa( sink, " #<sc_t>* o", sc_group_name );
             BLM_TRY( xoico_args_s_expand( &o->signature.args, false, sc_group_name, sink ) );
             bcore_sink_a_push_fa( sink, " )" );
-            BLM_TRY( xoico_body_s_expand( o->default_body, sc_group_name, &o->signature.args, indent, sink ) );
+            //BLM_TRY( xoico_body_s_expand( o->default_body, sc_group_name, &o->signature.args, indent, sink ) );
+            BLM_TRY( xoico_body_s_expand( o->default_body, &o->signature, indent, sink ) );
         }
         else
         {
@@ -424,7 +425,7 @@ er_t xoico_feature_s_expand_definition( const xoico_feature_s* o, sz_t indent, b
         bcore_sink_a_push_fa( sink, " #<sc_t>* o", sc_group_name );
         BLM_TRY( xoico_args_s_expand( &o->signature.args, false, sc_group_name, sink ) );
         bcore_sink_a_push_fa( sink, " )\n" );
-        BLM_TRY( xoico_body_s_expand( o->default_body, sc_group_name, &o->signature.args, indent, sink ) );
+        BLM_TRY( xoico_body_s_expand( o->default_body, &o->signature, indent, sink ) );
     }
     BLM_RETURNV( er_t, 0 );
 }

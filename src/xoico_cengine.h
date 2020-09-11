@@ -16,131 +16,31 @@
 #ifndef XOICO_CENGINE_H
 #define XOICO_CENGINE_H
 
-#include "xoico.h"
-#include "xoico_body.h"
-#include "xoico_args.h"
+/**********************************************************************************************************************/
+
+/** C-Engine Interface */
 
 /**********************************************************************************************************************/
 
-/// C code processor
+#include "bcore_std.h"
+#include "xoico.h"
+#include "xoico_signature.h"
+#include "xoico_compiler.h"
+#include "xoico_xoila_out.h"
 
 /**********************************************************************************************************************/
 
 XOILA_DEFINE_GROUP( xoico_cengine, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-/// type-name-stack
-group :tn = :
-{
-    stamp :unit = bcore_inst
-    {
-        tp_t type;
-        tp_t name;
-        sz_t level;
-    };
-
-    stamp :adl = aware bcore_array { :unit_s => []; };
-
-    signature @* push( mutable, tp_t type, tp_t name, sz_t level );
-    signature @* pop( mutable, sz_t level ); // pop all units of or above level
-    signature tp_t get_type( mutable, tp_t name );
-    signature @* push_sc( mutable, sc_t type, sc_t name, sz_t level );
-    signature sc_t get_type_sc( mutable, sc_t name );  // returns NULL if name is not registered
-    signature void clear( mutable );
-    signature void init_from_args( mutable, sc_t obj_type, sc_t obj_name, const xoico_args_s* args );
-
-    stamp :stack = aware :
-    {
-        :adl_s adl;
-        bcore_hmap_name_s name_map;
-
-        func : :push =
-        {
-            :unit_s* unit = :unit_s_create();
-            unit->type = type;
-            unit->name = name;
-            unit->level = level;
-            :adl_s_push_d( &o->adl, unit );
-            return o;
-        };
-
-        func : :push_sc =
-        {
-            :unit_s* unit = :unit_s_create();
-            unit->type = bcore_hmap_name_s_set_sc( &o->name_map, type );
-            unit->name = bcore_hmap_name_s_set_sc( &o->name_map, name );
-            unit->level = level;
-            :adl_s_push_d( &o->adl, unit );
-            return o;
-        };
-
-        func : :pop =
-        {
-            sz_t new_size = o->adl.size;
-            for( sz_t i = o->adl.size - 1; i >= 0; i-- )
-            {
-                if( o->adl.data[ i ]->level < level ) break;
-                new_size = i;
-            }
-            :adl_s_set_size( &o->adl, new_size );
-            return o;
-        };
-
-        func : :get_type =
-        {
-            for( sz_t i = o->adl.size - 1; i >= 0; i-- )
-            {
-                if( o->adl.data[ i ]->name == name ) return o->adl.data[ i ]->type;
-            }
-            return 0;
-        };
-
-        func : :get_type_sc =
-        {
-            return bcore_hmap_name_s_get_sc( &o->name_map, @_get_type( o, btypeof( name ) ) );
-        };
-
-        func : :clear =
-        {
-            bcore_hmap_name_s_clear( &o->name_map );
-            :adl_s_clear( &o->adl );
-        };
-
-        func : :init_from_args =
-        {
-            const xoico_compiler_s* compiler = xoico_group_s_get_compiler( args->group );
-            @_clear( o );
-            if( obj_type ) @_push_sc( o, obj_type, obj_name, 0 );
-            BFOR_EACH( i, args )
-            {
-                sc_t sc_type = xoico_compiler_s_nameof( compiler, args->data[ i ].typespec.type );
-                sc_t sc_name = xoico_compiler_s_nameof( compiler, args->data[ i ].name );
-                @_push_sc( o, sc_type, sc_name, 0 );
-            }
-        };
-    };
-};
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-signature er_t take_block     ( mutable, bcore_source* source, bcore_sink* sink );
-signature er_t take_block_body( mutable, bcore_source* source, bcore_sink* sink );
-
-stamp : = aware :
-{
-    sc_t obj_type;
-    xoico_args_s     -> args;
-    xoico_compiler_s -> compiler;
-    :tn_stack_s stack;
-
-    func : :take_block;
-    func : :take_block_body;
-};
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+feature 'a' er_t translate( const, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink );
+feature 'a' tp_t get_hash ( const ) = { return bcore_hash_a_get_tp( (bcore_hash*)o ); };
 
 #endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+//----------------------------------------------------------------------------------------------------------------------
+// functions
+
 /**********************************************************************************************************************/
 
-#endif // XOICO_CENGINE_H
+#endif // XOICO_H

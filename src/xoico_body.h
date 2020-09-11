@@ -28,7 +28,7 @@ XOILA_DEFINE_GROUP( xoico_body, xoico )
 signature er_t parse_expression( mutable, bcore_source* source );
 signature er_t parse(      mutable, bcore_source* source );
 signature er_t finalize(   mutable );
-signature er_t expand(     const, sc_t obj_type, const xoico_args_s* args, sz_t indent, bcore_sink* sink );
+signature er_t expand( const, const xoico_signature_s* signature, sz_t indent, bcore_sink* sink );
 signature er_t set_group(  mutable, xoico_group_s* group );
 signature er_t set_stamp(  mutable, xoico_stamp_s* stamp );
 
@@ -41,7 +41,7 @@ stamp :code = aware :
 
     bcore_source_point_s source_point;
 
-    func : : parse;
+    func     : : parse;
     func xoico : get_hash;
 
     private aware xoico_group_s* group;
@@ -63,12 +63,16 @@ stamp : = aware :
     :code_s => code;
 
     bl_t go_inline;
-    bl_t apply_cengine = true;
+
+    aware xoico_cengine -> cengine; // set to caleph in init_x
 
     bcore_source_point_s source_point;
 
     private aware xoico_group_s* group;
     private aware xoico_stamp_s* stamp;
+
+    func bcore_inst_call : init_x;
+
     func bcore_inst_call : copy_x =
     {
         o->group = src->group;

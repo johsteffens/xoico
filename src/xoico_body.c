@@ -16,8 +16,9 @@
 #include "xoico_body.h"
 #include "xoico_group.h"
 #include "xoico_stamp.h"
+#include "xoico_signature.h"
 #include "xoico_compiler.h"
-#include "xoico_cengine.h"
+#include "xoico_caleph.h"
 
 /**********************************************************************************************************************/
 
@@ -155,6 +156,13 @@ tp_t xoico_body_code_s_get_hash( const xoico_body_code_s* o )
 
 //----------------------------------------------------------------------------------------------------------------------
 
+void xoico_body_s_init_x( xoico_body_s* o )
+{
+    o->cengine = ( xoico_cengine* )xoico_caleph_s_create();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 sc_t xoico_body_s_get_global_name_sc( const xoico_body_s* o )
 {
     return o->global_name.sc;
@@ -166,10 +174,6 @@ er_t xoico_body_s_set_group( xoico_body_s* o, xoico_group_s* group )
 {
     o->group = group;
     if( o->code ) o->code->group = group;
-    if( xoico_group_s_get_target( o->group )->xflags.apply_cengine )
-    {
-        o->apply_cengine = *xoico_group_s_get_target( o->group )->xflags.apply_cengine;
-    }
     return 0;
 }
 
@@ -189,12 +193,9 @@ tp_t xoico_body_s_get_hash( const xoico_body_s* o )
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
     hash = bcore_tp_fold_sc( hash, o->name.sc );
 
-    if( o->code )
-    {
-        hash = bcore_tp_fold_tp( hash, xoico_body_code_s_get_hash( o->code ) );
-    }
+    if( o->code    ) hash = bcore_tp_fold_tp( hash, xoico_body_code_s_get_hash( o->code ) );
     hash = bcore_tp_fold_bl( hash, o->go_inline );
-    hash = bcore_tp_fold_bl( hash, o->apply_cengine );
+    if( o->cengine ) hash = bcore_tp_fold_tp( hash, xoico_cengine_a_get_hash( o->cengine ) );
     return hash;
 }
 
@@ -329,21 +330,16 @@ er_t xoico_body_s_finalize( xoico_body_s* o )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_body_s_expand( const xoico_body_s* o, sc_t obj_type, const xoico_args_s* args, sz_t indent, bcore_sink* sink )
+er_t xoico_body_s_expand( const xoico_body_s* o, const xoico_signature_s* signature, sz_t indent, bcore_sink* sink )
 {
     BLM_INIT();
+
     const st_s* final_code = o->code ? &o->code->st : BLM_CREATE( st_s );
     st_s* st_out = BLM_CREATE( st_s );
-    if( o->apply_cengine && o->code )
+    if( o->cengine && o->code )
     {
         if( !o->group ) XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA( &o->source_point, "Body has no group assigned." );
-        bcore_source* source = BLM_A_PUSH( bcore_source_string_s_create_sc( o->code->st.sc ) );
-        xoico_cengine_s* engine = BLM_CREATE( xoico_cengine_s );
-        engine->obj_type = obj_type;
-        engine->args     = bcore_fork( ( xoico_args_s* )args );
-        engine->compiler = bcore_fork( xoico_group_s_get_compiler( o->group ) );
-
-        if( xoico_cengine_s_take_block_body( engine, source, ( bcore_sink* )st_out ) )
+        if( xoico_cengine_a_translate( o->cengine, o, signature, ( bcore_sink* )st_out ) )
         {
             er_t id = 0;
             st_s* msg = BLM_CREATE( st_s );
@@ -351,16 +347,11 @@ er_t xoico_body_s_expand( const xoico_body_s* o, sc_t obj_type, const xoico_args
             XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA
             (
                 &o->source_point,
-                "\ncengine-error: #<sc_t>\n"
+                "\ncaleph-error: #<sc_t>\n"
                 "\n",
                 msg->sc
             );
         }
-
-//        if( !st_s_equal_st( st_out, &o->code ) )
-//        {
-//            bcore_msg_fa( "#<sc_t>\n", st_out->sc );
-//        }
 
         final_code = st_out;
     }
@@ -380,6 +371,7 @@ er_t xoico_body_s_expand( const xoico_body_s* o, sc_t obj_type, const xoico_args
         }
         bcore_sink_a_push_fa( sink, "\n#rn{ }}", indent );
     }
+
     BLM_RETURNV( er_t, 0 );
 }
 
