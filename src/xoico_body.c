@@ -172,6 +172,7 @@ sc_t xoico_body_s_get_global_name_sc( const xoico_body_s* o )
 
 er_t xoico_body_s_set_group( xoico_body_s* o, xoico_group_s* group )
 {
+
     o->group = group;
     if( o->code ) o->code->group = group;
     return 0;
@@ -197,34 +198,6 @@ tp_t xoico_body_s_get_hash( const xoico_body_s* o )
     hash = bcore_tp_fold_bl( hash, o->go_inline );
     if( o->cengine ) hash = bcore_tp_fold_tp( hash, xoico_cengine_a_get_hash( o->cengine ) );
     return hash;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-er_t xoico_body_s_parse_expression( xoico_body_s* o, bcore_source* source );
-
-//----------------------------------------------------------------------------------------------------------------------
-
-er_t xoico_body_s_append( xoico_body_s* o, sz_t indent, const xoico_body_s* body )
-{
-    BLM_INIT();
-    if( !body->code ) BLM_RETURNV( er_t, 0 );
-
-    if( !o->code ) o->code = xoico_body_code_s_create();
-
-    if( body->go_inline )
-    {
-        st_s_push_fa( &o->code->st, "#<st_s*>", &body->code->st );
-    }
-    else
-    {
-        st_s* body_code = BLM_A_PUSH( st_s_clone( &body->code->st ) );
-        st_s* newline = BLM_A_PUSH( st_s_create_fa( "\n#rn{ }", indent ) );
-        st_s_replace_sc_sc( body_code, "\n", newline->sc );
-        st_s_push_fa( &o->code->st, "#<st_s*>", body_code );
-        o->go_inline = false;
-    }
-    BLM_RETURNV( er_t, 0 );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -273,21 +246,6 @@ er_t xoico_body_s_parse_expression( xoico_body_s* o, bcore_source* source )
         }
     }
 
-    if( bcore_source_a_parse_bl_fa( source, " #?':'" ) ) // concatenating another body
-    {
-        if( bcore_source_a_parse_bl_fa( source, "#?(([0]!=' ')&&([0]!='\t')&&([0]!='\n'))" ) )
-        {
-            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Whitespace after ':' expected." );
-        }
-        xoico_body_s* body = BLM_CREATE( xoico_body_s );
-        BLM_TRY( xoico_body_s_set_group( body, o->group ) );
-        BLM_TRY( xoico_body_s_set_stamp( body, o->stamp ) );
-        bcore_source_point_s_set( &body->source_point, source );
-        BLM_TRY( xoico_body_s_parse_expression( body, source ) );
-        if( o->code ) st_s_push_char( &o->code->st, '\n' );
-        o->go_inline = false;
-        BLM_TRY( xoico_body_s_append( o, 0, body ) );
-    }
     BLM_RETURNV( er_t, 0 );
 }
 
@@ -320,12 +278,10 @@ er_t xoico_body_s_parse( xoico_body_s* o, bcore_source* source )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// stamp should be NULL when body is not parsed inside a stamp
 er_t xoico_body_s_finalize( xoico_body_s* o )
 {
-    BLM_INIT();
-    if( o->stamp ) st_s_replace_sc_sc( &o->code->st, "@", o->stamp->name.sc );
-    BLM_RETURNV( er_t, 0 );
+    /* nothing to do */
+    return 0;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -333,6 +289,8 @@ er_t xoico_body_s_finalize( xoico_body_s* o )
 er_t xoico_body_s_expand( const xoico_body_s* o, const xoico_signature_s* signature, sz_t indent, bcore_sink* sink )
 {
     BLM_INIT();
+
+    if( o->stamp ) st_s_replace_sc_sc( &o->code->st, "@", o->stamp->name.sc );
 
     const st_s* final_code = o->code ? &o->code->st : BLM_CREATE( st_s );
     st_s* st_out = BLM_CREATE( st_s );
