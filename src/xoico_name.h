@@ -28,7 +28,7 @@ XOILA_DEFINE_GROUP( xoico_name, xoico )
 stamp : = aware :
 {
     st_s name; // deemed global
-    private aware xoico_group_s* group;
+    hidden aware xoico_group_s* group;
     bcore_source_point_s source_point;
 
     func xoico : parse;

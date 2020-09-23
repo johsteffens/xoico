@@ -37,8 +37,7 @@ stamp : = aware :
     xoico_typespec_s typespec_ret; // return type
     xoico_args_s args;   // e.g.: sz_t a, sz_t b
     tp_t arg_o;          // first argument: mutable | const | 0
-    private aware xoico_group_s* group;
-    func bcore_inst_call : copy_x = { o->group = src->group; };
+    hidden aware xoico_group_s* group;
 
     bcore_source_point_s source_point;
 

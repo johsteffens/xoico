@@ -27,7 +27,7 @@ XOILA_DEFINE_GROUP( xoico_nested_group, xoico )
 
 stamp : = aware :
 {
-    private xoico_group_s* group; // group object;
+    hidden xoico_group_s* group; // group object;
     func xoico : get_hash;
     func xoico : expand_forward;
     func xoico : expand_indef_declaration;

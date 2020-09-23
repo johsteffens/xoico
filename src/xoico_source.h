@@ -40,7 +40,7 @@ stamp : = aware :
     tp_t hash;
     xoico_group_s => [];
 
-    private aware xoico_target_s* target;
+    hidden aware xoico_target_s* target;
 
     func xoico : finalize;
     func xoico : expand_setup;

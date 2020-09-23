@@ -23,7 +23,6 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-
 /** parses name and enrolls it and returns hash */
 tp_t xoico_xce_s_trans_name( xoico_xce_s* o, bcore_source* source, st_s* buf )
 {
@@ -198,7 +197,7 @@ er_t xoico_xce_s_trans_expression
     if( !in_typespec )
     {
         // identifier
-        if( bcore_source_a_parse_bl_fa( source, "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]=='_')" ) )
+        if( bcore_source_a_parse_bl_fa( source, "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]=='_'||[0]=='@'||([0]==':'&&(([1]>='A'&&[1]<='Z')||([1]>='a'&&[1]<='z')||[1]=='_')))" ) )
         {
             tp_t tp_name = xoico_xce_s_trans_name( o, source, buf );
             const xoico_typespec_s* typespec = xoico_xce_stack_s_get_typespec( &o->stack, tp_name );
@@ -318,7 +317,7 @@ er_t xoico_xce_s_trans_expression
                 else // member element
                 {
                     st_s_push_fa( buf, "#<sc_t>#<sc_t>", ( in_typespec->indirection == 1 ) ? "->" : ".", buf_->sc );
-                    BLM_TRY( xoico_xce_s_trans_expression( o, source, buf, &info->typespec, out_typespec ) );
+                    BLM_TRY( xoico_xce_s_trans_expression( o, source, buf, &info->type_info.typespec, out_typespec ) );
                 }
             }
             else
@@ -339,9 +338,6 @@ er_t xoico_xce_s_trans_expression
     }
 
     BLM_TRY( xoico_xce_s_trans_whitespace( o, source, buf ) );
-
-
-
 
     BLM_RETURNV( er_t, 0 );
 }
@@ -410,8 +406,8 @@ static inline er_t selftest( void )
 
     if( xoico_compiler_s_get_type_element_info( compiler, btypeof( "bhvm_mcode_hbase_s" ), btypeof( "push_hm" ), info ) )
     {
-        bcore_msg_fa( "member type: #<sc_t>\n", xoico_compiler_s_nameof( compiler, info->typespec.type ) );
-        bcore_msg_fa( "member rc: #<sz_t>\n", info->typespec.indirection );
+        bcore_msg_fa( "member type: #<sc_t>\n", xoico_compiler_s_nameof( compiler, info->type_info.typespec.type ) );
+        bcore_msg_fa( "member rc: #<sz_t>\n", info->type_info.typespec.indirection );
 
         if( info->signature )
         {

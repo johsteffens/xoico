@@ -42,13 +42,8 @@ stamp : = aware :
     bl_t overloadable = false;
     xoico_body_s => body;
 
-    private aware xoico_group_s* group;
-    private aware xoico_stamp_s* stamp;
-    func bcore_inst_call : copy_x =
-    {
-        o->group = src->group;
-        o->stamp = src->stamp;
-    };
+    hidden aware xoico_group_s* group;
+    hidden aware xoico_stamp_s* stamp;
 
     bcore_source_point_s source_point;
 

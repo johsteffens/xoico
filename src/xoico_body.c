@@ -31,23 +31,20 @@ er_t xoico_body_code_s_parse( xoico_body_code_s* o, bcore_source* source )
 
     st_s_clear( &o->st );
 
+    bcore_source_point_s_set( &o->source_point, source );
     XOICO_BLM_SOURCE_PARSE_FA( source, " {" );
 
     sz_t nest_count = 1;
     bl_t exit_loop = false;
     o->single_line = true;
-    sz_t undo_indentation = 0;
+    o->indentation = 0;
 
     while( bcore_source_a_parse_bl_fa( source, "#?' '" ) ); // skip leading spaces
     if( bcore_source_a_parse_bl_fa( source, "#?'\n'" ) )
     {
         o->single_line = false;
-        while( bcore_source_a_parse_bl_fa( source, "#?' '" ) ) undo_indentation++;
+        while( bcore_source_a_parse_bl_fa( source, "#?' '" ) ) o->indentation++;
     }
-
-    bcore_source_point_s_set( &o->source_point, source );
-
-    // TODO: do not replace code in comments
 
     while( !bcore_source_a_eos( source ) && !exit_loop )
     {
@@ -87,6 +84,46 @@ er_t xoico_body_code_s_parse( xoico_body_code_s* o, bcore_source* source )
             }
             break;
 
+            case '/': // comment
+            {
+                st_s_push_char( &o->st, c );
+                if( bcore_source_a_inspect_char( source ) == '/' )
+                {
+                    while( !bcore_source_a_eos( source ) )
+                    {
+                        c = bcore_source_a_get_char( source );
+                        st_s_push_char( &o->st, c );
+                        if( c == '\n' )
+                        {
+                            for( sz_t i = 0; i < o->indentation; i++ ) { if( !bcore_source_a_parse_bl_fa( source, "#?' '" ) ) break; };
+                            break;
+                        }
+                    }
+                }
+                else if( bcore_source_a_inspect_char( source ) == '*' )
+                {
+                    while( !bcore_source_a_eos( source ) )
+                    {
+                        if( bcore_source_a_parse_bl_fa( source, "#?'*/'" ) )
+                        {
+                            st_s_push_sc( &o->st, "*/" );
+                            break;
+                        }
+                        else
+                        {
+                            c = bcore_source_a_get_char( source );
+                            st_s_push_char( &o->st, c );
+                            if( c == '\n' )
+                            {
+                                for( sz_t i = 0; i < o->indentation; i++ ) { if( !bcore_source_a_parse_bl_fa( source, "#?' '" ) ) break; };
+                            }
+                        }
+                    }
+                }
+                c = 0;
+            }
+            break;
+
             case '\\': // escape
             {
                 c = bcore_source_a_get_u0( source );
@@ -97,7 +134,7 @@ er_t xoico_body_code_s_parse( xoico_body_code_s* o, bcore_source* source )
             case '\n' :
             {
                 o->single_line = false;
-                for( sz_t i = 0; i < undo_indentation; i++ ) { if( !bcore_source_a_parse_bl_fa( source, "#?' '" ) ) break; };
+                for( sz_t i = 0; i < o->indentation; i++ ) { if( !bcore_source_a_parse_bl_fa( source, "#?' '" ) ) break; };
                 break;
             }
 
@@ -156,13 +193,6 @@ tp_t xoico_body_code_s_get_hash( const xoico_body_code_s* o )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void xoico_body_s_init_x( xoico_body_s* o )
-{
-    o->cengine = ( xoico_cengine* )xoico_caleph_s_create();
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 sc_t xoico_body_s_get_global_name_sc( const xoico_body_s* o )
 {
     return o->global_name.sc;
@@ -172,9 +202,11 @@ sc_t xoico_body_s_get_global_name_sc( const xoico_body_s* o )
 
 er_t xoico_body_s_set_group( xoico_body_s* o, xoico_group_s* group )
 {
-
-    o->group = group;
-    if( o->code ) o->code->group = group;
+    if( !o->group ) o->group = group;
+    if( o->code )
+    {
+        if( !o->code->group ) o->code->group = group;
+    }
     return 0;
 }
 
@@ -196,7 +228,6 @@ tp_t xoico_body_s_get_hash( const xoico_body_s* o )
 
     if( o->code    ) hash = bcore_tp_fold_tp( hash, xoico_body_code_s_get_hash( o->code ) );
     hash = bcore_tp_fold_bl( hash, o->go_inline );
-    if( o->cengine ) hash = bcore_tp_fold_tp( hash, xoico_cengine_a_get_hash( o->cengine ) );
     return hash;
 }
 
@@ -223,6 +254,7 @@ er_t xoico_body_s_parse_expression( xoico_body_s* o, bcore_source* source )
         if( o->stamp ) st_s_replace_sc_sc( name, "@", o->stamp->name.sc );
 
         tp_t tp_name = typeof( name->sc );
+
         // if name_buf refers to another body
         if( xoico_compiler_s_item_exists( xoico_group_s_get_compiler( o->group ), tp_name ) )
         {
@@ -294,23 +326,13 @@ er_t xoico_body_s_expand( const xoico_body_s* o, const xoico_signature_s* signat
 
     const st_s* final_code = o->code ? &o->code->st : BLM_CREATE( st_s );
     st_s* st_out = BLM_CREATE( st_s );
-    if( o->cengine && o->code )
+
+    xoico_cengine* cengine = o->group->source->target->cengine;
+
+    if( cengine && o->code )
     {
         if( !o->group ) XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA( &o->source_point, "Body has no group assigned." );
-        if( xoico_cengine_a_translate( o->cengine, o, signature, ( bcore_sink* )st_out ) )
-        {
-            er_t id = 0;
-            st_s* msg = BLM_CREATE( st_s );
-            bcore_error_pop_st( &id, msg );
-            XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA
-            (
-                &o->source_point,
-                "\ncaleph-error: #<sc_t>\n"
-                "\n",
-                msg->sc
-            );
-        }
-
+        BLM_TRY( xoico_cengine_a_translate( cengine, o, signature, ( bcore_sink* )st_out ) )
         final_code = st_out;
     }
 

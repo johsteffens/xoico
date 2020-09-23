@@ -15,6 +15,7 @@
 
 #include "xoico_target.h"
 #include "xoico_group.h"
+#include "xoico_cengine.h"
 #include "xoico_compiler.h"
 
 /**********************************************************************************************************************/
@@ -73,6 +74,8 @@ tp_t xoico_target_s_get_hash( const xoico_target_s* o )
     hash = bcore_tp_fold_tp( hash, o->compiler->target_pre_hash );
     hash = bcore_tp_fold_tp( hash, o->_ );
     hash = bcore_tp_fold_sc( hash, o->name.sc );
+
+    if( o->cengine ) hash = bcore_tp_fold_tp( hash, xoico_cengine_a_get_hash( o->cengine ) );
 
     BFOR_EACH( i, o ) hash = bcore_tp_fold_tp( hash, o->data[ i ]->hash );
 
@@ -158,6 +161,33 @@ bl_t xoico_target_s_is_cyclic( xoico_target_s* o )
     bl_t cyclic = xoico_target_s_is_cyclic_recursive( o );
     xoico_compiler_s_clear_flags( o->compiler );
     return cyclic;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_target_s_set_dependencies( xoico_target_s* o, const bcore_arr_sz_s* dependencies )
+{
+    BLM_INIT();
+
+    sz_t targets = o->compiler->size;
+
+    /// sort, remove duplicates, copy
+    bcore_arr_sz_s* dst = &o->dependencies;
+    bcore_arr_sz_s_set_size( dst, 0 );
+    bcore_arr_sz_s* src = bcore_arr_sz_s_sort( BLM_CLONE( bcore_arr_sz_s, dependencies ), 1 );
+    BFOR_EACH( i, src ) if( i == 0 || src->data[ i ] != src->data[ i - 1 ] )
+    {
+        sz_t idx = src->data[ i ];
+        ASSERT( idx >= 0 && idx < targets );
+        bcore_arr_sz_s_push( dst, idx );
+    }
+
+    if( xoico_target_s_is_cyclic( o ) )
+    {
+        return bcore_error_push_fa( TYPEOF_general_error, "Cyclic dependencies found in target '#<sc_t>'.", o->name.sc );
+    }
+
+    BLM_RETURNV( er_t, 0 );
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -21,6 +21,7 @@
 #include "xoico.h"
 #include "xoico_target.h"
 #include "xoico_compiler.h"
+#include "xoico_caleph.h"
 
 /**********************************************************************************************************************/
 
@@ -50,6 +51,9 @@ stamp :target = aware :
      *  If not defined, it is assumed that the name is <name>_general_signal_handler
      */
     st_s => signal_handler;
+
+    /// Optional cengine that is to be used in all bodies of this target
+    aware xoico_cengine => cengine = xoico_caleph_s;
 
     private xoico_compiler_s* compiler;
 

@@ -31,6 +31,7 @@ signature bl_t to_be_modified( const );
 signature er_t expand_phase1( mutable, bl_t* p_modified );
 signature er_t expand_phase2( mutable, bl_t* p_modified );
 signature bl_t is_cyclic( mutable ); // mutable because flag is used for cyclic test
+signature er_t set_dependencies( mutable, const bcore_arr_sz_s* dependencies );
 
 stamp : = aware :
 {
@@ -46,13 +47,16 @@ stamp : = aware :
     st_s => target_h; // target header file
     st_s => target_c; // target c file
 
+    /// Optional cengine that is to be used in all bodies of this target
+    aware xoico_cengine -> cengine;
+
     /** List of files explicitly included by include directive.
      *  Used to list all sources contributing to this target in
      *  copyright and license info.
      */
     bcore_arr_st_s explicit_embeddings;
 
-    private aware xoico_compiler_s* compiler;
+    hidden aware xoico_compiler_s* compiler;
 
     func : :parse;
     func : :to_be_modified;
@@ -61,6 +65,7 @@ stamp : = aware :
     func : :expand_phase1;
     func : :expand_phase2;
     func : :is_cyclic;
+    func : :set_dependencies;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

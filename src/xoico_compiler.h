@@ -36,31 +36,35 @@ signature        er_t  type_register(  mutable, tp_t type );
 
 signature        er_t  life_a_push(    mutable, vd_t object );
 signature        er_t  check_overwrite( const,  sc_t file );
-signature        bl_t  is_type(         const,  tp_t name ); // check if name represents a registered type (either group name or stamp name)
+signature        bl_t  is_group(        const,  tp_t name ); // check if name represents a registered group
+signature        bl_t  is_stamp(        const,  tp_t name ); // check if name represents a registered stamp
+signature        bl_t  is_type(         const,  tp_t name ); // check if name represents a registered type (either group, stamp, or generic type)
 signature        bl_t  get_self(        const,  tp_t type, const bcore_self_s** self ); // returns success
 
 signature const xoico_signature_s* get_signature( const, tp_t item_id ); // returns NULL in case item-Id cannot be resolved to a signature
 
-stamp :element_info = aware :
+stamp :type_info = aware :
 {
     xoico_typespec_s typespec;
-    xoico_signature_s -> signature;
-    func bcore_inst_call : copy_x = { o->signature = src->signature; };
-
+    hidden xoico* item; // group or stamp
 };
 
-signature bl_t  get_type_element_info( const,  tp_t type, tp_t name, :element_info_s* info );
+stamp :element_info = aware :
+{
+    :type_info_s type_info;
+    xoico_signature_s => signature;
+};
+
+signature bl_t get_type_info(         const,  tp_t type,            :type_info_s*    info );
+signature bl_t get_type_element_info( const,  tp_t type, tp_t name, :element_info_s* info );
 
 // external interface ...
-signature er_t compile                       ( mutable, sc_t target_name, sc_t source_path, sz_t* p_target_index );
-signature er_t target_set_readonly           ( mutable, sz_t target_index, bl_t readonly );
-signature er_t target_set_signal_handler_name( mutable, sz_t target_index, sc_t name );
-signature er_t target_set_dependencies       ( mutable, sz_t target_index, const bcore_arr_sz_s* dependencies );
-signature er_t update_target_files           ( mutable, bl_t* p_modified );
-signature bl_t update_required               ( mutable );
-signature sz_t get_verbosity                 ( const );
-signature tp_t entypeof                      ( mutable, sc_t name );
-signature sc_t nameof                        ( const,   tp_t type ); // returns null in case type is not registered
+signature er_t compile            ( mutable, sc_t target_name, sc_t source_path, sz_t* p_target_index );
+signature er_t update_target_files( mutable, bl_t* p_modified );
+signature bl_t update_required    ( mutable );
+signature sz_t get_verbosity      ( const );
+signature tp_t entypeof           ( mutable, sc_t name );
+signature sc_t nameof             ( const,   tp_t type );
 
 stamp : = aware :
 {
@@ -78,7 +82,7 @@ stamp : = aware :
      *  This is used during development or when a new version changes the
      *  target_out files in a material way.
      */
-    tp_t target_pre_hash                 = 26;
+    tp_t target_pre_hash                 = 29;
     bl_t register_plain_functions        = true;
     bl_t register_signatures             = false;
     bl_t overwrite_unsigned_target_files = false;
@@ -94,18 +98,18 @@ stamp : = aware :
     func : :item_register;
     func : :group_register;
     func : :type_register;
+    func : :is_group;
+    func : :is_stamp;
     func : :is_type;
     func : :life_a_push;
     func : :check_overwrite;
     func : :get_self;
+    func : :get_type_info;
     func : :get_type_element_info;
     func : :get_signature;
 
     // external interface ...
     func : :compile;
-    func : :target_set_signal_handler_name;
-    func : :target_set_dependencies; // removes duplicates
-    func : :target_set_readonly;
     func : :update_target_files;
     func : :update_required;
     func : :get_verbosity;

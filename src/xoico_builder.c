@@ -179,17 +179,23 @@ er_t xoico_builder_target_s_build( xoico_builder_target_s* o )
 
     if( o->target_index_ >= 0 )
     {
+        ASSERT( o->target_index_ < o->compiler->size );
+
         bcore_arr_sz_s* dependencies = BLM_CREATE( bcore_arr_sz_s );
         BFOR_EACH( i, o->dependencies_target_ )
         {
             xoico_builder_target_s_push_target_index_to_arr( o->dependencies_target_->data[ i ], dependencies );
         }
 
-        BLM_TRY( xoico_compiler_s_target_set_dependencies( o->compiler, o->target_index_, dependencies ) );
+        xoico_target_s* target = o->compiler->data[ o->target_index_ ];
+
+        BLM_TRY( xoico_target_s_set_dependencies( target, dependencies ) );
         st_s* signal_handler = BLM_A_PUSH( st_s_create_fa( "#<sc_t>_general_signal_handler", o->name->sc ) );
         if( o->signal_handler ) st_s_copy( signal_handler, o->signal_handler );
-        BLM_TRY( xoico_compiler_s_target_set_signal_handler_name( o->compiler, o->target_index_, signal_handler->sc ) );
-        BLM_TRY( xoico_compiler_s_target_set_readonly( o->compiler, o->target_index_, o->readonly ) );
+        st_s_copy_sc( &target->signal_handler_name, signal_handler->sc );
+        target->readonly = o->readonly;
+
+        bcore_inst_a_attach( (bcore_inst**)&target->cengine, bcore_fork( o->cengine ) );
     }
 
     BLM_RETURNV( er_t, 0 );

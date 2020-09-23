@@ -235,17 +235,6 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             BLM_TRY( xoico_forward_s_parse( forward, source ) );
             item = ( xoico* )bcore_fork( forward );
         }
-        else if( bcore_source_a_parse_bl_fa( source, " #?w'expandable'" ) )
-        {
-            XOICO_BLM_SOURCE_PARSE_FA( source, " = " );
-            if(      bcore_source_a_parse_bl_fa( source, " #?'true'"  ) ) o->expandable = true;
-            else if( bcore_source_a_parse_bl_fa( source, " #?'false'" ) ) o->expandable = false;
-            else
-            {
-                XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "'true' or 'false' expected." );
-            }
-            XOICO_BLM_SOURCE_PARSE_FA( source, " ; " );
-        }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'extending'" ) )
         {
             o->extending = NULL;
@@ -295,6 +284,8 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             group->group       = o;
             group->source      = o->source;
             group->extending   = o->extending;
+            group->expandable  = o->expandable;
+
             BLM_TRY( xoico_group_s_parse_name( o, &group->name, source ) );
             XOICO_BLM_SOURCE_PARSE_FA( source, " =" );
 
@@ -313,26 +304,10 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'set' " ) )
         {
-            if( bcore_source_a_parse_bl_fa( source, " #?w'retrievable' " ) )
-            {
-                o->retrievable = true;
-                o->hash = bcore_tp_fold_bl( o->hash, o->retrievable );
-            }
-            if( bcore_source_a_parse_bl_fa( source, " #?w'short_spect_name' " ) )
-            {
-                o->short_spect_name = true;
-                o->hash = bcore_tp_fold_bl( o->hash, o->short_spect_name );
-            }
-            else if( bcore_source_a_parse_bl_fa( source, " #?w'beta' " ) )
-            {
-                XOICO_BLM_SOURCE_PARSE_FA( source, " = #<tp_t*>", &o->beta );
-                o->hash = bcore_tp_fold_tp( o->hash, o->beta );
-            }
-            else
-            {
-                XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Invalid flag." );
-            }
-
+            if(      bcore_source_a_parse_bl_fa( source, " #?w'retrievable' "      ) ) o->retrievable = true;
+            else if( bcore_source_a_parse_bl_fa( source, " #?w'inexpandable' "     ) ) o->expandable = false;
+            else if( bcore_source_a_parse_bl_fa( source, " #?w'short_spect_name' " ) ) o->short_spect_name = true;
+            else if( bcore_source_a_parse_bl_fa( source, " #?w'beta' "             ) ) XOICO_BLM_SOURCE_PARSE_FA( source, " = #<tp_t*>", &o->beta );
             XOICO_BLM_SOURCE_PARSE_FA( source, " ;" );
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'embed' " ) )
@@ -363,6 +338,11 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
         {
             XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Xoico: syntax error." );
         }
+
+        o->hash = bcore_tp_fold_bl( o->hash, o->retrievable );
+        o->hash = bcore_tp_fold_bl( o->hash, o->expandable );
+        o->hash = bcore_tp_fold_bl( o->hash, o->short_spect_name );
+        o->hash = bcore_tp_fold_tp( o->hash, o->beta );
 
         if( item )
         {

@@ -41,7 +41,7 @@ stamp : = aware :
     bl_t flag_a;
     bl_t flag_r;
 
-    private aware xoico_group_s* group;
+    hidden aware xoico_group_s* group;
     bcore_source_point_s source_point;
 
     func xoico : parse;

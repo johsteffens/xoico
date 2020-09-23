@@ -34,8 +34,7 @@ signature er_t expand_name( const, bl_t first, bcore_sink* sink );
 stamp : = aware :
 {
     xoico_arg_s [];
-    private aware xoico_group_s* group;
-    func bcore_inst_call : copy_x = { o->group = src->group; };
+    hidden aware xoico_group_s* group;
 
     func xoico : parse;
     func xoico : get_hash;

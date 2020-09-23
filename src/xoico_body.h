@@ -37,6 +37,7 @@ signature er_t set_stamp(  mutable, xoico_stamp_s* stamp );
 stamp :code = aware :
 {
     bl_t single_line;
+    sz_t indentation;
     st_s st;
 
     bcore_source_point_s source_point;
@@ -44,13 +45,8 @@ stamp :code = aware :
     func     : : parse;
     func xoico : get_hash;
 
-    private aware xoico_group_s* group;
-    private aware xoico_stamp_s* stamp;
-    func bcore_inst_call : copy_x =
-    {
-        o->group = src->group;
-        o->stamp = src->stamp;
-    };
+    hidden aware xoico_group_s* group;
+    hidden aware xoico_stamp_s* stamp;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -64,20 +60,10 @@ stamp : = aware :
 
     bl_t go_inline;
 
-    aware xoico_cengine -> cengine; // set to caleph in init_x
-
     bcore_source_point_s source_point;
 
-    private aware xoico_group_s* group;
-    private aware xoico_stamp_s* stamp;
-
-    func bcore_inst_call : init_x;
-
-    func bcore_inst_call : copy_x =
-    {
-        o->group = src->group;
-        o->stamp = src->stamp;
-    };
+    hidden aware xoico_group_s* group; // group refers to the place of original definition
+    hidden aware xoico_stamp_s* stamp;
 
     func xoico : get_hash;
     func xoico : get_global_name_sc;

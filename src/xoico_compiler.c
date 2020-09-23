@@ -150,21 +150,34 @@ bl_t xoico_compiler_s_item_exists( const xoico_compiler_s* o, tp_t item_id )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bl_t xoico_compiler_s_is_type( const xoico_compiler_s* o, tp_t name )
+bl_t xoico_compiler_s_is_group( const xoico_compiler_s* o, tp_t name )
+{
+    if( bcore_hmap_tpvd_s_exists( &o->hmap_group, name ) )
+    {
+        return true;
+    }
+    return false;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bl_t xoico_compiler_s_is_stamp( const xoico_compiler_s* o, tp_t name )
 {
     if( bcore_hmap_tpvd_s_exists( &o->hmap_item, name ) )
     {
         const xoico* item = xoico_compiler_s_item_get( o, name );
         if( item->_ == TYPEOF_xoico_stamp ) return true;
     }
-    else if( bcore_hmap_tpvd_s_exists( &o->hmap_group, name ) )
-    {
-        return true;
-    }
-    else if( bcore_hmap_tp_s_exists( &o->hmap_type, name ) )
-    {
-        return true;
-    }
+    return false;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bl_t xoico_compiler_s_is_type( const xoico_compiler_s* o, tp_t name )
+{
+    if( xoico_compiler_s_is_stamp( o, name ) ) return true;
+    if( xoico_compiler_s_is_group( o, name ) ) return true;
+    if( bcore_hmap_tp_s_exists( &o->hmap_type, name ) ) return true;
     return false;
 }
 
@@ -319,14 +332,35 @@ bl_t xoico_compiler_s_get_self( const xoico_compiler_s* o, tp_t type, const bcor
 
 //----------------------------------------------------------------------------------------------------------------------
 
+bl_t xoico_compiler_s_get_type_info( const xoico_compiler_s* o, tp_t type, xoico_compiler_type_info_s* info )
+{
+    const xoico** p_item = ( const xoico** )bcore_hmap_tpvd_s_get( &o->hmap_item, type );
+    if( !p_item ) return false;
+    ASSERT( info );
+    const xoico* item = *p_item;
+
+    if( item->_ == TYPEOF_xoico_stamp_s || item->_ == TYPEOF_xoico_group_s )
+    {
+        info->item = ( xoico* )item;
+        info->typespec.type = type;
+        return true;
+    }
+
+    return false;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t type, tp_t name, xoico_compiler_element_info_s* info )
 {
     const xoico** p_item = ( const xoico** )bcore_hmap_tpvd_s_get( &o->hmap_item, type );
     bl_t success = false;
 
     if( !p_item ) return false;
+    ASSERT( info );
 
     const xoico* item = *p_item;
+    info->type_info.item = ( xoico* )item;
 
     if( item->_ == TYPEOF_xoico_stamp_s )
     {
@@ -335,6 +369,7 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
         if( !xoico_compiler_s_get_self( o, type, &self ) ) return false;
 
         const bcore_self_item_s* item = bcore_self_s_get_item_by_name( self, name ); // returns NULL in case of no match
+
         bl_t found = true;
         sz_t indirection = 0;
 
@@ -372,31 +407,36 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
             found = false;
         }
 
-        info->typespec.is_const = false;
+        info->type_info.typespec.is_const = false;
 
-        if( !found ) // try function
+        if( !found )
         {
+            // try function
             xoico_func_s* func = xoico_funcs_s_get_func_from_name( &stamp->funcs, name );
             if( func )
             {
-                info->typespec.type = func->global_name;
-                info->typespec.indirection = 0;
+                info->type_info.typespec.type = func->global_name;
+                info->type_info.typespec.indirection = 0;
                 xoico_signature_s_attach( &info->signature, xoico_signature_s_clone( ( xoico_signature_s* )xoico_compiler_s_get_signature( o, func->type ) ) );
                 xoico_signature_s_relent( info->signature, self->type );
                 success = true;
             }
-            else
+            else // try generic types
             {
                 success = false;
             }
         }
         else
         {
-            info->typespec.type = item->type;
-            info->typespec.indirection = indirection;
+            info->type_info.typespec.type = item->type;
+            info->type_info.typespec.indirection = indirection;
             info->signature = NULL;
             success = true;
         }
+
+    }
+    else if( item->_ == TYPEOF_xoico_group_s )
+    {
 
     }
 
@@ -417,54 +457,6 @@ er_t xoico_compiler_s_compile( xoico_compiler_s* o, sc_t target_name, sc_t sourc
     BLM_TRY( xoico_compiler_s_parse( o, target_name, source_path, p_target_index ) );
     BLM_TRY( xoico_compiler_s_finalize( o ) );
     BLM_RETURNV( er_t, 0 );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-er_t xoico_compiler_s_target_set_signal_handler_name( xoico_compiler_s* o, sz_t target_index, sc_t name )
-{
-    ASSERT( target_index >= 0 && target_index < o->size );
-    xoico_target_s* target = o->data[ target_index ];
-    st_s_copy_sc( &target->signal_handler_name, name );
-    return 0;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-er_t xoico_compiler_s_target_set_dependencies( xoico_compiler_s* o, sz_t target_index, const bcore_arr_sz_s* dependencies )
-{
-    BLM_INIT();
-    ASSERT( target_index >= 0 && target_index < o->size );
-    xoico_target_s* target = o->data[ target_index ];
-
-    /// sort, remove duplicates, copy
-    {
-        bcore_arr_sz_s* dst = &target->dependencies;
-        bcore_arr_sz_s_set_size( dst, 0 );
-        bcore_arr_sz_s* src = bcore_arr_sz_s_sort( BLM_CLONE( bcore_arr_sz_s, dependencies ), 1 );
-        BFOR_EACH( i, src ) if( i == 0 || src->data[ i ] != src->data[ i - 1 ] )
-        {
-            sz_t idx = src->data[ i ];
-            ASSERT( idx >= 0 && idx < o->size );
-            bcore_arr_sz_s_push( dst, idx );
-        }
-    }
-
-    if( xoico_target_s_is_cyclic( target ) )
-    {
-        return bcore_error_push_fa( TYPEOF_general_error, "Cyclic dependencies found in target '#<sc_t>'.", target->name.sc );
-    }
-
-    BLM_RETURNV( er_t, 0 );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-er_t xoico_compiler_s_target_set_readonly( xoico_compiler_s* o, sz_t target_index, bl_t readonly )
-{
-    ASSERT( target_index >= 0 && target_index < o->size );
-    o->data[ target_index ]->readonly = readonly;
-    return 0;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
