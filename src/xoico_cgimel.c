@@ -838,23 +838,23 @@ er_t xoico_cgimel_s_trans_statement( xoico_cgimel_s* o, bcore_source* source, st
     {
         BLM_TRY( xoico_cgimel_s_trans_block( o, source, buf ) )
     }
-    else if( bcore_source_a_parse_bl_fa( source, "#=?'for'" ) )
+    else if( bcore_source_a_parse_bl_fa( source, "#=?w'for'" ) )
     {
         BLM_TRY( xoico_cgimel_s_trans_for_expression( o, source, buf ) );
     }
-    else if( bcore_source_a_parse_bl_fa( source, "#=?'if'" ) )
+    else if( bcore_source_a_parse_bl_fa( source, "#=?w'if'" ) )
     {
         BLM_TRY( xoico_cgimel_s_trans_if_expression( o, source, buf ) );
     }
-    else if( bcore_source_a_parse_bl_fa( source, "#=?'else'" ) )
+    else if( bcore_source_a_parse_bl_fa( source, "#=?w'else'" ) )
     {
         BLM_TRY( xoico_cgimel_s_trans_else_expression( o, source, buf ) );
     }
-    else if( bcore_source_a_parse_bl_fa( source, "#=?'while'" ) )
+    else if( bcore_source_a_parse_bl_fa( source, "#=?w'while'" ) )
     {
         BLM_TRY( xoico_cgimel_s_trans_while_expression( o, source, buf ) );
     }
-    else if( bcore_source_a_parse_bl_fa( source, "#=?'case'" ) )
+    else if( bcore_source_a_parse_bl_fa( source, "#=?w'case'" ) )
     {
         BLM_TRY( xoico_cgimel_s_trans_expression( o, source, buf, NULL ) );
         BLM_TRY( xoico_cgimel_s_trans_whitespace( o, source, buf ) );
