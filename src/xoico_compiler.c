@@ -359,28 +359,29 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
     if( !p_item ) return false;
     ASSERT( info );
 
-    const xoico* item = *p_item;
-    info->type_info.item = ( xoico* )item;
+    const xoico* xoico_item = *p_item;
+    info->type_info.item = ( xoico* )xoico_item;
 
-    if( item->_ == TYPEOF_xoico_stamp_s )
+    if( xoico_item->_ == TYPEOF_xoico_stamp_s )
     {
-        const xoico_stamp_s* stamp = ( const xoico_stamp_s* )item;
+        const xoico_stamp_s* stamp = ( const xoico_stamp_s* )xoico_item;
         const bcore_self_s* self = stamp->self;
         if( !xoico_compiler_s_get_self( o, type, &self ) ) return false;
 
-        const bcore_self_item_s* item = bcore_self_s_get_item_by_name( self, name ); // returns NULL in case of no match
+        const bcore_self_item_s* self_item = bcore_self_s_get_item_by_name( self, name ); // returns NULL in case of no match
 
         bl_t found = true;
         sz_t indirection = 0;
 
-        if( item )
+        if( self_item )
         {
-            switch( item->caps )
+            switch( self_item->caps )
             {
                 case BCORE_CAPS_SOLID_STATIC: indirection = 0; break;
                 case BCORE_CAPS_LINK_STATIC:  indirection = 1; break;
                 case BCORE_CAPS_LINK_TYPED:   indirection = 1; break;
                 case BCORE_CAPS_LINK_AWARE:   indirection = 1; break;
+                case BCORE_CAPS_POINTER:      indirection = 1; break;
                 case BCORE_CAPS_ARRAY_DYN_SOLID_STATIC:
                 case BCORE_CAPS_ARRAY_DYN_SOLID_TYPED:
                 case BCORE_CAPS_ARRAY_DYN_LINK_STATIC:
@@ -396,6 +397,12 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
                 break;
 
                 case BCORE_CAPS_EXTERNAL_FUNC:
+                {
+                    found = false;
+                }
+                break;
+
+                default:
                 {
                     found = false;
                 }
@@ -428,15 +435,11 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
         }
         else
         {
-            info->type_info.typespec.type = item->type;
+            info->type_info.typespec.type = self_item->type;
             info->type_info.typespec.indirection = indirection;
             info->signature = NULL;
             success = true;
         }
-
-    }
-    else if( item->_ == TYPEOF_xoico_group_s )
-    {
 
     }
 

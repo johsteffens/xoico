@@ -93,6 +93,7 @@ stamp : = aware :
     bl_t verbose;
 
     /// runtime data
+
     hidden xoico_args_s*     args;
     hidden xoico_compiler_s* compiler;
     hidden xoico_group_s*    group;
