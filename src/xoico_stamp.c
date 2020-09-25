@@ -384,14 +384,7 @@ er_t xoico_stamp_s_finalize( xoico_stamp_s* o )
         func->stamp = o;
         BLM_TRY( xoico_func_s_finalize( func ) );
     }
-    BLM_RETURNV( er_t, 0 );
-}
 
-//----------------------------------------------------------------------------------------------------------------------
-
-er_t xoico_stamp_s_expand_setup( xoico_stamp_s* o )
-{
-    BLM_INIT();
     bcore_self_s_attach
     (
         &o->self,
@@ -405,7 +398,34 @@ er_t xoico_stamp_s_expand_setup( xoico_stamp_s* o )
         )
     );
 
+    bcore_hmap_tp_s* hmap_name = BLM_CREATE( bcore_hmap_tp_s );
+
+    sz_t self_items = bcore_self_s_items_size( o->self );
+
+    if( self_items > 0 )
+    {
+        for( sz_t i = 0; i < self_items; i++ )
+        {
+            const bcore_self_item_s* item = bcore_self_s_get_item( o->self, i );
+            if( item->name )
+            {
+                if( bcore_hmap_tp_s_exists( hmap_name, item->name ) )
+                {
+                    XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA( &o->source_point, "In stamp '<sc_t>': Repeated use of element name '<sc_t>'.", o->name.sc, XOICO_NAMEOF( item->name ) );
+                    bcore_hmap_tp_s_set( hmap_name, item->name );
+                }
+            }
+        }
+    }
+
     BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_stamp_s_expand_setup( xoico_stamp_s* o )
+{
+    return 0;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -382,12 +382,14 @@ er_t xoico_cgimel_s_trans_typespec_expression
 
                 const xoico_args_s* args = &info->signature->args;
 
+                sc_t func_name = xoico_cgimel_s_nameof( o, info->type_info.typespec.type );
+                ASSERT( func_name );
+
                 st_s_copy_fa
                 (
                     buf,
-                    "#<sc_t>_#<sc_t>( #<sc_t>#<sc_t>",
-                    xoico_cgimel_s_nameof( o, in_typespec->type ),
-                    xoico_cgimel_s_nameof( o, tp_name ),
+                    "#<sc_t>( #<sc_t>#<sc_t>",
+                    func_name,
                     ( in_typespec->indirection == 1 ) ? "" : "&",
                     arg_obj->sc
                 );
@@ -517,7 +519,7 @@ er_t xoico_cgimel_s_trans_typespec_expression
             if( buf->size > 0 && buf->data[ buf->size - 1 ] != ' ' ) st_s_push_sc( buf, " " );
             st_s_push_sc( buf, ")" );
 
-            BLM_TRY( xoico_cgimel_s_trans_typespec_expression( o, source, buf, NULL, NULL ) );
+            BLM_TRY( xoico_cgimel_s_trans_expression( o, source, buf, NULL ) );
         }
         else // untraced member element
         {

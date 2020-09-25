@@ -32,7 +32,7 @@ stamp : = aware :
 {
     xoico_signature_s signature;
 
-    st_s st_default_name;
+    st_s st_default_func_name;
     xoico_body_s => default_body;
 
     bl_t strict;

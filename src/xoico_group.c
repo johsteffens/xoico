@@ -211,6 +211,7 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             BLM_TRY( xoico_compiler_s_item_register( xoico_group_s_get_compiler( o ), ( xoico* )feature, source ) );
             o->has_features = true;
             if( feature->flag_a ) o->is_aware = true;
+            bcore_hmap_tpvd_s_set( &o->hmap_feature, btypeof( feature->signature.st_name.sc ), feature );
             item = ( xoico* )bcore_fork( feature );
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'name' " ) )

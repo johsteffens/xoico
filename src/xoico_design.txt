@@ -29,7 +29,7 @@ XOILA_DEFINE_GROUP( <group_name>, <trait_name> )
 
     signature extending <signature> <func_name>[( <additional-args> )];
 
-    feature [strict] '<flags>' <syntax-of-signature> [ = <body> ];
+    feature [strict] ['<flags>'] <syntax-of-signature> [ = <body> ];
 
     func feature : name [= { <body> }];
 
@@ -99,8 +99,8 @@ feature:
      bl_t <group_name>_r_defines_<func_name>( const sr_s* o );
 
   flags:
-      Any character sub-sequence of 'ptar' specifying which type of virtual function shall
-      be inline implemented.
+      Any character sub-list of 'ptar' specifying which type of virtual function shall
+      be inline implemented. If no list is specified, 'a' is assumed.
 
   strict:
       Any object referenced by the perspective must define the function.

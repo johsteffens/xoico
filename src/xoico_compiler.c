@@ -356,7 +356,12 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
     const xoico** p_item = ( const xoico** )bcore_hmap_tpvd_s_get( &o->hmap_item, type );
     bl_t success = false;
 
-    if( !p_item ) return false;
+    if( !p_item )
+    {
+        p_item = ( const xoico** )bcore_hmap_tpvd_s_get( &o->hmap_group, type );
+        if( !p_item ) return false;
+    }
+
     ASSERT( info );
 
     const xoico* xoico_item = *p_item;
@@ -424,7 +429,9 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
             {
                 info->type_info.typespec.type = func->global_name;
                 info->type_info.typespec.indirection = 0;
-                xoico_signature_s_attach( &info->signature, xoico_signature_s_clone( ( xoico_signature_s* )xoico_compiler_s_get_signature( o, func->type ) ) );
+                const xoico_signature_s* signature = xoico_compiler_s_get_signature( o, func->type );
+                info->type_info.typespec.is_const = ( signature->arg_o == TYPEOF_const );
+                xoico_signature_s_attach( &info->signature, xoico_signature_s_clone( signature ) );
                 xoico_signature_s_relent( info->signature, self->type );
                 success = true;
             }
@@ -440,7 +447,26 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
             info->signature = NULL;
             success = true;
         }
-
+    }
+    else if( xoico_item->_ == TYPEOF_xoico_group_s )
+    {
+        xoico_group_s* group = ( xoico_group_s* )xoico_item;
+        if( bcore_hmap_tpvd_s_exists( &group->hmap_feature, name ) )
+        {
+            info->type_info.typespec.is_const = false;
+            xoico_feature_s* feature = *bcore_hmap_tpvd_s_get( &group->hmap_feature, name );
+            if( feature->flag_a )
+            {
+                const xoico_signature_s* signature = &feature->signature;
+                info->type_info.typespec.is_const = ( signature->arg_o == TYPEOF_const );
+                st_s* func_name = st_s_create_fa( "#<sc_t>_a_#<sc_t>", group->name.sc, xoico_compiler_s_nameof( o, name ) );
+                info->type_info.typespec.type = xoico_compiler_s_entypeof( ( xoico_compiler_s* )o, func_name->sc );
+                info->type_info.typespec.indirection = 0;
+                xoico_signature_s_attach( &info->signature, xoico_signature_s_clone( signature ) );
+                st_s_discard( func_name );
+                success = true;
+            }
+        }
     }
 
     return success;
