@@ -166,7 +166,7 @@ bl_t xoico_compiler_s_is_stamp( const xoico_compiler_s* o, tp_t name )
     if( bcore_hmap_tpvd_s_exists( &o->hmap_item, name ) )
     {
         const xoico* item = xoico_compiler_s_item_get( o, name );
-        if( item->_ == TYPEOF_xoico_stamp ) return true;
+        if( item->_ == TYPEOF_xoico_stamp_s ) return true;
     }
     return false;
 }
@@ -466,6 +466,70 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
                 st_s_discard( func_name );
                 success = true;
             }
+        }
+    }
+
+    return success;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bl_t xoico_compiler_s_get_type_array_element_info( const xoico_compiler_s* o, tp_t type, xoico_compiler_element_info_s* info )
+{
+    const xoico** p_item = ( const xoico** )bcore_hmap_tpvd_s_get( &o->hmap_item, type );
+    bl_t success = false;
+    if( !p_item ) return false;
+
+    ASSERT( info );
+
+    const xoico* xoico_item = *p_item;
+    info->type_info.item = ( xoico* )xoico_item;
+
+    tp_t tp_no_name = btypeof( "" );
+
+    if( xoico_item->_ == TYPEOF_xoico_stamp_s )
+    {
+        const xoico_stamp_s* stamp = ( const xoico_stamp_s* )xoico_item;
+        const bcore_self_s* self = stamp->self;
+        if( !xoico_compiler_s_get_self( o, type, &self ) ) return false;
+
+        sz_t items = bcore_self_s_items_size( self );
+        const bcore_self_item_s* self_item = NULL;
+        for( sz_t i = 0; i < items; i++ )
+        {
+            const bcore_self_item_s* item = bcore_self_s_get_item( self, i );
+            if( item->name == tp_no_name && bcore_flect_caps_is_array( item->caps ) )
+            {
+                self_item = item;
+                break;
+            }
+        }
+
+        if( self_item )
+        {
+            sz_t indirection = 0;
+            switch( self_item->caps )
+            {
+                case BCORE_CAPS_ARRAY_DYN_SOLID_STATIC: indirection = 0; break;
+                case BCORE_CAPS_ARRAY_DYN_SOLID_TYPED:  indirection = 0; break;
+                case BCORE_CAPS_ARRAY_DYN_LINK_STATIC:  indirection = 1; break;
+                case BCORE_CAPS_ARRAY_DYN_LINK_TYPED:   indirection = 1; break;
+                case BCORE_CAPS_ARRAY_DYN_LINK_AWARE:   indirection = 1; break;
+                case BCORE_CAPS_ARRAY_FIX_SOLID_STATIC: indirection = 0; break;
+                case BCORE_CAPS_ARRAY_FIX_LINK_STATIC:  indirection = 1; break;
+                case BCORE_CAPS_ARRAY_FIX_LINK_AWARE:   indirection = 1; break;
+
+                default:
+                {
+                    ERR_fa( "Invalid array caps" );
+                }
+                break;
+            }
+
+            info->type_info.typespec.type = self_item->type;
+            info->type_info.typespec.indirection = indirection;
+            info->signature = NULL;
+            success = true;
         }
     }
 

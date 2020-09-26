@@ -39,6 +39,7 @@ stamp : = aware :
 
     st_s flect_decl; // reflection declaration
 
+    bl_t expandable = true;
     bl_t overloadable = false;
     xoico_body_s => body;
 

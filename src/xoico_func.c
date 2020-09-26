@@ -29,6 +29,8 @@ tp_t xoico_func_s_get_hash( const xoico_func_s* o )
     hash = bcore_tp_fold_tp( hash, o->name );
     hash = bcore_tp_fold_sc( hash, o->flect_decl.sc );
     hash = bcore_tp_fold_tp( hash, o->type );
+    hash = bcore_tp_fold_bl( hash, o->overloadable );
+    hash = bcore_tp_fold_bl( hash, o->expandable );
     if( o->body ) hash = bcore_tp_fold_tp( hash, xoico_body_s_get_hash( o->body ) );
     return hash;
 }
@@ -58,7 +60,6 @@ er_t xoico_func_s_set_global_name( xoico_func_s* o )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// stamp should be NULL func is not parsed inside a stamp
 er_t xoico_func_s_parse( xoico_func_s* o, xoico_stamp_s* stamp, bcore_source* source )
 {
     BLM_INIT();
@@ -125,6 +126,7 @@ er_t xoico_func_s_parse( xoico_func_s* o, xoico_stamp_s* stamp, bcore_source* so
 
 bl_t xoico_func_s_registerable( const xoico_func_s* o )
 {
+    if( !o->expandable ) return false;
     if( xoico_compiler_s_item_exists( xoico_group_s_get_compiler( o->group ), o->type ) )
     {
         const xoico* item = xoico_compiler_s_item_get( xoico_group_s_get_compiler( o->group ), o->type );
@@ -132,7 +134,7 @@ bl_t xoico_func_s_registerable( const xoico_func_s* o )
         {
             if( !xoico_group_s_get_compiler( o->group )->register_signatures ) return false;
             const xoico_signature_s* signature = ( xoico_signature_s* )item;
-            return ( signature->arg_o != 0 || xoico_group_s_get_compiler( o->group )->register_plain_functions );
+            return ( signature->arg_o != 0 || xoico_group_s_get_compiler( o->group )->register_non_feature_functions );
         }
         else
         {

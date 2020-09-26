@@ -28,6 +28,7 @@ XOILA_DEFINE_GROUP( xoico_stamp, xoico )
 
 signature er_t parse( mutable, xoico_group_s* group, bcore_source* source );
 signature er_t make_funcs_overloadable( mutable );
+signature er_t push_default_funcs( mutable );
 
 stamp : = aware :
 {
@@ -53,6 +54,7 @@ stamp : = aware :
 
     func : : parse;
     func : : make_funcs_overloadable;
+    func : : push_default_funcs;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

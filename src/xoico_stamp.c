@@ -303,6 +303,45 @@ er_t xoico_stamp_s_parse_extend( xoico_stamp_s* o, bcore_source* source, bl_t ve
 
 //----------------------------------------------------------------------------------------------------------------------
 
+er_t xoico_stamp_s_push_default_func_from_sc( xoico_stamp_s* o, sc_t sc )
+{
+    BLM_INIT();
+    xoico_func_s* func = BLM_CREATE( xoico_func_s );
+    func->group = o->group;
+    func->stamp = o;
+    func->overloadable = false;
+    func->expandable = false;
+    BLM_TRY( xoico_func_s_parse( func, o, BLM_A_PUSH( bcore_source_string_s_create_sc( sc ) ) ) );
+
+    sz_t idx = xoico_funcs_s_get_index_from_type( &o->funcs, func->type );
+
+    if( idx >= 0 )
+    {
+        XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA( &o->source_point, "Function '#<sc_t>' is predefined for all stamps and cannot be overloaded.", XOICO_NAMEOF( func->name ) );
+    }
+    else
+    {
+        bcore_array_a_push( ( bcore_array* )&o->funcs, sr_asd( bcore_fork( func ) ) );
+    }
+
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_stamp_s_push_default_funcs( xoico_stamp_s* o )
+{
+    BLM_INIT();
+    BLM_TRY( xoico_stamp_s_push_default_func_from_sc( o, "bcore_stamp_funcs : init;" ) );
+    BLM_TRY( xoico_stamp_s_push_default_func_from_sc( o, "bcore_stamp_funcs : down;" ) );
+    BLM_TRY( xoico_stamp_s_push_default_func_from_sc( o, "bcore_stamp_funcs : copy;" ) );
+    BLM_TRY( xoico_stamp_s_push_default_func_from_sc( o, "bcore_stamp_funcs : discard;" ) );
+    BLM_TRY( xoico_stamp_s_push_default_func_from_sc( o, "bcore_stamp_funcs : clone;" ) );
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 er_t xoico_stamp_s_parse( xoico_stamp_s* o, xoico_group_s* group, bcore_source* source )
 {
     BLM_INIT();
@@ -476,8 +515,9 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcor
 
     for( sz_t i = 0; i < o->funcs.size; i++ )
     {
-        BLM_INIT();
         xoico_func_s* func = o->funcs.data[ i ];
+        if( !func->expandable ) continue;
+        BLM_INIT();
         if( xoico_compiler_s_item_exists( xoico_group_s_get_compiler( o->group ), func->type ) )
         {
             bcore_sink_a_push_fa( sink, " \\\n#rn{ }  ", indent );
@@ -629,8 +669,10 @@ er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore
 
     for( sz_t i = 0; i < o->funcs.size; i++ )
     {
-        BLM_INIT();
         xoico_func_s* func = o->funcs.data[ i ];
+        if( !func->expandable ) continue;
+
+        BLM_INIT();
         if( xoico_compiler_s_item_exists( xoico_group_s_get_compiler( o->group ), func->type ) )
         {
             const xoico_signature_s* signature = xoico_compiler_s_get_signature( xoico_group_s_get_compiler( o->group ), func->type );
@@ -674,6 +716,8 @@ er_t xoico_stamp_s_expand_init1( const xoico_stamp_s* o, sz_t indent, bcore_sink
     for( sz_t i = 0; i < o->funcs.size; i++ )
     {
         xoico_func_s* func = o->funcs.data[ i ];
+        if( !func->expandable ) continue;
+
         if( xoico_compiler_s_item_exists( xoico_group_s_get_compiler( o->group ), func->type ) )
         {
             if( xoico_func_s_registerable( func ) )

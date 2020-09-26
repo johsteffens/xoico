@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-09-25T12:04:24Z
+ *  Last File Update: 2020-09-26T16:50:37Z
  *
  *  Copyright and License of this File:
  *
@@ -38,7 +38,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x034427267E1D05E2ull
+#define HKEYOF_xoico_xoila_out 0x5657CE92CA3E0282ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -456,6 +456,7 @@
       tp_t global_name; \
       tp_t type; \
       st_s flect_decl; \
+      bl_t expandable; \
       bl_t overloadable; \
       xoico_body_s* body; \
       xoico_group_s* group; \
@@ -598,7 +599,8 @@
   er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_stamp_s_expand_init1( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_stamp_s_parse( xoico_stamp_s* o, xoico_group_s* group, bcore_source* source ); \
-  er_t xoico_stamp_s_make_funcs_overloadable( xoico_stamp_s* o );
+  er_t xoico_stamp_s_make_funcs_overloadable( xoico_stamp_s* o ); \
+  er_t xoico_stamp_s_push_default_funcs( xoico_stamp_s* o );
 #define BETH_EXPAND_GROUP_xoico_stamp \
   BCORE_FORWARD_OBJECT( xoico_stamp ); \
   BCORE_FORWARD_OBJECT( xoico_stamp_s ); \
@@ -735,7 +737,7 @@
       bcore_life_s life; \
       bcore_hmap_name_s name_map; \
       tp_t target_pre_hash; \
-      bl_t register_plain_functions; \
+      bl_t register_non_feature_functions; \
       bl_t register_signatures; \
       bl_t overwrite_unsigned_target_files; \
       bl_t always_expand; \
@@ -757,6 +759,7 @@
   bl_t xoico_compiler_s_get_self( const xoico_compiler_s* o, tp_t type, const bcore_self_s** self ); \
   bl_t xoico_compiler_s_get_type_info( const xoico_compiler_s* o, tp_t type, xoico_compiler_type_info_s* info ); \
   bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t type, tp_t name, xoico_compiler_element_info_s* info ); \
+  bl_t xoico_compiler_s_get_type_array_element_info( const xoico_compiler_s* o, tp_t type, xoico_compiler_element_info_s* info ); \
   const xoico_signature_s* xoico_compiler_s_get_signature( const xoico_compiler_s* o, tp_t item_id ); \
   er_t xoico_compiler_s_compile( xoico_compiler_s* o, sc_t target_name, sc_t source_path, sz_t* p_target_index ); \
   er_t xoico_compiler_s_update_target_files( xoico_compiler_s* o, bl_t* p_modified ); \
@@ -1201,4 +1204,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0xA2FC669911D7BA5Aull
+// XOILA_OUT_SIGNATURE 0x50AA25649AD341EFull

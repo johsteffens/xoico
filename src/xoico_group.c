@@ -166,11 +166,12 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             xoico_stamp_s* stamp = BLM_CREATE( xoico_stamp_s );
             stamp->group = o->group;
             BLM_TRY( xoico_stamp_s_parse( stamp, o, source ) );
+            BLM_TRY( xoico_stamp_s_push_default_funcs( stamp ) );
             BLM_TRY( xoico_compiler_s_item_register( xoico_group_s_get_compiler( o ), ( xoico* )stamp, source ) );
             item = ( xoico* )bcore_fork( stamp );
         }
 
-        /// stumps are 'hidden' stamps (not expanded into final code), but they can be used as template
+        /// stumps are inexpandable stamps. They can be used as template.
         else if( bcore_source_a_parse_bl_fa( source, " #?w'stump' " ) )
         {
             xoico_stamp_s* stump = BLM_CREATE( xoico_stamp_s );
@@ -261,6 +262,9 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'func'" ) )
         {
+            /* We plan to use the declaration of group level for plain function implementations.
+               The old purpose (template) is deprecated.
+            */
             bcore_source_a_parse_msg_fa( source, "Declaring a group-level function will be repurposed. Use a stump instead." );
 
             xoico_func_s* func = BLM_CREATE( xoico_func_s );

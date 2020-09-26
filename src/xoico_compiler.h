@@ -55,8 +55,9 @@ stamp :element_info = aware :
     xoico_signature_s => signature;
 };
 
-signature bl_t get_type_info(         const,  tp_t type,            :type_info_s*    info );
-signature bl_t get_type_element_info( const,  tp_t type, tp_t name, :element_info_s* info );
+signature bl_t get_type_info(               const, tp_t type,            :type_info_s*    info );
+signature bl_t get_type_element_info(       const, tp_t type, tp_t name, :element_info_s* info );
+signature bl_t get_type_array_element_info( const, tp_t type,            :element_info_s* info );
 
 // external interface ...
 signature er_t compile            ( mutable, sc_t target_name, sc_t source_path, sz_t* p_target_index );
@@ -83,7 +84,7 @@ stamp : = aware :
      *  target_out files in a material way.
      */
     tp_t target_pre_hash                 = 32;
-    bl_t register_plain_functions        = true;
+    bl_t register_non_feature_functions        = true;
     bl_t register_signatures             = false;
     bl_t overwrite_unsigned_target_files = false;
     bl_t always_expand                   = false; // true: always expands targets even when the hash has not changed;
@@ -106,6 +107,7 @@ stamp : = aware :
     func : :get_self;
     func : :get_type_info;
     func : :get_type_element_info;
+    func : :get_type_array_element_info;
     func : :get_signature;
 
     // external interface ...
