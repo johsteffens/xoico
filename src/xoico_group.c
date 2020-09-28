@@ -344,6 +344,8 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Xoico: syntax error." );
         }
 
+        bcore_source_a_parse_bl_fa( source, " " );// consume whitespaces
+
         o->hash = bcore_tp_fold_bl( o->hash, o->retrievable );
         o->hash = bcore_tp_fold_bl( o->hash, o->expandable );
         o->hash = bcore_tp_fold_bl( o->hash, o->short_spect_name );

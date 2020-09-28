@@ -363,10 +363,11 @@ er_t xoico_cgimel_s_trans_typespec_expression
 
     if( out_typespec ) out_typespec->type = 0;
 
-    bl_t member_access = bcore_source_a_parse_bl_fa( source, "#?'.' " ) ||
-                         bcore_source_a_parse_bl_fa( source, "#?'->' " );
-
-    if( member_access )
+    if
+    (
+        bcore_source_a_parse_bl_fa( source, "#?'.' " ) ||
+        bcore_source_a_parse_bl_fa( source, "#?'->' " )
+    )
     {
         xoico_compiler_element_info_s* info = BLM_CREATE( xoico_compiler_element_info_s );
         if( bcore_source_a_parse_bl_fa( source, "#?'['" ) ) // array subscript
@@ -376,7 +377,7 @@ er_t xoico_cgimel_s_trans_typespec_expression
                 XOICO_BLM_SOURCE_PARSE_ERR_FA
                 (
                     source,
-                    "Indirection '#<sz_t>' is too large.",
+                    "Resolving subscript: Indirection '#<sz_t>' is too large.",
                     in_typespec->indirection
                 );
             }
@@ -556,6 +557,25 @@ er_t xoico_cgimel_s_trans_typespec_expression
             }
         }
     }
+    // array subscript
+    else if( bcore_source_a_parse_bl_fa( source, "#?'['" ) )
+    {
+        if( in_typespec->indirection == 0 )
+        {
+            if( in_typespec->type != TYPEOF_sc_t && in_typespec->type != TYPEOF_sd_t )
+            {
+                XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Array subscript requires indirection >= 1." );
+            }
+        }
+        st_s_push_sc( buf, "[" );
+        BLM_TRY( xoico_cgimel_s_trans_expression( o, source, buf, NULL ) );
+        XOICO_BLM_SOURCE_PARSE_FA( source, "]" );
+        st_s_push_sc( buf, "]" );
+
+        xoico_typespec_s* typespec = BLM_CLONE( xoico_typespec_s, in_typespec );
+        typespec->indirection--;
+        BLM_TRY( xoico_cgimel_s_trans_typespec_expression( o, source, buf, typespec, out_typespec ) );
+    }
     else if( out_typespec )
     {
         xoico_typespec_s_copy( out_typespec, in_typespec );
@@ -725,18 +745,8 @@ er_t xoico_cgimel_s_trans_expression
     else if( bcore_source_a_parse_bl_fa( source, "#?'['" ) )
     {
         st_s_push_sc( buf, "[" );
-        while( !bcore_source_a_eos( source ) )
-        {
-            BLM_TRY( xoico_cgimel_s_trans_expression( o, source, buf, out_typespec ) );
-            if( bcore_source_a_parse_bl_fa( source, "#?']'" ) )
-            {
-                break;
-            }
-            else
-            {
-                XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Syntax error inside '[]'." );
-            }
-        }
+        BLM_TRY( xoico_cgimel_s_trans_expression( o, source, buf, NULL ) );
+        XOICO_BLM_SOURCE_PARSE_FA( source, "]" );
         st_s_push_sc( buf, "]" );
     }
 
@@ -749,7 +759,7 @@ er_t xoico_cgimel_s_trans_expression
     // unhandled
     else
     {
-        XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Syntax error after '#<sc_t>", buf->sc );
+        XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Syntax error after '#<sc_t>'", buf->sc );
     }
 
     BLM_RETURNV( er_t, continuation ? xoico_cgimel_s_trans_expression( o, source, buf, NULL ) : 0 );
@@ -908,13 +918,36 @@ er_t xoico_cgimel_s_trans_statement( xoico_cgimel_s* o, bcore_source* source, st
     else if( bcore_source_a_parse_bl_fa( source, "#?'\?\?'" ) ) // inspect variable
     {
         BLM_INIT();
-        st_s* st = BLM_CREATE( st_s );
-        XOICO_BLM_SOURCE_PARSE_FA( source, " #name ", st );
-        XOICO_BLM_SOURCE_PARSE_FA( source, ";", st );
-        if( st->size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Variable name expected." )
-        const xoico_typespec_s* typespec = xoico_cgimel_stack_s_get_typespec( &o->stack, btypeof( st->sc ) );
-        if( !typespec ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Variable '#<sc_t>' is not defined.", st->sc );
-        bcore_txt_ml_a_to_stdout( typespec );
+        st_s* st   = BLM_CREATE( st_s );
+        st_s* buf_ = BLM_CREATE( st_s );
+        xoico_typespec_s* typespec = BLM_CREATE( xoico_typespec_s );
+        XOICO_BLM_SOURCE_PARSE_FA( source, " #until';' ", st );
+        XOICO_BLM_SOURCE_PARSE_FA( source, ";" );
+        bcore_msg_fa( " \?? #<sc_t>;\n", st->sc );
+        if( xoico_cgimel_s_trans_expression( o, BLM_A_PUSH( bcore_source_string_s_create_fa( "#<st_s*>;", st ) ), buf_, typespec ) )
+        {
+            bcore_error_pop_to_sink( BCORE_STDOUT );
+            bcore_msg_fa( "\n" );
+        }
+        else
+        {
+            if( st->size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Variable name expected." )
+            bcore_msg_fa( "--> #<sc_t>;\n", buf_->sc );
+
+            if( typespec->type )
+            {
+                bcore_msg_fa( "Expression yields typespec:\n" );
+                bcore_msg_fa( "  const      : #<bl_t>\n", typespec->is_const );
+                bcore_msg_fa( "  type       : #<sc_t>\n", xoico_cgimel_s_nameof( o, typespec->type ) );
+                bcore_msg_fa( "  indirection: #<sz_t>\n", typespec->indirection );
+            }
+            else
+            {
+                bcore_msg_fa( "Expression does not yield a typespec.\n" );
+            }
+        }
+
+
         BLM_DOWN();
     }
     else if( bcore_source_a_parse_bl_fa( source, "#=?'}'" ) )
@@ -1074,7 +1107,7 @@ er_t xoico_cgimel_s_setup( xoico_cgimel_s* o, const xoico_body_s* body, const xo
     BFOR_EACH( i, args )
     {
         const xoico_arg_s* arg = &args->data[ i ];
-        if( arg->typespec.type && arg->name && arg->typespec.indirection == 1 )
+        if( arg->typespec.type && arg->name )
         {
             xoico_typespec_s_copy( &unit->typespec, &arg->typespec );
             unit->name = arg->name;
