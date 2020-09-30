@@ -52,6 +52,8 @@ group :stack = :
     {
         :unit_adl_s adl;
         func : :push_unit = { :unit_adl_s_push_c( &o->adl, unit );  return o; };
+
+        // 125673527613
         func : :pop_level =
         {
             sz_t size = o->adl.size;
@@ -83,6 +85,7 @@ signature void push_typedecl( mutable, const xoico_typespec_s* typespec, tp_t na
 
 name static;
 name volatile;
+name cast;
 
 stamp : = aware :
 {
@@ -91,6 +94,7 @@ stamp : = aware :
     /// when a fallback engine is specified, cgime is in dry-run-mode using fallback for actual code generation
     aware xoico_cengine => fallback;
     bl_t verbose;
+    bl_t include_source_reference = true;
 
     /// runtime data
 

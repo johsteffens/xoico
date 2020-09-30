@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-09-28T15:18:30Z
+ *  Last File Update: 2020-09-30T20:51:39Z
  *
  *  Copyright and License of this File:
  *
@@ -38,7 +38,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x0DFDF890284161DFull
+#define HKEYOF_xoico_xoila_out 0xA18801BCB0319D8Eull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -253,6 +253,8 @@
   { \
       aware_t _; \
       bl_t is_const; \
+      bl_t is_static; \
+      bl_t is_volatile; \
       tp_t type; \
       sz_t indirection; \
   }; \
@@ -973,6 +975,7 @@
 #define TYPEOF_xoico_cgimel_spect_s 0xE9A5B3268ED6C273ull
 #define TYPEOF_static 0xC534816D6D11E97Bull
 #define TYPEOF_volatile 0x9575F08FB5A48F0Dull
+#define TYPEOF_cast 0xB55E7090E879494Eull
 #define TYPEOF_xoico_cgimel_s 0x0A90671DA44B1BD5ull
 #define BETH_EXPAND_ITEM_xoico_cgimel_s \
   BCORE_DECLARE_OBJECT( xoico_cgimel_s ) \
@@ -980,6 +983,7 @@
       aware_t _; \
       xoico_cengine* fallback; \
       bl_t verbose; \
+      bl_t include_source_reference; \
       xoico_args_s* args; \
       xoico_compiler_s* compiler; \
       xoico_group_s* group; \
@@ -1204,4 +1208,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0xB9CE1B36E3C5F88Aull
+// XOILA_OUT_SIGNATURE 0x4640B718D2E3713Eull

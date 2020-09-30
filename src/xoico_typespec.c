@@ -25,7 +25,17 @@
 er_t xoico_typespec_s_parse( xoico_typespec_s* o, xoico_group_s* group, bcore_source* source )
 {
     BLM_INIT();
-    if( bcore_source_a_parse_bl_fa( source, "#?'const' " ) ) o->is_const = true;
+    o->is_const = o->is_static = o->is_volatile = false;
+
+    while( !bcore_source_a_eos( source ) )
+    {
+        if     ( bcore_source_a_parse_bl_fa( source, " #?'const'"    ) ) o->is_const = true;
+        else if( bcore_source_a_parse_bl_fa( source, " #?'static'"   ) ) o->is_static = true;
+        else if( bcore_source_a_parse_bl_fa( source, " #?'volatile'" ) ) o->is_volatile = true;
+        else break;
+    }
+
+    bcore_source_a_parse_fa( source, " " );
 
     xoico_compiler_s* compiler = xoico_group_s_get_compiler( group );
 
@@ -92,7 +102,9 @@ er_t xoico_typespec_s_expand( const xoico_typespec_s* o, xoico_group_s* group, s
     if( sc_obj_type ) st_s_replace_sc_sc( st_type, "@", sc_obj_type );
 
     sc_t sc_type = st_type->sc;
+    if( o->is_static ) bcore_sink_a_push_fa( sink, "static " );
     if( o->is_const ) bcore_sink_a_push_fa( sink, "const " );
+    if( o->is_volatile ) bcore_sink_a_push_fa( sink, "volatile " );
     bcore_sink_a_push_fa( sink, "#<sc_t>", sc_type );
 
     for( sz_t i = 0; i < o->indirection; i++ ) bcore_sink_a_push_fa( sink, "*" );

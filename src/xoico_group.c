@@ -97,6 +97,11 @@ er_t xoico_group_s_parse_name( xoico_group_s* o, st_s* name, bcore_source* sourc
     {
         XOICO_BLM_SOURCE_PARSE_FA( source, " #name", name );
     }
+
+    if( name->size > 0 )
+    {
+        xoico_compiler_s_entypeof( xoico_group_s_get_compiler( o ), name->sc );
+    }
     BLM_RETURNV( er_t, 0 );
 }
 

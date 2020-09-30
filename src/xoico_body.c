@@ -124,12 +124,12 @@ er_t xoico_body_code_s_parse( xoico_body_code_s* o, bcore_source* source )
             }
             break;
 
-            case '\\': // escape
-            {
-                c = bcore_source_a_get_u0( source );
-                if( c != ':' ) st_s_push_char( &o->st, '\\' );
-            }
-            break;
+//            case '\\': // escape
+//            {
+//                c = bcore_source_a_get_u0( source );
+//                if( c != ':' ) st_s_push_char( &o->st, '\\' );
+//            }
+//            break;
 
             case '\n' :
             {

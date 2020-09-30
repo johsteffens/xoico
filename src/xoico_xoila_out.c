@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-09-28T15:18:30Z
+ *  Last File Update: 2020-09-30T20:51:39Z
  *
  *  Copyright and License of this File:
  *
@@ -116,6 +116,8 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_typespec_s )
 "aware xoico_typespec"
 "{"
     "bl_t is_const;"
+    "bl_t is_static;"
+    "bl_t is_volatile;"
     "tp_t type;"
     "sz_t indirection;"
     "func xoico:get_hash;"
@@ -435,7 +437,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_compiler_s )
     "hidden bcore_hmap_tp_s hmap_type;"
     "hidden bcore_life_s life;"
     "hidden bcore_hmap_name_s name_map;"
-    "tp_t target_pre_hash = 35;"
+    "tp_t target_pre_hash = 41;"
     "bl_t register_non_feature_functions = true;"
     "bl_t register_signatures = false;"
     "bl_t overwrite_unsigned_target_files = false;"
@@ -482,6 +484,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_builder_target_s )
 
 void xoico_builder_target_s_source( xoico_builder_target_s* o, bcore_source* source )
 {
+    // xoico_builder.h:69:5
     if( !o->root_folder )
     {
         o->root_folder = bcore_file_folder_path( bcore_source_a_get_file( source ) );
@@ -491,6 +494,7 @@ void xoico_builder_target_s_source( xoico_builder_target_s* o, bcore_source* sou
 
 const xoico_builder_target_s* xoico_builder_target_s_name_match( const xoico_builder_target_s* o, sc_t name )
 {
+    // xoico_builder.h:78:5
     if( o->name && sc_t_equal( name, o->name->sc ) ) return o;
     if( o->parent_ ) return xoico_builder_target_s_name_match( o->parent_, name );
     return NULL;
@@ -498,6 +502,7 @@ const xoico_builder_target_s* xoico_builder_target_s_name_match( const xoico_bui
 
 void xoico_builder_target_s_push_target_index_to_arr( const xoico_builder_target_s* o, bcore_arr_sz_s* arr )
 {
+    // xoico_builder.h:85:5
     if( o->target_index_ != -1 )
     {
          bcore_arr_sz_s_push( arr, o->target_index_ );
@@ -517,34 +522,40 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_builder_main_s )
 
 er_t xoico_builder_main_s_set_dry_run( xoico_builder_main_s* o, bl_t v )
 {
+    // xoico_builder.h:125:5
     o->compiler->dry_run = v;
     return 0;
 }
 
 bl_t xoico_builder_main_s_get_dry_run( const xoico_builder_main_s* o )
 {
+    // xoico_builder.h:131:5
     return o->compiler->dry_run;
 }
 
 er_t xoico_builder_main_s_set_always_expand( xoico_builder_main_s* o, bl_t v )
 {
+    // xoico_builder.h:136:5
     o->compiler->always_expand = v;
     return 0;
 }
 
 bl_t xoico_builder_main_s_get_always_expand( const xoico_builder_main_s* o )
 {
+    // xoico_builder.h:142:5
     return o->compiler->always_expand;
 }
 
 er_t xoico_builder_main_s_set_overwrite_unsigned_target_files( xoico_builder_main_s* o, bl_t v )
 {
+    // xoico_builder.h:147:5
     o->compiler->overwrite_unsigned_target_files = v;
     return 0;
 }
 
 bl_t xoico_builder_main_s_get_overwrite_unsigned_target_files( const xoico_builder_main_s* o )
 {
+    // xoico_builder.h:153:5
     return o->compiler->overwrite_unsigned_target_files;
 }
 
@@ -605,6 +616,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_caleph_tn_stack_s )
 
 xoico_caleph_tn_stack_s* xoico_caleph_tn_stack_s_push( xoico_caleph_tn_stack_s* o, tp_t type, tp_t name, sz_t level )
 {
+    // xoico_caleph.h:58:9
     xoico_caleph_tn_unit_s* unit = xoico_caleph_tn_unit_s_create();
     unit->type = type;
     unit->name = name;
@@ -615,6 +627,7 @@ xoico_caleph_tn_stack_s* xoico_caleph_tn_stack_s_push( xoico_caleph_tn_stack_s* 
 
 xoico_caleph_tn_stack_s* xoico_caleph_tn_stack_s_push_sc( xoico_caleph_tn_stack_s* o, sc_t type, sc_t name, sz_t level )
 {
+    // xoico_caleph.h:68:9
     xoico_caleph_tn_unit_s* unit = xoico_caleph_tn_unit_s_create();
     unit->type = bcore_hmap_name_s_set_sc( &o->name_map, type );
     unit->name = bcore_hmap_name_s_set_sc( &o->name_map, name );
@@ -625,6 +638,7 @@ xoico_caleph_tn_stack_s* xoico_caleph_tn_stack_s_push_sc( xoico_caleph_tn_stack_
 
 xoico_caleph_tn_stack_s* xoico_caleph_tn_stack_s_pop( xoico_caleph_tn_stack_s* o, sz_t level )
 {
+    // xoico_caleph.h:78:9
     sz_t new_size = o->adl.size;
     for( sz_t i = o->adl.size - 1; i >= 0; i-- )
     {
@@ -637,6 +651,7 @@ xoico_caleph_tn_stack_s* xoico_caleph_tn_stack_s_pop( xoico_caleph_tn_stack_s* o
 
 tp_t xoico_caleph_tn_stack_s_get_type( xoico_caleph_tn_stack_s* o, tp_t name )
 {
+    // xoico_caleph.h:90:9
     for( sz_t i = o->adl.size - 1; i >= 0; i-- )
     {
         if( o->adl.data[ i ]->name == name ) return o->adl.data[ i ]->type;
@@ -646,17 +661,20 @@ tp_t xoico_caleph_tn_stack_s_get_type( xoico_caleph_tn_stack_s* o, tp_t name )
 
 sc_t xoico_caleph_tn_stack_s_get_type_sc( xoico_caleph_tn_stack_s* o, sc_t name )
 {
+    // xoico_caleph.h:99:9
     return bcore_hmap_name_s_get_sc( &o->name_map, xoico_caleph_tn_stack_s_get_type( o, btypeof( name ) ) );
 }
 
 void xoico_caleph_tn_stack_s_clear( xoico_caleph_tn_stack_s* o )
 {
+    // xoico_caleph.h:104:9
     bcore_hmap_name_s_clear( &o->name_map );
     xoico_caleph_tn_adl_s_clear( &o->adl );
 }
 
 void xoico_caleph_tn_stack_s_init_from_args( xoico_caleph_tn_stack_s* o, sc_t obj_type, sc_t obj_name, const xoico_args_s* args )
 {
+    // xoico_caleph.h:110:9
     const xoico_compiler_s* compiler = xoico_group_s_get_compiler( args->group );
     xoico_caleph_tn_stack_s_clear( o );
     if( obj_type ) xoico_caleph_tn_stack_s_push_sc( o, obj_type, obj_name, 0 );
@@ -680,6 +698,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_cgimel_s )
 "{"
     "aware xoico_cengine => fallback;"
     "bl_t verbose;"
+    "bl_t include_source_reference = true;"
     "hidden xoico_args_s* args;"
     "hidden xoico_compiler_s* compiler;"
     "hidden xoico_group_s* group;"
@@ -693,6 +712,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_cgimel_s )
 
 sc_t xoico_cgimel_s_nameof( xoico_cgimel_s* o, tp_t type )
 {
+    // xoico_cgimel.h:115:5
     sc_t name = bcore_hmap_name_s_get_sc( &o->hmap_name, type );
     if( !name ) name = xoico_compiler_s_nameof( o->compiler, type );
     return name;
@@ -700,17 +720,20 @@ sc_t xoico_cgimel_s_nameof( xoico_cgimel_s* o, tp_t type )
 
 void xoico_cgimel_s_inc_level( xoico_cgimel_s* o )
 {
+    // xoico_cgimel.h:122:5
     o->level++;
 }
 
 void xoico_cgimel_s_dec_level( xoico_cgimel_s* o )
 {
+    // xoico_cgimel.h:127:5
     xoico_cgimel_stack_s_pop_level( &o->stack, o->level );
     o->level--;
 }
 
 void xoico_cgimel_s_push_typedecl( xoico_cgimel_s* o, const xoico_typespec_s* typespec, tp_t name )
 {
+    // xoico_cgimel.h:133:5
     BLM_INIT();
     xoico_cgimel_stack_unit_s* unit = BLM_CREATE( xoico_cgimel_stack_unit_s );
     unit->level = o->level;
@@ -745,6 +768,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_cgimel_stack_s )
 
 xoico_cgimel_stack_s* xoico_cgimel_stack_s_pop_level( xoico_cgimel_stack_s* o, sz_t level )
 {
+    // xoico_cgimel.h:58:9
     sz_t size = o->adl.size;
     while( size > 0 && o->adl.data[ size - 1 ]->level >= level ) size--;
     xoico_cgimel_stack_unit_adl_s_set_size( &o->adl, size );
@@ -753,6 +777,7 @@ xoico_cgimel_stack_s* xoico_cgimel_stack_s_pop_level( xoico_cgimel_stack_s* o, s
 
 const xoico_typespec_s* xoico_cgimel_stack_s_get_typespec( const xoico_cgimel_stack_s* o, tp_t name )
 {
+    // xoico_cgimel.h:66:9
     for( sz_t i = o->adl.size - 1; i >= 0; i-- )
     {
         if( o->adl.data[ i ]->name == name ) return &o->adl.data[ i ]->typespec;
@@ -778,6 +803,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_xce_s )
 
 sc_t xoico_xce_s_nameof( xoico_xce_s* o, tp_t type )
 {
+    // xoico_xce.h:94:5
     sc_t name = bcore_hmap_name_s_get_sc( &o->hmap_name, type );
     if( !name ) name = xoico_compiler_s_nameof( o->compiler, type );
     return name;
@@ -785,6 +811,7 @@ sc_t xoico_xce_s_nameof( xoico_xce_s* o, tp_t type )
 
 er_t xoico_xce_s_setup( xoico_xce_s* o, bl_t obj_const, tp_t obj_type, tp_t obj_name, const xoico_args_s* args )
 {
+    // xoico_xce.h:101:5
     BLM_INIT();
     xoico_xce_stack_s_clear( &o->stack );
     o->level = 0;
@@ -845,6 +872,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_xce_stack_s )
 
 xoico_xce_stack_s* xoico_xce_stack_s_pop_level( xoico_xce_stack_s* o, sz_t level )
 {
+    // xoico_xce.h:55:9
     sz_t size = o->adl.size;
     while( size > 0 && o->adl.data[ size ]->level >= level ) size--;
     xoico_xce_stack_unit_adl_s_set_size( &o->adl, size );
@@ -853,6 +881,7 @@ xoico_xce_stack_s* xoico_xce_stack_s_pop_level( xoico_xce_stack_s* o, sz_t level
 
 const xoico_typespec_s* xoico_xce_stack_s_get_typespec( const xoico_xce_stack_s* o, tp_t name )
 {
+    // xoico_xce.h:63:9
     for( sz_t i = o->adl.size - 1; i >= 0; i-- )
     {
         if( o->adl.data[ i ]->name == name ) return &o->adl.data[ i ]->typespec;
@@ -1150,6 +1179,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             // group: xoico_cgimel
             BCORE_REGISTER_NAME( static );
             BCORE_REGISTER_NAME( volatile );
+            BCORE_REGISTER_NAME( cast );
             BCORE_REGISTER_FFUNC( xoico_cengine_translate, xoico_cgimel_s_translate );
             BCORE_REGISTER_OBJECT( xoico_cgimel_s );
             BCORE_REGISTER_TRAIT( xoico_cgimel, xoico_cengine );
@@ -1197,4 +1227,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0xD8D2F8813CDB852Bull
+// XOILA_OUT_SIGNATURE 0xB547BD06E8BDD03Aull

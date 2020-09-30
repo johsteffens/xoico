@@ -32,6 +32,8 @@ signature er_t expand( const, xoico_group_s* group, sc_t sc_obj_type, bcore_sink
 stamp : = aware :
 {
     bl_t is_const;
+    bl_t is_static;
+    bl_t is_volatile;
     tp_t type;
     sz_t indirection;
 
