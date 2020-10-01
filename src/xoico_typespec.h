@@ -34,6 +34,9 @@ stamp : = aware :
     bl_t is_const;
     bl_t is_static;
     bl_t is_volatile;
+    bl_t is_restrict;
+    bl_t has_address = true;  // object can have a pointer ('false' for objects returned by a function)
+
     tp_t type;
     sz_t indirection;
 

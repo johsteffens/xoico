@@ -65,6 +65,8 @@ er_t xoico_typespec_s_parse( xoico_typespec_s* o, xoico_group_s* group, bcore_so
 
     while( bcore_source_a_parse_bl_fa( source, "#?'*' " ) ) o->indirection++;
 
+    if( bcore_source_a_parse_bl_fa( source, " #?'restrict' " ) ) o->is_restrict = true;
+
     BLM_RETURNV( er_t, 0 );
 }
 
@@ -108,6 +110,8 @@ er_t xoico_typespec_s_expand( const xoico_typespec_s* o, xoico_group_s* group, s
     bcore_sink_a_push_fa( sink, "#<sc_t>", sc_type );
 
     for( sz_t i = 0; i < o->indirection; i++ ) bcore_sink_a_push_fa( sink, "*" );
+    if( o->is_restrict ) bcore_sink_a_push_fa( sink, "restrict " );
+
     BLM_RETURNV( er_t, 0 );
 }
 

@@ -83,7 +83,7 @@ stamp : = aware :
      *  This is used during development or when a new version changes the
      *  target_out files in a material way.
      */
-    tp_t target_pre_hash                 = 41;
+    tp_t target_pre_hash                 = 45;
     bl_t register_non_feature_functions  = true;
     bl_t register_signatures             = false;
     bl_t overwrite_unsigned_target_files = false;

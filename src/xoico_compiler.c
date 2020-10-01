@@ -459,11 +459,13 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
             {
                 const xoico_signature_s* signature = &feature->signature;
                 info->type_info.typespec.is_const = ( signature->arg_o == TYPEOF_const );
-                st_s* func_name = st_s_create_fa( "#<sc_t>_a_#<sc_t>", group->name.sc, xoico_compiler_s_nameof( o, name ) );
-                info->type_info.typespec.type = xoico_compiler_s_entypeof( ( xoico_compiler_s* )o, func_name->sc );
+                sc_t  st_func_name = xoico_compiler_s_nameof( o, name );
+                ASSERT( st_func_name );
+                st_s* st_full_func_name = st_s_create_fa( "#<sc_t>_a_#<sc_t>", group->name.sc, st_func_name );
+                info->type_info.typespec.type = xoico_compiler_s_entypeof( ( xoico_compiler_s* )o, st_full_func_name->sc );
                 info->type_info.typespec.indirection = 0;
                 xoico_signature_s_attach( &info->signature, xoico_signature_s_clone( signature ) );
-                st_s_discard( func_name );
+                st_s_discard( st_full_func_name );
                 success = true;
             }
         }

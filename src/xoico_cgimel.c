@@ -405,12 +405,20 @@ er_t xoico_cgimel_s_trans_typespec_expression
 
     if( out_typespec ) out_typespec->type = 0;
 
-    if
-    (
-        bcore_source_a_parse_bl_fa( source, "#?'.' " ) ||
-        bcore_source_a_parse_bl_fa( source, "#?'->' " )
-    )
+    if( bcore_source_a_parse_bl_fa( source, "#?([0]=='.'||([0]=='-'&&[1]=='>'))" ) )
     {
+        if( bcore_source_a_parse_bl_fa( source, "#?'->'" ) )
+        {
+            if( in_typespec->indirection != 1 )
+            {
+                XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Given indirection is '#<sz_t>'. '->' can only be used at indirection '1'.", in_typespec->indirection );
+            }
+        }
+        else
+        {
+            XOICO_BLM_SOURCE_PARSE_FA( source, "." );
+        }
+        XOICO_BLM_SOURCE_PARSE_FA( source, " " );
         xoico_compiler_element_info_s* info = BLM_CREATE( xoico_compiler_element_info_s );
         if( bcore_source_a_parse_bl_fa( source, "#?'['" ) ) // array subscript
         {
@@ -497,10 +505,6 @@ er_t xoico_cgimel_s_trans_typespec_expression
                                 {
                                     st_s_push_sc( buf, "&" );
                                 }
-                                else if( typespec->indirection == arg->typespec.indirection + 1 )
-                                {
-                                    st_s_push_sc( buf, "*" );
-                                }
                                 else
                                 {
                                     XOICO_BLM_SOURCE_PARSE_ERR_FA
@@ -517,7 +521,7 @@ er_t xoico_cgimel_s_trans_typespec_expression
                         BLM_DOWN();
                     }
 
-                    XOICO_BLM_SOURCE_PARSE_FA( source, ")" );
+                    XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
                     if( buf->size > 0 && buf->data[ buf->size - 1 ] != ' ' ) st_s_push_sc( buf, " " );
                     st_s_push_sc( buf, ")" );
 
@@ -695,37 +699,86 @@ er_t xoico_cgimel_s_trans_expression
 (
     xoico_cgimel_s* o,
     bcore_source* source,
-    st_s* buf,
+    st_s* buf_out,
     xoico_typespec_s* out_typespec // optional
 )
 {
     BLM_INIT();
 
+    BLM_TRY( xoico_cgimel_s_trans_whitespace( o, source, buf_out ) );
+
+    st_s* buf = BLM_CREATE( st_s );
     bl_t continuation = true;
 
     if( out_typespec ) out_typespec->type = 0;
-
-    BLM_TRY( xoico_cgimel_s_trans_whitespace( o, source, buf ) );
 
     tp_t tp_identifier = xoico_cgimel_s_inspect_identifier( o, source );
 
     if( tp_identifier == TYPEOF_cast )
     {
-        XOICO_BLM_SOURCE_PARSE_FA( source, "cast (" ); st_s_push_sc( buf, "(" );
+        XOICO_BLM_SOURCE_PARSE_FA( source, "cast ( " ); st_s_push_sc( buf, "((" );
 
-        xoico_typespec_s* typespec = BLM_CREATE( xoico_typespec_s );
-        BLM_TRY( xoico_cgimel_s_trans_typespec( o, source, buf, 0, typespec ) );
+        xoico_typespec_s* typespec_cast = BLM_CREATE( xoico_typespec_s );
+        xoico_typespec_s* typespec_expr = BLM_CREATE( xoico_typespec_s );
+        BLM_TRY( xoico_cgimel_s_trans_typespec( o, source, buf, 0, typespec_cast ) );
 
-        if( !typespec->type )
+        if( !typespec_cast->type )
         {
-            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Cast-syntax: Intractable type." );
+            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Cast-syntax: Target type is intractable." );
         }
 
         XOICO_BLM_SOURCE_PARSE_FA( source, " , " ); st_s_push_sc( buf, ")(" );
-        BLM_TRY( xoico_cgimel_s_trans_expression( o, source, buf, NULL ) );
-        XOICO_BLM_SOURCE_PARSE_FA( source, " )" ); st_s_push_sc( buf, ")" );
 
-        xoico_cgimel_s_trans_typespec_expression( o, source, buf, typespec, out_typespec );
+        st_s* buf_expr = BLM_CREATE( st_s );
+
+        BLM_TRY( xoico_cgimel_s_trans_whitespace( o, source, buf ) );
+        BLM_TRY( xoico_cgimel_s_trans_expression( o, source, buf_expr, typespec_expr ) );
+
+        if( typespec_expr->type )
+        {
+            if( typespec_cast->indirection < typespec_expr->indirection )
+            {
+                XOICO_BLM_SOURCE_PARSE_ERR_FA
+                (
+                    source,
+                    "Casted indirection '#<sz_t>' is lower than expression's indirection '#<sz_t>'",
+                    typespec_cast->indirection,
+                    typespec_expr->indirection
+                );
+            }
+            if( typespec_cast->indirection > typespec_expr->indirection + 1 )
+            {
+                XOICO_BLM_SOURCE_PARSE_ERR_FA
+                (
+                    source,
+                    "Casted indirection '#<sz_t>' is more than one level above expression's indirection '#<sz_t>'",
+                    typespec_cast->indirection,
+                    typespec_expr->indirection
+                );
+            }
+
+            if( typespec_cast->indirection == typespec_expr->indirection + 1 )
+            {
+                if( typespec_expr->has_address )
+                {
+                    st_s_push_char( buf, '&' );
+                }
+                else
+                {
+                    XOICO_BLM_SOURCE_PARSE_ERR_FA
+                    (
+                        source,
+                        "Requesting a pointer to an inadressable object."
+                    );
+                }
+            }
+        }
+
+        st_s_push_st( buf, buf_expr );
+
+        XOICO_BLM_SOURCE_PARSE_FA( source, " )" ); st_s_push_sc( buf, "))" );
+
+        xoico_cgimel_s_trans_typespec_expression( o, source, buf, typespec_cast, out_typespec );
         continuation = false;
     }
     else if( tp_identifier )
@@ -881,7 +934,11 @@ er_t xoico_cgimel_s_trans_expression
         XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Syntax error after '#<sc_t>'", buf->sc );
     }
 
-    BLM_RETURNV( er_t, continuation ? xoico_cgimel_s_trans_expression( o, source, buf, NULL ) : 0 );
+    BLM_TRY( continuation ? xoico_cgimel_s_trans_expression( o, source, buf, NULL ) : 0 );
+
+    st_s_push_st( buf_out, buf );
+
+    BLM_RETURNV( er_t, 0 );
 }
 
 //----------------------------------------------------------------------------------------------------------------------

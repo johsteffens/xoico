@@ -193,6 +193,49 @@ include:
   A relative path is considered relative to the given file location
 
 ----------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------
+
+cgimel syntax:
+
+The cgimel syntax is 'C' with additional syntactic rules.
+Pure C-code can be enforced for any code block with this
+syntax '{\C ... }'.
+
+':' immediately before an identifier or '*' will replace ':' with the group name
+'@' will be replaced with stamp instance name if applicable or with group name otherwise
+
+typespec tracing:
+The typespec is traced inside an expression whenever possible.
+
+Where a typespec can be traced:
+    '.' can be used as member access even when the variable is a pointer.
+    Member functions can be called as element functions.
+
+Casting:
+    'cast( <typespec>, <expression> )'
+translates to
+   '( ( <typespec> )  ( <expression> ) )'
+or
+   '( ( <typespec> ) &( <expression> ) )'
+in case <typespec>'s indirection is one above <expression>.
+
+Arrays:
+'<expr1>.[ <expr1> ]' translates to '<expr1>.data[ <expr1> ]'
+If <expr1> represents a stamp with an anonymous array element.
+
+Automatic variable definition:
+ '<name> := <expression>' translates to <typespec> '<name> = <expression>'
+ with <typespec> being the typespec of <expression>
+
+Function pointer:
+If an object-element is a function pointer, calling that function must be enclosed
+in '{\C ... }'.
 
 TODO:
-  - detect duplicate member in stamps
+- add postfix !-operator ensuring that the element-chain was created.
+
+example:
+o.lib!.track_vop_push_c( name, vop )
+expands to
+lib_s_track_vop_push_c( ( o->lib ? o->lib : ( o->lib = lib_s_create() ) ), name, vop ) 
+
