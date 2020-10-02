@@ -23,414 +23,215 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static er_t take_block( xoico_caleph_s* o, sz_t level, bcore_source* source, bcore_sink* sink );
-
-//----------------------------------------------------------------------------------------------------------------------
-
-static void take_char( bcore_source* source, bcore_sink* sink )
+er_t xoico_caleph_s_trans_whitespace( xoico_caleph_s* o, bcore_source* source, st_s* buf /* can be NULL */ )
 {
-    bcore_sink_a_push_char( sink, bcore_source_a_get_char( source ) );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-static er_t take_line_comment( xoico_caleph_s* o, bcore_source* source, bcore_sink* sink )
-{
-    BLM_INIT();
-    BLM_TRY( bcore_source_a_parse_em_fa( source, "//" ) );
-    bcore_sink_a_push_fa( sink, "//" );
-    while( !bcore_source_a_eos( source ) )
-    {
-        char c = bcore_source_a_get_char( source );
-        bcore_sink_a_push_char( sink, c );
-        if( c == '\n' ) break;
-    }
-
-    BLM_RETURNV( er_t, 0 );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-static er_t take_block_comment( xoico_caleph_s* o, bcore_source* source, bcore_sink* sink )
-{
-    BLM_INIT();
-    BLM_TRY( bcore_source_a_parse_em_fa( source, "/*" ) );
-    bcore_sink_a_push_fa( sink, "/*" );
-    bl_t closed = false;
-    while( !bcore_source_a_eos( source ) )
-    {
-        if( bcore_source_a_parse_bl_fa( source, "#?'*/'" ) )
-        {
-            bcore_sink_a_push_fa( sink, "*/" );
-            closed = true;
-            break;
-        }
-        take_char( source, sink );
-    }
-
-    if( !closed )
-    {
-        BLM_RETURNV( er_t, bcore_source_a_parse_err_to_em_fa( source, TYPEOF_general_error, "Unterminated block-comment." ) );
-    }
-
-    BLM_RETURNV( er_t, 0 );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-static er_t take_whitespace( xoico_caleph_s* o, bcore_source* source, bcore_sink* sink )
-{
-    BLM_INIT();
-    while( !bcore_source_a_eos( source ) )
+    bl_t exit_loop = false;
+    while( !exit_loop && !bcore_source_a_eos( source ) )
     {
         char c = bcore_source_a_inspect_char( source );
-
-        if( c == ' ' || c == '\t' || c == '\n' ) // regular whitespace
+        switch( c )
         {
-            take_char( source, sink );
-        }
-        else if( c == '/' && bcore_source_a_parse_bl_fa( source, "#=?'//'" ) )
-        {
-            BLM_TRY( take_line_comment( o, source, sink ) );
-        }
-        else if( c == '/' && bcore_source_a_parse_bl_fa( source, "#=?'/*'" ) )
-        {
-            BLM_TRY( take_block_comment( o, source, sink ) );
-        }
-        else
-        {
-            break;
-        }
-    }
-    BLM_RETURNV( er_t, 0 );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-static er_t take_string( xoico_caleph_s* o, bcore_source* source, bcore_sink* sink )
-{
-    BLM_INIT();
-    BLM_TRY( bcore_source_a_parse_em_fa( source, "\"" ) );
-    bcore_sink_a_push_char( sink, '"' );
-    bl_t closed = false;
-    while( !bcore_source_a_eos( source ) )
-    {
-        char c = bcore_source_a_get_char( source );
-        bcore_sink_a_push_char( sink, c );
-        if( c == '\\' && bcore_source_a_inspect_char( source ) == '"' )
-        {
-            take_char( source, sink );
-        }
-        if( c == '"' )
-        {
-            closed = true;
-            break;
-        }
-    }
-
-    if( !closed )
-    {
-        BLM_RETURNV( er_t, bcore_source_a_parse_err_to_em_fa( source, TYPEOF_general_error, "Unterminated string." ) );
-    }
-
-    BLM_RETURNV( er_t, 0 );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-static er_t take_preprocessor( xoico_caleph_s* o, bcore_source* source, bcore_sink* sink )
-{
-    BLM_INIT();
-    BLM_TRY( bcore_source_a_parse_em_fa( source, "##" ) );
-    bcore_sink_a_push_fa( sink, "##" );
-    while( !bcore_source_a_eos( source ) )
-    {
-        char c = bcore_source_a_get_char( source );
-        bcore_sink_a_push_char( sink, c );
-        if( c == '\\' && bcore_source_a_inspect_char( source ) == '\n' ) take_char( source, sink );
-        if( c == '\n' ) break;
-    }
-
-    BLM_RETURNV( er_t, 0 );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-static er_t take_statement_name( xoico_caleph_s* o, sz_t level, bcore_source* source, bcore_sink* sink )
-{
-    BLM_INIT();
-    st_s* st_name = BLM_CREATE( st_s );
-    BLM_TRY( bcore_source_a_parse_em_fa( source, "#name", st_name ) );
-
-    while
-    (
-        st_s_equal_sc( st_name, "const"    ) ||
-        st_s_equal_sc( st_name, "static"   ) ||
-        st_s_equal_sc( st_name, "volatile" )
-    )
-    {
-        bcore_sink_a_push_sc( sink, st_name->sc );
-        BLM_TRY( take_whitespace( o, source, sink ) );
-        BLM_TRY( bcore_source_a_parse_em_fa( source, "#name", st_name ) );
-    }
-
-    if( st_name->size == 0 ) BLM_RETURNV( er_t, 0 );
-
-    if( xoico_compiler_s_is_type( o->compiler, btypeof( st_name->sc ) ) )
-    {
-        bcore_sink_a_push_sc( sink, st_name->sc );
-        BLM_TRY( take_whitespace( o, source, sink ) );
-
-        st_s* st_type = BLM_CREATE( st_s );
-        st_s_copy( st_type, st_name );
-        if( bcore_source_a_parse_bl_fa( source, "#?'*'" ) )
-        {
-            bcore_sink_a_push_char( sink, '*' );
-            BLM_TRY( take_whitespace( o, source, sink ) );
-            BLM_TRY( bcore_source_a_parse_em_fa( source, "#name", st_name ) );
-            bcore_sink_a_push_sc( sink, st_name->sc );
-            if( st_name->size > 0 ) // definition: pointer to a known type
+            case ' ' :
+            case '\t':
+            case '\n':
             {
-                xoico_caleph_tn_stack_s_push_sc( &o->stack, st_type->sc, st_name->sc, level );
+                if( buf ) st_s_push_char( buf, bcore_source_a_get_char( source ) );
             }
-        }
-    }
-    else
-    {
-        bl_t no_conversion = true;
+            break;
 
-        st_s* st_buf = BLM_CREATE( st_s );
-        bcore_sink* sink_buf = ( bcore_sink* )st_buf;
-        bcore_sink_a_push_sc( sink_buf, st_name->sc );
-        BLM_TRY( take_whitespace( o, source, sink_buf ) );
-
-        if( bcore_source_a_parse_bl_fa( source, "#?'->'" ) )
-        {
-            bcore_sink_a_push_sc( sink_buf, "->" );
-            BLM_TRY( take_whitespace( o, source, sink_buf ) );
-            st_s* st_fname = BLM_CREATE( st_s );
-            BLM_TRY( bcore_source_a_parse_em_fa( source, "#name", st_fname ) );
-            bcore_sink_a_push_sc( sink_buf, st_fname->sc );
-            BLM_TRY( take_whitespace( o, source, sink_buf ) );
-            if( st_fname->size > 0 )
+            case '/':
             {
-                if( bcore_source_a_parse_bl_fa( source, "#?'('" ) ) // function call
+                if( bcore_source_a_parse_bl_fa( source, "#?'//'" ) )
                 {
-                    bcore_sink_a_push_sc( sink_buf, "(" );
-                    sc_t  sc_type = xoico_caleph_tn_stack_s_get_type_sc( &o->stack, st_name->sc );
-                    st_s* st_type = BLM_A_PUSH( st_s_create_sc( sc_type ? sc_type : "" ) );
-                    if( st_type->size > 0 ) // registered type -> convert function call
+                    if( buf ) st_s_push_sc( buf, "//" );
+                    while( !bcore_source_a_eos( source ) )
                     {
-                        /// if type ends in '_s' or '_t' assume a stamp(-like) object ...
-                        if
-                        (
-                               st_type->size >= 2
-                            && st_type->sc[ st_type->size - 2 ] == '_'
-                            && ( st_type->sc[ st_type->size - 1 ] == 's' || st_type->sc[ st_type->size - 1 ] == 't' )
-                        )
-                        {
-                            bcore_sink_a_push_fa( sink, "#<sc_t>_#<sc_t>( #<sc_t>", st_type->sc, st_fname->sc, st_name->sc );
-                        }
-                        else /// ... otherwise assume an aware virtual type
-                        {
-                            bcore_sink_a_push_fa( sink, "#<sc_t>_a_#<sc_t>( #<sc_t>", st_type->sc, st_fname->sc, st_name->sc );
-                        }
-
-                        if( bcore_source_a_parse_bl_fa( source, "#?')'" ) ) // no arguments
-                        {
-                            bcore_sink_a_push_sc( sink, " )" );
-                        }
-                        else
-                        {
-                            bcore_sink_a_push_sc( sink, "," ); // arguments follow
-                        }
-                        BLM_TRY( take_whitespace( o, source, sink ) );
-
-                        no_conversion = false;
+                        char c = bcore_source_a_get_char( source );
+                        if( buf ) st_s_push_char( buf, c );
+                        if( c == '\n' ) break;
                     }
                 }
+                else if( bcore_source_a_parse_bl_fa( source, "#?'/*'" ) )
+                {
+                    if( buf ) st_s_push_sc( buf, "/*" );
+                    while( !bcore_source_a_eos( source ) )
+                    {
+                        if( bcore_source_a_parse_bl_fa( source, "#?'*/'" ) )
+                        {
+                            if( buf ) st_s_push_sc( buf, "*/" );
+                            break;
+                        }
+                        if( buf ) st_s_push_char( buf, bcore_source_a_get_char( source ) );
+                    }
+                }
+                else
+                {
+                    exit_loop = true;
+                }
             }
-        }
+            break;
 
-        if( no_conversion ) // no conversion: restore buffer
-        {
-            bcore_sink_a_push_sc( sink, st_buf->sc );
+            default:
+            {
+                exit_loop = true;
+            }
+            break;
         }
     }
-
-    BLM_RETURNV( er_t, 0 );
+    return 0;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static er_t take_bracket( xoico_caleph_s* o, sz_t level, bcore_source* source, bcore_sink* sink )
+/// parses string
+er_t xoico_caleph_s_trans_string_literal( xoico_caleph_s* o, bcore_source* source, st_s* buf )
 {
     BLM_INIT();
-
-    BLM_TRY( take_whitespace( o, source, sink ) );
-    BLM_TRY( bcore_source_a_parse_em_fa( source, "(" ) );
-    bcore_sink_a_push_char( sink, '(' );
+    XOICO_BLM_SOURCE_PARSE_FA( source, "\"" );
+    st_s_push_sc( buf, "\"" );
 
     while( !bcore_source_a_eos( source ) )
     {
-        BLM_TRY( take_whitespace( o, source, sink ) );
-        char c = bcore_source_a_inspect_char( source );
-
-        if( c == ')' ) // end of bracket
+        if( bcore_source_a_parse_bl_fa( source, "#?'\"'" ) )
         {
-            take_char( source, sink );
+            st_s_push_sc( buf, "\"" );
             break;
         }
-        else if( c == '"' )
-        {
-            BLM_TRY( take_string( o, source, sink ) );
-        }
-        else if( c == '(' )
-        {
-            BLM_TRY( take_bracket( o, level, source, sink ) );
-        }
-        else if( ( c >= 'A' && c <= 'Z' ) || ( c >= 'a' && c <= 'z' ) || c == '_' )
-        {
-            BLM_TRY( take_statement_name( o, level, source, sink ) );
-        }
-        else // simply consume
-        {
-            take_char( source, sink );
-        }
-    }
-    BLM_RETURNV( er_t, 0 );
-}
 
-//----------------------------------------------------------------------------------------------------------------------
-
-/** A statement in caleph differs semantically from c-statement
- *  It is used here for code-segmentation.
- */
-static er_t take_statement( xoico_caleph_s* o, sz_t level, bcore_source* source, bcore_sink* sink )
-{
-    BLM_INIT();
-    while( !bcore_source_a_eos( source ) )
-    {
-        BLM_TRY( take_whitespace( o, source, sink ) );
-        char c = bcore_source_a_inspect_char( source );
-
-        if( c == '{' ) // end of statement
+        if( bcore_source_a_parse_bl_fa( source, "#?'\\'" ) )
         {
-            break;
-        }
-        else if( c == ';' ) // end of statement
-        {
-            take_char( source, sink );
-            break;
-        }
-        else if( c == '"' )
-        {
-            BLM_TRY( take_string( o, source, sink ) );
-        }
-        else if( c == '(' )
-        {
-            BLM_TRY( take_bracket( o, level, source, sink ) );
-        }
-        else if( ( c >= 'A' && c <= 'Z' ) || ( c >= 'a' && c <= 'z' ) || c == '_' )
-        {
-            BLM_TRY( take_statement_name( o, level, source, sink ) );
+            st_s_push_sc( buf, "\\" );
+            char c = bcore_source_a_inspect_char( source );
+            if( c == '"' || c == '\\' )
+            {
+                st_s_push_char( buf, bcore_source_a_get_char( source ) );
+            }
         }
         else
         {
-            take_char( source, sink );
+            st_s_push_char( buf, bcore_source_a_get_char( source ) );
         }
     }
+
     BLM_RETURNV( er_t, 0 );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static er_t take_block_body( xoico_caleph_s* o, sz_t level, bcore_source* source, bcore_sink* sink )
+/// character literal
+er_t xoico_caleph_s_trans_char_literal( xoico_caleph_s* o, bcore_source* source, st_s* buf )
 {
     BLM_INIT();
+    XOICO_BLM_SOURCE_PARSE_FA( source, "'" );
+    st_s_push_sc( buf, "'" );
+
     while( !bcore_source_a_eos( source ) )
     {
-        BLM_TRY( take_whitespace( o, source, sink ) );
-
-        char c = bcore_source_a_inspect_char( source );
-        if( c == '{' )
+        if( bcore_source_a_parse_bl_fa( source, "#?\"'\"" ) )
         {
-            BLM_TRY( take_block( o, level + 1, source, sink ) );
-        }
-        else if( c == '}' )
-        {
-            if( level == 0 )
-            {
-                BLM_RETURNV
-                (
-                    er_t,
-                    bcore_source_a_parse_err_to_em_fa
-                    (
-                        source,
-                        TYPEOF_general_error,
-                        "Unexpected closing brace '}' at root level."
-                    )
-                );
-            }
-            xoico_caleph_tn_stack_s_pop( &o->stack, level );
+            st_s_push_sc( buf, "'" );
             break;
         }
-        else if( c == '(' )
+
+        if( bcore_source_a_parse_bl_fa( source, "#?'\\'" ) )
         {
-            BLM_TRY( take_statement( o, level, source, sink ) );
-        }
-        else if( c == '#' )
-        {
-            BLM_TRY( take_preprocessor( o, source, sink ) );
-        }
-        else if( ( c >= 'A' && c <= 'Z' ) || ( c >= 'a' && c <= 'z' ) || c == '_' )
-        {
-            BLM_TRY( take_statement( o, level, source, sink ) );
-        }
-        else if( c == '*' || c == ';' )
-        {
-            take_char( source, sink );
+            st_s_push_sc( buf, "\\" );
+            char c = bcore_source_a_inspect_char( source );
+            if( c == '\'' || c == '\\' )
+            {
+                st_s_push_char( buf, bcore_source_a_get_char( source ) );
+            }
         }
         else
         {
-            if( !bcore_source_a_eos( source ) )
-            {
-                BLM_RETURNV( er_t, bcore_source_a_parse_err_to_em_fa( source, TYPEOF_general_error, "block_body: invalid character '#<char>'.", c ) );
-            }
+            st_s_push_char( buf, bcore_source_a_get_char( source ) );
         }
+    }
+
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_caleph_s_trans_block_inside_verbatim( xoico_caleph_s* o, bcore_source* source, st_s* buf )
+{
+    BLM_INIT();
+    BLM_TRY( xoico_caleph_s_trans_whitespace( o, source, buf ) );
+    while
+    (
+        !bcore_source_a_parse_bl_fa( source, "#=?'}'" ) &&
+        !bcore_source_a_eos( source )
+    )
+    {
+        char c = bcore_source_a_inspect_char( source );
+        switch( c )
+        {
+            case '"':
+            {
+                BLM_TRY( xoico_caleph_s_trans_string_literal( o, source, buf ) );
+            }
+            break;
+
+            case '\'':
+            {
+                BLM_TRY( xoico_caleph_s_trans_char_literal( o, source, buf ) );
+            }
+            break;
+
+            case '{':
+            {
+                st_s_push_char( buf, bcore_source_a_get_char( source ) );
+                BLM_TRY( xoico_caleph_s_trans_block_inside_verbatim( o, source, buf ) );
+                XOICO_BLM_SOURCE_PARSE_FA( source, "}" );
+                st_s_push_char( buf, '}' );
+            }
+            break;
+
+            default:
+            {
+                st_s_push_char( buf, bcore_source_a_get_char( source ) );
+            }
+            break;
+        }
+        BLM_TRY( xoico_caleph_s_trans_whitespace( o, source, buf ) );
     }
     BLM_RETURNV( er_t, 0 );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-static er_t take_block( xoico_caleph_s* o, sz_t level, bcore_source* source, bcore_sink* sink )
+er_t xoico_caleph_s_setup( xoico_caleph_s* o, const xoico_body_s* body, const xoico_signature_s* signature )
 {
     BLM_INIT();
-    BLM_TRY( take_whitespace( o, source, sink ) );
-    BLM_TRY( bcore_source_a_parse_em_fa( source, "{" ) );
-    bcore_sink_a_push_char( sink, '{' );
-    BLM_TRY( take_block_body( o, level, source, sink ) );
-    BLM_TRY( take_whitespace( o, source, sink ) );
-    BLM_TRY( bcore_source_a_parse_em_fa( source, "}" ) );
-    bcore_sink_a_push_char( sink, '}' );
+    sc_t sc_obj_type = ( signature->arg_o ) ? ( body->stamp ? body->stamp->name.sc : body->group->name.sc ) : NULL;
+
+    const xoico_args_s* args = &signature->args;
+
+    tp_t obj_type  = ( signature->arg_o == 0 ) ? 0 : xoico_caleph_s_entypeof( o, sc_obj_type );
+    tp_t obj_name  = xoico_caleph_s_entypeof( o, "o" );
+
+    o->args     = ( xoico_args_s* )args;
+    o->group    = body->code->group;
+    o->stamp    = body->code->stamp;
+    o->compiler = xoico_group_s_get_compiler( body->group );
+    o->obj_type = obj_type;
+
+    if( obj_type )
+    {
+        bcore_hmap_name_s_set_sc( &o->hmap_name, xoico_compiler_s_nameof( o->compiler, obj_type ) );
+        bcore_hmap_name_s_set_sc( &o->hmap_name, xoico_compiler_s_nameof( o->compiler, obj_name ) );
+    }
+
+    BFOR_EACH( i, args )
+    {
+        const xoico_arg_s* arg = &args->data[ i ];
+        if( arg->typespec.type && arg->name )
+        {
+            bcore_hmap_name_s_set_sc( &o->hmap_name, xoico_compiler_s_nameof( o->compiler, arg->typespec.type ) );
+            bcore_hmap_name_s_set_sc( &o->hmap_name, xoico_compiler_s_nameof( o->compiler, arg->name ) );
+        }
+    }
     BLM_RETURNV( er_t, 0 );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-er_t xoico_caleph_s_take_block_body( xoico_caleph_s* o, bcore_source* source, bcore_sink* sink )
-{
-    xoico_caleph_tn_stack_s_init_from_args( &o->stack, o->obj_type, "o", o->args );
-    return take_block_body( o, 0, source, sink );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-er_t xoico_caleph_s_take_block( xoico_caleph_s* o, bcore_source* source, bcore_sink* sink )
-{
-    xoico_caleph_tn_stack_s_init_from_args( &o->stack, o->obj_type, "o", o->args );
-    return take_block( o, 0, source, sink );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -440,28 +241,43 @@ er_t xoico_caleph_s_translate( const xoico_caleph_s* o, const xoico_body_s* body
     BLM_INIT();
 
     xoico_caleph_s* aleph = BLM_CLONE( xoico_caleph_s, o );
+    xoico_caleph_s_setup( aleph, body, signature );
 
-    sc_t sc_obj_type = ( signature->arg_o ) ? ( body->stamp ? body->stamp->name.sc : body->group->name.sc ) : NULL;
-    const xoico_args_s* args = &signature->args;
+    bcore_source* source = BLM_A_PUSH( bcore_source_point_s_clone_source( &body->code->source_point ) );
 
-    bcore_source* source = BLM_A_PUSH( bcore_source_string_s_create_sc( body->code->st.sc ) );
-    aleph->obj_type = sc_obj_type;
-    aleph->args     = bcore_fork( ( xoico_args_s* )args );
-    aleph->compiler = bcore_fork( xoico_group_s_get_compiler( body->group ) );
+    st_s* buf = BLM_CREATE( st_s );
 
-    if( xoico_caleph_s_take_block_body( aleph, source, sink ) )
+    sz_t indent = 0;
+    XOICO_BLM_SOURCE_PARSE_FA( source, " {" );
+
+    while( bcore_source_a_parse_bl_fa( source, "#?([0]==' '||[0]=='\t')" ) ) { bcore_source_a_get_char( source ); };
+    if( bcore_source_a_parse_bl_fa( source, "#?'\n'" ) )
     {
-        er_t id = 0;
-        st_s* msg = BLM_CREATE( st_s );
-        bcore_error_pop_st( &id, msg );
-        XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA
-        (
-            &body->source_point,
-            "\ncaleph-error: #<sc_t>\n"
-            "\n",
-            msg->sc
-        );
+        while( bcore_source_a_parse_bl_fa( source, "#?' '" ) ) indent++;
     }
+
+    BLM_TRY( xoico_caleph_s_trans_block_inside_verbatim( aleph, source, buf ) );
+
+    XOICO_BLM_SOURCE_PARSE_FA( source, " }" );
+
+    if( indent > 0 ) st_s_replace_st_d_st_d( buf, st_s_create_fa( "\n#rn{ }", indent ), st_s_create_fa( "\n" ) );
+
+    //remove trailing whitespaces
+    for( sz_t i = buf->size - 1; i >= 0; i-- )
+    {
+        if( buf->data[ i ] != ' ' && buf->data[ i ] != '\t' && buf->data[ i ] != '\n' ) break;
+        buf->data[ i ] = 0;
+        buf->size = i;
+    }
+
+    if( o->include_source_reference && !body->code->single_line )
+    {
+        bcore_sink_a_push_fa( sink, "// " );
+        bcore_source_point_s_source_reference_to_sink( &body->code->source_point, true, sink );
+        bcore_sink_a_push_fa( sink, "\n" );
+    }
+
+    bcore_sink_a_push_sc( sink, buf->sc );
 
     BLM_RETURNV( er_t, 0 );
 }

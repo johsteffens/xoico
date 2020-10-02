@@ -29,7 +29,7 @@ er_t xoico_body_code_s_parse( xoico_body_code_s* o, bcore_source* source )
     BLM_INIT();
     if( !o->group ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "xoico_body_code_s: Code has no group assigned." );
 
-    st_s_clear( &o->st );
+    tp_t hash = bcore_tp_init();
 
     bcore_source_point_s_set( &o->source_point, source );
     XOICO_BLM_SOURCE_PARSE_FA( source, " {" );
@@ -70,12 +70,11 @@ er_t xoico_body_code_s_parse( xoico_body_code_s* o, bcore_source* source )
 
             case '"': // string literal
             {
-                st_s_push_char( &o->st, c );
+                hash = bcore_tp_fold_u0( hash, c );
                 bl_t esc = false;
                 while( !bcore_source_a_eos( source ) )
                 {
                     u0_t c = bcore_source_a_get_u0( source );
-                    st_s_push_char( &o->st, c );
                     if( !esc && c == '"' ) break;
                     esc = ( c == '\\' );
                     if( c == '\n' ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Newline in string literal." );
@@ -86,13 +85,13 @@ er_t xoico_body_code_s_parse( xoico_body_code_s* o, bcore_source* source )
 
             case '/': // comment
             {
-                st_s_push_char( &o->st, c );
+                hash = bcore_tp_fold_u0( hash, c );
                 if( bcore_source_a_inspect_char( source ) == '/' )
                 {
                     while( !bcore_source_a_eos( source ) )
                     {
                         c = bcore_source_a_get_char( source );
-                        st_s_push_char( &o->st, c );
+                        hash = bcore_tp_fold_u0( hash, c );
                         if( c == '\n' )
                         {
                             for( sz_t i = 0; i < o->indentation; i++ ) { if( !bcore_source_a_parse_bl_fa( source, "#?' '" ) ) break; };
@@ -106,13 +105,13 @@ er_t xoico_body_code_s_parse( xoico_body_code_s* o, bcore_source* source )
                     {
                         if( bcore_source_a_parse_bl_fa( source, "#?'*/'" ) )
                         {
-                            st_s_push_sc( &o->st, "*/" );
+                            hash = bcore_tp_fold_sc( hash, "*/" );
                             break;
                         }
                         else
                         {
                             c = bcore_source_a_get_char( source );
-                            st_s_push_char( &o->st, c );
+                            hash = bcore_tp_fold_u0( hash, c );
                             if( c == '\n' )
                             {
                                 for( sz_t i = 0; i < o->indentation; i++ ) { if( !bcore_source_a_parse_bl_fa( source, "#?' '" ) ) break; };
@@ -124,13 +123,6 @@ er_t xoico_body_code_s_parse( xoico_body_code_s* o, bcore_source* source )
             }
             break;
 
-//            case '\\': // escape
-//            {
-//                c = bcore_source_a_get_u0( source );
-//                if( c != ':' ) st_s_push_char( &o->st, '\\' );
-//            }
-//            break;
-
             case '\n' :
             {
                 o->single_line = false;
@@ -138,43 +130,12 @@ er_t xoico_body_code_s_parse( xoico_body_code_s* o, bcore_source* source )
                 break;
             }
 
-            // namespace: if a name, '*' or another ':' follows immediately,
-            // ':' is interpreted as namespace-prepend
-            // ordinary c-code using ':' should append a whitespace or prepend escape '\:'
-            // Note: ':' must be resolved while parsing, otherwise the wrong group might be assigned to bodies which are to be use elsewhere.
-            case ':':
-            {
-                if( bcore_source_a_parse_bl_fa( source, "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]==':'||[0]=='*'||[0]=='@')" ) )
-                {
-                    BLM_INIT();
-                    st_s* name = BLM_CREATE( st_s );
-                    BLM_TRY( xoico_group_s_parse_name_recursive( o->group, name, source ) );
-                    st_s_push_sc( &o->st, name->sc );
-                    c = 0;
-                    BLM_DOWN();
-                }
-            }
-            break;
-
             default: break;
         }
-        if( c ) st_s_push_char( &o->st, c );
+        hash = bcore_tp_fold_u0( hash, c );
     }
 
-    // remove trailing spaces and newline
-    for( sz_t i = o->st.size - 1; i >= 0; i-- )
-    {
-        char c = o->st.data[ i ];
-        if( c == ' ' || c == '\n' )
-        {
-            st_s_pop_char( &o->st );
-        }
-        else
-        {
-            break;
-        }
-    }
-
+    o->hash_source = hash;
     BLM_RETURNV( er_t, 0 );
 }
 
@@ -183,7 +144,7 @@ er_t xoico_body_code_s_parse( xoico_body_code_s* o, bcore_source* source )
 tp_t xoico_body_code_s_get_hash( const xoico_body_code_s* o )
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
-    hash = bcore_tp_fold_sc( hash, o->st.sc );
+    hash = bcore_tp_fold_tp( hash, o->hash_source );
     return hash;
 }
 
@@ -322,14 +283,14 @@ er_t xoico_body_s_expand( const xoico_body_s* o, const xoico_signature_s* signat
 {
     BLM_INIT();
 
-    if( o->stamp ) st_s_replace_sc_sc( &o->code->st, "@", o->stamp->name.sc );
-
-    const st_s* final_code = o->code ? &o->code->st : BLM_CREATE( st_s );
+    const st_s* final_code = NULL;
     st_s* st_out = BLM_CREATE( st_s );
 
     xoico_cengine* cengine = o->group->source->target->cengine;
 
-    if( cengine && o->code )
+    ASSERT( cengine );
+
+    if( o->code )
     {
         if( !o->group ) XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA( &o->source_point, "Body has no group assigned." );
         BLM_TRY( xoico_cengine_a_translate( cengine, o, signature, ( bcore_sink* )st_out ) )

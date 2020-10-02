@@ -31,14 +31,14 @@ signature er_t expand( const, xoico_group_s* group, sc_t sc_obj_type, bcore_sink
 
 stamp : = aware :
 {
+    tp_t type;
+    sz_t indirection;
+
     bl_t is_const;
     bl_t is_static;
     bl_t is_volatile;
     bl_t is_restrict;
     bl_t has_address = true;  // object can have a pointer ('false' for objects returned by a function)
-
-    tp_t type;
-    sz_t indirection;
 
     func xoico : get_hash;
     func     : : parse;

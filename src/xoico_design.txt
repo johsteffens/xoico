@@ -237,5 +237,14 @@ TODO:
 example:
 o.lib!.track_vop_push_c( name, vop )
 expands to
-lib_s_track_vop_push_c( ( o->lib ? o->lib : ( o->lib = lib_s_create() ) ), name, vop ) 
+lib_s_track_vop_push_c( ( o->lib ? o->lib : ( o->lib = lib_s_create() ) ), name, vop )
 
+
+
+Keywords (for syntax highlight)
+
+xoila:
+group stamp stump hidden private func name signature body aware feature extending verbatim mutable plain retrievable private forward embed
+
+cengine:
+deduce

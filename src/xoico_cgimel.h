@@ -86,14 +86,13 @@ signature void push_typedecl( mutable, const xoico_typespec_s* typespec, tp_t na
 name static;
 name volatile;
 name cast;
+name deduce;
 
 stamp : = aware :
 {
     /// parameters
 
-    /// when a fallback engine is specified, cgime is in dry-run-mode using fallback for actual code generation
-    aware xoico_cengine => fallback;
-    bl_t verbose;
+    bl_t verbose                  = false;
     bl_t include_source_reference = true;
 
     /// runtime data

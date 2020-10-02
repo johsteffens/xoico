@@ -38,7 +38,7 @@ stamp :code = aware :
 {
     bl_t single_line;
     sz_t indentation;
-    st_s st;
+    tp_t hash_source;
 
     bcore_source_point_s source_point;
 
