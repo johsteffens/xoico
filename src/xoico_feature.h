@@ -40,6 +40,7 @@ stamp : = aware :
     bl_t flag_t;
     bl_t flag_a;
     bl_t flag_r;
+    bl_t expandable = true;
 
     hidden aware xoico_group_s* group;
     bcore_source_point_s source_point;

@@ -441,7 +441,7 @@ er_t xoico_cbeth_s_translate( const xoico_cbeth_s* o, const xoico_body_s* body, 
 
     xoico_cbeth_s* aleph = BLM_CLONE( xoico_cbeth_s, o );
 
-    sc_t sc_obj_type = ( signature->arg_o ) ? ( body->stamp ? body->stamp->name.sc : body->group->name.sc ) : NULL;
+    sc_t sc_obj_type = ( signature->arg_o ) ? ( body->stamp ? body->stamp->st_name.sc : body->group->st_name.sc ) : NULL;
     const xoico_args_s* args = &signature->args;
 
     aleph->obj_type = sc_obj_type;

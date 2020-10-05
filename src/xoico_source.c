@@ -42,7 +42,7 @@ er_t xoico_source_s_parse( xoico_source_s* o, bcore_source* source )
             group = BLM_CREATE( xoico_group_s );
             BLM_TRY( xoico_source_s_push_group( o, bcore_fork( group ) ) );
             group->source = o;
-            XOICO_BLM_SOURCE_PARSE_FA( source, " ( #name, #name", &group->name, &group->trait_name );
+            XOICO_BLM_SOURCE_PARSE_FA( source, " ( #name, #name", &group->st_name, &group->trait_name );
             if( bcore_source_a_parse_bl_fa( source, "#?','" ) )
             {
                 st_s* include_file = BLM_CREATE( st_s );

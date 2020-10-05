@@ -47,7 +47,7 @@ er_t xoico_cgimel_s_trans_identifier( xoico_cgimel_s* o, bcore_source* source, s
     {
         bcore_source_a_get_char( source );
         if( !o->stamp ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Ill placed '@'." );
-        st_s_push_fa( st_name, "#<sc_t>", o->stamp->name.sc );
+        st_s_push_fa( st_name, "#<sc_t>", o->stamp->st_name.sc );
         if( bcore_source_a_parse_bl_fa( source, "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]=='_'||([0]>='0'&&[0]<='9'))" ) )
         {
             bcore_source_a_parse_fa( source, "#:name", st_name );
@@ -84,7 +84,7 @@ tp_t xoico_cgimel_s_inspect_identifier( xoico_cgimel_s* o, bcore_source* source 
         {
             bcore_source_a_get_char( source );
             if( !o->stamp ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Ill placed '@'." );
-            st_s_push_fa( st_name, "#<sc_t>", o->stamp->name.sc );
+            st_s_push_fa( st_name, "#<sc_t>", o->stamp->st_name.sc );
             if( bcore_source_a_parse_bl_fa( source, "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]=='_'||([0]>='0'&&[0]<='9'))" ) )
             {
                 bcore_source_a_parse_fa( source, "#:name", st_name );
@@ -401,6 +401,17 @@ er_t xoico_cgimel_s_adapt_expression
 )
 {
     BLM_INIT();
+    if( !typespec_expr->type )
+    {
+        XOICO_BLM_SOURCE_PARSE_ERR_FA
+        (
+            source,
+            "xoico_cgimel_s_adapt_expression: no type specified.",
+            typespec_expr->indirection,
+            typespec_target->indirection
+        );
+    }
+
     if( typespec_target->indirection == typespec_expr->indirection )
     {
         st_s_push_fa( buf, "#<st_s*>", expr );
@@ -646,6 +657,36 @@ er_t xoico_cgimel_s_trans_typespec_expression
         typespec->indirection--;
         BLM_TRY( xoico_cgimel_s_trans_typespec_expression( o, source, buf, typespec, out_typespec ) );
     }
+    // attach (detach)
+    else if( bcore_source_a_parse_bl_fa( source, "#?'=<'" ) )
+    {
+        if( in_typespec->indirection != 1 )
+        {
+            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Attach operator requires indirection 1." );
+        }
+
+        st_s* arg_obj = BLM_CLONE( st_s, buf );
+        st_s_clear( buf );
+
+        sc_t sc_type = xoico_cgimel_s_nameof( o, in_typespec->type );
+        st_s_push_fa( buf, "#<sc_t>", sc_type );
+        if( xoico_compiler_s_is_group( o->compiler, in_typespec->type ) )
+        {
+            st_s_push_sc( buf, "_a" );
+            st_s_push_fa( buf, "_attach( &(#<sc_t>), (#<sc_t>*)", arg_obj->sc, sc_type );
+            st_s_push_fa( buf, "(" );
+            xoico_cgimel_s_trans_expression( o, source, buf, NULL );
+            st_s_push_fa( buf, "))" );
+        }
+        else
+        {
+            st_s_push_fa( buf, "_attach( &(#<sc_t>), ", arg_obj->sc );
+            xoico_cgimel_s_trans_expression( o, source, buf, NULL );
+            st_s_push_fa( buf, ")" );
+        }
+
+        if( out_typespec ) xoico_typespec_s_copy( out_typespec, in_typespec );
+    }
     else if( out_typespec )
     {
         xoico_typespec_s_copy( out_typespec, in_typespec );
@@ -802,7 +843,15 @@ er_t xoico_cgimel_s_trans_cast
         BLM_TRY( xoico_cgimel_s_trans_expression( o, source, buf_expr, typespec_expr ) );
     }
 
-    BLM_TRY( xoico_cgimel_s_adapt_expression( o, source, typespec_expr, typespec_cast, buf_expr, buf ) );
+    if( typespec_expr->type )
+    {
+        BLM_TRY( xoico_cgimel_s_adapt_expression( o, source, typespec_expr, typespec_cast, buf_expr, buf ) );
+    }
+    else
+    {
+        st_s_push_st( buf, buf_expr );
+    }
+
     XOICO_BLM_SOURCE_PARSE_FA( source, " )" ); st_s_push_sc( buf, "))" );
     if( out_typespec ) xoico_typespec_s_copy( out_typespec, typespec_cast );
 
@@ -996,6 +1045,12 @@ er_t xoico_cgimel_s_trans_expression
         BLM_TRY( xoico_cgimel_s_trans_member( o, source, buf ) );
     }
 
+    // attach operator
+    else if( bcore_source_a_parse_bl_fa( source, "#?'=<'" ) )
+    {
+        XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Attach operator: Expression not tractable." );
+    }
+
     // general operator
     else if( xoico_cgimel_s_trans_operator( o, source, buf ) )
     {
@@ -1014,10 +1069,14 @@ er_t xoico_cgimel_s_trans_expression
     // general bracket
     else if( bcore_source_a_parse_bl_fa( source, "#?'('" ) )
     {
+        BLM_INIT();
         st_s_push_sc( buf, "(" );
+        bl_t first = true;
+
+        xoico_typespec_s* typespec = BLM_CREATE( xoico_typespec_s );
         while( !bcore_source_a_eos( source ) )
         {
-            BLM_TRY( xoico_cgimel_s_trans_expression( o, source, buf, out_typespec ) );
+            BLM_TRY( xoico_cgimel_s_trans_expression( o, source, buf, typespec ) );
             if( bcore_source_a_parse_bl_fa( source, "#?')'" ) )
             {
                 break;
@@ -1030,8 +1089,14 @@ er_t xoico_cgimel_s_trans_expression
             {
                 XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Syntax error in bracket expression." );
             }
+
+            first = false;
         }
         st_s_push_sc( buf, ")" );
+
+        if( first && typespec->type ) BLM_TRY( xoico_cgimel_s_trans_typespec_expression( o, source, buf, typespec, NULL ) );
+
+        BLM_DOWN();
     }
 
     // array subscript
@@ -1367,7 +1432,7 @@ er_t xoico_cgimel_s_trans_block_inside_verbatim( xoico_cgimel_s* o, bcore_source
 er_t xoico_cgimel_s_setup( xoico_cgimel_s* o, const xoico_body_s* body, const xoico_signature_s* signature )
 {
     BLM_INIT();
-    sc_t sc_obj_type = ( signature->arg_o ) ? ( body->stamp ? body->stamp->name.sc : body->group->name.sc ) : NULL;
+    sc_t sc_obj_type = ( signature->arg_o ) ? ( body->stamp ? body->stamp->st_name.sc : body->group->st_name.sc ) : NULL;
 
     const xoico_args_s* args = &signature->args;
 

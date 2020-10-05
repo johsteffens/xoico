@@ -232,14 +232,20 @@ If an object-element is a function pointer, calling that function must be enclos
 in '{\C ... }'.
 
 TODO:
+- (done) each group has a perspective
+- (done) each group has default (aware, typed) features: *_t_create, _a_discard, _a_attach, _a_detach, _a_copy, _t_clone
+- (done) add inexpandable features for above functions
+- (done) rename default bodies of features from *__ to *_default.  (the default name can also be manually set)
+- new operator '=<' corresponds to function attach; expr =< NULL corresponds to detach;
+- positfix operator ! after a (stamp-)type converts it into a traced <type>_s_create();
 - add postfix !-operator ensuring that the element-chain was created.
+- add type specifier 'keep' (e.g. to be used in function returns) telling the compiler to take control of the object's lifetime
+- add if-clause with two expressions the first one can be a declaration (same treatment as in for clause). The scope applies to the if- and possible subsequent else-block
 
 example:
 o.lib!.track_vop_push_c( name, vop )
 expands to
 lib_s_track_vop_push_c( ( o->lib ? o->lib : ( o->lib = lib_s_create() ) ), name, vop )
-
-
 
 Keywords (for syntax highlight)
 

@@ -47,11 +47,11 @@ er_t xoico_func_s_set_global_name( xoico_func_s* o )
 
     if( o->stamp )
     {
-        st_s_push_fa( st_global_name, "#<sc_t>_#<sc_t>", o->stamp->name.sc, sc_name );
+        st_s_push_fa( st_global_name, "#<sc_t>_#<sc_t>", o->stamp->st_name.sc, sc_name );
     }
     else
     {
-        st_s_push_fa( st_global_name, "#<sc_t>_#<sc_t>", o->group->name.sc, sc_name );
+        st_s_push_fa( st_global_name, "#<sc_t>_#<sc_t>", o->group->st_name.sc, sc_name );
     }
 
     o->global_name = xoico_compiler_s_entypeof( compiler, st_global_name->sc );
@@ -76,14 +76,14 @@ er_t xoico_func_s_parse( xoico_func_s* o, xoico_stamp_s* stamp, bcore_source* so
     if( bcore_source_a_parse_bl_fa( source, " #?'^'" ) )
     {
         if( !stamp ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "'^' is only inside a stamp allowed." );
-        st_s_copy( st_type, &stamp->trait_name );
+        st_s_copy( st_type, &stamp->st_trait_name );
         st_s_push_fa( &o->flect_decl, "^" );
     }
     else
     {
         BLM_TRY( xoico_group_s_parse_name( o->group, st_type, source ) );
 
-        if( stamp && st_s_equal_st( st_type, &stamp->trait_name ) )
+        if( stamp && st_s_equal_st( st_type, &stamp->st_trait_name ) )
         {
             st_s_push_fa( &o->flect_decl, "^" );
         }

@@ -32,8 +32,9 @@ signature er_t push_default_funcs( mutable );
 
 stamp : = aware :
 {
-    st_s    name;
-    st_s    trait_name;
+    st_s    st_name;
+    tp_t    tp_name; // typeof( st_name )
+    st_s    st_trait_name;
     st_s => self_source;
     bcore_self_s => self; // created in expand_setup
     xoico_funcs_s funcs;
@@ -43,6 +44,7 @@ stamp : = aware :
 
     func xoico : get_hash;
     func xoico : get_global_name_sc;
+    func xoico : get_global_name_tp = { return o->tp_name; };
     func xoico : finalize;
 
     func xoico : expand_setup;

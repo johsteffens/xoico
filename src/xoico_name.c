@@ -22,7 +22,7 @@
 
 sc_t xoico_name_s_get_global_name_sc( const xoico_name_s* o )
 {
-    return o->name.sc;
+    return XOICO_NAMEOF( o->name );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ sc_t xoico_name_s_get_global_name_sc( const xoico_name_s* o )
 tp_t xoico_name_s_get_hash( const xoico_name_s* o )
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
-    hash = bcore_tp_fold_sc( hash, o->name.sc );
+    hash = bcore_tp_fold_tp( hash, o->name );
     return hash;
 }
 
@@ -41,17 +41,21 @@ er_t xoico_name_s_parse( xoico_name_s* o, bcore_source* source )
     BLM_INIT();
     bcore_source_point_s_set( &o->source_point, source );
 
+    st_s* st_name = BLM_CREATE( st_s );
+
     if( bcore_source_a_parse_bl_fa( source, " #?':'" ) )
     {
         st_s* name = BLM_CREATE( st_s );
         XOICO_BLM_SOURCE_PARSE_FA( source, " #name", name );
-        st_s_push_fa( &o->name, "#<sc_t>#<sc_t>#<sc_t>", o->group->name.sc, name->sc[ 0 ] ? "_" : "", name->sc );
+        st_s_push_fa( st_name, "#<sc_t>#<sc_t>#<sc_t>", o->group->st_name.sc, name->sc[ 0 ] ? "_" : "", name->sc );
     }
     else
     {
-        XOICO_BLM_SOURCE_PARSE_FA( source, " #name", &o->name );
+        XOICO_BLM_SOURCE_PARSE_FA( source, " #name", st_name );
     }
-    if( o->name.size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Feature: Name missing." );
+    if( st_name->size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Name missing." );
+
+    o->name = XOICO_ENTYPEOF( st_name->sc );
     XOICO_BLM_SOURCE_PARSE_FA( source, " ; " );
     BLM_RETURNV( er_t, 0 );
 }
@@ -60,7 +64,7 @@ er_t xoico_name_s_parse( xoico_name_s* o, bcore_source* source )
 
 er_t xoico_name_s_expand_declaration( const xoico_name_s* o, sz_t indent, bcore_sink* sink )
 {
-    bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o->name.sc, typeof( o->name.sc ) );
+    bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, XOICO_NAMEOF( o->name ), o->name );
     return 0;
 }
 
@@ -68,7 +72,7 @@ er_t xoico_name_s_expand_declaration( const xoico_name_s* o, sz_t indent, bcore_
 
 er_t xoico_name_s_expand_init1( const xoico_name_s* o, sz_t indent, bcore_sink* sink )
 {
-    bcore_sink_a_push_fa( sink, "#rn{ }BCORE_REGISTER_NAME( #<sc_t> );\n", indent, o->name.sc );
+    bcore_sink_a_push_fa( sink, "#rn{ }BCORE_REGISTER_NAME( #<sc_t> );\n", indent, XOICO_NAMEOF( o->name ) );
     return 0;
 }
 

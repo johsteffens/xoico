@@ -30,7 +30,7 @@
 
 sc_t xoico_group_s_get_global_name_sc( const xoico_group_s* o )
 {
-    return o->name.sc;
+    return o->st_name.sc;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -46,11 +46,11 @@ st_s* xoico_group_s_create_spect_name( const xoico_group_s* o )
 {
     if( o->short_spect_name )
     {
-        return st_s_create_fa( "#<sc_t>_s", o->name.sc );
+        return st_s_create_fa( "#<sc_t>_s", o->st_name.sc );
     }
     else
     {
-        return st_s_create_fa( "#<sc_t>_spect_s", o->name.sc );
+        return st_s_create_fa( "#<sc_t>_spect_s", o->st_name.sc );
     }
 }
 
@@ -72,7 +72,7 @@ er_t xoico_group_s_parse_name_recursive( xoico_group_s* o, st_s* name, bcore_sou
     }
     else
     {
-        st_s_copy( name, &o->name );
+        st_s_copy( name, &o->st_name );
         st_s* s = BLM_CREATE( st_s );
         XOICO_BLM_SOURCE_PARSE_FA( source, " #name", s );
 
@@ -107,6 +107,27 @@ er_t xoico_group_s_parse_name( xoico_group_s* o, st_s* name, bcore_source* sourc
 
 //----------------------------------------------------------------------------------------------------------------------
 
+er_t xoico_group_s_push_default_feature_from_sc( xoico_group_s* o, sc_t sc )
+{
+    BLM_INIT();
+    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o );
+    xoico_feature_s* feature = BLM_A_PUSH( xoico_feature_s_create() );
+    feature->expandable = false;
+    feature->group = o;
+    BLM_TRY( xoico_feature_s_parse( feature, BLM_A_PUSH( bcore_source_string_s_create_from_sc( sc ) ) ) );
+
+    if( !xoico_compiler_s_item_exists( compiler, xoico_a_get_global_name_tp( ( xoico* )feature ) ) )
+    {
+        BLM_TRY( xoico_compiler_s_item_register( compiler, ( xoico* )feature, o->source_point.source ) );
+        bcore_hmap_tpvd_s_set( &o->hmap_feature, btypeof( feature->signature.st_name.sc ), feature );
+        bcore_array_a_push( ( bcore_array* )o, sr_asd( bcore_fork( feature ) ) );
+    }
+
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
 {
     BLM_INIT();
@@ -118,7 +139,7 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
 
     bcore_source_point_s_set( &o->source_point, source );
     o->hash = bcore_tp_init();
-    o->hash = bcore_tp_fold_sc( o->hash, o->name.sc );
+    o->hash = bcore_tp_fold_sc( o->hash, o->st_name.sc );
     o->hash = bcore_tp_fold_sc( o->hash, o->trait_name.sc );
 
     if( o->group ) // this group is nested in another group, the group body is enclosed in { ... }
@@ -215,8 +236,6 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             feature->group = o;
             BLM_TRY( xoico_feature_s_parse( feature, source ) );
             BLM_TRY( xoico_compiler_s_item_register( xoico_group_s_get_compiler( o ), ( xoico* )feature, source ) );
-            o->has_features = true;
-            if( feature->flag_a ) o->is_aware = true;
             bcore_hmap_tpvd_s_set( &o->hmap_feature, btypeof( feature->signature.st_name.sc ), feature );
             item = ( xoico* )bcore_fork( feature );
         }
@@ -233,7 +252,7 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             name->group = o;
             BLM_TRY( xoico_name_s_parse( name, source ) );
             item = ( xoico* )bcore_fork( name );
-            BLM_TRY( xoico_compiler_s_type_register( xoico_group_s_get_compiler( o ), btypeof( name->name.sc ) ) );
+            BLM_TRY( xoico_compiler_s_type_register( xoico_group_s_get_compiler( o ), name->name ) );
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'forward' " ) )
         {
@@ -296,14 +315,14 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             group->extending   = o->extending;
             group->expandable  = o->expandable;
 
-            BLM_TRY( xoico_group_s_parse_name( o, &group->name, source ) );
+            BLM_TRY( xoico_group_s_parse_name( o, &group->st_name, source ) );
             XOICO_BLM_SOURCE_PARSE_FA( source, " =" );
 
             // flags
             if( bcore_source_a_parse_bl_fa( source, " #?w'retrievable' " ) ) group->retrievable = true;
 
             BLM_TRY( xoico_group_s_parse_name( o, &group->trait_name, source ) );
-            if( group->trait_name.size == 0 ) st_s_copy( &group->trait_name, &o->name );
+            if( group->trait_name.size == 0 ) st_s_copy( &group->trait_name, &o->st_name );
             BLM_TRY( xoico_group_s_parse( group, source ) );
             XOICO_BLM_SOURCE_PARSE_FA( source, " ; " );
             o->source->hash = bcore_tp_fold_tp( o->source->hash, group->hash );
@@ -365,10 +384,17 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
         BLM_DOWN();
     }
 
+    /// default features
+    BLM_TRY( xoico_group_s_push_default_feature_from_sc( o, "@* clone( const );" ) );
+    BLM_TRY( xoico_group_s_push_default_feature_from_sc( o, "void copy( mutable, const @* src );" ) );
+    BLM_TRY( xoico_group_s_push_default_feature_from_sc( o, "void discard( mutable );" ) );
+
     if( stack->size > 1 )
     {
         XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Xoico: Unexpected end of group reached." );
     }
+
+    o->tp_name =  xoico_compiler_s_entypeof( xoico_group_s_get_compiler( o ), o->st_name.sc );
 
     // hash group parameters
     o->hash = bcore_tp_fold_tp( o->hash, o->retrievable ? 1 : 0 );
@@ -406,7 +432,7 @@ er_t xoico_group_s_expand_forward( const xoico_group_s* o, sz_t indent, bcore_si
 {
     BLM_INIT();
     if( !o->expandable ) BLM_RETURNV( er_t, 0 );
-    bcore_sink_a_push_fa( sink, " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o->name.sc );
+    bcore_sink_a_push_fa( sink, " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o->st_name.sc );
     for( sz_t i = 0; i < o->size; i++ ) BLM_TRY( xoico_a_expand_forward( o->data[ i ], indent, sink ) );
     BLM_RETURNV( er_t, 0 );
 }
@@ -419,11 +445,11 @@ er_t xoico_group_s_expand_spect_declaration( const xoico_group_s* o, sz_t indent
     if( !o->expandable ) BLM_RETURNV( er_t, 0 );
     if( o->short_spect_name )
     {
-        bcore_sink_a_push_fa( sink, " \\\n#rn{ }BCORE_DECLARE_SPECT( #<sc_t> )", indent, o->name.sc );
+        bcore_sink_a_push_fa( sink, " \\\n#rn{ }BCORE_DECLARE_SPECT( #<sc_t> )", indent, o->st_name.sc );
     }
     else
     {
-        bcore_sink_a_push_fa( sink, " \\\n#rn{ }XOILA_DECLARE_SPECT( #<sc_t> )", indent, o->name.sc );
+        bcore_sink_a_push_fa( sink, " \\\n#rn{ }XOILA_DECLARE_SPECT( #<sc_t> )", indent, o->st_name.sc );
     }
 
     bcore_sink_a_push_fa( sink, " \\\n#rn{ }{", indent );
@@ -431,15 +457,57 @@ er_t xoico_group_s_expand_spect_declaration( const xoico_group_s* o, sz_t indent
     for( sz_t i = 0; i < o->size; i++ ) BLM_TRY( xoico_a_expand_spect_declaration( o->data[ i ], indent + 4, sink ) );
     bcore_sink_a_push_fa( sink, " \\\n#rn{ }};", indent );
 
-    bcore_sink_a_push_fa( sink, " \\\n#rn{ }static inline #<sc_t>* #<sc_t>_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_#<sc_t>, t ); return ( #<sc_t>* )bcore_inst_t_create( t ); }", indent, o->name.sc, o->name.sc, o->name.sc, o->name.sc );
-    bcore_sink_a_push_fa( sink, " \\\n#rn{ }static inline bl_t #<sc_t>_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_#<sc_t> ); }", indent, o->name.sc, o->name.sc );
+    bcore_sink_a_push_fa
+    (
+        sink,
+        " \\\n#rn{ }"
+        "static inline #<sc_t>* #<sc_t>_t_create( tp_t t ) "
+        "{ "
+            "bcore_trait_assert_satisfied_type( TYPEOF_#<sc_t>, t ); "
+            "return ( #<sc_t>* )bcore_inst_t_create( t ); "
+        "}",
+        indent,
+        o->st_name.sc,
+        o->st_name.sc,
+        o->st_name.sc,
+        o->st_name.sc
+    );
 
-    /// some extra functionality for aware types
-    if( o->is_aware )
-    {
-        bcore_sink_a_push_fa( sink, " \\\n#rn{ }BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( #<sc_t> )", indent, o->name.sc );
-        bcore_sink_a_push_fa( sink, " \\\n#rn{ }static inline bl_t #<sc_t>_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_#<sc_t> ); }", indent, o->name.sc, o->name.sc );
-    }
+    bcore_sink_a_push_fa
+    (
+        sink,
+        " \\\n#rn{ }"
+        "static inline bl_t #<sc_t>_t_is_trait_of( tp_t t ) "
+        "{ "
+            "return bcore_trait_is_of( t, TYPEOF_#<sc_t> ); "
+        "}",
+        indent,
+        o->st_name.sc,
+        o->st_name.sc
+    );
+
+    bcore_sink_a_push_fa
+    (
+        sink,
+        " \\\n#rn{ }"
+        "BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( #<sc_t> )",
+        indent,
+        o->st_name.sc
+    );
+
+    bcore_sink_a_push_fa
+    (
+        sink,
+        " \\\n#rn{ }"
+        "static inline bl_t #<sc_t>_a_is_trait_of( vc_t o ) "
+        "{ "
+            "return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_#<sc_t> ); "
+        "}",
+        indent,
+        o->st_name.sc,
+        o->st_name.sc
+    );
+
     BLM_RETURNV( er_t, 0 );
 }
 
@@ -453,28 +521,23 @@ er_t xoico_group_s_expand_declaration( const xoico_group_s* o, sz_t indent, bcor
 
     bcore_sink_a_push_fa( sink, "\n" );
     bcore_sink_a_push_fa( sink, "#rn{ }//#rn{-}\n", indent, sz_max( 0, 118 - indent ) );
-    bcore_sink_a_push_fa( sink, "#rn{ }// group: #<sc_t>\n", indent, o->name.sc );
+    bcore_sink_a_push_fa( sink, "#rn{ }// group: #<sc_t>\n", indent, o->st_name.sc );
 
     bcore_sink_a_push_fa( sink, "\n" );
-    bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o->name.sc, typeof( o->name.sc ) );
+    bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o->st_name.sc, typeof( o->st_name.sc ) );
 
     st_s* st_spect_name = BLM_A_PUSH( xoico_group_s_create_spect_name( o ) );
     sc_t  sc_spect_name = st_spect_name->sc;
 
-    {
-        bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, sc_spect_name, typeof( sc_spect_name ) );
-    }
+    bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, sc_spect_name, typeof( sc_spect_name ) );
 
     for( sz_t i = 0; i < o->size; i++ ) BLM_TRY( xoico_a_expand_declaration( o->data[ i ], indent, sink ) );
-    bcore_sink_a_push_fa( sink, "#rn{ }##define BETH_EXPAND_GROUP_#<sc_t>", indent, o->name.sc );
+    bcore_sink_a_push_fa( sink, "#rn{ }##define BETH_EXPAND_GROUP_#<sc_t>", indent, o->st_name.sc );
 
     BLM_TRY( xoico_group_s_expand_forward( o, indent + 2, sink ) );
 
-    if( o->has_features )
-    {
-        for( sz_t i = 0; i < o->size; i++ ) BLM_TRY( xoico_a_expand_indef_typedef( o->data[ i ], indent, sink ) );
-        BLM_TRY( xoico_group_s_expand_spect_declaration( o, indent + 2, sink ) );
-    }
+    for( sz_t i = 0; i < o->size; i++ ) BLM_TRY( xoico_a_expand_indef_typedef( o->data[ i ], indent, sink ) );
+    BLM_TRY( xoico_group_s_expand_spect_declaration( o, indent + 2, sink ) );
 
     for( sz_t i = 0; i < o->size; i++ ) BLM_TRY( xoico_a_expand_indef_declaration( o->data[ i ], indent, sink ) );
 
@@ -491,11 +554,11 @@ er_t xoico_group_s_expand_spect_definition( const xoico_group_s* o, sz_t indent,
     bcore_sink_a_push_fa( sink, "\n" );
     if( o->short_spect_name )
     {
-        bcore_sink_a_push_fa( sink, "#rn{ }BCORE_DEFINE_SPECT( #<sc_t>, #<sc_t> )\n", indent, o->trait_name.sc, o->name.sc );
+        bcore_sink_a_push_fa( sink, "#rn{ }BCORE_DEFINE_SPECT( #<sc_t>, #<sc_t> )\n", indent, o->trait_name.sc, o->st_name.sc );
     }
     else
     {
-        bcore_sink_a_push_fa( sink, "#rn{ }XOILA_DEFINE_SPECT( #<sc_t>, #<sc_t> )\n", indent, o->trait_name.sc, o->name.sc );
+        bcore_sink_a_push_fa( sink, "#rn{ }XOILA_DEFINE_SPECT( #<sc_t>, #<sc_t> )\n", indent, o->trait_name.sc, o->st_name.sc );
     }
 
     bcore_sink_a_push_fa( sink, "#rn{ }\"{\"\n", indent );
@@ -513,7 +576,7 @@ er_t xoico_group_s_expand_definition( const xoico_group_s* o, sz_t indent, bcore
     if( !o->expandable ) BLM_RETURNV( er_t, 0 );
     bcore_sink_a_push_fa( sink, "\n" );
     bcore_sink_a_push_fa( sink, "#rn{ }//#rn{-}\n", indent, sz_max( 0, 118 - indent ) );
-    bcore_sink_a_push_fa( sink, "#rn{ }// group: #<sc_t>\n", indent, o->name.sc );
+    bcore_sink_a_push_fa( sink, "#rn{ }// group: #<sc_t>\n", indent, o->st_name.sc );
     for( sz_t i = 0; i < o->size; i++ )
     {
         // non-features
@@ -523,18 +586,16 @@ er_t xoico_group_s_expand_definition( const xoico_group_s* o, sz_t indent, bcore
         }
     }
 
-    if( o->has_features )
+    BLM_TRY( xoico_group_s_expand_spect_definition( o, indent, sink ) );
+    for( sz_t i = 0; i < o->size; i++ )
     {
-        BLM_TRY( xoico_group_s_expand_spect_definition( o, indent, sink ) );
-        for( sz_t i = 0; i < o->size; i++ )
+        // just-features
+        if( *(aware_t*)o->data[ i ] == TYPEOF_xoico_feature_s )
         {
-            // just-features
-            if( *(aware_t*)o->data[ i ] == TYPEOF_xoico_feature_s )
-            {
-                BLM_TRY( xoico_a_expand_definition( o->data[ i ], indent, sink ) );
-            }
+            BLM_TRY( xoico_a_expand_definition( o->data[ i ], indent, sink ) );
         }
     }
+
     BLM_RETURNV( er_t, 0 );
 }
 
@@ -545,23 +606,16 @@ er_t xoico_group_s_expand_init1( const xoico_group_s* o, sz_t indent, bcore_sink
     BLM_INIT();
     if( !o->expandable ) BLM_RETURNV( er_t, 0 );
     bcore_sink_a_push_fa( sink, "\n" );
-    bcore_sink_a_push_fa( sink, "#rn{ }// group: #<sc_t>\n", indent, o->name.sc );
+    bcore_sink_a_push_fa( sink, "#rn{ }// group: #<sc_t>\n", indent, o->st_name.sc );
     for( sz_t i = 0; i < o->size; i++ ) BLM_TRY( xoico_a_expand_init1( o->data[ i ], indent, sink ) );
 
-    if( o->has_features )
+    if( o->short_spect_name )
     {
-        if( o->short_spect_name )
-        {
-            bcore_sink_a_push_fa( sink, "#rn{ }BCORE_REGISTER_SPECT( #<sc_t> );\n", indent, o->name.sc );
-        }
-        else
-        {
-            bcore_sink_a_push_fa( sink, "#rn{ }XOILA_REGISTER_SPECT( #<sc_t> );\n", indent, o->name.sc );
-        }
+        bcore_sink_a_push_fa( sink, "#rn{ }BCORE_REGISTER_SPECT( #<sc_t> );\n", indent, o->st_name.sc );
     }
     else
     {
-        bcore_sink_a_push_fa( sink, "#rn{ }BCORE_REGISTER_TRAIT( #<sc_t>, #<sc_t> );\n", indent, o->name.sc, o->trait_name.sc );
+        bcore_sink_a_push_fa( sink, "#rn{ }XOILA_REGISTER_SPECT( #<sc_t> );\n", indent, o->st_name.sc );
     }
 
     if( o->retrievable )
@@ -571,7 +625,7 @@ er_t xoico_group_s_expand_init1( const xoico_group_s* o, sz_t indent, bcore_sink
             if( *(aware_t*)o->data[ i ] == TYPEOF_xoico_stamp_s )
             {
                 const xoico_stamp_s* stamp = ( xoico_stamp_s* )o->data[ i ];
-                bcore_sink_a_push_fa( sink, "#rn{ }bcore_inst_s_get_typed( TYPEOF_#<sc_t> );\n", indent, stamp->name.sc );
+                bcore_sink_a_push_fa( sink, "#rn{ }bcore_inst_s_get_typed( TYPEOF_#<sc_t> );\n", indent, stamp->st_name.sc );
             }
         }
     }

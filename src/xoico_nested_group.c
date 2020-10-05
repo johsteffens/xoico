@@ -29,7 +29,7 @@ tp_t xoico_nested_group_s_get_hash( const xoico_nested_group_s* o )
 
 er_t xoico_nested_group_s_expand_forward( const xoico_nested_group_s* o, sz_t indent, bcore_sink* sink )
 {
-    bcore_sink_a_push_fa( sink, " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o->group->name.sc );
+    bcore_sink_a_push_fa( sink, " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o->group->st_name.sc );
     return 0;
 }
 
@@ -37,7 +37,7 @@ er_t xoico_nested_group_s_expand_forward( const xoico_nested_group_s* o, sz_t in
 
 er_t xoico_nested_group_s_expand_indef_declaration( const xoico_nested_group_s* o, sz_t indent, bcore_sink* sink )
 {
-    bcore_sink_a_push_fa( sink, " \\\n#rn{ }  BETH_EXPAND_GROUP_#<sc_t>", indent, o->group->name.sc );
+    bcore_sink_a_push_fa( sink, " \\\n#rn{ }  BETH_EXPAND_GROUP_#<sc_t>", indent, o->group->st_name.sc );
     return 0;
 }
 

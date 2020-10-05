@@ -84,48 +84,24 @@ er_t xoico_compiler_s_check_overwrite( const xoico_compiler_s* o, sc_t file )
 er_t xoico_compiler_s_group_register( xoico_compiler_s* o, const xoico_group_s* group, bcore_source* source )
 {
     BLM_INIT();
-    sc_t global_name = group->name.sc;
-    tp_t global_id = typeof( global_name );
-    if( bcore_hmap_tpvd_s_exists( &o->hmap_group, global_id ) )
+    if( bcore_hmap_tpvd_s_exists( &o->hmap_group, group->tp_name ) )
     {
-        /// check collision
-        const xoico_group_s* group2 = *bcore_hmap_tpvd_s_get( &o->hmap_group, global_id );
-        sc_t global_name2 = group2->name.sc;
-
-        if( !sc_t_equal( global_name, global_name2 ) )
-        {
-            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Collision detected: '#<sc_t>' and '#<sc_t>' produce same hash\n", global_name, global_name2 );
-        }
-        else
-        {
-            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "'#<sc_t>' was already registered\n", global_name );
-        }
+        XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "'#<sc_t>' was already registered\n", xoico_compiler_s_nameof( o, group->tp_name ) );
     }
-    bcore_hmap_tpvd_s_set( &o->hmap_group, global_id, ( vd_t )group );
+    bcore_hmap_tpvd_s_set( &o->hmap_group, group->tp_name, ( vd_t )group );
     BLM_RETURNV( er_t, 0 );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// returns false if already registered; checks for collision
+/// returns false if already registered;
 er_t xoico_compiler_s_item_register( xoico_compiler_s* o, const xoico* item, bcore_source* source )
 {
     BLM_INIT();
-    sc_t global_name = xoico_a_get_global_name_sc( item );
-    tp_t global_id = typeof( global_name );
+    tp_t global_id = xoico_a_get_global_name_tp( item );
     if( bcore_hmap_tpvd_s_exists( &o->hmap_item, global_id ) )
     {
-        /// check collision
-        const xoico* item2 = *bcore_hmap_tpvd_s_get( &o->hmap_item, global_id );
-        sc_t global_name2 = xoico_a_get_global_name_sc( item2 );
-        if( !sc_t_equal( global_name, global_name2 ) )
-        {
-            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Collision detected: '#<sc_t>' and '#<sc_t>' produce same hash\n", global_name, global_name2 );
-        }
-        else
-        {
-            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "'#<sc_t>' was already registered\n", global_name );
-        }
+        XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "'#<sc_t>' was already registered\n", xoico_compiler_s_nameof( o, global_id ) );
     }
 
     bcore_hmap_tpvd_s_set( &o->hmap_item, global_id, ( vd_t )item );
@@ -134,7 +110,7 @@ er_t xoico_compiler_s_item_register( xoico_compiler_s* o, const xoico* item, bco
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// returns false if already registered; checks for collision
+/// returns false if already registered;
 er_t xoico_compiler_s_type_register( xoico_compiler_s* o, tp_t type )
 {
     bcore_hmap_tp_s_set( &o->hmap_type, type );
@@ -461,10 +437,11 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
                 info->type_info.typespec.is_const = ( signature->arg_o == TYPEOF_const );
                 sc_t  st_func_name = xoico_compiler_s_nameof( o, name );
                 ASSERT( st_func_name );
-                st_s* st_full_func_name = st_s_create_fa( "#<sc_t>_a_#<sc_t>", group->name.sc, st_func_name );
+                st_s* st_full_func_name = st_s_create_fa( "#<sc_t>_a_#<sc_t>", group->st_name.sc, st_func_name );
                 info->type_info.typespec.type = xoico_compiler_s_entypeof( ( xoico_compiler_s* )o, st_full_func_name->sc );
                 info->type_info.typespec.indirection = 0;
                 xoico_signature_s_attach( &info->signature, xoico_signature_s_clone( signature ) );
+                xoico_signature_s_relent( info->signature, group->tp_name );
                 st_s_discard( st_full_func_name );
                 success = true;
             }

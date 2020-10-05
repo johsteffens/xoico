@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-10-02T22:31:14Z
+ *  Last File Update: 2020-10-05T20:53:37Z
  *
  *  Copyright and License of this File:
  *
@@ -53,16 +53,17 @@ XOILA_DEFINE_SPECT( bcore_inst, xoico )
     "feature aware xoico : parse;"
     "feature aware xoico : get_hash;"
     "feature aware xoico : get_global_name_sc;"
-    "feature aware xoico : finalize = xoico_finalize__;"
-    "feature aware xoico : expand_setup = xoico_expand_setup__;"
-    "feature aware xoico : expand_forward = xoico_expand_forward__;"
-    "feature aware xoico : expand_indef_typedef = xoico_expand_indef_typedef__;"
-    "feature aware xoico : expand_spect_declaration = xoico_expand_spect_declaration__;"
-    "feature aware xoico : expand_spect_definition = xoico_expand_spect_definition__;"
-    "feature aware xoico : expand_declaration = xoico_expand_declaration__;"
-    "feature aware xoico : expand_indef_declaration = xoico_expand_indef_declaration__;"
-    "feature aware xoico : expand_definition = xoico_expand_definition__;"
-    "feature aware xoico : expand_init1 = xoico_expand_init1__;"
+    "feature aware xoico : get_global_name_tp = xoico_get_global_name_tp_default;"
+    "feature aware xoico : finalize = xoico_finalize_default;"
+    "feature aware xoico : expand_setup = xoico_expand_setup_default;"
+    "feature aware xoico : expand_forward = xoico_expand_forward_default;"
+    "feature aware xoico : expand_indef_typedef = xoico_expand_indef_typedef_default;"
+    "feature aware xoico : expand_spect_declaration = xoico_expand_spect_declaration_default;"
+    "feature aware xoico : expand_spect_definition = xoico_expand_spect_definition_default;"
+    "feature aware xoico : expand_declaration = xoico_expand_declaration_default;"
+    "feature aware xoico : expand_indef_declaration = xoico_expand_indef_declaration_default;"
+    "feature aware xoico : expand_definition = xoico_expand_definition_default;"
+    "feature aware xoico : expand_init1 = xoico_expand_init1_default;"
 "}";
 
 /**********************************************************************************************************************/
@@ -75,7 +76,7 @@ XOILA_DEFINE_SPECT( bcore_inst, xoico )
 BCORE_DEFINE_OBJECT_INST_P( xoico_name_s )
 "aware xoico_name"
 "{"
-    "st_s name;"
+    "tp_t name;"
     "hidden aware xoico_group_s* group;"
     "bcore_source_point_s source_point;"
     "func xoico:parse;"
@@ -83,6 +84,11 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_name_s )
     "func xoico:get_global_name_sc;"
     "func xoico:expand_declaration;"
     "func xoico:expand_init1;"
+"}";
+
+XOILA_DEFINE_SPECT( xoico, xoico_name )
+"{"
+    "bcore_spect_header_s header;"
 "}";
 
 /**********************************************************************************************************************/
@@ -106,6 +112,11 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_forward_s )
     "func xoico:expand_init1;"
 "}";
 
+XOILA_DEFINE_SPECT( xoico, xoico_forward )
+"{"
+    "bcore_spect_header_s header;"
+"}";
+
 /**********************************************************************************************************************/
 // source: xoico_typespec.h
 #include "xoico_typespec.h"
@@ -126,6 +137,11 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_typespec_s )
     "func xoico:get_hash;"
 "}";
 
+XOILA_DEFINE_SPECT( xoico, xoico_typespec )
+"{"
+    "bcore_spect_header_s header;"
+"}";
+
 /**********************************************************************************************************************/
 // source: xoico_arg.h
 #include "xoico_arg.h"
@@ -144,6 +160,11 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_arg_s )
     "func xoico:get_hash;"
 "}";
 
+XOILA_DEFINE_SPECT( xoico, xoico_arg )
+"{"
+    "bcore_spect_header_s header;"
+"}";
+
 /**********************************************************************************************************************/
 // source: xoico_args.h
 #include "xoico_args.h"
@@ -158,6 +179,11 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_args_s )
     "hidden aware xoico_group_s* group;"
     "func xoico:parse;"
     "func xoico:get_hash;"
+"}";
+
+XOILA_DEFINE_SPECT( xoico, xoico_args )
+"{"
+    "bcore_spect_header_s header;"
 "}";
 
 /**********************************************************************************************************************/
@@ -180,6 +206,11 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_signature_s )
     "func xoico:parse;"
     "func xoico:get_hash;"
     "func xoico:get_global_name_sc;"
+"}";
+
+XOILA_DEFINE_SPECT( xoico, xoico_signature )
+"{"
+    "bcore_spect_header_s header;"
 "}";
 
 /**********************************************************************************************************************/
@@ -215,6 +246,11 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_body_s )
     "func xoico:get_global_name_sc;"
 "}";
 
+XOILA_DEFINE_SPECT( xoico, xoico_body )
+"{"
+    "bcore_spect_header_s header;"
+"}";
+
 /**********************************************************************************************************************/
 // source: xoico_feature.h
 #include "xoico_feature.h"
@@ -233,6 +269,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_feature_s )
     "bl_t flag_t;"
     "bl_t flag_a;"
     "bl_t flag_r;"
+    "bl_t expandable = true;"
     "hidden aware xoico_group_s* group;"
     "bcore_source_point_s source_point;"
     "func xoico:parse;"
@@ -244,6 +281,11 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_feature_s )
     "func xoico:expand_indef_declaration;"
     "func xoico:expand_definition;"
     "func xoico:expand_init1;"
+"}";
+
+XOILA_DEFINE_SPECT( xoico, xoico_feature )
+"{"
+    "bcore_spect_header_s header;"
 "}";
 
 /**********************************************************************************************************************/
@@ -268,6 +310,11 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_func_s )
     "bcore_source_point_s source_point;"
 "}";
 
+XOILA_DEFINE_SPECT( xoico, xoico_func )
+"{"
+    "bcore_spect_header_s header;"
+"}";
+
 /**********************************************************************************************************************/
 // source: xoico_funcs.h
 #include "xoico_funcs.h"
@@ -279,6 +326,11 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_funcs_s )
 "aware xoico_funcs"
 "{"
     "xoico_func_s => [];"
+"}";
+
+XOILA_DEFINE_SPECT( xoico, xoico_funcs )
+"{"
+    "bcore_spect_header_s header;"
 "}";
 
 /**********************************************************************************************************************/
@@ -298,14 +350,13 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_group_s )
 "aware xoico_group"
 "{"
     "aware xoico => [];"
-    "st_s name;"
+    "st_s st_name;"
+    "tp_t tp_name;"
     "private xoico_group_s* group;"
     "st_s trait_name = \"bcore_inst\";"
     "tp_t hash;"
     "tp_t beta = 0;"
     "bl_t expandable = true;"
-    "bl_t has_features;"
-    "bl_t is_aware;"
     "bl_t retrievable;"
     "bl_t short_spect_name;"
     "private xoico_stamp_s -> extending;"
@@ -316,8 +367,14 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_group_s )
     "func xoico:parse;"
     "func xoico:get_hash;"
     "func xoico:get_global_name_sc;"
+    "func xoico:get_global_name_tp;"
     "func xoico:finalize;"
     "func xoico:expand_setup;"
+"}";
+
+XOILA_DEFINE_SPECT( xoico, xoico_group )
+"{"
+    "bcore_spect_header_s header;"
 "}";
 
 /**********************************************************************************************************************/
@@ -330,8 +387,9 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_group_s )
 BCORE_DEFINE_OBJECT_INST_P( xoico_stamp_s )
 "aware xoico_stamp"
 "{"
-    "st_s name;"
-    "st_s trait_name;"
+    "st_s st_name;"
+    "tp_t tp_name;"
+    "st_s st_trait_name;"
     "st_s => self_source;"
     "bcore_self_s => self;"
     "xoico_funcs_s funcs;"
@@ -339,6 +397,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_stamp_s )
     "bcore_source_point_s source_point;"
     "func xoico:get_hash;"
     "func xoico:get_global_name_sc;"
+    "func xoico:get_global_name_tp;"
     "func xoico:finalize;"
     "func xoico:expand_setup;"
     "func xoico:expand_declaration;"
@@ -346,6 +405,11 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_stamp_s )
     "func xoico:expand_indef_declaration;"
     "func xoico:expand_definition;"
     "func xoico:expand_init1;"
+"}";
+
+XOILA_DEFINE_SPECT( xoico, xoico_stamp )
+"{"
+    "bcore_spect_header_s header;"
 "}";
 
 /**********************************************************************************************************************/
@@ -362,6 +426,11 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_nested_group_s )
     "func xoico:get_hash;"
     "func xoico:expand_forward;"
     "func xoico:expand_indef_declaration;"
+"}";
+
+XOILA_DEFINE_SPECT( xoico, xoico_nested_group )
+"{"
+    "bcore_spect_header_s header;"
 "}";
 
 /**********************************************************************************************************************/
@@ -381,6 +450,11 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_source_s )
     "hidden aware xoico_target_s* target;"
     "func xoico:finalize;"
     "func xoico:expand_setup;"
+"}";
+
+XOILA_DEFINE_SPECT( xoico, xoico_source )
+"{"
+    "bcore_spect_header_s header;"
 "}";
 
 /**********************************************************************************************************************/
@@ -408,6 +482,11 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_target_s )
     "hidden aware xoico_compiler_s* compiler;"
     "func xoico:finalize;"
     "func xoico:expand_setup;"
+"}";
+
+XOILA_DEFINE_SPECT( xoico, xoico_target )
+"{"
+    "bcore_spect_header_s header;"
 "}";
 
 /**********************************************************************************************************************/
@@ -440,7 +519,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_compiler_s )
     "hidden bcore_hmap_tp_s hmap_type;"
     "hidden bcore_life_s life;"
     "hidden bcore_hmap_name_s name_map;"
-    "tp_t target_pre_hash = 49;"
+    "tp_t target_pre_hash = 59;"
     "bl_t register_non_feature_functions = true;"
     "bl_t register_signatures = false;"
     "bl_t overwrite_unsigned_target_files = false;"
@@ -449,6 +528,11 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_compiler_s )
     "sz_t verbosity = 1;"
     "func xoico:finalize;"
     "func xoico:expand_setup;"
+"}";
+
+XOILA_DEFINE_SPECT( xoico, xoico_compiler )
+"{"
+    "bcore_spect_header_s header;"
 "}";
 
 /**********************************************************************************************************************/
@@ -562,6 +646,11 @@ bl_t xoico_builder_main_s_get_overwrite_unsigned_target_files( const xoico_build
     return o->compiler->overwrite_unsigned_target_files;
 }
 
+XOILA_DEFINE_SPECT( xoico, xoico_builder )
+"{"
+    "bcore_spect_header_s header;"
+"}";
+
 /**********************************************************************************************************************/
 // source: xoico_cengine.h
 #include "xoico_cengine.h"
@@ -573,7 +662,7 @@ XOILA_DEFINE_SPECT( xoico, xoico_cengine )
 "{"
     "bcore_spect_header_s header;"
     "feature aware xoico_cengine : translate;"
-    "feature aware xoico_cengine : get_hash = xoico_cengine_get_hash__;"
+    "feature aware xoico_cengine : get_hash = xoico_cengine_get_hash_default;"
 "}";
 
 /**********************************************************************************************************************/
@@ -604,6 +693,11 @@ sc_t xoico_caleph_s_nameof( xoico_caleph_s* o, tp_t type )
     return name;
 }
 
+XOILA_DEFINE_SPECT( xoico_cengine, xoico_caleph )
+"{"
+    "bcore_spect_header_s header;"
+"}";
+
 /**********************************************************************************************************************/
 // source: xoico_cbeth.h
 #include "xoico_cbeth.h"
@@ -619,6 +713,11 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_cbeth_s )
     "xoico_compiler_s -> compiler;"
     "hidden xoico_cbeth_tn_stack_s stack;"
     "func xoico_cengine:translate;"
+"}";
+
+XOILA_DEFINE_SPECT( xoico_cengine, xoico_cbeth )
+"{"
+    "bcore_spect_header_s header;"
 "}";
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -717,6 +816,11 @@ void xoico_cbeth_tn_stack_s_init_from_args( xoico_cbeth_tn_stack_s* o, sc_t obj_
     }
 }
 
+XOILA_DEFINE_SPECT( xoico_cbeth, xoico_cbeth_tn )
+"{"
+    "bcore_spect_header_s header;"
+"}";
+
 /**********************************************************************************************************************/
 // source: xoico_cgimel.h
 #include "xoico_cgimel.h"
@@ -773,6 +877,11 @@ void xoico_cgimel_s_push_typedecl( xoico_cgimel_s* o, const xoico_typespec_s* ty
     BLM_DOWN();
 }
 
+XOILA_DEFINE_SPECT( xoico_cengine, xoico_cgimel )
+"{"
+    "bcore_spect_header_s header;"
+"}";
+
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_cgimel_stack
 
@@ -814,6 +923,11 @@ const xoico_typespec_s* xoico_cgimel_stack_s_get_typespec( const xoico_cgimel_st
     }
     return NULL;
 }
+
+XOILA_DEFINE_SPECT( xoico_cgimel, xoico_cgimel_stack )
+"{"
+    "bcore_spect_header_s header;"
+"}";
 
 /**********************************************************************************************************************/
 // source: xoico_xce.h
@@ -877,6 +991,11 @@ er_t xoico_xce_s_setup( xoico_xce_s* o, bl_t obj_const, tp_t obj_type, tp_t obj_
     BLM_RETURNV( er_t, 0 );
 }
 
+XOILA_DEFINE_SPECT( xoico, xoico_xce )
+"{"
+    "bcore_spect_header_s header;"
+"}";
+
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_xce_stack
 
@@ -918,6 +1037,11 @@ const xoico_typespec_s* xoico_xce_stack_s_get_typespec( const xoico_xce_stack_s*
     }
     return NULL;
 }
+
+XOILA_DEFINE_SPECT( xoico_xce, xoico_xce_stack )
+"{"
+    "bcore_spect_header_s header;"
+"}";
 
 //----------------------------------------------------------------------------------------------------------------------
 // group: sim
@@ -975,26 +1099,28 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_FEATURE( xoico_parse );
             BCORE_REGISTER_FEATURE( xoico_get_hash );
             BCORE_REGISTER_FEATURE( xoico_get_global_name_sc );
+            BCORE_REGISTER_FEATURE( xoico_get_global_name_tp );
+            BCORE_REGISTER_FFUNC( xoico_get_global_name_tp, xoico_get_global_name_tp_default );
             BCORE_REGISTER_FEATURE( xoico_finalize );
-            BCORE_REGISTER_FFUNC( xoico_finalize, xoico_finalize__ );
+            BCORE_REGISTER_FFUNC( xoico_finalize, xoico_finalize_default );
             BCORE_REGISTER_FEATURE( xoico_expand_setup );
-            BCORE_REGISTER_FFUNC( xoico_expand_setup, xoico_expand_setup__ );
+            BCORE_REGISTER_FFUNC( xoico_expand_setup, xoico_expand_setup_default );
             BCORE_REGISTER_FEATURE( xoico_expand_forward );
-            BCORE_REGISTER_FFUNC( xoico_expand_forward, xoico_expand_forward__ );
+            BCORE_REGISTER_FFUNC( xoico_expand_forward, xoico_expand_forward_default );
             BCORE_REGISTER_FEATURE( xoico_expand_indef_typedef );
-            BCORE_REGISTER_FFUNC( xoico_expand_indef_typedef, xoico_expand_indef_typedef__ );
+            BCORE_REGISTER_FFUNC( xoico_expand_indef_typedef, xoico_expand_indef_typedef_default );
             BCORE_REGISTER_FEATURE( xoico_expand_spect_declaration );
-            BCORE_REGISTER_FFUNC( xoico_expand_spect_declaration, xoico_expand_spect_declaration__ );
+            BCORE_REGISTER_FFUNC( xoico_expand_spect_declaration, xoico_expand_spect_declaration_default );
             BCORE_REGISTER_FEATURE( xoico_expand_spect_definition );
-            BCORE_REGISTER_FFUNC( xoico_expand_spect_definition, xoico_expand_spect_definition__ );
+            BCORE_REGISTER_FFUNC( xoico_expand_spect_definition, xoico_expand_spect_definition_default );
             BCORE_REGISTER_FEATURE( xoico_expand_declaration );
-            BCORE_REGISTER_FFUNC( xoico_expand_declaration, xoico_expand_declaration__ );
+            BCORE_REGISTER_FFUNC( xoico_expand_declaration, xoico_expand_declaration_default );
             BCORE_REGISTER_FEATURE( xoico_expand_indef_declaration );
-            BCORE_REGISTER_FFUNC( xoico_expand_indef_declaration, xoico_expand_indef_declaration__ );
+            BCORE_REGISTER_FFUNC( xoico_expand_indef_declaration, xoico_expand_indef_declaration_default );
             BCORE_REGISTER_FEATURE( xoico_expand_definition );
-            BCORE_REGISTER_FFUNC( xoico_expand_definition, xoico_expand_definition__ );
+            BCORE_REGISTER_FFUNC( xoico_expand_definition, xoico_expand_definition_default );
             BCORE_REGISTER_FEATURE( xoico_expand_init1 );
-            BCORE_REGISTER_FFUNC( xoico_expand_init1, xoico_expand_init1__ );
+            BCORE_REGISTER_FFUNC( xoico_expand_init1, xoico_expand_init1_default );
             BCORE_REGISTER_NAME( mutable );
             BCORE_REGISTER_NAME( const );
             BCORE_REGISTER_NAME( void );
@@ -1010,7 +1136,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_FFUNC( xoico_expand_declaration, xoico_name_s_expand_declaration );
             BCORE_REGISTER_FFUNC( xoico_expand_init1, xoico_name_s_expand_init1 );
             BCORE_REGISTER_OBJECT( xoico_name_s );
-            BCORE_REGISTER_TRAIT( xoico_name, xoico );
+            XOILA_REGISTER_SPECT( xoico_name );
 
             // --------------------------------------------------------------------
             // source: xoico_forward.h
@@ -1023,7 +1149,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_FFUNC( xoico_expand_forward, xoico_forward_s_expand_forward );
             BCORE_REGISTER_FFUNC( xoico_expand_init1, xoico_forward_s_expand_init1 );
             BCORE_REGISTER_OBJECT( xoico_forward_s );
-            BCORE_REGISTER_TRAIT( xoico_forward, xoico );
+            XOILA_REGISTER_SPECT( xoico_forward );
 
             // --------------------------------------------------------------------
             // source: xoico_typespec.h
@@ -1031,7 +1157,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             // group: xoico_typespec
             BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_typespec_s_get_hash );
             BCORE_REGISTER_OBJECT( xoico_typespec_s );
-            BCORE_REGISTER_TRAIT( xoico_typespec, xoico );
+            XOILA_REGISTER_SPECT( xoico_typespec );
 
             // --------------------------------------------------------------------
             // source: xoico_arg.h
@@ -1040,7 +1166,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_FFUNC( xoico_parse, xoico_arg_s_parse );
             BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_arg_s_get_hash );
             BCORE_REGISTER_OBJECT( xoico_arg_s );
-            BCORE_REGISTER_TRAIT( xoico_arg, xoico );
+            XOILA_REGISTER_SPECT( xoico_arg );
 
             // --------------------------------------------------------------------
             // source: xoico_args.h
@@ -1049,7 +1175,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_FFUNC( xoico_parse, xoico_args_s_parse );
             BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_args_s_get_hash );
             BCORE_REGISTER_OBJECT( xoico_args_s );
-            BCORE_REGISTER_TRAIT( xoico_args, xoico );
+            XOILA_REGISTER_SPECT( xoico_args );
 
             // --------------------------------------------------------------------
             // source: xoico_signature.h
@@ -1059,7 +1185,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_signature_s_get_hash );
             BCORE_REGISTER_FFUNC( xoico_get_global_name_sc, xoico_signature_s_get_global_name_sc );
             BCORE_REGISTER_OBJECT( xoico_signature_s );
-            BCORE_REGISTER_TRAIT( xoico_signature, xoico );
+            XOILA_REGISTER_SPECT( xoico_signature );
 
             // --------------------------------------------------------------------
             // source: xoico_body.h
@@ -1070,7 +1196,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_body_s_get_hash );
             BCORE_REGISTER_FFUNC( xoico_get_global_name_sc, xoico_body_s_get_global_name_sc );
             BCORE_REGISTER_OBJECT( xoico_body_s );
-            BCORE_REGISTER_TRAIT( xoico_body, xoico );
+            XOILA_REGISTER_SPECT( xoico_body );
 
             // --------------------------------------------------------------------
             // source: xoico_feature.h
@@ -1086,21 +1212,21 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_FFUNC( xoico_expand_definition, xoico_feature_s_expand_definition );
             BCORE_REGISTER_FFUNC( xoico_expand_init1, xoico_feature_s_expand_init1 );
             BCORE_REGISTER_OBJECT( xoico_feature_s );
-            BCORE_REGISTER_TRAIT( xoico_feature, xoico );
+            XOILA_REGISTER_SPECT( xoico_feature );
 
             // --------------------------------------------------------------------
             // source: xoico_func.h
 
             // group: xoico_func
             BCORE_REGISTER_OBJECT( xoico_func_s );
-            BCORE_REGISTER_TRAIT( xoico_func, xoico );
+            XOILA_REGISTER_SPECT( xoico_func );
 
             // --------------------------------------------------------------------
             // source: xoico_funcs.h
 
             // group: xoico_funcs
             BCORE_REGISTER_OBJECT( xoico_funcs_s );
-            BCORE_REGISTER_TRAIT( xoico_funcs, xoico );
+            XOILA_REGISTER_SPECT( xoico_funcs );
 
             // --------------------------------------------------------------------
             // source: xoico_group.h
@@ -1110,10 +1236,11 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_FFUNC( xoico_parse, xoico_group_s_parse );
             BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_group_s_get_hash );
             BCORE_REGISTER_FFUNC( xoico_get_global_name_sc, xoico_group_s_get_global_name_sc );
+            BCORE_REGISTER_FFUNC( xoico_get_global_name_tp, xoico_group_s_get_global_name_tp );
             BCORE_REGISTER_FFUNC( xoico_finalize, xoico_group_s_finalize );
             BCORE_REGISTER_FFUNC( xoico_expand_setup, xoico_group_s_expand_setup );
             BCORE_REGISTER_OBJECT( xoico_group_s );
-            BCORE_REGISTER_TRAIT( xoico_group, xoico );
+            XOILA_REGISTER_SPECT( xoico_group );
 
             // --------------------------------------------------------------------
             // source: xoico_stamp.h
@@ -1121,6 +1248,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             // group: xoico_stamp
             BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_stamp_s_get_hash );
             BCORE_REGISTER_FFUNC( xoico_get_global_name_sc, xoico_stamp_s_get_global_name_sc );
+            BCORE_REGISTER_FFUNC( xoico_get_global_name_tp, xoico_stamp_s_get_global_name_tp );
             BCORE_REGISTER_FFUNC( xoico_finalize, xoico_stamp_s_finalize );
             BCORE_REGISTER_FFUNC( xoico_expand_setup, xoico_stamp_s_expand_setup );
             BCORE_REGISTER_FFUNC( xoico_expand_declaration, xoico_stamp_s_expand_declaration );
@@ -1129,7 +1257,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_FFUNC( xoico_expand_definition, xoico_stamp_s_expand_definition );
             BCORE_REGISTER_FFUNC( xoico_expand_init1, xoico_stamp_s_expand_init1 );
             BCORE_REGISTER_OBJECT( xoico_stamp_s );
-            BCORE_REGISTER_TRAIT( xoico_stamp, xoico );
+            XOILA_REGISTER_SPECT( xoico_stamp );
 
             // --------------------------------------------------------------------
             // source: xoico_nested_group.h
@@ -1139,7 +1267,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_FFUNC( xoico_expand_forward, xoico_nested_group_s_expand_forward );
             BCORE_REGISTER_FFUNC( xoico_expand_indef_declaration, xoico_nested_group_s_expand_indef_declaration );
             BCORE_REGISTER_OBJECT( xoico_nested_group_s );
-            BCORE_REGISTER_TRAIT( xoico_nested_group, xoico );
+            XOILA_REGISTER_SPECT( xoico_nested_group );
 
             // --------------------------------------------------------------------
             // source: xoico_source.h
@@ -1148,7 +1276,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_FFUNC( xoico_finalize, xoico_source_s_finalize );
             BCORE_REGISTER_FFUNC( xoico_expand_setup, xoico_source_s_expand_setup );
             BCORE_REGISTER_OBJECT( xoico_source_s );
-            BCORE_REGISTER_TRAIT( xoico_source, xoico );
+            XOILA_REGISTER_SPECT( xoico_source );
 
             // --------------------------------------------------------------------
             // source: xoico_target.h
@@ -1157,7 +1285,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_FFUNC( xoico_finalize, xoico_target_s_finalize );
             BCORE_REGISTER_FFUNC( xoico_expand_setup, xoico_target_s_expand_setup );
             BCORE_REGISTER_OBJECT( xoico_target_s );
-            BCORE_REGISTER_TRAIT( xoico_target, xoico );
+            XOILA_REGISTER_SPECT( xoico_target );
 
             // --------------------------------------------------------------------
             // source: xoico_compiler.h
@@ -1168,7 +1296,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_FFUNC( xoico_finalize, xoico_compiler_s_finalize );
             BCORE_REGISTER_FFUNC( xoico_expand_setup, xoico_compiler_s_expand_setup );
             BCORE_REGISTER_OBJECT( xoico_compiler_s );
-            BCORE_REGISTER_TRAIT( xoico_compiler, xoico );
+            XOILA_REGISTER_SPECT( xoico_compiler );
 
             // --------------------------------------------------------------------
             // source: xoico_builder.h
@@ -1178,7 +1306,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_FFUNC( bcore_via_call_source, xoico_builder_target_s_source );
             BCORE_REGISTER_OBJECT( xoico_builder_target_s );
             BCORE_REGISTER_OBJECT( xoico_builder_main_s );
-            BCORE_REGISTER_TRAIT( xoico_builder, xoico );
+            XOILA_REGISTER_SPECT( xoico_builder );
 
             // --------------------------------------------------------------------
             // source: xoico_cengine.h
@@ -1186,7 +1314,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             // group: xoico_cengine
             BCORE_REGISTER_FEATURE( xoico_cengine_translate );
             BCORE_REGISTER_FEATURE( xoico_cengine_get_hash );
-            BCORE_REGISTER_FFUNC( xoico_cengine_get_hash, xoico_cengine_get_hash__ );
+            BCORE_REGISTER_FFUNC( xoico_cengine_get_hash, xoico_cengine_get_hash_default );
             XOILA_REGISTER_SPECT( xoico_cengine );
 
             // --------------------------------------------------------------------
@@ -1195,7 +1323,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             // group: xoico_caleph
             BCORE_REGISTER_FFUNC( xoico_cengine_translate, xoico_caleph_s_translate );
             BCORE_REGISTER_OBJECT( xoico_caleph_s );
-            BCORE_REGISTER_TRAIT( xoico_caleph, xoico_cengine );
+            XOILA_REGISTER_SPECT( xoico_caleph );
 
             // --------------------------------------------------------------------
             // source: xoico_cbeth.h
@@ -1203,13 +1331,13 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             // group: xoico_cbeth
             BCORE_REGISTER_FFUNC( xoico_cengine_translate, xoico_cbeth_s_translate );
             BCORE_REGISTER_OBJECT( xoico_cbeth_s );
-            BCORE_REGISTER_TRAIT( xoico_cbeth, xoico_cengine );
+            XOILA_REGISTER_SPECT( xoico_cbeth );
 
             // group: xoico_cbeth_tn
             BCORE_REGISTER_OBJECT( xoico_cbeth_tn_unit_s );
             BCORE_REGISTER_OBJECT( xoico_cbeth_tn_adl_s );
             BCORE_REGISTER_OBJECT( xoico_cbeth_tn_stack_s );
-            BCORE_REGISTER_TRAIT( xoico_cbeth_tn, xoico_cbeth );
+            XOILA_REGISTER_SPECT( xoico_cbeth_tn );
 
             // --------------------------------------------------------------------
             // source: xoico_cgimel.h
@@ -1221,26 +1349,26 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_NAME( deduce );
             BCORE_REGISTER_FFUNC( xoico_cengine_translate, xoico_cgimel_s_translate );
             BCORE_REGISTER_OBJECT( xoico_cgimel_s );
-            BCORE_REGISTER_TRAIT( xoico_cgimel, xoico_cengine );
+            XOILA_REGISTER_SPECT( xoico_cgimel );
 
             // group: xoico_cgimel_stack
             BCORE_REGISTER_OBJECT( xoico_cgimel_stack_unit_s );
             BCORE_REGISTER_OBJECT( xoico_cgimel_stack_unit_adl_s );
             BCORE_REGISTER_OBJECT( xoico_cgimel_stack_s );
-            BCORE_REGISTER_TRAIT( xoico_cgimel_stack, xoico_cgimel );
+            XOILA_REGISTER_SPECT( xoico_cgimel_stack );
 
             // --------------------------------------------------------------------
             // source: xoico_xce.h
 
             // group: xoico_xce
             BCORE_REGISTER_OBJECT( xoico_xce_s );
-            BCORE_REGISTER_TRAIT( xoico_xce, xoico );
+            XOILA_REGISTER_SPECT( xoico_xce );
 
             // group: xoico_xce_stack
             BCORE_REGISTER_OBJECT( xoico_xce_stack_unit_s );
             BCORE_REGISTER_OBJECT( xoico_xce_stack_unit_adl_s );
             BCORE_REGISTER_OBJECT( xoico_xce_stack_s );
-            BCORE_REGISTER_TRAIT( xoico_xce_stack, xoico_xce );
+            XOILA_REGISTER_SPECT( xoico_xce_stack );
 
             // group: sim
             BCORE_REGISTER_FEATURE( sim_setup );
@@ -1266,4 +1394,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0x0C8AE57AC1559672ull
+// XOILA_OUT_SIGNATURE 0x73867219C9026DA6ull

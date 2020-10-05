@@ -19,6 +19,7 @@
 /**********************************************************************************************************************/
 
 #include "xoico.h"
+#include "xoico_compiler.h"
 
 /**********************************************************************************************************************/
 
@@ -27,7 +28,7 @@ XOILA_DEFINE_GROUP( xoico_name, xoico )
 
 stamp : = aware :
 {
-    st_s name; // deemed global
+    tp_t name; // deemed global
     hidden aware xoico_group_s* group;
     bcore_source_point_s source_point;
 

@@ -212,7 +212,7 @@ er_t xoico_body_s_parse_expression( xoico_body_s* o, bcore_source* source )
         BLM_TRY( xoico_group_s_parse_name( o->group, name, source ) );
         if( name->size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Body name expected." );
 
-        if( o->stamp ) st_s_replace_sc_sc( name, "@", o->stamp->name.sc );
+        if( o->stamp ) st_s_replace_sc_sc( name, "@", o->stamp->st_name.sc );
 
         tp_t tp_name = typeof( name->sc );
 
@@ -265,7 +265,7 @@ er_t xoico_body_s_parse( xoico_body_s* o, bcore_source* source )
 
     BLM_TRY( xoico_body_s_parse_expression( o, source ) );
 
-    st_s_copy_fa( &o->global_name, "#<sc_t>_#<sc_t>", o->group->name.sc, o->name.sc );
+    st_s_copy_fa( &o->global_name, "#<sc_t>_#<sc_t>", o->group->st_name.sc, o->name.sc );
     BLM_RETURNV( er_t, 0 );
 }
 

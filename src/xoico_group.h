@@ -44,7 +44,8 @@ stamp : = aware :
 {
     aware xoico => []; // group elements
 
-    st_s name; // global name
+    st_s st_name; // global name
+    tp_t tp_name; // global name
 
     private :s* group; // parent group;
 
@@ -59,8 +60,7 @@ stamp : = aware :
     // 'expandable' is set 'false' for groups that is not intended to be expanded into actual code
     // but may contain information referenced in other groups (e.g. global features)
     bl_t expandable = true;
-    bl_t has_features;
-    bl_t is_aware;
+
     bl_t retrievable;
 
     /** Activates using the short perspective type name.
@@ -84,6 +84,7 @@ stamp : = aware :
     func xoico :parse;
     func xoico :get_hash;
     func xoico :get_global_name_sc;
+    func xoico :get_global_name_tp = { return o->tp_name; };
     func xoico :finalize;
     func xoico :expand_setup;
 

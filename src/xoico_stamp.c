@@ -160,15 +160,15 @@ static st_s* create_structured_multiline_string( const sc_t s, sz_t indent )
 
 sc_t xoico_stamp_s_get_global_name_sc( const xoico_stamp_s* o )
 {
-    return o->name.sc;
+    return o->st_name.sc;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 sc_t xoico_stamp_s_get_rel_name_sc( const xoico_stamp_s* o )
 {
-    sc_t group_name = o->group->name.sc;
-    sc_t stamp_name = o->name.sc;
+    sc_t group_name = o->group->st_name.sc;
+    sc_t stamp_name = o->st_name.sc;
 
     sz_t i = 0;
     while( group_name[ i ] == stamp_name[ i ] && group_name[ i ] != 0 ) i++;
@@ -182,7 +182,7 @@ sc_t xoico_stamp_s_get_rel_name_sc( const xoico_stamp_s* o )
 tp_t xoico_stamp_s_get_hash( const xoico_stamp_s* o )
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
-    hash = bcore_tp_fold_sc( hash, o->name.sc );
+    hash = bcore_tp_fold_sc( hash, o->st_name.sc );
     hash = bcore_tp_fold_sc( hash, o->self_source->sc );
     for( sz_t i = 0; i < o->funcs.size; i++ )
     {
@@ -390,7 +390,7 @@ er_t xoico_stamp_s_parse( xoico_stamp_s* o, xoico_group_s* group, bcore_source* 
 
         if( bcore_source_a_parse_bl_fa( source, " #?':'" ) )
         {
-            st_s_copy( trait_name, &group->name );
+            st_s_copy( trait_name, &group->st_name );
         }
         else
         {
@@ -398,11 +398,12 @@ er_t xoico_stamp_s_parse( xoico_stamp_s* o, xoico_group_s* group, bcore_source* 
             if( trait_name->size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Trait name expected." );
         }
 
-        st_s_copy( &o->trait_name, trait_name );
+        st_s_copy( &o->st_trait_name, trait_name );
         st_s_push_st( o->self_source, trait_name );
     }
 
-    st_s_copy( &o->name, stamp_name );
+    st_s_copy( &o->st_name, stamp_name );
+    o->tp_name = XOICO_ENTYPEOF( stamp_name->sc );
 
     BLM_TRY( xoico_stamp_s_parse_extend( o, source, verbatim ) );
 
@@ -414,7 +415,7 @@ er_t xoico_stamp_s_parse( xoico_stamp_s* o, xoico_group_s* group, bcore_source* 
 er_t xoico_stamp_s_finalize( xoico_stamp_s* o )
 {
     BLM_INIT();
-    st_s_replace_sc_sc( o->self_source, "@", o->name.sc );
+    st_s_replace_sc_sc( o->self_source, "@", o->st_name.sc );
 
     for( sz_t i = 0; i < o->funcs.size; i++ )
     {
@@ -432,7 +433,7 @@ er_t xoico_stamp_s_finalize( xoico_stamp_s* o )
             BLM_A_PUSH( (bcore_source*)bcore_source_string_s_create_from_string( o->self_source ) ),
             0,
             0,
-            o->group->name.sc,
+            o->group->st_name.sc,
             false
         )
     );
@@ -450,7 +451,7 @@ er_t xoico_stamp_s_finalize( xoico_stamp_s* o )
             {
                 if( bcore_hmap_tp_s_exists( hmap_name, item->name ) )
                 {
-                    XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA( &o->source_point, "In stamp '<sc_t>': Repeated use of element name '<sc_t>'.", o->name.sc, XOICO_NAMEOF( item->name ) );
+                    XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA( &o->source_point, "In stamp '<sc_t>': Repeated use of element name '<sc_t>'.", o->st_name.sc, XOICO_NAMEOF( item->name ) );
                     bcore_hmap_tp_s_set( hmap_name, item->name );
                 }
             }
@@ -483,7 +484,7 @@ er_t xoico_stamp_s_make_funcs_overloadable( xoico_stamp_s* o )
 
 er_t xoico_stamp_s_expand_forward( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink )
 {
-    bcore_sink_a_push_fa( sink, " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o->name.sc );
+    bcore_sink_a_push_fa( sink, " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o->st_name.sc );
     return 0;
 }
 
@@ -491,7 +492,7 @@ er_t xoico_stamp_s_expand_forward( const xoico_stamp_s* o, sz_t indent, bcore_si
 
 er_t xoico_stamp_s_expand_indef_declaration( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink )
 {
-    bcore_sink_a_push_fa( sink, " \\\n#rn{ }  BETH_EXPAND_ITEM_#<sc_t>", indent, o->name.sc );
+    bcore_sink_a_push_fa( sink, " \\\n#rn{ }  BETH_EXPAND_ITEM_#<sc_t>", indent, o->st_name.sc );
     return 0;
 }
 
@@ -501,7 +502,7 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcor
 {
     BLM_INIT();
 
-    sc_t sc_name = o->name.sc;
+    sc_t sc_name = o->st_name.sc;
 
     bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, sc_name, typeof( sc_name ) );
 
@@ -638,7 +639,7 @@ er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore
 {
     BLM_INIT();
 
-    sc_t sc_name = o->name.sc;
+    sc_t sc_name = o->st_name.sc;
 
     st_s* embedded_string = BLM_A_PUSH( create_embedded_string( o->self_source ) );
 
@@ -662,7 +663,7 @@ er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore
     }
 
     bcore_sink_a_push_fa( sink, "\n" );
-    bcore_sink_a_push_fa( sink, "#rn{ }BCORE_DEFINE_OBJECT_INST_P( #<sc_t> )\n", indent, o->name.sc );
+    bcore_sink_a_push_fa( sink, "#rn{ }BCORE_DEFINE_OBJECT_INST_P( #<sc_t> )\n", indent, o->st_name.sc );
 
     st_s* multiline_string = BLM_A_PUSH( create_structured_multiline_string( self_def, indent ) );
     bcore_sink_a_push_fa( sink, "#<sc_t>;\n", multiline_string->sc );
@@ -700,7 +701,7 @@ er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore
         }
         else
         {
-            XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA( &func->source_point, "Stamp #<sc_t>: Could not resolve function #<sc_t> #<sc_t>", o->name.sc, ifnameof( func->type ), XOICO_NAMEOF( func->name ) );
+            XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA( &func->source_point, "Stamp #<sc_t>: Could not resolve function #<sc_t> #<sc_t>", o->st_name.sc, ifnameof( func->type ), XOICO_NAMEOF( func->name ) );
         }
         BLM_DOWN();
     }
@@ -723,15 +724,15 @@ er_t xoico_stamp_s_expand_init1( const xoico_stamp_s* o, sz_t indent, bcore_sink
             if( xoico_func_s_registerable( func ) )
             {
                 const xoico_signature_s* signature = xoico_compiler_s_get_signature( xoico_group_s_get_compiler( o->group ), func->type );
-                bcore_sink_a_push_fa( sink, "#rn{ }BCORE_REGISTER_FFUNC( #<sc_t>, #<sc_t>_#<sc_t> );\n", indent, signature->st_global_name.sc, o->name.sc, XOICO_NAMEOF( func->name ) );
+                bcore_sink_a_push_fa( sink, "#rn{ }BCORE_REGISTER_FFUNC( #<sc_t>, #<sc_t>_#<sc_t> );\n", indent, signature->st_global_name.sc, o->st_name.sc, XOICO_NAMEOF( func->name ) );
             }
         }
         else
         {
-            XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA( &func->source_point, "Stamp #<sc_t>: Could not resolve function #<sc_t> #<sc_t>", o->name.sc, ifnameof( func->type ), XOICO_NAMEOF( func->name ) );
+            XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA( &func->source_point, "Stamp #<sc_t>: Could not resolve function #<sc_t> #<sc_t>", o->st_name.sc, ifnameof( func->type ), XOICO_NAMEOF( func->name ) );
         }
     }
-    bcore_sink_a_push_fa( sink, "#rn{ }BCORE_REGISTER_OBJECT( #<sc_t> );\n", indent, o->name.sc );
+    bcore_sink_a_push_fa( sink, "#rn{ }BCORE_REGISTER_OBJECT( #<sc_t> );\n", indent, o->st_name.sc );
     BLM_RETURNV( er_t, 0 );
 }
 

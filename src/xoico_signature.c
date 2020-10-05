@@ -94,7 +94,7 @@ er_t xoico_signature_s_parse( xoico_signature_s* o, bcore_source* source )
         XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
     }
 
-    st_s_copy_fa( &o->st_global_name, "#<sc_t>_#<sc_t>", o->group->name.sc, o->st_name.sc );
+    st_s_copy_fa( &o->st_global_name, "#<sc_t>_#<sc_t>", o->group->st_name.sc, o->st_name.sc );
     BLM_RETURNV( er_t, 0 );
 }
 
@@ -113,7 +113,7 @@ er_t xoico_signature_s_relent( xoico_signature_s* o, tp_t tp_obj_type )
 er_t xoico_signature_s_expand_declaration( const xoico_signature_s* o, const xoico_stamp_s* stamp, sc_t sc_func_global_name, sz_t indent, bcore_sink* sink )
 {
     BLM_INIT();
-    sc_t sc_name = stamp->name.sc;
+    sc_t sc_name = stamp->st_name.sc;
     xoico_typespec_s_expand( &o->typespec_ret, o->group, sc_name, sink );
     bcore_sink_a_push_fa( sink, " #<sc_t>( ", sc_func_global_name );
 

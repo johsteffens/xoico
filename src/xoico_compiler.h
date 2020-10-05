@@ -83,7 +83,7 @@ stamp : = aware :
      *  This is used during development or when a new version changes the
      *  target_out files in a material way.
      */
-    tp_t target_pre_hash                 = 49;
+    tp_t target_pre_hash                 = 59;
     bl_t register_non_feature_functions  = true;
     bl_t register_signatures             = false;
     bl_t overwrite_unsigned_target_files = false;
@@ -118,7 +118,6 @@ stamp : = aware :
 
     func : :entypeof = { return bcore_hmap_name_s_set_sc( &o->name_map, name ); };
     func : :nameof   = { return bcore_hmap_name_s_get_sc( &o->name_map, type ); };
-
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

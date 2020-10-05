@@ -45,7 +45,7 @@ er_t xoico_forward_s_parse( xoico_forward_s* o, bcore_source* source )
     {
         st_s* name = BLM_CREATE( st_s );
         XOICO_BLM_SOURCE_PARSE_FA( source, " #name", name );
-        st_s_push_fa( &o->name, "#<sc_t>#<sc_t>#<sc_t>", o->group->name.sc, name->sc[ 0 ] ? "_" : "", name->sc );
+        st_s_push_fa( &o->name, "#<sc_t>#<sc_t>#<sc_t>", o->group->st_name.sc, name->sc[ 0 ] ? "_" : "", name->sc );
     }
     else
     {
