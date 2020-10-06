@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-10-05T20:53:37Z
+ *  Last File Update: 2020-10-06T20:07:19Z
  *
  *  Copyright and License of this File:
  *
@@ -136,6 +136,18 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_typespec_s )
     "bl_t has_address = true;"
     "func xoico:get_hash;"
 "}";
+
+void xoico_typespec_s_reset( xoico_typespec_s* o )
+{
+    // xoico_typespec.h:50:5
+    o->type = 0;
+    o->indirection = 0;
+    o->is_const    = false;
+    o->is_static   = false;
+    o->is_volatile = false;
+    o->is_restrict = false;
+    o->has_address = true;  // object can have a pointer ('false' for objects returned by a function)
+}
 
 XOILA_DEFINE_SPECT( xoico, xoico_typespec )
 "{"
@@ -519,7 +531,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_compiler_s )
     "hidden bcore_hmap_tp_s hmap_type;"
     "hidden bcore_life_s life;"
     "hidden bcore_hmap_name_s name_map;"
-    "tp_t target_pre_hash = 59;"
+    "tp_t target_pre_hash = 68;"
     "bl_t register_non_feature_functions = true;"
     "bl_t register_signatures = false;"
     "bl_t overwrite_unsigned_target_files = false;"
@@ -1394,4 +1406,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0x73867219C9026DA6ull
+// XOILA_OUT_SIGNATURE 0x16BCD237447F7F43ull

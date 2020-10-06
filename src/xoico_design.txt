@@ -236,16 +236,13 @@ TODO:
 - (done) each group has default (aware, typed) features: *_t_create, _a_discard, _a_attach, _a_detach, _a_copy, _t_clone
 - (done) add inexpandable features for above functions
 - (done) rename default bodies of features from *__ to *_default.  (the default name can also be manually set)
-- new operator '=<' corresponds to function attach; expr =< NULL corresponds to detach;
-- positfix operator ! after a (stamp-)type converts it into a traced <type>_s_create();
-- add postfix !-operator ensuring that the element-chain was created.
+- (done) new operator '=<' corresponds to function attach; expr =< NULL corresponds to detach;
+- (done) attach on groups: check for type consistency
+- (done) positfix operator '!' after a type converts it into a traced <type>_create(); (no effect if lvalue has indirection 0)
+- (done) positfix operator '?.' after a type checks if lvalue is zero before dereferencing (no effect if lvalue has indirection 0)
+- (done) bounds check '?[<index>]' checks if index is out of range
 - add type specifier 'keep' (e.g. to be used in function returns) telling the compiler to take control of the object's lifetime
-- add if-clause with two expressions the first one can be a declaration (same treatment as in for clause). The scope applies to the if- and possible subsequent else-block
-
-example:
-o.lib!.track_vop_push_c( name, vop )
-expands to
-lib_s_track_vop_push_c( ( o->lib ? o->lib : ( o->lib = lib_s_create() ) ), name, vop )
+- allow variable declaration inside any expression;
 
 Keywords (for syntax highlight)
 

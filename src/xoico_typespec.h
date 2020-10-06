@@ -28,6 +28,7 @@ XOILA_DEFINE_GROUP( xoico_typespec, xoico )
 signature er_t parse( mutable,  xoico_group_s* group, bcore_source* source );
 signature er_t relent( mutable, xoico_group_s* group, tp_t tp_obj_type );
 signature er_t expand( const, xoico_group_s* group, sc_t sc_obj_type, bcore_sink* sink );
+signature void reset( mutable );
 
 stamp : = aware :
 {
@@ -44,6 +45,17 @@ stamp : = aware :
     func     : : parse;
     func     : : relent;
     func     : : expand;
+
+    func     : : reset =
+    {
+        o->type = 0;
+        o->indirection = 0;
+        o->is_const    = false;
+        o->is_static   = false;
+        o->is_volatile = false;
+        o->is_restrict = false;
+        o->has_address = true;  // object can have a pointer ('false' for objects returned by a function)
+    };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

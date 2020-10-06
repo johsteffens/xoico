@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-10-05T20:53:37Z
+ *  Last File Update: 2020-10-06T20:07:19Z
  *
  *  Copyright and License of this File:
  *
@@ -39,7 +39,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x16B2022543F60EF3ull
+#define HKEYOF_xoico_xoila_out 0x1B428F1219A2B33Full
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -120,10 +120,7 @@
       xoico_expand_definition expand_definition; \
       xoico_expand_init1 expand_init1; \
   }; \
-  static inline xoico* xoico_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico, t ); return ( xoico* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico ) \
-  static inline bl_t xoico_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico ); } \
   static inline er_t xoico_p_parse( const xoico_spect_s* __p, xoico* o, bcore_source* source ) { assert( __p->parse ); return __p->parse( o, source ); } \
   static inline er_t xoico_a_parse( xoico* o, bcore_source* source ) { const xoico_spect_s* p = xoico_spect_s_get_aware( o ); assert( p->parse ); return p->parse( o, source ); } \
   static inline bl_t xoico_p_defines_parse( const xoico_spect_s* __p ) { return __p->parse != NULL; } \
@@ -221,10 +218,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_name* xoico_name_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_name, t ); return ( xoico_name* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_name_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_name ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_name ) \
-  static inline bl_t xoico_name_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_name ); } \
   BETH_EXPAND_ITEM_xoico_name_s
 
 /**********************************************************************************************************************/
@@ -257,10 +251,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_forward* xoico_forward_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_forward, t ); return ( xoico_forward* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_forward_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_forward ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_forward ) \
-  static inline bl_t xoico_forward_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_forward ); } \
   BETH_EXPAND_ITEM_xoico_forward_s
 
 /**********************************************************************************************************************/
@@ -287,7 +278,8 @@
   tp_t xoico_typespec_s_get_hash( const xoico_typespec_s* o ); \
   er_t xoico_typespec_s_parse( xoico_typespec_s* o, xoico_group_s* group, bcore_source* source ); \
   er_t xoico_typespec_s_relent( xoico_typespec_s* o, xoico_group_s* group, tp_t tp_obj_type ); \
-  er_t xoico_typespec_s_expand( const xoico_typespec_s* o, xoico_group_s* group, sc_t sc_obj_type, bcore_sink* sink );
+  er_t xoico_typespec_s_expand( const xoico_typespec_s* o, xoico_group_s* group, sc_t sc_obj_type, bcore_sink* sink ); \
+  void xoico_typespec_s_reset( xoico_typespec_s* o );
 #define BETH_EXPAND_GROUP_xoico_typespec \
   BCORE_FORWARD_OBJECT( xoico_typespec ); \
   BCORE_FORWARD_OBJECT( xoico_typespec_s ); \
@@ -295,10 +287,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_typespec* xoico_typespec_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_typespec, t ); return ( xoico_typespec* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_typespec_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_typespec ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_typespec ) \
-  static inline bl_t xoico_typespec_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_typespec ); } \
   BETH_EXPAND_ITEM_xoico_typespec_s
 
 /**********************************************************************************************************************/
@@ -331,10 +320,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_arg* xoico_arg_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_arg, t ); return ( xoico_arg* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_arg_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_arg ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_arg ) \
-  static inline bl_t xoico_arg_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_arg ); } \
   BETH_EXPAND_ITEM_xoico_arg_s
 
 /**********************************************************************************************************************/
@@ -366,10 +352,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_args* xoico_args_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_args, t ); return ( xoico_args* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_args_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_args ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_args ) \
-  static inline bl_t xoico_args_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_args ); } \
   BETH_EXPAND_ITEM_xoico_args_s
 
 /**********************************************************************************************************************/
@@ -405,10 +388,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_signature* xoico_signature_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_signature, t ); return ( xoico_signature* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_signature_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_signature ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_signature ) \
-  static inline bl_t xoico_signature_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_signature ); } \
   BETH_EXPAND_ITEM_xoico_signature_s
 
 /**********************************************************************************************************************/
@@ -462,10 +442,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_body* xoico_body_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_body, t ); return ( xoico_body* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_body_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_body ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_body ) \
-  static inline bl_t xoico_body_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_body ); } \
   BETH_EXPAND_ITEM_xoico_body_code_s \
   BETH_EXPAND_ITEM_xoico_body_s
 
@@ -510,10 +487,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_feature* xoico_feature_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_feature, t ); return ( xoico_feature* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_feature_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_feature ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_feature ) \
-  static inline bl_t xoico_feature_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_feature ); } \
   BETH_EXPAND_ITEM_xoico_feature_s
 
 /**********************************************************************************************************************/
@@ -551,10 +525,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_func* xoico_func_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_func, t ); return ( xoico_func* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_func_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_func ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_func ) \
-  static inline bl_t xoico_func_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_func ); } \
   BETH_EXPAND_ITEM_xoico_func_s
 
 /**********************************************************************************************************************/
@@ -586,10 +557,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_funcs* xoico_funcs_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_funcs, t ); return ( xoico_funcs* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_funcs_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_funcs ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_funcs ) \
-  static inline bl_t xoico_funcs_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_funcs ); } \
   BETH_EXPAND_ITEM_xoico_funcs_s
 
 /**********************************************************************************************************************/
@@ -662,10 +630,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_group* xoico_group_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_group, t ); return ( xoico_group* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_group_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_group ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_group ) \
-  static inline bl_t xoico_group_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_group ); } \
   BETH_EXPAND_ITEM_xoico_group_source_stack_s \
   BETH_EXPAND_ITEM_xoico_group_s
 
@@ -711,10 +676,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_stamp* xoico_stamp_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_stamp, t ); return ( xoico_stamp* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_stamp_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_stamp ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_stamp ) \
-  static inline bl_t xoico_stamp_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_stamp ); } \
   BETH_EXPAND_ITEM_xoico_stamp_s
 
 /**********************************************************************************************************************/
@@ -742,10 +704,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_nested_group* xoico_nested_group_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_nested_group, t ); return ( xoico_nested_group* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_nested_group_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_nested_group ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_nested_group ) \
-  static inline bl_t xoico_nested_group_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_nested_group ); } \
   BETH_EXPAND_ITEM_xoico_nested_group_s
 
 /**********************************************************************************************************************/
@@ -782,10 +741,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_source* xoico_source_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_source, t ); return ( xoico_source* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_source_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_source ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_source ) \
-  static inline bl_t xoico_source_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_source ); } \
   BETH_EXPAND_ITEM_xoico_source_s
 
 /**********************************************************************************************************************/
@@ -830,10 +786,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_target* xoico_target_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_target, t ); return ( xoico_target* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_target_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_target ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_target ) \
-  static inline bl_t xoico_target_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_target ); } \
   BETH_EXPAND_ITEM_xoico_target_s
 
 /**********************************************************************************************************************/
@@ -911,10 +864,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_compiler* xoico_compiler_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_compiler, t ); return ( xoico_compiler* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_compiler_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_compiler ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_compiler ) \
-  static inline bl_t xoico_compiler_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_compiler ); } \
   BETH_EXPAND_ITEM_xoico_compiler_type_info_s \
   BETH_EXPAND_ITEM_xoico_compiler_element_info_s \
   BETH_EXPAND_ITEM_xoico_compiler_s
@@ -996,10 +946,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_builder* xoico_builder_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_builder, t ); return ( xoico_builder* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_builder_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_builder ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_builder ) \
-  static inline bl_t xoico_builder_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_builder ); } \
   BETH_EXPAND_ITEM_xoico_builder_arr_target_s \
   BETH_EXPAND_ITEM_xoico_builder_target_s \
   BETH_EXPAND_ITEM_xoico_builder_main_s
@@ -1022,10 +969,7 @@
       xoico_cengine_translate translate; \
       xoico_cengine_get_hash get_hash; \
   }; \
-  static inline xoico_cengine* xoico_cengine_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_cengine, t ); return ( xoico_cengine* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_cengine_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_cengine ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_cengine ) \
-  static inline bl_t xoico_cengine_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_cengine ); } \
   static inline er_t xoico_cengine_a_translate( const xoico_cengine* o, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink ) { const xoico_cengine_spect_s* p = xoico_cengine_spect_s_get_aware( o ); assert( p->translate ); return p->translate( o, body, signature, sink ); } \
   static inline bl_t xoico_cengine_a_defines_translate( const xoico_cengine* o ) { return xoico_cengine_spect_s_get_aware( o )->translate != NULL; } \
   static inline tp_t xoico_cengine_a_get_hash( const xoico_cengine* o ) { const xoico_cengine_spect_s* p = xoico_cengine_spect_s_get_aware( o ); assert( p->get_hash ); return p->get_hash( o ); } \
@@ -1063,10 +1007,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_caleph* xoico_caleph_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_caleph, t ); return ( xoico_caleph* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_caleph_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_caleph ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_caleph ) \
-  static inline bl_t xoico_caleph_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_caleph ); } \
   BETH_EXPAND_ITEM_xoico_caleph_s
 
 /**********************************************************************************************************************/
@@ -1098,10 +1039,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_cbeth* xoico_cbeth_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_cbeth, t ); return ( xoico_cbeth* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_cbeth_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_cbeth ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_cbeth ) \
-  static inline bl_t xoico_cbeth_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_cbeth ); } \
   BETH_EXPAND_GROUP_xoico_cbeth_tn \
   BETH_EXPAND_ITEM_xoico_cbeth_s
 
@@ -1159,10 +1097,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_cbeth_tn* xoico_cbeth_tn_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_cbeth_tn, t ); return ( xoico_cbeth_tn* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_cbeth_tn_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_cbeth_tn ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_cbeth_tn ) \
-  static inline bl_t xoico_cbeth_tn_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_cbeth_tn ); } \
   BETH_EXPAND_ITEM_xoico_cbeth_tn_unit_s \
   BETH_EXPAND_ITEM_xoico_cbeth_tn_adl_s \
   BETH_EXPAND_ITEM_xoico_cbeth_tn_stack_s
@@ -1209,10 +1144,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_cgimel* xoico_cgimel_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_cgimel, t ); return ( xoico_cgimel* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_cgimel_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_cgimel ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_cgimel ) \
-  static inline bl_t xoico_cgimel_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_cgimel ); } \
   BETH_EXPAND_GROUP_xoico_cgimel_stack \
   BETH_EXPAND_ITEM_xoico_cgimel_s
 
@@ -1266,10 +1198,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_cgimel_stack* xoico_cgimel_stack_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_cgimel_stack, t ); return ( xoico_cgimel_stack* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_cgimel_stack_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_cgimel_stack ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_cgimel_stack ) \
-  static inline bl_t xoico_cgimel_stack_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_cgimel_stack ); } \
   BETH_EXPAND_ITEM_xoico_cgimel_stack_unit_s \
   BETH_EXPAND_ITEM_xoico_cgimel_stack_unit_adl_s \
   BETH_EXPAND_ITEM_xoico_cgimel_stack_s
@@ -1304,10 +1233,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_xce* xoico_xce_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_xce, t ); return ( xoico_xce* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_xce_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_xce ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_xce ) \
-  static inline bl_t xoico_xce_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_xce ); } \
   BETH_EXPAND_GROUP_xoico_xce_stack \
   BETH_EXPAND_ITEM_xoico_xce_s \
   BETH_EXPAND_GROUP_sim
@@ -1362,10 +1288,7 @@
   { \
       bcore_spect_header_s header; \
   }; \
-  static inline xoico_xce_stack* xoico_xce_stack_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_xoico_xce_stack, t ); return ( xoico_xce_stack* )bcore_inst_t_create( t ); } \
-  static inline bl_t xoico_xce_stack_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_xoico_xce_stack ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_xce_stack ) \
-  static inline bl_t xoico_xce_stack_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_xoico_xce_stack ); } \
   BETH_EXPAND_ITEM_xoico_xce_stack_unit_s \
   BETH_EXPAND_ITEM_xoico_xce_stack_unit_adl_s \
   BETH_EXPAND_ITEM_xoico_xce_stack_s
@@ -1420,10 +1343,7 @@
       bcore_spect_header_s header; \
       sim_setup setup; \
   }; \
-  static inline sim* sim_t_create( tp_t t ) { bcore_trait_assert_satisfied_type( TYPEOF_sim, t ); return ( sim* )bcore_inst_t_create( t ); } \
-  static inline bl_t sim_t_is_trait_of( tp_t t ) { return bcore_trait_is_of( t, TYPEOF_sim ); } \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( sim ) \
-  static inline bl_t sim_a_is_trait_of( vc_t o ) { return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_sim ); } \
   static inline sim* sim_p_setup( const sim_spect_s* __p, sim* o, const sim* src ) { assert( __p->setup ); return __p->setup( o, src ); } \
   static inline sim* sim_t_setup( tp_t __t, sim* o, const sim* src ) { const sim_spect_s* p = sim_spect_s_get_typed( __t ); assert( p->setup ); return p->setup( o, src ); } \
   static inline sim* sim_a_setup( sim* o, const sim* src ) { const sim_spect_s* p = sim_spect_s_get_aware( o ); assert( p->setup ); return p->setup( o, src ); } \
@@ -1442,4 +1362,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0xB50BEB3342DE178Bull
+// XOILA_OUT_SIGNATURE 0x3B633735F0DFC299ull

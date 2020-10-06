@@ -461,50 +461,8 @@ er_t xoico_group_s_expand_spect_declaration( const xoico_group_s* o, sz_t indent
     (
         sink,
         " \\\n#rn{ }"
-        "static inline #<sc_t>* #<sc_t>_t_create( tp_t t ) "
-        "{ "
-            "bcore_trait_assert_satisfied_type( TYPEOF_#<sc_t>, t ); "
-            "return ( #<sc_t>* )bcore_inst_t_create( t ); "
-        "}",
-        indent,
-        o->st_name.sc,
-        o->st_name.sc,
-        o->st_name.sc,
-        o->st_name.sc
-    );
-
-    bcore_sink_a_push_fa
-    (
-        sink,
-        " \\\n#rn{ }"
-        "static inline bl_t #<sc_t>_t_is_trait_of( tp_t t ) "
-        "{ "
-            "return bcore_trait_is_of( t, TYPEOF_#<sc_t> ); "
-        "}",
-        indent,
-        o->st_name.sc,
-        o->st_name.sc
-    );
-
-    bcore_sink_a_push_fa
-    (
-        sink,
-        " \\\n#rn{ }"
         "BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( #<sc_t> )",
         indent,
-        o->st_name.sc
-    );
-
-    bcore_sink_a_push_fa
-    (
-        sink,
-        " \\\n#rn{ }"
-        "static inline bl_t #<sc_t>_a_is_trait_of( vc_t o ) "
-        "{ "
-            "return bcore_trait_is_of( o ? *(aware_t*)o : 0, TYPEOF_#<sc_t> ); "
-        "}",
-        indent,
-        o->st_name.sc,
         o->st_name.sc
     );
 
