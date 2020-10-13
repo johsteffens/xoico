@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-10-06T20:07:19Z
+ *  Last File Update: 2020-10-13T09:50:02Z
  *
  *  Copyright and License of this File:
  *
@@ -39,7 +39,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x1B428F1219A2B33Full
+#define HKEYOF_xoico_xoila_out 0x9253B02A887FFD6Bull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -262,6 +262,8 @@
 
 #define TYPEOF_xoico_typespec 0x4DA483D36BB5ED71ull
 #define TYPEOF_xoico_typespec_spect_s 0xE434F73B98EB762Dull
+#define TYPEOF_type_deduce 0xA6FBF003A76CC00Eull
+#define TYPEOF_type_object 0x213393BEF2495D15ull
 #define TYPEOF_xoico_typespec_s 0x9BEEEFCA6BCF163Bull
 #define BETH_EXPAND_ITEM_xoico_typespec_s \
   BCORE_DECLARE_OBJECT( xoico_typespec_s ) \
@@ -825,6 +827,7 @@
       bcore_life_s life; \
       bcore_hmap_name_s name_map; \
       tp_t target_pre_hash; \
+      bl_t work_build_time_into_pre_hash; \
       bl_t register_non_feature_functions; \
       bl_t register_signatures; \
       bl_t overwrite_unsigned_target_files; \
@@ -854,7 +857,8 @@
   bl_t xoico_compiler_s_update_required( xoico_compiler_s* o ); \
   sz_t xoico_compiler_s_get_verbosity( const xoico_compiler_s* o ); \
   static inline tp_t xoico_compiler_s_entypeof( xoico_compiler_s* o, sc_t name ){return bcore_hmap_name_s_set_sc( &o->name_map, name );} \
-  static inline sc_t xoico_compiler_s_nameof( const xoico_compiler_s* o, tp_t type ){return bcore_hmap_name_s_get_sc( &o->name_map, type );}
+  static inline sc_t xoico_compiler_s_nameof( const xoico_compiler_s* o, tp_t type ){return bcore_hmap_name_s_get_sc( &o->name_map, type );} \
+  void xoico_compiler_s_init_x( xoico_compiler_s* o );
 #define BETH_EXPAND_GROUP_xoico_compiler \
   BCORE_FORWARD_OBJECT( xoico_compiler ); \
   BCORE_FORWARD_OBJECT( xoico_compiler_type_info_s ); \
@@ -1362,4 +1366,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0x3B633735F0DFC299ull
+// XOILA_OUT_SIGNATURE 0x04EFDD2EC891930Full

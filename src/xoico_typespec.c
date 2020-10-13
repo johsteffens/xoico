@@ -45,22 +45,19 @@ er_t xoico_typespec_s_parse( xoico_typespec_s* o, xoico_group_s* group, bcore_so
         xoico_group_s_parse_name_recursive( group, s, source );
         o->type = xoico_compiler_s_entypeof( compiler, s->sc );
     }
+    else if( bcore_source_a_parse_bl_fa( source, "#?'@' " ) )
+    {
+        o->type = TYPEOF_type_object;
+    }
+    else if( bcore_source_a_parse_bl_fa( source, "#?'$' " ) )
+    {
+        o->type = TYPEOF_type_deduce;
+    }
     else
     {
-        if( bcore_source_a_parse_bl_fa( source, "#?'@' " ) )
-        {
-            o->type = xoico_compiler_s_entypeof( compiler, "@" );
-            if( bcore_source_a_parse_bl_fa( source, "#?'|' " ) )
-            {
-                XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Use of '|' is deprecated." );
-            }
-        }
-        else
-        {
-            XOICO_BLM_SOURCE_PARSE_FA( source, "#name ", s );
-            if( s->size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Argument: Type expected." );
-            o->type = xoico_compiler_s_entypeof( compiler, s->sc );
-        }
+        XOICO_BLM_SOURCE_PARSE_FA( source, "#name ", s );
+        if( s->size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Argument: Type expected." );
+        o->type = xoico_compiler_s_entypeof( compiler, s->sc );
     }
 
     while( bcore_source_a_parse_bl_fa( source, "#?'*' " ) ) o->indirection++;
@@ -86,9 +83,7 @@ tp_t xoico_typespec_s_get_hash( const xoico_typespec_s* o )
 er_t xoico_typespec_s_relent( xoico_typespec_s* o, xoico_group_s* group, tp_t tp_obj_type )
 {
     BLM_INIT();
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( group );
-    sc_t sc_type = xoico_compiler_s_nameof( compiler, o->type );
-    if( sc_type[ 0 ] == '@' ) o->type = tp_obj_type;
+    if( o->type == TYPEOF_type_object ) o->type = tp_obj_type;
     BLM_RETURNV( er_t, 0 );
 }
 
@@ -99,9 +94,18 @@ er_t xoico_typespec_s_expand( const xoico_typespec_s* o, xoico_group_s* group, s
     BLM_INIT();
     xoico_compiler_s* compiler = xoico_group_s_get_compiler( group );
 
-    st_s* st_type = BLM_A_PUSH( st_s_create_sc( xoico_compiler_s_nameof( compiler, o->type ) ) );
+    tp_t type = o->type;
 
-    if( sc_obj_type ) st_s_replace_sc_sc( st_type, "@", sc_obj_type );
+    if( type == TYPEOF_type_object )
+    {
+        type = xoico_compiler_s_entypeof( compiler, sc_obj_type );
+    }
+    else if( type == TYPEOF_type_deduce )
+    {
+        ERR_fa( "Cannot resolve 'type_deduce' at this point." );
+    }
+
+    st_s* st_type = BLM_A_PUSH( st_s_create_sc( xoico_compiler_s_nameof( compiler, type ) ) );
 
     sc_t sc_type = st_type->sc;
     if( o->is_static ) bcore_sink_a_push_fa( sink, "static " );

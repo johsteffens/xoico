@@ -30,9 +30,12 @@ signature er_t relent( mutable, xoico_group_s* group, tp_t tp_obj_type );
 signature er_t expand( const, xoico_group_s* group, sc_t sc_obj_type, bcore_sink* sink );
 signature void reset( mutable );
 
+name type_deduce;
+name type_object;
+
 stamp : = aware :
 {
-    tp_t type;
+    tp_t type; // possible variable types are TYPEOF_type_deduce and TYPEOF_type_object
     sz_t indirection;
 
     bl_t is_const;
