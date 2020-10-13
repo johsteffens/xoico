@@ -86,20 +86,6 @@ tp_t xoico_cgimel_s_get_identifier( xoico_cgimel_s* o, bcore_source* source, bl_
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/** Inspects expression and deduces typespec.
- *  Leaves source unchanged.
- */
-er_t xoico_cgimel_s_deduce_typespec( xoico_cgimel_s* o, bcore_source* source, xoico_typespec_s* typespec )
-{
-    BLM_INIT();
-    sz_t index = bcore_source_a_get_index( source );
-    BLM_TRY( xoico_cgimel_s_trans_expression( o, source, NULL, typespec ) );
-    bcore_source_a_set_index( source, index );
-    BLM_RETURNV( er_t, 0 );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 /** transfers identifier, enrolls it and sets 'tp_identifier' */
 er_t xoico_cgimel_s_trans_identifier( xoico_cgimel_s* o, bcore_source* source, st_s* buf /* can be NULL */, tp_t* tp_identifier/* can be NULL */ )
 {
@@ -1249,6 +1235,100 @@ er_t xoico_cgimel_s_trans_for_expression( xoico_cgimel_s* o, bcore_source* sourc
 
 //----------------------------------------------------------------------------------------------------------------------
 
+/** foreach( <typespec> var in <arr_expr> ) <foreach-statement>
+ *  -->
+ * { <typespec> __a = (match)<arr_expr>; for( sz_t __i = 0; __i < __a->size; __i++ ) { <typespec> var = (match)__a->data[ __i ]; <foreach-statement> }  }
+ */
+er_t xoico_cgimel_s_trans_foreach_expression( xoico_cgimel_s* o, bcore_source* source, st_s* buf )
+{
+    BLM_INIT();
+    xoico_cgimel_s_inc_level( o );
+    XOICO_BLM_SOURCE_PARSE_FA( source, "foreach ( " );
+
+    xoico_typespec_s* typespec_var = BLM_CREATE( xoico_typespec_s );
+    BLM_TRY( xoico_cgimel_s_take_typespec( o, source, typespec_var, true ) );
+
+    tp_t tp_var_name = 0;
+
+    if( bcore_source_a_parse_bl_fa( source, "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]=='_')" ) )
+    {
+        tp_var_name = xoico_cgimel_s_get_identifier( o, source, true );
+    }
+    else
+    {
+        XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Variable name expected." );
+    }
+
+    XOICO_BLM_SOURCE_PARSE_FA( source, " in " );
+
+    xoico_typespec_s* typespec_arr_expr = BLM_CREATE( xoico_typespec_s );
+    st_s* buf_arr_expr = BLM_CREATE( st_s );
+    BLM_TRY( xoico_cgimel_s_trans_expression( o, source, buf_arr_expr, typespec_arr_expr ) );
+
+    if( !typespec_arr_expr->type )
+    {
+        XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Array expression not tractable." );
+    }
+
+    xoico_compiler_element_info_s* info = BLM_CREATE( xoico_compiler_element_info_s );
+    if( !xoico_compiler_s_get_type_array_element_info( o->compiler, typespec_arr_expr->type, info ) )
+    {
+        XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Expression does not evaluate to an array." );
+    }
+
+    xoico_typespec_s* typespec_element = &info->type_info.typespec;
+
+    if( typespec_var->type == TYPEOF_type_deduce ) typespec_var->type = typespec_element->type;
+
+    XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
+
+    xoico_typespec_s* typespec_arr = BLM_A_CLONE( typespec_arr_expr );
+    typespec_arr->indirection = 1;
+
+    xoico_typespec_s* typespec_idx = BLM_CREATE( xoico_typespec_s );
+    typespec_idx->type = TYPEOF_sz_t;
+
+    xoico_cgimel_s_push_typedecl( o, typespec_var, tp_var_name );
+    xoico_cgimel_s_push_typedecl( o, typespec_arr, xoico_cgimel_s_entypeof( o, "__a" ) );
+    xoico_cgimel_s_push_typedecl( o, typespec_idx, xoico_cgimel_s_entypeof( o, "__i" ) );
+
+    st_s* buf_statement = BLM_CREATE( st_s );
+    if( bcore_source_a_parse_bl_fa( source, "#=?'{'" ) )
+    {
+        BLM_TRY( xoico_cgimel_s_trans_block( o, source, buf_statement ) );
+    }
+    else
+    {
+        BLM_TRY( xoico_cgimel_s_trans_statement( o, source, buf_statement ) );
+    }
+
+    st_s_push_fa( buf, "{" );
+
+    xoico_cgimel_s_push_typespec( o, typespec_arr, buf );
+
+    st_s_push_fa( buf, " __a=" );
+    BLM_TRY( xoico_cgimel_s_adapt_expression( o, source, typespec_arr_expr, typespec_arr, buf_arr_expr, buf ) );
+    st_s_push_fa( buf, ";" );
+    st_s_push_fa( buf, "for(sz_t __i=0; __i<__a->size; __i++){" );
+    xoico_cgimel_s_push_typespec( o, typespec_var, buf );
+    st_s_push_fa( buf, " #<sc_t>=", xoico_cgimel_s_nameof( o, tp_var_name ) );
+
+    st_s* buf_element_expr = BLM_A_PUSH( st_s_create_sc( "__a->data[__i]" ) );
+    BLM_TRY( xoico_cgimel_s_adapt_expression( o, source, typespec_element, typespec_var, buf_element_expr, buf ) );
+    st_s_push_fa( buf, ";" );
+
+    st_s_push_fa( buf, "#<sc_t>", buf_statement->sc );
+
+    if( bcore_source_a_parse_bl_fa( source, " #?';'" ) ) st_s_push_char( buf, ';' );
+
+    st_s_push_fa( buf, "}" );
+    st_s_push_fa( buf, "}" );
+    xoico_cgimel_s_dec_level( o );
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 er_t xoico_cgimel_s_trans_if_expression( xoico_cgimel_s* o, bcore_source* source, st_s* buf )
 {
     BLM_INIT();
@@ -1330,6 +1410,10 @@ er_t xoico_cgimel_s_trans_statement( xoico_cgimel_s* o, bcore_source* source, st
     else if( bcore_source_a_parse_bl_fa( source, "#=?w'for'" ) )
     {
         BLM_TRY( xoico_cgimel_s_trans_for_expression( o, source, buf ) );
+    }
+    else if( bcore_source_a_parse_bl_fa( source, "#=?w'foreach'" ) )
+    {
+        BLM_TRY( xoico_cgimel_s_trans_foreach_expression( o, source, buf ) );
     }
     else if( bcore_source_a_parse_bl_fa( source, "#=?w'if'" ) )
     {

@@ -241,6 +241,7 @@ TODO:
 - (done) positfix operator '!' after a type converts it into a traced <type>_create(); (no effect if lvalue has indirection 0)
 - (done) positfix operator '?.' after a type checks if lvalue is zero before dereferencing (no effect if lvalue has indirection 0)
 - (done) bounds check '?[<index>]' checks if index is out of range
+- (done) provide foreach - loop
 - add type specifier 'keep' (e.g. to be used in function returns) telling the compiler to take control of the object's lifetime
 - allow variable declaration inside any expression;
 
