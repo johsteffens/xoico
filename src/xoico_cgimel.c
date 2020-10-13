@@ -673,7 +673,10 @@ er_t xoico_cgimel_s_trans_typespec_expression
         st_s_push_sc( buf, "]" );
 
         xoico_typespec_s* typespec = BLM_CLONE( xoico_typespec_s, in_typespec );
-        typespec->indirection--;
+        if( in_typespec->type != TYPEOF_sc_t && in_typespec->type != TYPEOF_sd_t )
+        {
+            typespec->indirection--;
+        }
         BLM_TRY( xoico_cgimel_s_trans_typespec_expression( o, source, buf, typespec, out_typespec ) );
     }
     // create if not present
@@ -793,7 +796,8 @@ er_t xoico_cgimel_s_take_typespec
 (
     xoico_cgimel_s* o,
     bcore_source* source,
-    xoico_typespec_s* typespec
+    xoico_typespec_s* typespec,
+    bl_t require_tractable_type
 )
 {
     BLM_INIT();
@@ -810,18 +814,19 @@ er_t xoico_cgimel_s_take_typespec
         BLM_TRY( xoico_cgimel_s_trans_whitespace( o, source, NULL ) );
     }
 
-    if( tp_name == TYPEOF_type_deduce || xoico_compiler_s_is_type( o->compiler, tp_name ) )
+    typespec->type = tp_name;
+    while( bcore_source_a_parse_bl_fa( source, "#?'*'" ) )
     {
-        typespec->type = tp_name;
-        while( bcore_source_a_parse_bl_fa( source, "#?'*'" ) )
-        {
-            typespec->indirection++;
-            BLM_TRY( xoico_cgimel_s_trans_whitespace( o, source, NULL ) );
-        }
+        typespec->indirection++;
+        BLM_TRY( xoico_cgimel_s_trans_whitespace( o, source, NULL ) );
     }
-    else
+
+    if( require_tractable_type )
     {
-        typespec->type = 0;
+        if( !( tp_name == TYPEOF_type_deduce || xoico_compiler_s_is_type( o->compiler, tp_name ) ) )
+        {
+            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Typespec is not tractable." );
+        }
     }
 
     BLM_RETURNV( er_t, 0 );
@@ -836,7 +841,39 @@ er_t xoico_cgimel_s_push_typespec
     st_s* buf
 )
 {
-    return xoico_typespec_s_expand( typespec, o->group, xoico_cgimel_s_nameof( o, o->obj_type ), (bcore_sink*)buf );
+    BLM_INIT();
+    tp_t type = typespec->type;
+
+    if( type == TYPEOF_type_object )
+    {
+        type = o->obj_type;
+    }
+    else if( type == TYPEOF_type_deduce )
+    {
+        ERR_fa( "Cannot resolve 'type_deduce' at this point." );
+    }
+    else if( type == 0 )
+    {
+        ERR_fa( "Type is 0." );
+    }
+
+    st_s* st_type = BLM_A_PUSH( st_s_create_sc( xoico_cgimel_s_nameof( o, type ) ) );
+
+    if( st_type->size == 0 )
+    {
+        ERR_fa( "Type has no name." );
+    }
+
+    sc_t sc_type = st_type->sc;
+    if( typespec->is_static ) st_s_push_fa( buf, "static " );
+    if( typespec->is_const ) st_s_push_fa( buf, "const " );
+    if( typespec->is_volatile ) st_s_push_fa( buf, "volatile " );
+    st_s_push_fa( buf, "#<sc_t>", sc_type );
+
+    for( sz_t i = 0; i < typespec->indirection; i++ ) st_s_push_fa( buf, "*" );
+    if( typespec->is_restrict ) st_s_push_fa( buf, "restrict " );
+
+    BLM_RETURNV( er_t, 0 );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -857,11 +894,7 @@ er_t xoico_cgimel_s_trans_cast
 
     st_s* buf_expr = BLM_CREATE( st_s );
 
-    BLM_TRY( xoico_cgimel_s_take_typespec( o, source, typespec_cast ) );
-    if( !typespec_cast->type )
-    {
-        XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Cast-syntax: Target type is intractable." );
-    }
+    BLM_TRY( xoico_cgimel_s_take_typespec( o, source, typespec_cast, true ) );
     XOICO_BLM_SOURCE_PARSE_FA( source, " , " );
     BLM_TRY( xoico_cgimel_s_trans_expression( o, source, buf_expr, typespec_expr ) );
 
@@ -911,7 +944,7 @@ er_t xoico_cgimel_s_trans_declaration // also handles certain non-declarations l
 
     st_s* buf_var = BLM_CREATE( st_s );
 
-    BLM_TRY( xoico_cgimel_s_take_typespec( o, source, typespec_var ) );
+    BLM_TRY( xoico_cgimel_s_take_typespec( o, source, typespec_var, false ) );
     BLM_TRY( xoico_cgimel_s_trans_whitespace( o, source, buf_var ) );
 
     if( typespec_var->type && bcore_source_a_parse_bl_fa( source, "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]=='_')" ) )
