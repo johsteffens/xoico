@@ -1284,6 +1284,7 @@ er_t xoico_cgimel_s_trans_foreach_expression( xoico_cgimel_s* o, bcore_source* s
 
     xoico_typespec_s* typespec_arr = BLM_A_CLONE( typespec_arr_expr );
     typespec_arr->indirection = 1;
+    typespec_arr->is_const = true;
 
     xoico_typespec_s* typespec_idx = BLM_CREATE( xoico_typespec_s );
     typespec_idx->type = TYPEOF_sz_t;
