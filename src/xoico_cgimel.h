@@ -86,14 +86,15 @@ signature void push_typedecl( mutable, const xoico_typespec_s* typespec, tp_t na
 name static;
 name volatile;
 name cast;
-name deduce;
 
 stamp : = aware :
 {
     /// parameters
 
-    bl_t verbose                  = false;
-    bl_t include_source_reference = true;
+    bl_t verbose = false;
+
+    /// Prepends a commented reference to the xoila source for each function in *xoila_out.c
+    bl_t insert_source_reference = true;
 
     /// runtime data
 

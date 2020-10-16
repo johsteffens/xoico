@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-10-13T16:36:49Z
+ *  Last File Update: 2020-10-16T10:24:59Z
  *
  *  Copyright and License of this File:
  *
@@ -39,7 +39,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x004FC14D34699D80ull
+#define HKEYOF_xoico_xoila_out 0xB8CA3F51B6229DB0ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -993,7 +993,7 @@
   BCORE_DECLARE_OBJECT( xoico_caleph_s ) \
   { \
       aware_t _; \
-      bl_t include_source_reference; \
+      bl_t insert_source_reference; \
       xoico_args_s* args; \
       xoico_compiler_s* compiler; \
       xoico_group_s* group; \
@@ -1117,14 +1117,13 @@
 #define TYPEOF_static 0xC534816D6D11E97Bull
 #define TYPEOF_volatile 0x9575F08FB5A48F0Dull
 #define TYPEOF_cast 0xB55E7090E879494Eull
-#define TYPEOF_deduce 0x95107B1E164C4715ull
 #define TYPEOF_xoico_cgimel_s 0x0A90671DA44B1BD5ull
 #define BETH_EXPAND_ITEM_xoico_cgimel_s \
   BCORE_DECLARE_OBJECT( xoico_cgimel_s ) \
   { \
       aware_t _; \
       bl_t verbose; \
-      bl_t include_source_reference; \
+      bl_t insert_source_reference; \
       xoico_args_s* args; \
       xoico_compiler_s* compiler; \
       xoico_group_s* group; \
@@ -1366,4 +1365,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0xEC4DC19BE45A5EAEull
+// XOILA_OUT_SIGNATURE 0x916B618C3A2B1DA0ull

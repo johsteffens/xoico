@@ -38,7 +38,7 @@ stamp : = aware :
 {
     /// parameters
 
-    bl_t include_source_reference = true;
+    bl_t insert_source_reference = true;
 
     /// runtime data
 

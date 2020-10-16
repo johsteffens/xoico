@@ -270,7 +270,7 @@ er_t xoico_caleph_s_translate( const xoico_caleph_s* o, const xoico_body_s* body
         buf->size = i;
     }
 
-    if( o->include_source_reference && !body->code->single_line )
+    if( o->insert_source_reference && !body->code->single_line )
     {
         bcore_sink_a_push_fa( sink, "// " );
         bcore_source_point_s_source_reference_to_sink( &body->code->source_point, true, sink );

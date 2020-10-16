@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-10-13T16:36:49Z
+ *  Last File Update: 2020-10-16T10:24:59Z
  *
  *  Copyright and License of this File:
  *
@@ -699,7 +699,7 @@ XOILA_DEFINE_SPECT( xoico, xoico_cengine )
 BCORE_DEFINE_OBJECT_INST_P( xoico_caleph_s )
 "aware xoico_caleph"
 "{"
-    "bl_t include_source_reference = true;"
+    "bl_t insert_source_reference = true;"
     "hidden xoico_args_s* args;"
     "hidden xoico_compiler_s* compiler;"
     "hidden xoico_group_s* group;"
@@ -856,7 +856,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_cgimel_s )
 "aware xoico_cgimel"
 "{"
     "bl_t verbose = false;"
-    "bl_t include_source_reference = true;"
+    "bl_t insert_source_reference = true;"
     "hidden xoico_args_s* args;"
     "hidden xoico_compiler_s* compiler;"
     "hidden xoico_group_s* group;"
@@ -870,7 +870,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_cgimel_s )
 
 sc_t xoico_cgimel_s_nameof( xoico_cgimel_s* o, tp_t type )
 {
-    // xoico_cgimel.h:114:5
+    // xoico_cgimel.h:115:5
     sc_t name = bcore_hmap_name_s_get_sc( &o->hmap_name, type );
     if( !name ) name = xoico_compiler_s_nameof( o->compiler, type );
     return name;
@@ -878,20 +878,20 @@ sc_t xoico_cgimel_s_nameof( xoico_cgimel_s* o, tp_t type )
 
 void xoico_cgimel_s_inc_level( xoico_cgimel_s* o )
 {
-    // xoico_cgimel.h:121:5
+    // xoico_cgimel.h:122:5
     o->level++;
 }
 
 void xoico_cgimel_s_dec_level( xoico_cgimel_s* o )
 {
-    // xoico_cgimel.h:126:5
+    // xoico_cgimel.h:127:5
     xoico_cgimel_stack_s_pop_level( &o->stack, o->level );
     o->level--;
 }
 
 void xoico_cgimel_s_push_typedecl( xoico_cgimel_s* o, const xoico_typespec_s* typespec, tp_t name )
 {
-    // xoico_cgimel.h:132:5
+    // xoico_cgimel.h:133:5
     BLM_INIT();
     xoico_cgimel_stack_unit_s* unit = BLM_CREATE( xoico_cgimel_stack_unit_s );
     unit->level = o->level;
@@ -1373,7 +1373,6 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_NAME( static );
             BCORE_REGISTER_NAME( volatile );
             BCORE_REGISTER_NAME( cast );
-            BCORE_REGISTER_NAME( deduce );
             BCORE_REGISTER_FFUNC( xoico_cengine_translate, xoico_cgimel_s_translate );
             BCORE_REGISTER_OBJECT( xoico_cgimel_s );
             XOILA_REGISTER_SPECT( xoico_cgimel );
@@ -1421,4 +1420,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0x41DB25FE575B64BFull
+// XOILA_OUT_SIGNATURE 0xE5CC431AB642ED7Bull
