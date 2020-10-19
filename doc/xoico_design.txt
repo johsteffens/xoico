@@ -242,8 +242,15 @@ TODO:
 - (done) positfix operator '?.' after a type checks if lvalue is zero before dereferencing (no effect if lvalue has indirection 0)
 - (done) provide foreach - loop
 - (pending) bounds check '?[<index>]' checks if index is out of range
+- (done) do not adapt indirection of void pointer types vc_t, vd_t
+- (done) introduce verbatim_C{ .... } where code inside {} is taken as literal C code.
+- (done) replace {\C .... } with {verbatim_C{ .... }}
 - add type specifier 'keep' (e.g. to be used in function returns) telling the compiler to take control of the object's lifetime
-- allow variable declaration inside any expression;
+- (done) isolate trans_declaration: processes declaration (with assignment) in case a declaration is intended, otherwise does nothing.
+- (done) move trans_declaration from trans_expression to trans_statement and trans_for
+- modify trans_declaration: flag indicating that the declaration in c-code is to be prepended
+- preprend flagged declarations to the beginning of the current block
+- allow (prepended) declaration after opening a bracket
 
 Keywords (for syntax highlight)
 

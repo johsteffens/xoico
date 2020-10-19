@@ -16,7 +16,6 @@
 #include "bcore_std.h"
 #include "xoico_xoila_out.h"
 #include "xoico_builder.h"
-#include "xoico_xce.h"
 
 /**********************************************************************************************************************/
 
@@ -24,9 +23,7 @@
 
 BETH_SIGNAL_OPEN( xoico )
 BETH_SIGNAL_USE_SOURCE( xoico_builder )
-BETH_SIGNAL_USE_SOURCE( xoico_xce )
 BETH_SIGNAL_CLOSE()
-
 
 //----------------------------------------------------------------------------------------------------------------------
 
