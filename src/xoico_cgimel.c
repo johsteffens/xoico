@@ -409,7 +409,7 @@ er_t xoico_cgimel_s_adapt_expression
     }
     else if( typespec_target->indirection == typespec_expr->indirection + 1 )
     {
-        if( typespec_expr->has_address )
+        if( typespec_expr->flag_addressable )
         {
             st_s_push_fa( buf, "&(#<st_s*>)", expr );
         }
@@ -673,7 +673,7 @@ er_t xoico_cgimel_s_trans_typespec_expression
         //ignore in case indirection is 0;
         if( in_typespec->indirection > 0 )
         {
-            if( !( in_typespec->indirection == 1 && in_typespec->has_address ) )
+            if( !( in_typespec->indirection == 1 && in_typespec->flag_addressable ) )
             {
                 XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Create-Operator requires lvalue with addressable indirection of 1." );
             }
@@ -718,7 +718,7 @@ er_t xoico_cgimel_s_trans_typespec_expression
     else if( bcore_source_a_parse_bl_fa( source, "#?'=<'" ) )
     {
         BLM_INIT();
-        if( !( in_typespec->indirection == 1 && in_typespec->has_address ) )
+        if( !( in_typespec->indirection == 1 && in_typespec->flag_addressable ) )
         {
             XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Attach-Operator requires lvalue with addressable indirection of 1" );
         }
@@ -793,9 +793,9 @@ er_t xoico_cgimel_s_take_typespec
 
     while( tp_name == TYPEOF_const || tp_name == TYPEOF_static || tp_name == TYPEOF_volatile )
     {
-        if( tp_name == TYPEOF_const    ) typespec->is_const    = true;
-        if( tp_name == TYPEOF_static   ) typespec->is_static   = true;
-        if( tp_name == TYPEOF_volatile ) typespec->is_volatile = true;
+        if( tp_name == TYPEOF_const    ) typespec->flag_const    = true;
+        if( tp_name == TYPEOF_static   ) typespec->flag_static   = true;
+        if( tp_name == TYPEOF_volatile ) typespec->flag_volatile = true;
         BLM_TRY( xoico_cgimel_s_trans_identifier( o, source, NULL, &tp_name ) );
         BLM_TRY( xoico_cgimel_s_trans_whitespace( o, source, NULL ) );
     }
@@ -851,13 +851,13 @@ er_t xoico_cgimel_s_push_typespec
     }
 
     sc_t sc_type = st_type->sc;
-    if( typespec->is_static ) st_s_push_fa( buf, "static " );
-    if( typespec->is_const ) st_s_push_fa( buf, "const " );
-    if( typespec->is_volatile ) st_s_push_fa( buf, "volatile " );
+    if( typespec->flag_static ) st_s_push_fa( buf, "static " );
+    if( typespec->flag_const ) st_s_push_fa( buf, "const " );
+    if( typespec->flag_volatile ) st_s_push_fa( buf, "volatile " );
     st_s_push_fa( buf, "#<sc_t>", sc_type );
 
     for( sz_t i = 0; i < typespec->indirection; i++ ) st_s_push_fa( buf, "*" );
-    if( typespec->is_restrict ) st_s_push_fa( buf, "restrict " );
+    if( typespec->flag_restrict ) st_s_push_fa( buf, "restrict " );
 
     BLM_RETURNV( er_t, 0 );
 }
@@ -910,7 +910,7 @@ er_t xoico_cgimel_s_trans_cast
 
     if( typespec_cast->indirection > typespec_expr->indirection )
     {
-        out_typespec->has_address = false;
+        out_typespec->flag_addressable = false;
     }
 
     BLM_RETURNV( er_t, 0 );
@@ -1045,7 +1045,7 @@ er_t xoico_cgimel_s_trans_expression
                 xoico_typespec_s* typespec = BLM_CREATE( xoico_typespec_s );
                 typespec->type = tp_identifier;
                 typespec->indirection = 1;
-                typespec->has_address = false;
+                typespec->flag_addressable = false;
                 xoico_cgimel_s_trans_typespec_expression( o, source, buf, typespec, out_typespec );
                 continuation = false;
             }
@@ -1286,7 +1286,7 @@ er_t xoico_cgimel_s_trans_foreach_expression( xoico_cgimel_s* o, bcore_source* s
 
     xoico_typespec_s* typespec_arr = BLM_A_CLONE( typespec_arr_expr );
     typespec_arr->indirection = 1;
-    typespec_arr->is_const = true;
+    typespec_arr->flag_const = true;
 
     xoico_typespec_s* typespec_idx = BLM_CREATE( xoico_typespec_s );
     typespec_idx->type = TYPEOF_sz_t;
@@ -1529,7 +1529,7 @@ er_t xoico_cgimel_s_trans_statement( xoico_cgimel_s* o, bcore_source* source, st
             if( typespec->type )
             {
                 bcore_msg_fa( "Expression yields typespec:\n" );
-                bcore_msg_fa( "  const      : #<bl_t>\n", typespec->is_const );
+                bcore_msg_fa( "  const      : #<bl_t>\n", typespec->flag_const );
                 bcore_msg_fa( "  type       : #<sc_t>\n", xoico_cgimel_s_nameof( o, typespec->type ) );
                 bcore_msg_fa( "  indirection: #<sz_t>\n", typespec->indirection );
             }
@@ -1682,7 +1682,7 @@ er_t xoico_cgimel_s_setup( xoico_cgimel_s* o, const xoico_body_s* body, const xo
 
     if( obj_type )
     {
-        unit->typespec.is_const = obj_const;
+        unit->typespec.flag_const = obj_const;
         unit->typespec.type = obj_type;
         unit->typespec.indirection = 1;
         unit->name = obj_name;

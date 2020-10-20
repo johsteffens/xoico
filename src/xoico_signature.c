@@ -72,7 +72,7 @@ er_t xoico_signature_s_parse( xoico_signature_s* o, bcore_source* source )
     else
     {
         BLM_TRY( xoico_typespec_s_parse( &o->typespec_ret, o->group, source ) );
-        o->typespec_ret.has_address = false;
+        o->typespec_ret.flag_addressable = false;
 
         // get name
         XOICO_BLM_SOURCE_PARSE_FA( source, " #name", &o->st_name );

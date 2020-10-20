@@ -284,28 +284,28 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
                 XOICO_BLM_SOURCE_PARSE_FA( source, " ;" );
             }
         }
-        else if( bcore_source_a_parse_bl_fa( source, " #?w'func'" ) )
-        {
-            /* We plan to use the declaration of group level for plain function implementations.
-               The old purpose (template) is deprecated.
-            */
-            bcore_source_a_parse_msg_fa( source, "Declaring a group-level function will be repurposed. Use a stump instead." );
-
-            xoico_func_s* func = BLM_CREATE( xoico_func_s );
-            func->group = o;
-            xoico_func_s_parse( func, NULL, source );
-            func->overloadable = true;
-            o->hash = bcore_tp_fold_tp( o->hash, xoico_func_s_get_hash( func ) );
-
-            if( xoico_funcs_s_exists_from_type( &o->funcs, func->type ) )
-            {
-                BLM_TRY( xoico_funcs_s_replace_fork( &o->funcs, xoico_funcs_s_get_index_from_type( &o->funcs, func->type ), func ) );
-            }
-            else
-            {
-                bcore_array_a_push( ( bcore_array* )&o->funcs, sr_asd( bcore_fork( func ) ) );
-            }
-        }
+//        else if( bcore_source_a_parse_bl_fa( source, " #?w'func'" ) )
+//        {
+//            /* We plan to use the declaration of group level for plain function implementations.
+//               The old purpose (template) is deprecated.
+//            */
+//            bcore_source_a_parse_msg_fa( source, "Declaring a group-level function will be repurposed. Use a stump instead." );
+//
+//            xoico_func_s* func = BLM_CREATE( xoico_func_s );
+//            func->group = o;
+//            xoico_func_s_parse( func, NULL, source );
+//            func->overloadable = true;
+//            o->hash = bcore_tp_fold_tp( o->hash, xoico_func_s_get_hash( func ) );
+//
+//            if( xoico_funcs_s_exists_from_type( &o->funcs, func->type ) )
+//            {
+//                BLM_TRY( xoico_funcs_s_replace_fork( &o->funcs, xoico_funcs_s_get_index_from_type( &o->funcs, func->type ), func ) );
+//            }
+//            else
+//            {
+//                bcore_array_a_push( ( bcore_array* )&o->funcs, sr_asd( bcore_fork( func ) ) );
+//            }
+//        }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'group' " ) )
         {
             xoico_group_s* group = BLM_CREATE( xoico_group_s );

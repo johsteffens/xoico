@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-10-19T13:57:32Z
+ *  Last File Update: 2020-10-20T14:40:32Z
  *
  *  Copyright and License of this File:
  *
@@ -39,7 +39,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x86FA745EA3A8B9B5ull
+#define HKEYOF_xoico_xoila_out 0xAA0595640A5EE594ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -271,11 +271,12 @@
       aware_t _; \
       tp_t type; \
       sz_t indirection; \
-      bl_t is_const; \
-      bl_t is_static; \
-      bl_t is_volatile; \
-      bl_t is_restrict; \
-      bl_t has_address; \
+      bl_t flag_const; \
+      bl_t flag_static; \
+      bl_t flag_volatile; \
+      bl_t flag_restrict; \
+      bl_t flag_keep; \
+      bl_t flag_addressable; \
   }; \
   tp_t xoico_typespec_s_get_hash( const xoico_typespec_s* o ); \
   er_t xoico_typespec_s_parse( xoico_typespec_s* o, xoico_group_s* group, bcore_source* source ); \
@@ -604,7 +605,6 @@
       bl_t retrievable; \
       bl_t short_spect_name; \
       xoico_stamp_s* extending; \
-      xoico_funcs_s funcs; \
       xoico_source_s* source; \
       bcore_source_point_s source_point; \
       bcore_hmap_tpvd_s hmap_feature; \
@@ -1218,11 +1218,16 @@
 #define TYPEOF_volatile 0x9575F08FB5A48F0Dull
 #define TYPEOF_cast 0xB55E7090E879494Eull
 #define TYPEOF_verbatim_C 0x7C0F5E2B3285120Dull
+#define TYPEOF_keep 0x585D7CD75CF6F848ull
 #define TYPEOF_if 0x08B73007B55C3E26ull
+#define TYPEOF_else 0x7F2B6C605332DD30ull
 #define TYPEOF_while 0xCE87A3885811296Eull
 #define TYPEOF_do 0x08915907B53BB494ull
 #define TYPEOF_for 0xDCB27818FED9DA90ull
+#define TYPEOF_switch 0xA5A87AC5B0B379B1ull
 #define TYPEOF_case 0xB55E6190E8792FD1ull
+#define TYPEOF_break 0x93B7591DEBC7CE38ull
+#define TYPEOF_return 0xC5C7B983377CAD5Full
 #define TYPEOF_xoico_cdaleth_s 0x9E808B0037072EB1ull
 #define BETH_EXPAND_ITEM_xoico_cdaleth_s \
   BCORE_DECLARE_OBJECT( xoico_cdaleth_s ) \
@@ -1231,91 +1236,163 @@
       bl_t verbose; \
       bl_t insert_source_reference; \
       xoico_args_s* args; \
+      xoico_typespec_s* typespec_ret; \
       xoico_compiler_s* compiler; \
       xoico_group_s* group; \
       xoico_stamp_s* stamp; \
       tp_t obj_type; \
       sz_t level; \
-      xoico_cdaleth_stack_s stack; \
+      xoico_cdaleth_stack_var_s stack_var; \
+      xoico_cdaleth_stack_block_s stack_block; \
       bcore_hmap_name_s hmap_name; \
   }; \
   static inline tp_t xoico_cdaleth_s_entypeof( xoico_cdaleth_s* o, sc_t name ){return bcore_hmap_name_s_set_sc( &o->hmap_name, name );} \
   sc_t xoico_cdaleth_s_nameof( xoico_cdaleth_s* o, tp_t type ); \
+  void xoico_cdaleth_s_init_level0( xoico_cdaleth_s* o ); \
   void xoico_cdaleth_s_inc_level( xoico_cdaleth_s* o ); \
+  void xoico_cdaleth_s_inc_block( xoico_cdaleth_s* o ); \
   void xoico_cdaleth_s_dec_level( xoico_cdaleth_s* o ); \
+  void xoico_cdaleth_s_dec_block( xoico_cdaleth_s* o ); \
+  xoico_cdaleth_stack_block_unit_s* xoico_cdaleth_s_stack_block_get_top_unit( xoico_cdaleth_s* o ); \
   void xoico_cdaleth_s_push_typedecl( xoico_cdaleth_s* o, const xoico_typespec_s* typespec, tp_t name ); \
+  static inline bl_t xoico_cdaleth_s_is_type( const xoico_cdaleth_s* o, tp_t name ){return xoico_compiler_s_is_type( o->compiler, name );} \
+  static inline bl_t xoico_cdaleth_s_is_group( const xoico_cdaleth_s* o, tp_t name ){return xoico_compiler_s_is_group( o->compiler, name );} \
+  static inline bl_t xoico_cdaleth_s_is_stamp( const xoico_cdaleth_s* o, tp_t name ){return xoico_compiler_s_is_stamp( o->compiler, name );} \
+  static inline bl_t xoico_cdaleth_s_is_var( const xoico_cdaleth_s* o, tp_t name ){return xoico_cdaleth_stack_var_s_exists( &(o->stack_var), name );} \
   er_t xoico_cdaleth_s_translate( const xoico_cdaleth_s* o, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink );
 #define BETH_EXPAND_GROUP_xoico_cdaleth \
   BCORE_FORWARD_OBJECT( xoico_cdaleth ); \
-  BCORE_FORWARD_OBJECT( xoico_cdaleth_stack ); \
+  BCORE_FORWARD_OBJECT( xoico_cdaleth_stack_var ); \
+  BCORE_FORWARD_OBJECT( xoico_cdaleth_stack_block ); \
   BCORE_FORWARD_OBJECT( xoico_cdaleth_s ); \
   XOILA_DECLARE_SPECT( xoico_cdaleth ) \
   { \
       bcore_spect_header_s header; \
   }; \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_cdaleth ) \
-  BETH_EXPAND_GROUP_xoico_cdaleth_stack \
+  BETH_EXPAND_GROUP_xoico_cdaleth_stack_var \
+  BETH_EXPAND_GROUP_xoico_cdaleth_stack_block \
   BETH_EXPAND_ITEM_xoico_cdaleth_s
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoico_cdaleth_stack
+// group: xoico_cdaleth_stack_var
 
-#define TYPEOF_xoico_cdaleth_stack 0xA661D7E3E6A4A5F0ull
-#define TYPEOF_xoico_cdaleth_stack_spect_s 0xADFC652E16852418ull
-#define TYPEOF_xoico_cdaleth_stack_unit_s 0x9C7003FC27C7F609ull
-#define BETH_EXPAND_ITEM_xoico_cdaleth_stack_unit_s \
-  BCORE_DECLARE_OBJECT( xoico_cdaleth_stack_unit_s ) \
+#define TYPEOF_xoico_cdaleth_stack_var 0xFC261CACAFEB9CC6ull
+#define TYPEOF_xoico_cdaleth_stack_var_spect_s 0xA0BF1284603402D2ull
+#define TYPEOF_xoico_cdaleth_stack_var_unit_s 0x65EB5514FBC27E3Bull
+#define BETH_EXPAND_ITEM_xoico_cdaleth_stack_var_unit_s \
+  BCORE_DECLARE_OBJECT( xoico_cdaleth_stack_var_unit_s ) \
   { \
       aware_t _; \
       sz_t level; \
       tp_t name; \
       xoico_typespec_s typespec; \
   };
-#define TYPEOF_xoico_cdaleth_stack_unit_adl_s 0xDAA69D6476FF57CDull
-#define BETH_EXPAND_ITEM_xoico_cdaleth_stack_unit_adl_s \
-  BCORE_DECLARE_OBJECT( xoico_cdaleth_stack_unit_adl_s ) \
+#define TYPEOF_xoico_cdaleth_stack_var_unit_adl_s 0x28B0FEF7ED9C9673ull
+#define BETH_EXPAND_ITEM_xoico_cdaleth_stack_var_unit_adl_s \
+  BCORE_DECLARE_OBJECT( xoico_cdaleth_stack_var_unit_adl_s ) \
   { \
       aware_t _; \
-      BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_cdaleth_stack_unit_s, ); \
+      BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_cdaleth_stack_var_unit_s, ); \
   }; \
-  static inline xoico_cdaleth_stack_unit_adl_s* xoico_cdaleth_stack_unit_adl_s_set_space( xoico_cdaleth_stack_unit_adl_s* o, sz_t size ) { bcore_array_t_set_space( TYPEOF_xoico_cdaleth_stack_unit_adl_s, ( bcore_array* )o, size ); return o; } \
-  static inline xoico_cdaleth_stack_unit_adl_s* xoico_cdaleth_stack_unit_adl_s_set_size( xoico_cdaleth_stack_unit_adl_s* o, sz_t size ) { bcore_array_t_set_size( TYPEOF_xoico_cdaleth_stack_unit_adl_s, ( bcore_array* )o, size ); return o; } \
-  static inline xoico_cdaleth_stack_unit_adl_s* xoico_cdaleth_stack_unit_adl_s_clear( xoico_cdaleth_stack_unit_adl_s* o ) { bcore_array_t_set_space( TYPEOF_xoico_cdaleth_stack_unit_adl_s, ( bcore_array* )o, 0 ); return o; } \
-  static inline xoico_cdaleth_stack_unit_s* xoico_cdaleth_stack_unit_adl_s_push_c( xoico_cdaleth_stack_unit_adl_s* o, const xoico_cdaleth_stack_unit_s* v ) { bcore_array_t_push( TYPEOF_xoico_cdaleth_stack_unit_adl_s, ( bcore_array* )o, sr_twc( TYPEOF_xoico_cdaleth_stack_unit_s, v ) ); return o->data[ o->size - 1 ]; } \
-  static inline xoico_cdaleth_stack_unit_s* xoico_cdaleth_stack_unit_adl_s_push_d( xoico_cdaleth_stack_unit_adl_s* o,       xoico_cdaleth_stack_unit_s* v ) { bcore_array_t_push( TYPEOF_xoico_cdaleth_stack_unit_adl_s, ( bcore_array* )o, sr_tsd( TYPEOF_xoico_cdaleth_stack_unit_s, v ) ); return o->data[ o->size - 1 ]; } \
-  static inline xoico_cdaleth_stack_unit_s* xoico_cdaleth_stack_unit_adl_s_push( xoico_cdaleth_stack_unit_adl_s* o ) \
+  static inline xoico_cdaleth_stack_var_unit_adl_s* xoico_cdaleth_stack_var_unit_adl_s_set_space( xoico_cdaleth_stack_var_unit_adl_s* o, sz_t size ) { bcore_array_t_set_space( TYPEOF_xoico_cdaleth_stack_var_unit_adl_s, ( bcore_array* )o, size ); return o; } \
+  static inline xoico_cdaleth_stack_var_unit_adl_s* xoico_cdaleth_stack_var_unit_adl_s_set_size( xoico_cdaleth_stack_var_unit_adl_s* o, sz_t size ) { bcore_array_t_set_size( TYPEOF_xoico_cdaleth_stack_var_unit_adl_s, ( bcore_array* )o, size ); return o; } \
+  static inline xoico_cdaleth_stack_var_unit_adl_s* xoico_cdaleth_stack_var_unit_adl_s_clear( xoico_cdaleth_stack_var_unit_adl_s* o ) { bcore_array_t_set_space( TYPEOF_xoico_cdaleth_stack_var_unit_adl_s, ( bcore_array* )o, 0 ); return o; } \
+  static inline xoico_cdaleth_stack_var_unit_s* xoico_cdaleth_stack_var_unit_adl_s_push_c( xoico_cdaleth_stack_var_unit_adl_s* o, const xoico_cdaleth_stack_var_unit_s* v ) { bcore_array_t_push( TYPEOF_xoico_cdaleth_stack_var_unit_adl_s, ( bcore_array* )o, sr_twc( TYPEOF_xoico_cdaleth_stack_var_unit_s, v ) ); return o->data[ o->size - 1 ]; } \
+  static inline xoico_cdaleth_stack_var_unit_s* xoico_cdaleth_stack_var_unit_adl_s_push_d( xoico_cdaleth_stack_var_unit_adl_s* o,       xoico_cdaleth_stack_var_unit_s* v ) { bcore_array_t_push( TYPEOF_xoico_cdaleth_stack_var_unit_adl_s, ( bcore_array* )o, sr_tsd( TYPEOF_xoico_cdaleth_stack_var_unit_s, v ) ); return o->data[ o->size - 1 ]; } \
+  static inline xoico_cdaleth_stack_var_unit_s* xoico_cdaleth_stack_var_unit_adl_s_push( xoico_cdaleth_stack_var_unit_adl_s* o ) \
   { \
-      bcore_array_t_push( TYPEOF_xoico_cdaleth_stack_unit_adl_s, ( bcore_array* )o, sr_t_create( TYPEOF_xoico_cdaleth_stack_unit_s ) ); \
+      bcore_array_t_push( TYPEOF_xoico_cdaleth_stack_var_unit_adl_s, ( bcore_array* )o, sr_t_create( TYPEOF_xoico_cdaleth_stack_var_unit_s ) ); \
       return o->data[ o->size - 1 ]; \
   }
-#define TYPEOF_xoico_cdaleth_stack_s 0xA2F3014D3AA6662Aull
-#define BETH_EXPAND_ITEM_xoico_cdaleth_stack_s \
-  BCORE_DECLARE_OBJECT( xoico_cdaleth_stack_s ) \
+#define TYPEOF_xoico_cdaleth_stack_var_s 0x1D109A7D51C8FC18ull
+#define BETH_EXPAND_ITEM_xoico_cdaleth_stack_var_s \
+  BCORE_DECLARE_OBJECT( xoico_cdaleth_stack_var_s ) \
   { \
       aware_t _; \
-      xoico_cdaleth_stack_unit_adl_s adl; \
+      xoico_cdaleth_stack_var_unit_adl_s adl; \
+      bcore_hmap_tp_s hmap_name; \
   }; \
-  static inline xoico_cdaleth_stack_s* xoico_cdaleth_stack_s_push_unit( xoico_cdaleth_stack_s* o, const xoico_cdaleth_stack_unit_s* unit ){xoico_cdaleth_stack_unit_adl_s_push_c( &o->adl, unit );  return o;} \
-  xoico_cdaleth_stack_s* xoico_cdaleth_stack_s_pop_level( xoico_cdaleth_stack_s* o, sz_t level ); \
-  const xoico_typespec_s* xoico_cdaleth_stack_s_get_typespec( const xoico_cdaleth_stack_s* o, tp_t name ); \
-  static inline void xoico_cdaleth_stack_s_clear( xoico_cdaleth_stack_s* o ){xoico_cdaleth_stack_unit_adl_s_clear( &o->adl );}
-#define BETH_EXPAND_GROUP_xoico_cdaleth_stack \
-  BCORE_FORWARD_OBJECT( xoico_cdaleth_stack ); \
-  BCORE_FORWARD_OBJECT( xoico_cdaleth_stack_unit_s ); \
-  BCORE_FORWARD_OBJECT( xoico_cdaleth_stack_unit_adl_s ); \
-  BCORE_FORWARD_OBJECT( xoico_cdaleth_stack_s ); \
-  XOILA_DECLARE_SPECT( xoico_cdaleth_stack ) \
+  static inline bl_t xoico_cdaleth_stack_var_s_exists( const xoico_cdaleth_stack_var_s* o, tp_t name ){return bcore_hmap_tp_s_exists( &(o->hmap_name), name );} \
+  void xoico_cdaleth_stack_var_s_rehash_names( xoico_cdaleth_stack_var_s* o ); \
+  xoico_cdaleth_stack_var_s* xoico_cdaleth_stack_var_s_push_unit( xoico_cdaleth_stack_var_s* o, const xoico_cdaleth_stack_var_unit_s* unit ); \
+  xoico_cdaleth_stack_var_s* xoico_cdaleth_stack_var_s_pop_level( xoico_cdaleth_stack_var_s* o, sz_t level ); \
+  const xoico_typespec_s* xoico_cdaleth_stack_var_s_get_typespec( const xoico_cdaleth_stack_var_s* o, tp_t name ); \
+  static inline void xoico_cdaleth_stack_var_s_clear( xoico_cdaleth_stack_var_s* o ){xoico_cdaleth_stack_var_unit_adl_s_clear( &(o->adl)); bcore_hmap_tp_s_clear( &(o->hmap_name));}
+#define BETH_EXPAND_GROUP_xoico_cdaleth_stack_var \
+  BCORE_FORWARD_OBJECT( xoico_cdaleth_stack_var ); \
+  BCORE_FORWARD_OBJECT( xoico_cdaleth_stack_var_unit_s ); \
+  BCORE_FORWARD_OBJECT( xoico_cdaleth_stack_var_unit_adl_s ); \
+  BCORE_FORWARD_OBJECT( xoico_cdaleth_stack_var_s ); \
+  XOILA_DECLARE_SPECT( xoico_cdaleth_stack_var ) \
   { \
       bcore_spect_header_s header; \
   }; \
-  BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_cdaleth_stack ) \
-  BETH_EXPAND_ITEM_xoico_cdaleth_stack_unit_s \
-  BETH_EXPAND_ITEM_xoico_cdaleth_stack_unit_adl_s \
-  BETH_EXPAND_ITEM_xoico_cdaleth_stack_s
+  BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_cdaleth_stack_var ) \
+  BETH_EXPAND_ITEM_xoico_cdaleth_stack_var_unit_s \
+  BETH_EXPAND_ITEM_xoico_cdaleth_stack_var_unit_adl_s \
+  BETH_EXPAND_ITEM_xoico_cdaleth_stack_var_s
+
+//----------------------------------------------------------------------------------------------------------------------
+// group: xoico_cdaleth_stack_block
+
+#define TYPEOF_xoico_cdaleth_stack_block 0x018CBE73D7FCF11Aull
+#define TYPEOF_xoico_cdaleth_stack_block_spect_s 0xFFBA6DB3DBAE38C6ull
+#define TYPEOF_xoico_cdaleth_stack_block_unit_s 0x17B0D1A09DFB9D8Full
+#define BETH_EXPAND_ITEM_xoico_cdaleth_stack_block_unit_s \
+  BCORE_DECLARE_OBJECT( xoico_cdaleth_stack_block_unit_s ) \
+  { \
+      aware_t _; \
+      sz_t level; \
+      bl_t use_blm; \
+      bl_t break_ledge; \
+  };
+#define TYPEOF_xoico_cdaleth_stack_block_unit_adl_s 0xC2B1FFFF0323881Full
+#define BETH_EXPAND_ITEM_xoico_cdaleth_stack_block_unit_adl_s \
+  BCORE_DECLARE_OBJECT( xoico_cdaleth_stack_block_unit_adl_s ) \
+  { \
+      aware_t _; \
+      BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_cdaleth_stack_block_unit_s, ); \
+  }; \
+  static inline xoico_cdaleth_stack_block_unit_adl_s* xoico_cdaleth_stack_block_unit_adl_s_set_space( xoico_cdaleth_stack_block_unit_adl_s* o, sz_t size ) { bcore_array_t_set_space( TYPEOF_xoico_cdaleth_stack_block_unit_adl_s, ( bcore_array* )o, size ); return o; } \
+  static inline xoico_cdaleth_stack_block_unit_adl_s* xoico_cdaleth_stack_block_unit_adl_s_set_size( xoico_cdaleth_stack_block_unit_adl_s* o, sz_t size ) { bcore_array_t_set_size( TYPEOF_xoico_cdaleth_stack_block_unit_adl_s, ( bcore_array* )o, size ); return o; } \
+  static inline xoico_cdaleth_stack_block_unit_adl_s* xoico_cdaleth_stack_block_unit_adl_s_clear( xoico_cdaleth_stack_block_unit_adl_s* o ) { bcore_array_t_set_space( TYPEOF_xoico_cdaleth_stack_block_unit_adl_s, ( bcore_array* )o, 0 ); return o; } \
+  static inline xoico_cdaleth_stack_block_unit_s* xoico_cdaleth_stack_block_unit_adl_s_push_c( xoico_cdaleth_stack_block_unit_adl_s* o, const xoico_cdaleth_stack_block_unit_s* v ) { bcore_array_t_push( TYPEOF_xoico_cdaleth_stack_block_unit_adl_s, ( bcore_array* )o, sr_twc( TYPEOF_xoico_cdaleth_stack_block_unit_s, v ) ); return o->data[ o->size - 1 ]; } \
+  static inline xoico_cdaleth_stack_block_unit_s* xoico_cdaleth_stack_block_unit_adl_s_push_d( xoico_cdaleth_stack_block_unit_adl_s* o,       xoico_cdaleth_stack_block_unit_s* v ) { bcore_array_t_push( TYPEOF_xoico_cdaleth_stack_block_unit_adl_s, ( bcore_array* )o, sr_tsd( TYPEOF_xoico_cdaleth_stack_block_unit_s, v ) ); return o->data[ o->size - 1 ]; } \
+  static inline xoico_cdaleth_stack_block_unit_s* xoico_cdaleth_stack_block_unit_adl_s_push( xoico_cdaleth_stack_block_unit_adl_s* o ) \
+  { \
+      bcore_array_t_push( TYPEOF_xoico_cdaleth_stack_block_unit_adl_s, ( bcore_array* )o, sr_t_create( TYPEOF_xoico_cdaleth_stack_block_unit_s ) ); \
+      return o->data[ o->size - 1 ]; \
+  }
+#define TYPEOF_xoico_cdaleth_stack_block_s 0x2543740CC3FCE924ull
+#define BETH_EXPAND_ITEM_xoico_cdaleth_stack_block_s \
+  BCORE_DECLARE_OBJECT( xoico_cdaleth_stack_block_s ) \
+  { \
+      aware_t _; \
+      xoico_cdaleth_stack_block_unit_adl_s adl; \
+  }; \
+  static inline xoico_cdaleth_stack_block_s* xoico_cdaleth_stack_block_s_push( xoico_cdaleth_stack_block_s* o ){xoico_cdaleth_stack_block_unit_adl_s_push_d( &o->adl, xoico_cdaleth_stack_block_unit_s_create() );  return o;} \
+  static inline xoico_cdaleth_stack_block_s* xoico_cdaleth_stack_block_s_push_unit( xoico_cdaleth_stack_block_s* o, const xoico_cdaleth_stack_block_unit_s* unit ){xoico_cdaleth_stack_block_unit_adl_s_push_c( &o->adl, unit );  return o;} \
+  xoico_cdaleth_stack_block_s* xoico_cdaleth_stack_block_s_pop( xoico_cdaleth_stack_block_s* o ); \
+  static inline void xoico_cdaleth_stack_block_s_clear( xoico_cdaleth_stack_block_s* o ){xoico_cdaleth_stack_block_unit_adl_s_clear( &o->adl );} \
+  static inline sz_t xoico_cdaleth_stack_block_s_get_size( const xoico_cdaleth_stack_block_s* o ){return o->adl.size;}
+#define BETH_EXPAND_GROUP_xoico_cdaleth_stack_block \
+  BCORE_FORWARD_OBJECT( xoico_cdaleth_stack_block ); \
+  BCORE_FORWARD_OBJECT( xoico_cdaleth_stack_block_unit_s ); \
+  BCORE_FORWARD_OBJECT( xoico_cdaleth_stack_block_unit_adl_s ); \
+  BCORE_FORWARD_OBJECT( xoico_cdaleth_stack_block_s ); \
+  XOILA_DECLARE_SPECT( xoico_cdaleth_stack_block ) \
+  { \
+      bcore_spect_header_s header; \
+  }; \
+  BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_cdaleth_stack_block ) \
+  BETH_EXPAND_ITEM_xoico_cdaleth_stack_block_unit_s \
+  BETH_EXPAND_ITEM_xoico_cdaleth_stack_block_unit_adl_s \
+  BETH_EXPAND_ITEM_xoico_cdaleth_stack_block_s
 
 /**********************************************************************************************************************/
 
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0x514FD0E2180D1B41ull
+// XOILA_OUT_SIGNATURE 0x54639AC60DF3C895ull

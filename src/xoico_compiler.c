@@ -395,7 +395,7 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
             found = false;
         }
 
-        info->type_info.typespec.is_const = false;
+        info->type_info.typespec.flag_const = false;
 
         if( !found )
         {
@@ -406,7 +406,7 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
                 info->type_info.typespec.type = func->global_name;
                 info->type_info.typespec.indirection = 0;
                 const xoico_signature_s* signature = xoico_compiler_s_get_signature( o, func->type );
-                info->type_info.typespec.is_const = ( signature->arg_o == TYPEOF_const );
+                info->type_info.typespec.flag_const = ( signature->arg_o == TYPEOF_const );
                 xoico_signature_s_attach( &info->signature, xoico_signature_s_clone( signature ) );
                 xoico_signature_s_relent( info->signature, self->type );
                 success = true;
@@ -429,12 +429,12 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
         xoico_group_s* group = ( xoico_group_s* )xoico_item;
         if( bcore_hmap_tpvd_s_exists( &group->hmap_feature, name ) )
         {
-            info->type_info.typespec.is_const = false;
+            info->type_info.typespec.flag_const = false;
             xoico_feature_s* feature = *bcore_hmap_tpvd_s_get( &group->hmap_feature, name );
             if( feature->flag_a )
             {
                 const xoico_signature_s* signature = &feature->signature;
-                info->type_info.typespec.is_const = ( signature->arg_o == TYPEOF_const );
+                info->type_info.typespec.flag_const = ( signature->arg_o == TYPEOF_const );
                 sc_t  st_func_name = xoico_compiler_s_nameof( o, name );
                 ASSERT( st_func_name );
                 st_s* st_full_func_name = st_s_create_fa( "#<sc_t>_a_#<sc_t>", group->st_name.sc, st_func_name );

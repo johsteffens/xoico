@@ -279,23 +279,6 @@ er_t xoico_stamp_s_parse_extend( xoico_stamp_s* o, bcore_source* source, bl_t ve
     }
     XOICO_BLM_SOURCE_PARSE_FA( source, " ; " );
 
-    // apply all functions of group and parents, which are not yet defined in stamp
-    if( !verbatim )
-    {
-        for( xoico_group_s* fgroup = o->group; fgroup != NULL; fgroup = fgroup->group )
-        {
-            for( sz_t i = 0; i < fgroup->funcs.size; i++ )
-            {
-                xoico_func_s* func = fgroup->funcs.data[ i ];
-                if( !xoico_funcs_s_exists_from_type( &o->funcs, func->type ) )
-                {
-                    if( xoico_func_s_registerable( func ) ) st_s_push_st( o->self_source, &func->flect_decl );
-                    bcore_array_a_push( ( bcore_array* )&o->funcs, sr_awc( func ) );
-                }
-            }
-        }
-    }
-
     st_s_push_sc( o->self_source, "}" );
 
     BLM_RETURNV( er_t, 0 );

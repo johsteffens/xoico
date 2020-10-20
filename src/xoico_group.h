@@ -73,7 +73,7 @@ stamp : = aware :
 
     private xoico_stamp_s -> extending; // !=NULL: extends this stamp on subsequent stamps
 
-    xoico_funcs_s funcs; // functions
+    //xoico_funcs_s funcs; // functions
 
     private aware xoico_source_s* source;
 

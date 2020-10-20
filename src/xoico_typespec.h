@@ -38,11 +38,12 @@ stamp : = aware :
     tp_t type; // possible variable types are TYPEOF_type_deduce and TYPEOF_type_object
     sz_t indirection;
 
-    bl_t is_const;
-    bl_t is_static;
-    bl_t is_volatile;
-    bl_t is_restrict;
-    bl_t has_address = true;  // object can have a pointer ('false' for objects returned by a function)
+    bl_t flag_const;
+    bl_t flag_static;
+    bl_t flag_volatile;
+    bl_t flag_restrict;
+    bl_t flag_keep;
+    bl_t flag_addressable = true;  // object can have a pointer ('false' for objects returned by a function)
 
     func xoico : get_hash;
     func     : : parse;
@@ -53,11 +54,12 @@ stamp : = aware :
     {
         o->type = 0;
         o->indirection = 0;
-        o->is_const    = false;
-        o->is_static   = false;
-        o->is_volatile = false;
-        o->is_restrict = false;
-        o->has_address = true;  // object can have a pointer ('false' for objects returned by a function)
+        o->flag_const    = false;
+        o->flag_static   = false;
+        o->flag_volatile = false;
+        o->flag_restrict = false;
+        o->flag_keep     = false;
+        o->flag_addressable = true;  // object can have a pointer ('false' for objects returned by a function)
     };
 };
 

@@ -53,7 +53,6 @@ group :stack = :
         :unit_adl_s adl;
         func : :push_unit = { :unit_adl_s_push_c( &o->adl, unit );  return o; };
 
-        // 125673527613
         func : :pop_level =
         {
             sz_t size = o->adl.size;

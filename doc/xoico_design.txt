@@ -245,17 +245,24 @@ TODO:
 - (done) do not adapt indirection of void pointer types vc_t, vd_t
 - (done) introduce verbatim_C{ .... } where code inside {} is taken as literal C code.
 - (done) replace {\C .... } with {verbatim_C{ .... }}
-- add type specifier 'keep' (e.g. to be used in function returns) telling the compiler to take control of the object's lifetime
+- (done) add type specifier 'keep' (e.g. to be used in function returns) telling the compiler to take control of the object's lifetime
+- (done) add lifetime management for return and break statements
 - (done) isolate trans_declaration: processes declaration (with assignment) in case a declaration is intended, otherwise does nothing.
 - (done) move trans_declaration from trans_expression to trans_statement and trans_for
-- modify trans_declaration: flag indicating that the declaration in c-code is to be prepended
-- preprend flagged declarations to the beginning of the current block
-- allow (prepended) declaration after opening a bracket
+- implement try-expression
+- allow signature definition along with function declaration
+- allow stamp member function declaration outside stamp
+- (done) bracket-expressions '(....)' should yield typespec where possible
+- (fixed) bug: too many closing ')' stalls
+- (done) let variable declaration hide a type of same name
+- (speculative) modify trans_declaration: flag indicating that the declaration in c-code is to be prepended
+- (speculative) preprend flagged declarations to the beginning of the current block
+- (speculative) allow (prepended) declaration after opening a bracket
 
 Keywords (for syntax highlight)
 
 xoila:
-group stamp stump hidden private func name signature body aware feature extending verbatim mutable plain retrievable private forward embed
+group stamp stump hidden private func name signature body aware feature extending verbatim mutable plain retrievable forward embed cast foreach in verbatim_C keep
 
 cengine:
 deduce

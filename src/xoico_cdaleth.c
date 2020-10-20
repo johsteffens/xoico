@@ -27,13 +27,21 @@
 //----------------------------------------------------------------------------------------------------------------------
 
 er_t xoico_cdaleth_s_trans_statement(  xoico_cdaleth_s* o, bcore_source* source, st_s* buf );
-er_t xoico_cdaleth_s_trans_block(      xoico_cdaleth_s* o, bcore_source* source, st_s* buf );
+er_t xoico_cdaleth_s_trans_block(      xoico_cdaleth_s* o, bcore_source* source, st_s* buf, bl_t is_break_ledge );
+er_t xoico_cdaleth_s_trans_statement_as_block( xoico_cdaleth_s* o, bcore_source* source, st_s* buf_out, bl_t is_break_ledge );
 er_t xoico_cdaleth_s_trans_expression( xoico_cdaleth_s* o, bcore_source* source, st_s* buf, xoico_typespec_s* out_typespec /* optional */ );
 er_t xoico_cdaleth_s_trans_block_inside_verbatim_c( xoico_cdaleth_s* o, bcore_source* source, st_s* buf );
 
 //----------------------------------------------------------------------------------------------------------------------
 
 /**********************************************************************************************************************/
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bl_t xoico_cdaleth_s_returns_a_value( const xoico_cdaleth_s* o )
+{
+    return ( o->typespec_ret->type != TYPEOF_void ) || ( o->typespec_ret->indirection > 0 );
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -414,7 +422,7 @@ er_t xoico_cdaleth_s_adapt_expression
     }
     else if( typespec_target->indirection == typespec_expr->indirection + 1 )
     {
-        if( typespec_expr->has_address )
+        if( typespec_expr->flag_addressable )
         {
             st_s_push_fa( buf, "&(#<st_s*>)", expr );
         }
@@ -592,7 +600,7 @@ er_t xoico_cdaleth_s_trans_typespec_expression
                 st_s_clear( buf );
 
                 /// Untraced member functions of a group are always treated as 'aware'
-                if( xoico_compiler_s_is_group( o->compiler, in_typespec->type ) )
+                if( xoico_cdaleth_s_is_group( o, in_typespec->type ) )
                 {
                     st_s_copy_fa
                     (
@@ -678,12 +686,12 @@ er_t xoico_cdaleth_s_trans_typespec_expression
         //ignore in case indirection is 0;
         if( in_typespec->indirection > 0 )
         {
-            if( !( in_typespec->indirection == 1 && in_typespec->has_address ) )
+            if( !( in_typespec->indirection == 1 && in_typespec->flag_addressable ) )
             {
                 XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Create-Operator requires lvalue with addressable indirection of 1." );
             }
 
-            if( xoico_compiler_s_is_group( o->compiler, in_typespec->type ) )
+            if( xoico_cdaleth_s_is_group( o, in_typespec->type ) )
             {
                 XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Create-Operator: lvalue is a group." );
             }
@@ -723,7 +731,7 @@ er_t xoico_cdaleth_s_trans_typespec_expression
     else if( bcore_source_a_parse_bl_fa( source, "#?'=<'" ) )
     {
         BLM_INIT();
-        if( !( in_typespec->indirection == 1 && in_typespec->has_address ) )
+        if( !( in_typespec->indirection == 1 && in_typespec->flag_addressable ) )
         {
             XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Attach-Operator requires lvalue with addressable indirection of 1" );
         }
@@ -735,7 +743,7 @@ er_t xoico_cdaleth_s_trans_typespec_expression
         st_s_push_fa( buf, "#<sc_t>", sc_type );
 
         xoico_typespec_s* typespec_rval = BLM_CREATE( xoico_typespec_s );
-        if( xoico_compiler_s_is_group( o->compiler, in_typespec->type ) )
+        if( xoico_cdaleth_s_is_group( o, in_typespec->type ) )
         {
             st_s_push_sc( buf, "_a" );
             st_s_push_fa( buf, "_attach( &(#<sc_t>), (#<sc_t>*)", arg_obj->sc, sc_type );
@@ -783,48 +791,6 @@ er_t xoico_cdaleth_s_trans_member( xoico_cdaleth_s* o, bcore_source* source, st_
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_cdaleth_s_take_typespec
-(
-    xoico_cdaleth_s* o,
-    bcore_source* source,
-    xoico_typespec_s* typespec,
-    bl_t require_tractable_type
-)
-{
-    BLM_INIT();
-    tp_t tp_name = 0;
-    BLM_TRY( xoico_cdaleth_s_trans_identifier( o, source, NULL, &tp_name ) );
-    BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, NULL ) );
-
-    while( tp_name == TYPEOF_const || tp_name == TYPEOF_static || tp_name == TYPEOF_volatile )
-    {
-        if( tp_name == TYPEOF_const    ) typespec->is_const    = true;
-        if( tp_name == TYPEOF_static   ) typespec->is_static   = true;
-        if( tp_name == TYPEOF_volatile ) typespec->is_volatile = true;
-        BLM_TRY( xoico_cdaleth_s_trans_identifier( o, source, NULL, &tp_name ) );
-        BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, NULL ) );
-    }
-
-    typespec->type = tp_name;
-    while( bcore_source_a_parse_bl_fa( source, "#?'*'" ) )
-    {
-        typespec->indirection++;
-        BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, NULL ) );
-    }
-
-    if( require_tractable_type )
-    {
-        if( !( tp_name == TYPEOF_type_deduce || xoico_compiler_s_is_type( o->compiler, tp_name ) ) )
-        {
-            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Typespec is not tractable." );
-        }
-    }
-
-    BLM_RETURNV( er_t, 0 );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 /** Tests for typespec
  *  If possible, takes typespec from source, otherwise leaves source unchanged
  */
@@ -854,11 +820,12 @@ er_t xoico_cdaleth_s_try_take_typespec
 
     BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, NULL ) );
 
-    while( tp_name == TYPEOF_const || tp_name == TYPEOF_static || tp_name == TYPEOF_volatile )
+    while( tp_name == TYPEOF_const || tp_name == TYPEOF_static || tp_name == TYPEOF_volatile || tp_name == TYPEOF_keep )
     {
-        if( tp_name == TYPEOF_const    ) typespec->is_const    = true;
-        if( tp_name == TYPEOF_static   ) typespec->is_static   = true;
-        if( tp_name == TYPEOF_volatile ) typespec->is_volatile = true;
+        if( tp_name == TYPEOF_const    ) typespec->flag_const    = true;
+        if( tp_name == TYPEOF_static   ) typespec->flag_static   = true;
+        if( tp_name == TYPEOF_volatile ) typespec->flag_volatile = true;
+        if( tp_name == TYPEOF_keep     ) typespec->flag_keep     = true;
         BLM_TRY( xoico_cdaleth_s_trans_identifier( o, source, NULL, &tp_name ) );
         BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, NULL ) );
     }
@@ -872,7 +839,7 @@ er_t xoico_cdaleth_s_try_take_typespec
 
     if( require_tractable_type )
     {
-        if( !( tp_name == TYPEOF_type_deduce || xoico_compiler_s_is_type( o->compiler, tp_name ) ) )
+        if( !( tp_name == TYPEOF_type_deduce || xoico_cdaleth_s_is_type( o, tp_name ) ) )
         {
             bcore_source_a_set_index( source, index );
             BLM_RETURNV( er_t, 0 );
@@ -885,10 +852,39 @@ er_t xoico_cdaleth_s_try_take_typespec
 
 //----------------------------------------------------------------------------------------------------------------------
 
+er_t xoico_cdaleth_s_take_typespec
+(
+    xoico_cdaleth_s* o,
+    bcore_source* source,
+    xoico_typespec_s* typespec,
+    bl_t require_tractable_type
+)
+{
+    BLM_INIT();
+    bl_t success = false;
+    BLM_TRY( xoico_cdaleth_s_try_take_typespec( o, source, typespec, require_tractable_type, &success ) );
+
+    if( !success )
+    {
+        if( require_tractable_type )
+        {
+            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Typespec: Syntax error or intractable type." );
+        }
+        else
+        {
+            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Typespec: Syntax error." );
+        }
+    }
+
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 er_t xoico_cdaleth_s_push_typespec
 (
     xoico_cdaleth_s* o,
-    xoico_typespec_s* typespec,
+    const xoico_typespec_s* typespec,
     st_s* buf
 )
 {
@@ -916,13 +912,13 @@ er_t xoico_cdaleth_s_push_typespec
     }
 
     sc_t sc_type = st_type->sc;
-    if( typespec->is_static ) st_s_push_fa( buf, "static " );
-    if( typespec->is_const ) st_s_push_fa( buf, "const " );
-    if( typespec->is_volatile ) st_s_push_fa( buf, "volatile " );
+    if( typespec->flag_static ) st_s_push_fa( buf, "static " );
+    if( typespec->flag_const ) st_s_push_fa( buf, "const " );
+    if( typespec->flag_volatile ) st_s_push_fa( buf, "volatile " );
     st_s_push_fa( buf, "#<sc_t>", sc_type );
 
     for( sz_t i = 0; i < typespec->indirection; i++ ) st_s_push_fa( buf, "*" );
-    if( typespec->is_restrict ) st_s_push_fa( buf, "restrict " );
+    if( typespec->flag_restrict ) st_s_push_fa( buf, "restrict " );
 
     BLM_RETURNV( er_t, 0 );
 }
@@ -975,7 +971,7 @@ er_t xoico_cdaleth_s_trans_cast
 
     if( typespec_cast->indirection > typespec_expr->indirection )
     {
-        out_typespec->has_address = false;
+        out_typespec->flag_addressable = false;
     }
 
     BLM_RETURNV( er_t, 0 );
@@ -1098,7 +1094,43 @@ er_t xoico_cdaleth_s_trans_expression
 
     if( tp_identifier )
     {
-        if( tp_identifier == TYPEOF_cast )
+        if( tp_identifier == TYPEOF_keep )
+        {
+            XOICO_BLM_SOURCE_PARSE_FA( source, "keep (" );
+            xoico_typespec_s* typespec_keep = BLM_CREATE( xoico_typespec_s );
+
+            st_s* buf_ = BLM_CREATE( st_s );
+            xoico_cdaleth_s_trans_expression( o, source, buf_, typespec_keep );
+
+            if( typespec_keep->type        == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Keep operator: Expression not tractable." );
+            if( typespec_keep->indirection != 1 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Keep operator: Expression's indirection != 1." );
+
+            if( !typespec_keep->flag_keep )
+            {
+                st_s_push_sc( buf, "((" );
+                BLM_TRY( xoico_cdaleth_s_push_typespec( o, typespec_keep, buf ) );
+
+                if( xoico_cdaleth_s_is_group( o, typespec_keep->type ) )
+                {
+                    st_s_push_fa( buf, ")BLM_A_PUSH(#<sc_t>))", buf_->sc );
+                }
+                else
+                {
+                    st_s_push_fa( buf, ")BLM_T_PUSH(#<sc_t>,#<sc_t>))", xoico_cdaleth_s_nameof( o, typespec_keep->type ), buf_->sc );
+                }
+                xoico_cdaleth_s_stack_block_get_top_unit( o )->use_blm = true;
+                typespec_keep->flag_keep = true;
+            }
+            else
+            {
+                st_s_push_st( buf, buf_ );
+            }
+
+            XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
+            xoico_cdaleth_s_trans_typespec_expression( o, source, buf, typespec_keep, out_typespec );
+            continuation = false;
+        }
+        else if( tp_identifier == TYPEOF_cast )
         {
             xoico_typespec_s* typespec_cast = BLM_CREATE( xoico_typespec_s );
             BLM_TRY( xoico_cdaleth_s_trans_cast( o, source, buf, typespec_cast ) );
@@ -1119,19 +1151,32 @@ er_t xoico_cdaleth_s_trans_expression
             tp_identifier == TYPEOF_while ||
             tp_identifier == TYPEOF_do    ||
             tp_identifier == TYPEOF_for   ||
-            tp_identifier == TYPEOF_case
+            tp_identifier == TYPEOF_case  ||
+            tp_identifier == TYPEOF_break ||
+            tp_identifier == TYPEOF_return
         )
         {
             continuation = false;
         }
-        else if( xoico_compiler_s_is_type( o->compiler, tp_identifier ) )
+        else if( xoico_cdaleth_s_is_var( o, tp_identifier ) )
+        {
+            BLM_INIT();
+            tp_t tp_name = 0;
+            BLM_TRY( xoico_cdaleth_s_trans_identifier( o, source, buf, &tp_name ) );
+            BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
+            const xoico_typespec_s* typespec = xoico_cdaleth_stack_var_s_get_typespec( &o->stack_var, tp_name );
+            ASSERT( typespec );
+            BLM_TRY( xoico_cdaleth_s_trans_typespec_expression( o, source, buf, typespec, out_typespec ) );
+            BLM_DOWN();
+        }
+        else if( xoico_cdaleth_s_is_type( o, tp_identifier ) )
         {
             st_s* buf_ = BLM_CREATE( st_s );
             BLM_TRY( xoico_cdaleth_s_trans_identifier( o, source, buf_, NULL ) );
             BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf_ ) );
             if( bcore_source_a_parse_bl_fa( source, "#?'!'" ) )
             {
-                if( xoico_compiler_s_is_group( o->compiler, tp_identifier ) )
+                if( xoico_cdaleth_s_is_group( o, tp_identifier ) )
                 {
                     XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Operator '!': lvalue is a group." );
                 }
@@ -1139,7 +1184,7 @@ er_t xoico_cdaleth_s_trans_expression
                 xoico_typespec_s* typespec = BLM_CREATE( xoico_typespec_s );
                 typespec->type = tp_identifier;
                 typespec->indirection = 1;
-                typespec->has_address = false;
+                typespec->flag_addressable = false;
                 xoico_cdaleth_s_trans_typespec_expression( o, source, buf, typespec, out_typespec );
                 continuation = false;
             }
@@ -1151,24 +1196,8 @@ er_t xoico_cdaleth_s_trans_expression
         else
         {
             BLM_INIT();
-            tp_t tp_name = 0;
-            BLM_TRY( xoico_cdaleth_s_trans_identifier( o, source, buf, &tp_name ) );
-            BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-            const xoico_typespec_s* typespec = NULL;
-
-            if( tp_name != TYPEOF_const && tp_name != TYPEOF_static && tp_name != TYPEOF_volatile )
-            {
-                typespec = xoico_cdaleth_stack_s_get_typespec( &o->stack, tp_name );
-            }
-
-            if( typespec )
-            {
-                BLM_TRY( xoico_cdaleth_s_trans_typespec_expression( o, source, buf, typespec, out_typespec ) );
-            }
-            else
-            {
-                BLM_TRY( xoico_cdaleth_s_trans_expression( o, source, buf, NULL ) );
-            }
+            BLM_TRY( xoico_cdaleth_s_trans_identifier( o, source, buf, NULL ) );
+            BLM_TRY( xoico_cdaleth_s_trans_expression( o, source, buf, NULL ) );
             BLM_DOWN();
         }
     }
@@ -1229,7 +1258,6 @@ er_t xoico_cdaleth_s_trans_expression
     {
         BLM_INIT();
         st_s_push_sc( buf, "(" );
-        bl_t first = true;
 
         xoico_typespec_s* typespec = BLM_CREATE( xoico_typespec_s );
         while( !bcore_source_a_eos( source ) )
@@ -1248,11 +1276,11 @@ er_t xoico_cdaleth_s_trans_expression
                 XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Syntax error in bracket expression." );
             }
 
-            first = false;
+            typespec->type = 0;
         }
         st_s_push_sc( buf, ")" );
 
-        if( first && typespec->type ) BLM_TRY( xoico_cdaleth_s_trans_typespec_expression( o, source, buf, typespec, NULL ) );
+        if( typespec->type ) BLM_TRY( xoico_cdaleth_s_trans_typespec_expression( o, source, buf, typespec, out_typespec ) );
 
         BLM_DOWN();
     }
@@ -1316,13 +1344,11 @@ er_t xoico_cdaleth_s_trans_for_expression( xoico_cdaleth_s* o, bcore_source* sou
     BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
     if( bcore_source_a_parse_bl_fa( source, "#=?'{'" ) )
     {
-        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf ) )
+        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf, true ) )
     }
     else
     {
-        BLM_TRY( xoico_cdaleth_s_trans_statement( o, source, buf ) );
-        BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-        if( bcore_source_a_parse_bl_fa( source, "#?';'" ) ) st_s_push_sc( buf, ";" );
+        BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf, true ) )
     }
     xoico_cdaleth_s_dec_level( o );
     BLM_RETURNV( er_t, 0 );
@@ -1379,7 +1405,7 @@ er_t xoico_cdaleth_s_trans_foreach_expression( xoico_cdaleth_s* o, bcore_source*
 
     xoico_typespec_s* typespec_arr = BLM_A_CLONE( typespec_arr_expr );
     typespec_arr->indirection = 1;
-    typespec_arr->is_const = true;
+    typespec_arr->flag_const = true;
 
     xoico_typespec_s* typespec_idx = BLM_CREATE( xoico_typespec_s );
     typespec_idx->type = TYPEOF_sz_t;
@@ -1391,13 +1417,11 @@ er_t xoico_cdaleth_s_trans_foreach_expression( xoico_cdaleth_s* o, bcore_source*
     st_s* buf_statement = BLM_CREATE( st_s );
     if( bcore_source_a_parse_bl_fa( source, "#=?'{'" ) )
     {
-        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf_statement ) );
+        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf_statement, true ) );
     }
     else
     {
-        BLM_TRY( xoico_cdaleth_s_trans_statement( o, source, buf_statement ) );
-        BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf_statement ) );
-        if( bcore_source_a_parse_bl_fa( source, "#?';'" ) ) st_s_push_sc( buf_statement, ";" );
+        BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf_statement, true ) )
     }
 
     st_s_push_fa( buf, "{" );
@@ -1439,13 +1463,11 @@ er_t xoico_cdaleth_s_trans_if_expression( xoico_cdaleth_s* o, bcore_source* sour
     BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
     if( bcore_source_a_parse_bl_fa( source, "#=?'{'" ) )
     {
-        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf ) )
+        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf, false ) )
     }
     else
     {
-        BLM_TRY( xoico_cdaleth_s_trans_statement( o, source, buf ) )
-        BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-        if( bcore_source_a_parse_bl_fa( source, "#?';'" ) ) st_s_push_sc( buf, ";" );
+        BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf, false ) )
     }
     BLM_RETURNV( er_t, 0 );
 }
@@ -1466,13 +1488,11 @@ er_t xoico_cdaleth_s_trans_while_expression( xoico_cdaleth_s* o, bcore_source* s
     BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
     if( bcore_source_a_parse_bl_fa( source, "#=?'{'" ) )
     {
-        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf ) );
+        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf, true ) );
     }
     else
     {
-        BLM_TRY( xoico_cdaleth_s_trans_statement( o, source, buf ) );
-        BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-        if( bcore_source_a_parse_bl_fa( source, "#?';'" ) ) st_s_push_sc( buf, ";" );
+        BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf, true ) )
     }
     BLM_RETURNV( er_t, 0 );
 }
@@ -1487,13 +1507,11 @@ er_t xoico_cdaleth_s_trans_do_expression( xoico_cdaleth_s* o, bcore_source* sour
     BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
     if( bcore_source_a_parse_bl_fa( source, "#=?'{'" ) )
     {
-        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf ) )
+        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf, true ) )
     }
     else
     {
-        BLM_TRY( xoico_cdaleth_s_trans_statement( o, source, buf ) )
-        BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-        if( bcore_source_a_parse_bl_fa( source, "#?';'" ) ) st_s_push_sc( buf, ";" );
+        BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf, true ) )
     }
     XOICO_BLM_SOURCE_PARSE_FA( source, "while" );
     st_s_push_sc( buf, "while" );
@@ -1519,14 +1537,30 @@ er_t xoico_cdaleth_s_trans_else_expression( xoico_cdaleth_s* o, bcore_source* so
     BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
     if( bcore_source_a_parse_bl_fa( source, "#=?'{'" ) )
     {
-        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf ) )
+        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf, false ) )
     }
     else
     {
-        BLM_TRY( xoico_cdaleth_s_trans_statement( o, source, buf ) )
-        BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-        if( bcore_source_a_parse_bl_fa( source, "#?';'" ) ) st_s_push_sc( buf, ";" );
+        BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf, false ) )
     }
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_cdaleth_s_trans_switch_expression( xoico_cdaleth_s* o, bcore_source* source, st_s* buf )
+{
+    BLM_INIT();
+    XOICO_BLM_SOURCE_PARSE_FA( source, "switch" );
+    st_s_push_sc( buf, "switch" );
+    BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
+    XOICO_BLM_SOURCE_PARSE_FA( source, "(" );
+    st_s_push_sc( buf, "(" );
+    BLM_TRY( xoico_cdaleth_s_trans_expression( o, source, buf, NULL ) ); // def
+    XOICO_BLM_SOURCE_PARSE_FA( source, ")" );
+    st_s_push_sc( buf, ")" );
+    BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
+    BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf, true ) );
     BLM_RETURNV( er_t, 0 );
 }
 
@@ -1542,9 +1576,117 @@ er_t xoico_cdaleth_s_trans_case_expression( xoico_cdaleth_s* o, bcore_source* so
     BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
     XOICO_BLM_SOURCE_PARSE_FA( source, ": " );
     st_s_push_sc( buf, ": " );
-    BLM_TRY( xoico_cdaleth_s_trans_statement( o, source, buf ) )
+    BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf, false ) )
+
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_cdaleth_s_trans_break_expression( xoico_cdaleth_s* o, bcore_source* source, st_s* buf )
+{
+    BLM_INIT();
+    XOICO_BLM_SOURCE_PARSE_FA( source, "break ;" );
+
+    sz_t ledge_level = -1;
+    bl_t use_blm = false;
+
+    for( sz_t i = o->stack_block.adl.size - 1; i >= 0; i-- )
+    {
+        const xoico_cdaleth_stack_block_unit_s* unit = o->stack_block.adl.data[ i ];
+        use_blm = use_blm || unit->use_blm;
+        if( unit->break_ledge )
+        {
+            ledge_level = unit->level;
+            break;
+        }
+    }
+
+    if( ledge_level == -1 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "'break' has no ledge." );
+
+    if( use_blm )
+    {
+        st_s_push_fa( buf, "BLM_BREAK_LEVEL(#<sz_t>);", ledge_level );
+    }
+    else
+    {
+        st_s_push_sc( buf, "break;" );
+    }
+
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_cdaleth_s_trans_return_expression( xoico_cdaleth_s* o, bcore_source* source, st_s* buf )
+{
+    BLM_INIT();
+    XOICO_BLM_SOURCE_PARSE_FA( source, "return" );
+
+    st_s* buf_expr = BLM_CREATE( st_s );
+    xoico_typespec_s* typespec_expr = BLM_CREATE( xoico_typespec_s );
+    const xoico_typespec_s* typespec_ret = o->typespec_ret;
+
+    BLM_TRY( xoico_cdaleth_s_trans_expression( o, source, buf_expr, typespec_expr ) );
     BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-    if( bcore_source_a_parse_bl_fa( source, "#?';'" ) ) st_s_push_sc( buf, ";" );
+    XOICO_BLM_SOURCE_PARSE_FA( source, ";" );
+
+    if( typespec_expr->type )
+    {
+        if( !xoico_cdaleth_s_returns_a_value( o ) )
+        {
+            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Function does not return a value." );
+        }
+    }
+
+    bl_t use_blm = false;
+
+    BFOR_EACH( i, &o->stack_block.adl )
+    {
+        if( o->stack_block.adl.data[ i ]->use_blm )
+        {
+            use_blm = true;
+            break;
+        }
+    }
+
+    if( use_blm )
+    {
+        if( xoico_cdaleth_s_returns_a_value( o ) )
+        {
+            st_s_push_sc( buf, "BLM_RETURNV(" );
+            BLM_TRY( xoico_cdaleth_s_push_typespec( o, typespec_ret, buf ) );
+            st_s_push_sc( buf, "," );
+            if( typespec_expr->type )
+            {
+                BLM_TRY( xoico_cdaleth_s_adapt_expression( o, source, typespec_expr, typespec_ret, buf_expr, buf ) );
+            }
+            else
+            {
+                st_s_push_st( buf, buf_expr );
+            }
+            st_s_push_sc( buf, ");" );
+        }
+        else
+        {
+            st_s_push_sc( buf, "BLM_RETURN" );
+            st_s_push_st( buf, buf_expr );
+            st_s_push_sc( buf, ";" );
+        }
+    }
+    else
+    {
+        st_s_push_sc( buf, "return " );
+        if( typespec_expr->type )
+        {
+            BLM_TRY( xoico_cdaleth_s_adapt_expression( o, source, typespec_expr, typespec_ret, buf_expr, buf ) );
+        }
+        else
+        {
+            st_s_push_st( buf, buf_expr );
+        }
+        st_s_push_sc( buf, ";" );
+    }
 
     BLM_RETURNV( er_t, 0 );
 }
@@ -1558,7 +1700,7 @@ er_t xoico_cdaleth_s_trans_statement( xoico_cdaleth_s* o, bcore_source* source, 
     BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
     if( bcore_source_a_parse_bl_fa( source, "#=?'{'" ) )
     {
-        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf ) )
+        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf, false ) )
     }
     else if( bcore_source_a_parse_bl_fa( source, "#=?w'for'" ) )
     {
@@ -1576,6 +1718,10 @@ er_t xoico_cdaleth_s_trans_statement( xoico_cdaleth_s* o, bcore_source* source, 
     {
         BLM_TRY( xoico_cdaleth_s_trans_else_expression( o, source, buf ) );
     }
+    else if( bcore_source_a_parse_bl_fa( source, "#=?w'break'" ) )
+    {
+        BLM_TRY( xoico_cdaleth_s_trans_break_expression( o, source, buf ) );
+    }
     else if( bcore_source_a_parse_bl_fa( source, "#=?w'while'" ) )
     {
         BLM_TRY( xoico_cdaleth_s_trans_while_expression( o, source, buf ) );
@@ -1584,9 +1730,17 @@ er_t xoico_cdaleth_s_trans_statement( xoico_cdaleth_s* o, bcore_source* source, 
     {
         BLM_TRY( xoico_cdaleth_s_trans_do_expression( o, source, buf ) );
     }
+    else if( bcore_source_a_parse_bl_fa( source, "#=?w'switch'" ) )
+    {
+        BLM_TRY( xoico_cdaleth_s_trans_switch_expression( o, source, buf ) );
+    }
     else if( bcore_source_a_parse_bl_fa( source, "#=?w'case'" ) )
     {
         BLM_TRY( xoico_cdaleth_s_trans_case_expression( o, source, buf ) );
+    }
+    else if( bcore_source_a_parse_bl_fa( source, "#=?w'return'" ) )
+    {
+        BLM_TRY( xoico_cdaleth_s_trans_return_expression( o, source, buf ) );
     }
     else if( bcore_source_a_parse_bl_fa( source, "#=?'#'" ) )
     {
@@ -1622,7 +1776,7 @@ er_t xoico_cdaleth_s_trans_statement( xoico_cdaleth_s* o, bcore_source* source, 
             if( typespec->type )
             {
                 bcore_msg_fa( "Expression yields typespec:\n" );
-                bcore_msg_fa( "  const      : #<bl_t>\n", typespec->is_const );
+                bcore_msg_fa( "  const      : #<bl_t>\n", typespec->flag_const );
                 bcore_msg_fa( "  type       : #<sc_t>\n", xoico_cdaleth_s_nameof( o, typespec->type ) );
                 bcore_msg_fa( "  indirection: #<sz_t>\n", typespec->indirection );
             }
@@ -1635,6 +1789,10 @@ er_t xoico_cdaleth_s_trans_statement( xoico_cdaleth_s* o, bcore_source* source, 
 
         BLM_DOWN();
     }
+    else if( bcore_source_a_parse_bl_fa( source, "#=?')'" ) )
+    {
+        XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Unmatched closing bracket." );
+    }
     else if( bcore_source_a_parse_bl_fa( source, "#=?'}'" ) )
     {
         // nothing
@@ -1646,7 +1804,6 @@ er_t xoico_cdaleth_s_trans_statement( xoico_cdaleth_s* o, bcore_source* source, 
         bl_t success_declaration = false;
 
         BLM_TRY( xoico_cdaleth_s_try_trans_declaration( o, source, buf, &success_declaration ) );
-
         BLM_TRY( xoico_cdaleth_s_trans_expression( o, source, buf, NULL ) );
         BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
 
@@ -1661,9 +1818,12 @@ er_t xoico_cdaleth_s_trans_statement( xoico_cdaleth_s* o, bcore_source* source, 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_cdaleth_s_trans_block_inside( xoico_cdaleth_s* o, bcore_source* source, st_s* buf )
+er_t xoico_cdaleth_s_trans_block_inside( xoico_cdaleth_s* o, bcore_source* source, st_s* buf_out )
 {
     BLM_INIT();
+
+    st_s* buf = BLM_CREATE( st_s );
+
     while
     (
         !bcore_source_a_parse_bl_fa( source, "#=?'}'" ) &&
@@ -1672,15 +1832,32 @@ er_t xoico_cdaleth_s_trans_block_inside( xoico_cdaleth_s* o, bcore_source* sourc
     {
         BLM_TRY( xoico_cdaleth_s_trans_statement( o, source, buf ) );
     }
+
+    if( xoico_cdaleth_s_stack_block_get_top_unit( o )->use_blm )
+    {
+        st_s_push_fa( buf_out, "BLM_INIT_LEVEL(#<sz_t>);", o->level );
+        st_s_push_st( buf_out, buf );
+
+        if( ( o->level > 0 ) || !xoico_cdaleth_s_returns_a_value( o ) )
+        {
+            st_s_push_sc( buf_out, "BLM_DOWN();" );
+        }
+    }
+    else
+    {
+        st_s_push_st( buf_out, buf );
+    }
+
     BLM_RETURNV( er_t, 0 );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_cdaleth_s_trans_block( xoico_cdaleth_s* o, bcore_source* source, st_s* buf )
+er_t xoico_cdaleth_s_trans_block( xoico_cdaleth_s* o, bcore_source* source, st_s* buf, bl_t is_break_ledge )
 {
     BLM_INIT();
-    xoico_cdaleth_s_inc_level( o );
+    xoico_cdaleth_s_inc_block( o );
+    xoico_cdaleth_s_stack_block_get_top_unit( o )->break_ledge = is_break_ledge;
     BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
 
     XOICO_BLM_SOURCE_PARSE_FA( source, "{" );
@@ -1692,7 +1869,36 @@ er_t xoico_cdaleth_s_trans_block( xoico_cdaleth_s* o, bcore_source* source, st_s
     XOICO_BLM_SOURCE_PARSE_FA( source, "}" );
     st_s_push_char( buf, '}' );
 
-    xoico_cdaleth_s_dec_level( o );
+    xoico_cdaleth_s_dec_block( o );
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_cdaleth_s_trans_statement_as_block( xoico_cdaleth_s* o, bcore_source* source, st_s* buf_out, bl_t is_break_ledge )
+{
+    BLM_INIT();
+    st_s* buf = BLM_CREATE( st_s );
+
+    xoico_cdaleth_s_inc_block( o );
+    xoico_cdaleth_s_stack_block_get_top_unit( o )->break_ledge = is_break_ledge;
+
+    BLM_TRY( xoico_cdaleth_s_trans_statement( o, source, buf ) );
+    BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
+    if( bcore_source_a_parse_bl_fa( source, "#?';'" ) ) st_s_push_sc( buf, ";" );
+
+    if( xoico_cdaleth_s_stack_block_get_top_unit( o )->use_blm )
+    {
+        st_s_push_fa( buf_out, "{BLM_INIT_LEVEL(#<sz_t>);", o->level );
+        st_s_push_st( buf_out, buf );
+        st_s_push_sc( buf_out, "BLM_DOWN();}" );
+    }
+    else
+    {
+        st_s_push_st( buf_out, buf );
+    }
+
+    xoico_cdaleth_s_dec_block( o );
     BLM_RETURNV( er_t, 0 );
 }
 
@@ -1757,24 +1963,26 @@ er_t xoico_cdaleth_s_setup( xoico_cdaleth_s* o, const xoico_body_s* body, const 
     tp_t obj_name  = xoico_cdaleth_s_entypeof( o, "o" );
 
     o->args     = ( xoico_args_s* )args;
+    o->typespec_ret = ( xoico_typespec_s* )&signature->typespec_ret;
     o->group    = body->code->group;
     o->stamp    = body->code->stamp;
     o->compiler = xoico_group_s_get_compiler( body->group );
     o->obj_type = obj_type;
 
-    xoico_cdaleth_stack_s_clear( &o->stack );
-    o->level = 0;
+    xoico_cdaleth_stack_var_s_clear( &o->stack_var );
 
-    xoico_cdaleth_stack_unit_s* unit = BLM_CREATE( xoico_cdaleth_stack_unit_s );
+    xoico_cdaleth_s_init_level0( o );
+
+    xoico_cdaleth_stack_var_unit_s* unit = BLM_CREATE( xoico_cdaleth_stack_var_unit_s );
 
     if( obj_type )
     {
-        unit->typespec.is_const = obj_const;
+        unit->typespec.flag_const = obj_const;
         unit->typespec.type = obj_type;
         unit->typespec.indirection = 1;
         unit->name = obj_name;
-        unit->level = 0;
-        xoico_cdaleth_stack_s_push_unit( &o->stack, unit );
+        unit->level = o->level;
+        xoico_cdaleth_stack_var_s_push_unit( &o->stack_var, unit );
         bcore_hmap_name_s_set_sc( &o->hmap_name, xoico_compiler_s_nameof( o->compiler, obj_type ) );
         bcore_hmap_name_s_set_sc( &o->hmap_name, xoico_compiler_s_nameof( o->compiler, obj_name ) );
     }
@@ -1787,8 +1995,8 @@ er_t xoico_cdaleth_s_setup( xoico_cdaleth_s* o, const xoico_body_s* body, const 
             xoico_typespec_s_copy( &unit->typespec, &arg->typespec );
             if( obj_type ) xoico_typespec_s_relent( &unit->typespec, o->group, obj_type );
             unit->name = arg->name;
-            unit->level = 0;
-            xoico_cdaleth_stack_s_push_unit( &o->stack, unit );
+            unit->level = o->level;
+            xoico_cdaleth_stack_var_s_push_unit( &o->stack_var, unit );
             bcore_hmap_name_s_set_sc( &o->hmap_name, xoico_compiler_s_nameof( o->compiler, arg->typespec.type ) );
             bcore_hmap_name_s_set_sc( &o->hmap_name, xoico_compiler_s_nameof( o->compiler, arg->name ) );
         }
