@@ -38,6 +38,7 @@ stamp : = aware :
     xoico_args_s args;   // e.g.: sz_t a, sz_t b
     tp_t arg_o;          // first argument: mutable | const | 0
     hidden aware xoico_group_s* group;
+    hidden aware xoico_stamp_s* stamp;
 
     bcore_source_point_s source_point;
 

@@ -252,6 +252,9 @@ TODO:
 - implement try-expression
 - allow signature definition along with function declaration
 - allow stamp member function declaration outside stamp
+- allow signature definition inside a function declaration
+- remove redundant 'plain' specifier in plain-functions
+- (done) replace function name delimiter ':' with '.'
 - (done) bracket-expressions '(....)' should yield typespec where possible
 - (fixed) bug: too many closing ')' stalls
 - (done) let variable declaration hide a type of same name

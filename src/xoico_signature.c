@@ -85,10 +85,34 @@ er_t xoico_signature_s_parse( xoico_signature_s* o, bcore_source* source )
         o->args.group = o->group;
 
         XOICO_BLM_SOURCE_PARSE_FA( source, " (" );
-        if(      bcore_source_a_parse_bl_fa(  source, " #?'mutable' " ) ) o->arg_o = TYPEOF_mutable;
-        else if( bcore_source_a_parse_bl_fa(  source, " #?'const' "   ) ) o->arg_o = TYPEOF_const;
-        else if( bcore_source_a_parse_bl_fa(  source, " #?'plain' "   ) ) o->arg_o = 0;
-        else     XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "'plain', mutable' or 'const' expected." );
+        if( bcore_source_a_parse_bl_fa(  source, " #?'plain' " ) ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Use of 'plain' is deprecated. Simply omit this argument." );
+
+        o->arg_o = 0;
+        if( bcore_source_a_parse_bl_fa(  source, " #?'mutable' " ) )
+        {
+            o->arg_o = TYPEOF_mutable;
+        }
+        else if( bcore_source_a_parse_bl_fa(  source, " #=?'const'" ) )
+        {
+            sz_t index = bcore_source_a_get_index( source );
+            bcore_source_a_parse_fa( source, "const " );
+            if( bcore_source_a_parse_bl_fa( source, "#?([0]==','||[0]==')')" ) )
+            {
+                o->arg_o = TYPEOF_const;
+            }
+            else
+            {
+                bcore_source_a_set_index( source, index );
+            }
+        }
+
+        if( o->arg_o )
+        {
+            if( !bcore_source_a_parse_bl_fa( source, " #=?')'" ) )
+            {
+                XOICO_BLM_SOURCE_PARSE_FA( source, ", " );
+            }
+        }
 
         BLM_TRY( xoico_args_s_parse( &o->args, source ) );
         XOICO_BLM_SOURCE_PARSE_FA( source, " )" );

@@ -29,16 +29,8 @@ void xoico_args_s_clear( xoico_args_s* o )
 
 er_t xoico_args_s_parse( xoico_args_s* o, bcore_source* source )
 {
-    BLM_INIT();
     xoico_args_s_clear( o );
-    while( bcore_source_a_parse_bl_fa( source, " #?',' " ) ) // args follow
-    {
-        xoico_arg_s* arg = BLM_A_PUSH( xoico_arg_s_create() );
-        arg->group = o->group;
-        BLM_TRY( xoico_arg_s_parse( arg, source ) );
-        bcore_array_a_push( ( bcore_array* ) o, sr_awc( arg ) );
-    }
-    BLM_RETURNV( er_t, 0 );
+    return xoico_args_s_append( o, source );
 }
 
 //----------------------------------------------------------------------------------------------------------------------

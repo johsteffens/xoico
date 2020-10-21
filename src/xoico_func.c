@@ -93,19 +93,8 @@ er_t xoico_func_s_parse( xoico_func_s* o, bcore_source* source )
         }
     }
 
-    XOICO_BLM_SOURCE_PARSE_FA( source, " " );
-
-    if( bcore_source_a_parse_bl_fa( source, "#?':'" ) )
-    {
-        XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Use of ':' as element specifier is deprecated. Use '.'" );
-    }
-    else
-    {
-        XOICO_BLM_SOURCE_PARSE_FA( source, "." );
-    }
-
+    XOICO_BLM_SOURCE_PARSE_FA( source, " ." );
     st_s_push_sc( &o->flect_decl, ":" );
-
 
     st_s* st_name = BLM_CREATE( st_s );
 
