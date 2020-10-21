@@ -60,7 +60,7 @@ er_t xoico_func_s_set_global_name( xoico_func_s* o )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_func_s_parse( xoico_func_s* o, xoico_stamp_s* stamp, bcore_source* source )
+er_t xoico_func_s_parse( xoico_func_s* o, bcore_source* source )
 {
     BLM_INIT();
 
@@ -75,15 +75,15 @@ er_t xoico_func_s_parse( xoico_func_s* o, xoico_stamp_s* stamp, bcore_source* so
 
     if( bcore_source_a_parse_bl_fa( source, " #?'^'" ) )
     {
-        if( !stamp ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "'^' is only inside a stamp allowed." );
-        st_s_copy( st_type, &stamp->st_trait_name );
+        if( !o->stamp ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "'^' is only inside a stamp allowed." );
+        st_s_copy( st_type, &o->stamp->st_trait_name );
         st_s_push_fa( &o->flect_decl, "^" );
     }
     else
     {
         BLM_TRY( xoico_group_s_parse_name( o->group, st_type, source ) );
 
-        if( stamp && st_s_equal_st( st_type, &stamp->st_trait_name ) )
+        if( o->stamp && st_s_equal_st( st_type, &o->stamp->st_trait_name ) )
         {
             st_s_push_fa( &o->flect_decl, "^" );
         }
@@ -93,8 +93,19 @@ er_t xoico_func_s_parse( xoico_func_s* o, xoico_stamp_s* stamp, bcore_source* so
         }
     }
 
-    XOICO_BLM_SOURCE_PARSE_FA( source, " :" );
+    XOICO_BLM_SOURCE_PARSE_FA( source, " " );
+
+    if( bcore_source_a_parse_bl_fa( source, "#?':'" ) )
+    {
+        XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Use of ':' as element specifier is deprecated. Use '.'" );
+    }
+    else
+    {
+        XOICO_BLM_SOURCE_PARSE_FA( source, "." );
+    }
+
     st_s_push_sc( &o->flect_decl, ":" );
+
 
     st_s* st_name = BLM_CREATE( st_s );
 
@@ -113,7 +124,7 @@ er_t xoico_func_s_parse( xoico_func_s* o, xoico_stamp_s* stamp, bcore_source* so
     {
         o->body = xoico_body_s_create();
         BLM_TRY( xoico_body_s_set_group( o->body, o->group ) );
-        BLM_TRY( xoico_body_s_set_stamp( o->body, stamp ) );
+        BLM_TRY( xoico_body_s_set_stamp( o->body, o->stamp ) );
         BLM_TRY( xoico_body_s_parse( o->body, source ) );
     }
 

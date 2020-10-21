@@ -56,22 +56,22 @@ group :stack_var = :
         :unit_adl_s adl;
         bcore_hmap_tp_s hmap_name;
 
-        func : :exists = { return o.hmap_name.exists( name ); };
+        func : .exists = { return o.hmap_name.exists( name ); };
 
-        func : :rehash_names =
+        func : .rehash_names =
         {
             o.hmap_name.clear();
             for( sz_t i = 0; i < o.adl.size; i++ ) o.hmap_name.set( o.adl.[i].name );
         };
 
-        func : :push_unit =
+        func : .push_unit =
         {
             o.adl.push_c( unit );
             o.hmap_name.set( unit->name );
             return o;
         };
 
-        func : :pop_level =
+        func : .pop_level =
         {
             sz_t size = o->adl.size;
             while( size > 0 && o->adl.data[ size - 1 ]->level >= level ) size--;
@@ -80,7 +80,7 @@ group :stack_var = :
             return o;
         };
 
-        func : :get_typespec =
+        func : .get_typespec =
         {
             for( sz_t i = o->adl.size - 1; i >= 0; i-- )
             {
@@ -89,7 +89,7 @@ group :stack_var = :
             return NULL;
         };
 
-        func : :clear = { o.adl.clear(); o.hmap_name.clear(); };
+        func : .clear = { o.adl.clear(); o.hmap_name.clear(); };
     };
 };
 
@@ -116,18 +116,18 @@ group :stack_block = :
     stamp : = aware :
     {
         :unit_adl_s adl;
-        func : :push      = { :unit_adl_s_push_d( &o->adl, :unit_s_create() );  return o; };
-        func : :push_unit = { :unit_adl_s_push_c( &o->adl, unit );  return o; };
+        func : .push      = { :unit_adl_s_push_d( &o->adl, :unit_s_create() );  return o; };
+        func : .push_unit = { :unit_adl_s_push_c( &o->adl, unit );  return o; };
 
-        func : :pop =
+        func : .pop =
         {
             :unit_adl_s_set_size( &o->adl, sz_max( o->adl.size - 1, 0 ) );
             return o;
         };
 
-        func : :clear = { :unit_adl_s_clear( &o->adl ); };
+        func : .clear = { :unit_adl_s_clear( &o->adl ); };
 
-        func : :get_size = { return o->adl.size; };
+        func : .get_size = { return o->adl.size; };
     };
 };
 
@@ -160,6 +160,7 @@ name do;
 name for;
 name switch;
 name case;
+name default;
 name break;
 name return;
 
@@ -189,52 +190,52 @@ stamp : = aware :
 
     bcore_hmap_name_s hmap_name;
 
-    func : :entypeof = { return bcore_hmap_name_s_set_sc( &o->hmap_name, name ); };
-    func : :nameof   =
+    func : .entypeof = { return bcore_hmap_name_s_set_sc( &o->hmap_name, name ); };
+    func : .nameof   =
     {
         sc_t name = bcore_hmap_name_s_get_sc( &o->hmap_name, type );
         if( !name ) name = xoico_compiler_s_nameof( o->compiler, type );
         return name;
     };
 
-    func : :init_level0 =
+    func : .init_level0 =
     {
         :stack_block_s_clear( &o->stack_block );
         :stack_block_s_push( &o->stack_block );
         o->level = 0;
     };
 
-    func : :inc_level =
+    func : .inc_level =
     {
         o->level++;
     };
 
-    func : :inc_block =
+    func : .inc_block =
     {
         o.stack_block.push();
         o.inc_level();
         o.stack_block_get_top_unit().level = o.level;
     };
 
-    func : :dec_level =
+    func : .dec_level =
     {
         o.stack_var.pop_level( o->level );
         o.level--;
         ASSERT( o.level >= 0 );
     };
 
-    func : :dec_block =
+    func : .dec_block =
     {
         o.dec_level();
         o.stack_block.pop();
     };
 
-    func : :stack_block_get_top_unit =
+    func : .stack_block_get_top_unit =
     {
         return o.stack_block.adl.[ o.stack_block.adl.size - 1 ];
     };
 
-    func : :push_typedecl =
+    func : .push_typedecl =
     {
         BLM_INIT();
         :stack_var_unit_s* unit = BLM_CREATE( :stack_var_unit_s );
@@ -245,12 +246,12 @@ stamp : = aware :
         BLM_DOWN();
     };
 
-    func : :is_type  = { return o.compiler.is_type( name ); };
-    func : :is_group = { return o.compiler.is_group( name ); };
-    func : :is_stamp = { return o.compiler.is_stamp( name ); };
-    func : :is_var   = { return o.stack_var.exists( name ); };
+    func : .is_type  = { return o.compiler.is_type( name ); };
+    func : .is_group = { return o.compiler.is_group( name ); };
+    func : .is_stamp = { return o.compiler.is_stamp( name ); };
+    func : .is_var   = { return o.stack_var.exists( name ); };
 
-    func xoico_cengine : translate;
+    func xoico_cengine . translate;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1152,7 +1152,8 @@ er_t xoico_cdaleth_s_trans_expression
             tp_identifier == TYPEOF_do    ||
             tp_identifier == TYPEOF_for   ||
             tp_identifier == TYPEOF_case  ||
-            tp_identifier == TYPEOF_break ||
+            tp_identifier == TYPEOF_default||
+            tp_identifier == TYPEOF_break  ||
             tp_identifier == TYPEOF_return
         )
         {
@@ -1583,6 +1584,19 @@ er_t xoico_cdaleth_s_trans_case_expression( xoico_cdaleth_s* o, bcore_source* so
 
 //----------------------------------------------------------------------------------------------------------------------
 
+er_t xoico_cdaleth_s_trans_default_expression( xoico_cdaleth_s* o, bcore_source* source, st_s* buf )
+{
+    BLM_INIT();
+    XOICO_BLM_SOURCE_PARSE_FA( source, "default :" );
+    st_s_push_sc( buf, "default:" );
+
+    BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf, false ) )
+
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 er_t xoico_cdaleth_s_trans_break_expression( xoico_cdaleth_s* o, bcore_source* source, st_s* buf )
 {
     BLM_INIT();
@@ -1737,6 +1751,10 @@ er_t xoico_cdaleth_s_trans_statement( xoico_cdaleth_s* o, bcore_source* source, 
     else if( bcore_source_a_parse_bl_fa( source, "#=?w'case'" ) )
     {
         BLM_TRY( xoico_cdaleth_s_trans_case_expression( o, source, buf ) );
+    }
+    else if( bcore_source_a_parse_bl_fa( source, "#=?w'default'" ) )
+    {
+        BLM_TRY( xoico_cdaleth_s_trans_default_expression( o, source, buf ) );
     }
     else if( bcore_source_a_parse_bl_fa( source, "#=?w'return'" ) )
     {

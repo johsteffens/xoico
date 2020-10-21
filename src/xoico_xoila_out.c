@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-10-20T14:40:32Z
+ *  Last File Update: 2020-10-21T08:35:50Z
  *
  *  Copyright and License of this File:
  *
@@ -981,7 +981,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_cdaleth_s )
 
 sc_t xoico_cdaleth_s_nameof( xoico_cdaleth_s* o, tp_t type )
 {
-    // xoico_cdaleth.h:194:5
+    // xoico_cdaleth.h:195:5
     sc_t name = bcore_hmap_name_s_get_sc( &o->hmap_name, type );
     if( !name ) name = xoico_compiler_s_nameof( o->compiler, type );
     return name;
@@ -989,7 +989,7 @@ sc_t xoico_cdaleth_s_nameof( xoico_cdaleth_s* o, tp_t type )
 
 void xoico_cdaleth_s_init_level0( xoico_cdaleth_s* o )
 {
-    // xoico_cdaleth.h:201:5
+    // xoico_cdaleth.h:202:5
     xoico_cdaleth_stack_block_s_clear( &o->stack_block );
     xoico_cdaleth_stack_block_s_push( &o->stack_block );
     o->level = 0;
@@ -997,13 +997,13 @@ void xoico_cdaleth_s_init_level0( xoico_cdaleth_s* o )
 
 void xoico_cdaleth_s_inc_level( xoico_cdaleth_s* o )
 {
-    // xoico_cdaleth.h:208:5
+    // xoico_cdaleth.h:209:5
     o->level++;
 }
 
 void xoico_cdaleth_s_inc_block( xoico_cdaleth_s* o )
 {
-    // xoico_cdaleth.h:213:5
+    // xoico_cdaleth.h:214:5
     xoico_cdaleth_stack_block_s_push( &(o->stack_block));
     xoico_cdaleth_s_inc_level( o);
     xoico_cdaleth_s_stack_block_get_top_unit( o)->level = o->level;
@@ -1011,7 +1011,7 @@ void xoico_cdaleth_s_inc_block( xoico_cdaleth_s* o )
 
 void xoico_cdaleth_s_dec_level( xoico_cdaleth_s* o )
 {
-    // xoico_cdaleth.h:220:5
+    // xoico_cdaleth.h:221:5
     xoico_cdaleth_stack_var_s_pop_level( &(o->stack_var), o->level );
     o->level--;
     ASSERT( o->level >= 0 );
@@ -1019,20 +1019,20 @@ void xoico_cdaleth_s_dec_level( xoico_cdaleth_s* o )
 
 void xoico_cdaleth_s_dec_block( xoico_cdaleth_s* o )
 {
-    // xoico_cdaleth.h:227:5
+    // xoico_cdaleth.h:228:5
     xoico_cdaleth_s_dec_level( o);
     xoico_cdaleth_stack_block_s_pop( &(o->stack_block));
 }
 
 xoico_cdaleth_stack_block_unit_s* xoico_cdaleth_s_stack_block_get_top_unit( xoico_cdaleth_s* o )
 {
-    // xoico_cdaleth.h:233:5
+    // xoico_cdaleth.h:234:5
     return o->stack_block.adl.data[ o->stack_block.adl.size - 1 ];
 }
 
 void xoico_cdaleth_s_push_typedecl( xoico_cdaleth_s* o, const xoico_typespec_s* typespec, tp_t name )
 {
-    // xoico_cdaleth.h:238:5
+    // xoico_cdaleth.h:239:5
     BLM_INIT();
     xoico_cdaleth_stack_var_unit_s* unit = BLM_CREATE( xoico_cdaleth_stack_var_unit_s );
     unit->level = o->level;
@@ -1440,6 +1440,7 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_NAME( for );
             BCORE_REGISTER_NAME( switch );
             BCORE_REGISTER_NAME( case );
+            BCORE_REGISTER_NAME( default );
             BCORE_REGISTER_NAME( break );
             BCORE_REGISTER_NAME( return );
             BCORE_REGISTER_FFUNC( xoico_cengine_translate, xoico_cdaleth_s_translate );
@@ -1470,4 +1471,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0xAAF67D72C319983Eull
+// XOILA_OUT_SIGNATURE 0xC274FEF7C9D2823Cull

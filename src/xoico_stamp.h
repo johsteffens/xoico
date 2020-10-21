@@ -42,21 +42,21 @@ stamp : = aware :
     private aware xoico_group_s* group;
     bcore_source_point_s source_point;
 
-    func xoico : get_hash;
-    func xoico : get_global_name_sc;
-    func xoico : get_global_name_tp = { return o->tp_name; };
-    func xoico : finalize;
+    func xoico . get_hash;
+    func xoico . get_global_name_sc;
+    func xoico . get_global_name_tp = { return o->tp_name; };
+    func xoico . finalize;
 
-    func xoico : expand_setup;
-    func xoico : expand_declaration;
-    func xoico : expand_forward;
-    func xoico : expand_indef_declaration;
-    func xoico : expand_definition;
-    func xoico : expand_init1;
+    func xoico . expand_setup;
+    func xoico . expand_declaration;
+    func xoico . expand_forward;
+    func xoico . expand_indef_declaration;
+    func xoico . expand_definition;
+    func xoico . expand_init1;
 
-    func : : parse;
-    func : : make_funcs_overloadable;
-    func : : push_default_funcs;
+    func : . parse;
+    func : . make_funcs_overloadable;
+    func : . push_default_funcs;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

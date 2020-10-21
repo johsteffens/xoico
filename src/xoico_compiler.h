@@ -93,34 +93,34 @@ stamp : = aware :
     sz_t verbosity                       = 1;
 
     // functions
-    func xoico :finalize;
-    func xoico :expand_setup;
-    func : :item_get;
-    func : :item_exists;
-    func : :item_register;
-    func : :group_register;
-    func : :type_register;
-    func : :is_group;
-    func : :is_stamp;
-    func : :is_type;
-    func : :life_a_push;
-    func : :check_overwrite;
-    func : :get_self;
-    func : :get_type_info;
-    func : :get_type_element_info;
-    func : :get_type_array_element_info;
-    func : :get_signature;
+    func xoico .finalize;
+    func xoico .expand_setup;
+    func : .item_get;
+    func : .item_exists;
+    func : .item_register;
+    func : .group_register;
+    func : .type_register;
+    func : .is_group;
+    func : .is_stamp;
+    func : .is_type;
+    func : .life_a_push;
+    func : .check_overwrite;
+    func : .get_self;
+    func : .get_type_info;
+    func : .get_type_element_info;
+    func : .get_type_array_element_info;
+    func : .get_signature;
 
     // external interface ...
-    func : :compile;
-    func : :update_target_files;
-    func : :update_required;
-    func : :get_verbosity;
+    func : .compile;
+    func : .update_target_files;
+    func : .update_required;
+    func : .get_verbosity;
 
-    func : :entypeof = { return bcore_hmap_name_s_set_sc( &o->name_map, name ); };
-    func : :nameof   = { return bcore_hmap_name_s_get_sc( &o->name_map, type ); };
+    func : .entypeof = { return bcore_hmap_name_s_set_sc( &o->name_map, name ); };
+    func : .nameof   = { return bcore_hmap_name_s_get_sc( &o->name_map, type ); };
 
-    func bcore_inst_call :init_x =
+    func bcore_inst_call .init_x =
     {
         if( o-> work_build_time_into_pre_hash )
         {

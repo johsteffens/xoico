@@ -81,23 +81,23 @@ stamp : = aware :
 
     hidden bcore_hmap_tpvd_s hmap_feature;
 
-    func xoico :parse;
-    func xoico :get_hash;
-    func xoico :get_global_name_sc;
-    func xoico :get_global_name_tp = { return o->tp_name; };
-    func xoico :finalize;
-    func xoico :expand_setup;
+    func xoico .parse;
+    func xoico .get_hash;
+    func xoico .get_global_name_sc;
+    func xoico .get_global_name_tp = { return o->tp_name; };
+    func xoico .finalize;
+    func xoico .expand_setup;
 
-    func : :create_spect_name;
-    func : :parse_name;
-    func : :parse_name_recursive;
-    func : :expand_declaration;
-    func : :expand_definition;
-    func : :expand_init1;
+    func : .create_spect_name;
+    func : .parse_name;
+    func : .parse_name_recursive;
+    func : .expand_declaration;
+    func : .expand_definition;
+    func : .expand_init1;
 
-    func : :get_source;
-    func : :get_target;
-    func : :get_compiler;
+    func : .get_source;
+    func : .get_target;
+    func : .get_compiler;
 
 };
 

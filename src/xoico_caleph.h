@@ -51,15 +51,15 @@ stamp : = aware :
 
     bcore_hmap_name_s hmap_name;
 
-    func : :entypeof = { return bcore_hmap_name_s_set_sc( &o->hmap_name, name ); };
-    func : :nameof   =
+    func : .entypeof = { return bcore_hmap_name_s_set_sc( &o->hmap_name, name ); };
+    func : .nameof   =
     {
         sc_t name = bcore_hmap_name_s_get_sc( &o->hmap_name, type );
         if( !name ) name = xoico_compiler_s_nameof( o->compiler, type );
         return name;
     };
 
-    func xoico_cengine : translate;
+    func xoico_cengine . translate;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

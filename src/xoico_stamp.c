@@ -217,7 +217,7 @@ er_t xoico_stamp_s_parse_extend( xoico_stamp_s* o, bcore_source* source, bl_t ve
             xoico_func_s* func = BLM_CREATE( xoico_func_s );
             func->group = o->group;
             func->stamp = o;
-            BLM_TRY( xoico_func_s_parse( func, o, source ) );
+            BLM_TRY( xoico_func_s_parse( func, source ) );
 
             bl_t register_func = xoico_func_s_registerable( func );
             sz_t idx = xoico_funcs_s_get_index_from_type( &o->funcs, func->type );
@@ -294,7 +294,7 @@ er_t xoico_stamp_s_push_default_func_from_sc( xoico_stamp_s* o, sc_t sc )
     func->stamp = o;
     func->overloadable = false;
     func->expandable = false;
-    BLM_TRY( xoico_func_s_parse( func, o, BLM_A_PUSH( bcore_source_string_s_create_sc( sc ) ) ) );
+    BLM_TRY( xoico_func_s_parse( func, BLM_A_PUSH( bcore_source_string_s_create_sc( sc ) ) ) );
 
     sz_t idx = xoico_funcs_s_get_index_from_type( &o->funcs, func->type );
 
@@ -315,11 +315,11 @@ er_t xoico_stamp_s_push_default_func_from_sc( xoico_stamp_s* o, sc_t sc )
 er_t xoico_stamp_s_push_default_funcs( xoico_stamp_s* o )
 {
     BLM_INIT();
-    BLM_TRY( xoico_stamp_s_push_default_func_from_sc( o, "bcore_stamp_funcs : init;" ) );
-    BLM_TRY( xoico_stamp_s_push_default_func_from_sc( o, "bcore_stamp_funcs : down;" ) );
-    BLM_TRY( xoico_stamp_s_push_default_func_from_sc( o, "bcore_stamp_funcs : copy;" ) );
-    BLM_TRY( xoico_stamp_s_push_default_func_from_sc( o, "bcore_stamp_funcs : discard;" ) );
-    BLM_TRY( xoico_stamp_s_push_default_func_from_sc( o, "bcore_stamp_funcs : clone;" ) );
+    BLM_TRY( xoico_stamp_s_push_default_func_from_sc( o, "bcore_stamp_funcs.init;" ) );
+    BLM_TRY( xoico_stamp_s_push_default_func_from_sc( o, "bcore_stamp_funcs.down;" ) );
+    BLM_TRY( xoico_stamp_s_push_default_func_from_sc( o, "bcore_stamp_funcs.copy;" ) );
+    BLM_TRY( xoico_stamp_s_push_default_func_from_sc( o, "bcore_stamp_funcs.discard;" ) );
+    BLM_TRY( xoico_stamp_s_push_default_func_from_sc( o, "bcore_stamp_funcs.clone;" ) );
     BLM_RETURNV( er_t, 0 );
 }
 

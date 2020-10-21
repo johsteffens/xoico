@@ -37,13 +37,13 @@ signature er_t replace_fork( mutable, sz_t idx, xoico_func_s* func );
 stamp : = aware :
 {
     xoico_func_s => [];
-    func : :exists_from_type;
-    func : :exists_from_name;
-    func : :get_index_from_type;
-    func : :get_index_from_name;
-    func : :get_func_from_type;
-    func : :get_func_from_name;
-    func : :replace_fork;
+    func : .exists_from_type;
+    func : .exists_from_name;
+    func : .get_index_from_type;
+    func : .get_index_from_name;
+    func : .get_func_from_type;
+    func : .get_func_from_name;
+    func : .replace_fork;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

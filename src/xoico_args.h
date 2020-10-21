@@ -36,13 +36,13 @@ stamp : = aware :
     xoico_arg_s [];
     hidden aware xoico_group_s* group;
 
-    func xoico : parse;
-    func xoico : get_hash;
+    func xoico . parse;
+    func xoico . get_hash;
 
-    func     : : append;
-    func     : : relent;
-    func     : : expand;
-    func     : : expand_name;
+    func     : . append;
+    func     : . relent;
+    func     : . expand;
+    func     : . expand_name;
 
 };
 

@@ -42,15 +42,15 @@ stamp : = aware :
 
     hidden aware xoico_target_s* target;
 
-    func xoico : finalize;
-    func xoico : expand_setup;
+    func xoico . finalize;
+    func xoico . expand_setup;
 
-    func : :push_group;
-    func : :parse;
-    func : :finalize;
-    func : :expand_declaration;
-    func : :expand_definition;
-    func : :expand_init1;
+    func : .push_group;
+    func : .parse;
+    func : .finalize;
+    func : .expand_declaration;
+    func : .expand_definition;
+    func : .expand_init1;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

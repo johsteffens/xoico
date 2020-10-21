@@ -51,9 +51,9 @@ group :stack = :
     stamp : = aware :
     {
         :unit_adl_s adl;
-        func : :push_unit = { :unit_adl_s_push_c( &o->adl, unit );  return o; };
+        func : .push_unit = { :unit_adl_s_push_c( &o->adl, unit );  return o; };
 
-        func : :pop_level =
+        func : .pop_level =
         {
             sz_t size = o->adl.size;
             while( size > 0 && o->adl.data[ size - 1 ]->level >= level ) size--;
@@ -61,7 +61,7 @@ group :stack = :
             return o;
         };
 
-        func : :get_typespec =
+        func : .get_typespec =
         {
             for( sz_t i = o->adl.size - 1; i >= 0; i-- )
             {
@@ -70,7 +70,7 @@ group :stack = :
             return NULL;
         };
 
-        func : :clear = { :unit_adl_s_clear( &o->adl ); };
+        func : .clear = { :unit_adl_s_clear( &o->adl ); };
     };
 };
 
@@ -109,26 +109,26 @@ stamp : = aware :
     :stack_s stack;
     bcore_hmap_name_s hmap_name;
 
-    func : :entypeof = { return bcore_hmap_name_s_set_sc( &o->hmap_name, name ); };
-    func : :nameof   =
+    func : .entypeof = { return bcore_hmap_name_s_set_sc( &o->hmap_name, name ); };
+    func : .nameof   =
     {
         sc_t name = bcore_hmap_name_s_get_sc( &o->hmap_name, type );
         if( !name ) name = xoico_compiler_s_nameof( o->compiler, type );
         return name;
     };
 
-    func : :inc_level =
+    func : .inc_level =
     {
         o->level++;
     };
 
-    func : :dec_level =
+    func : .dec_level =
     {
         :stack_s_pop_level( &o->stack, o->level );
         o->level--;
     };
 
-    func : :push_typedecl =
+    func : .push_typedecl =
     {
         BLM_INIT();
         :stack_unit_s* unit = BLM_CREATE( :stack_unit_s );
@@ -139,7 +139,7 @@ stamp : = aware :
         BLM_DOWN();
     };
 
-    func xoico_cengine : translate;
+    func xoico_cengine . translate;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

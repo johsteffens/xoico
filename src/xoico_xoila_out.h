@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-10-20T14:40:32Z
+ *  Last File Update: 2020-10-21T08:35:50Z
  *
  *  Copyright and License of this File:
  *
@@ -39,7 +39,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0xAA0595640A5EE594ull
+#define HKEYOF_xoico_xoila_out 0xC666BB0556CCE705ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -518,7 +518,7 @@
       bcore_source_point_s source_point; \
   }; \
   tp_t xoico_func_s_get_hash( const xoico_func_s* o ); \
-  er_t xoico_func_s_parse( xoico_func_s* o, xoico_stamp_s* stamp, bcore_source* source ); \
+  er_t xoico_func_s_parse( xoico_func_s* o, bcore_source* source ); \
   er_t xoico_func_s_finalize( xoico_func_s* o ); \
   bl_t xoico_func_s_registerable( const xoico_func_s* o );
 #define BETH_EXPAND_GROUP_xoico_func \
@@ -1226,6 +1226,7 @@
 #define TYPEOF_for 0xDCB27818FED9DA90ull
 #define TYPEOF_switch 0xA5A87AC5B0B379B1ull
 #define TYPEOF_case 0xB55E6190E8792FD1ull
+#define TYPEOF_default 0xEBADA5168620C5FEull
 #define TYPEOF_break 0x93B7591DEBC7CE38ull
 #define TYPEOF_return 0xC5C7B983377CAD5Full
 #define TYPEOF_xoico_cdaleth_s 0x9E808B0037072EB1ull
@@ -1395,4 +1396,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0x54639AC60DF3C895ull
+// XOILA_OUT_SIGNATURE 0x686E25C6B95EE66Dull

@@ -58,14 +58,14 @@ stamp : = aware :
 
     hidden aware xoico_compiler_s* compiler;
 
-    func : :parse;
-    func : :to_be_modified;
-    func xoico : finalize;
-    func xoico : expand_setup;
-    func : :expand_phase1;
-    func : :expand_phase2;
-    func : :is_cyclic;
-    func : :set_dependencies;
+    func : .parse;
+    func : .to_be_modified;
+    func xoico . finalize;
+    func xoico . expand_setup;
+    func : .expand_phase1;
+    func : .expand_phase2;
+    func : .is_cyclic;
+    func : .set_dependencies;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

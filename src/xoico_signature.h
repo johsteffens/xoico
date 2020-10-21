@@ -41,11 +41,11 @@ stamp : = aware :
 
     bcore_source_point_s source_point;
 
-    func xoico : parse;
-    func xoico : get_hash;
-    func xoico : get_global_name_sc;
-    func     : : relent;
-    func     : : expand_declaration;
+    func xoico . parse;
+    func xoico . get_hash;
+    func xoico . get_global_name_sc;
+    func     : . relent;
+    func     : . expand_declaration;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
