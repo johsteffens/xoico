@@ -26,6 +26,7 @@
 tp_t xoico_func_s_get_hash( const xoico_func_s* o )
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
+    hash = bcore_tp_fold_tp( hash, o->pre_hash );
     hash = bcore_tp_fold_tp( hash, o->name );
     hash = bcore_tp_fold_sc( hash, o->flect_decl.sc );
     hash = bcore_tp_fold_tp( hash, o->type );
@@ -73,32 +74,63 @@ er_t xoico_func_s_parse( xoico_func_s* o, bcore_source* source )
 
     st_s_push_sc( &o->flect_decl, "func " );
 
-    if( bcore_source_a_parse_bl_fa( source, " #?'^'" ) )
+    st_s* st_name = BLM_CREATE( st_s );
+
+    if( bcore_source_a_parse_bl_fa( source, " #?'('" ) )
     {
-        if( !o->stamp ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "'^' is only inside a stamp allowed." );
-        st_s_copy( st_type, &o->stamp->st_trait_name );
-        st_s_push_fa( &o->flect_decl, "^" );
+        xoico_signature_s* signature = xoico_signature_s_create();
+        signature->group = o->group;
+        signature->stamp = o->stamp;
+
+        BLM_TRY( xoico_signature_s_parse( signature, source ) );
+        XOICO_BLM_SOURCE_PARSE_FA( source, " ) " );
+
+        BLM_TRY( xoico_compiler_s_life_a_push( compiler, signature ) );
+        BLM_TRY( xoico_compiler_s_item_register( compiler, ( xoico* )signature, source ) );
+
+        o->pre_hash = bcore_tp_fold_tp( o->pre_hash, xoico_signature_s_get_hash( signature ) );
+
+        if( o->stamp )
+        {
+            st_s_copy( st_type, &o->stamp->st_name );
+        }
+        else
+        {
+            st_s_copy( st_type, &o->group->st_name );
+        }
+
+        st_s_copy( st_name, &signature->st_name );
+        st_s_push_fa( &o->flect_decl, "#<sc_t>:#<sc_t>", st_type->sc, st_name->sc );
     }
     else
     {
-        BLM_TRY( xoico_group_s_parse_name( o->group, st_type, source ) );
 
-        if( o->stamp && st_s_equal_st( st_type, &o->stamp->st_trait_name ) )
+        if( bcore_source_a_parse_bl_fa( source, " #?'^'" ) )
         {
+            if( !o->stamp ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "'^' is only inside a stamp allowed." );
+            st_s_copy( st_type, &o->stamp->st_trait_name );
             st_s_push_fa( &o->flect_decl, "^" );
         }
         else
         {
-            st_s_push_fa( &o->flect_decl, "#<sc_t>", st_type->sc );
+            BLM_TRY( xoico_group_s_parse_name( o->group, st_type, source ) );
+
+            if( o->stamp && st_s_equal_st( st_type, &o->stamp->st_trait_name ) )
+            {
+                st_s_push_fa( &o->flect_decl, "^" );
+            }
+            else
+            {
+                st_s_push_fa( &o->flect_decl, "#<sc_t>", st_type->sc );
+            }
         }
+
+        XOICO_BLM_SOURCE_PARSE_FA( source, " ." );
+        st_s_push_sc( &o->flect_decl, ":" );
+
+        XOICO_BLM_SOURCE_PARSE_FA( source, " #name", st_name );
     }
 
-    XOICO_BLM_SOURCE_PARSE_FA( source, " ." );
-    st_s_push_sc( &o->flect_decl, ":" );
-
-    st_s* st_name = BLM_CREATE( st_s );
-
-    XOICO_BLM_SOURCE_PARSE_FA( source, " #name", st_name );
     if( st_name->size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Function name expected." );
     o->name = xoico_compiler_s_entypeof( compiler, st_name->sc );
 
@@ -129,7 +161,7 @@ bl_t xoico_func_s_registerable( const xoico_func_s* o )
     if( !o->expandable ) return false;
     if( xoico_compiler_s_item_exists( xoico_group_s_get_compiler( o->group ), o->type ) )
     {
-        const xoico* item = xoico_compiler_s_item_get( xoico_group_s_get_compiler( o->group ), o->type );
+        const xoico* item = xoico_compiler_s_const_item_get( xoico_group_s_get_compiler( o->group ), o->type );
         if( *(aware_t*)item == TYPEOF_xoico_signature_s )
         {
             if( !xoico_group_s_get_compiler( o->group )->register_signatures ) return false;

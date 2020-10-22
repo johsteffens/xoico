@@ -43,6 +43,8 @@ stamp : = aware :
     bl_t overloadable = false;
     xoico_body_s => body;
 
+    tp_t pre_hash = 0;
+
     hidden aware xoico_group_s* group;
     hidden aware xoico_stamp_s* stamp;
 

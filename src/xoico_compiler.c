@@ -119,13 +119,6 @@ er_t xoico_compiler_s_type_register( xoico_compiler_s* o, tp_t type )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bl_t xoico_compiler_s_item_exists( const xoico_compiler_s* o, tp_t item_id )
-{
-    return bcore_hmap_tpvd_s_exists( &o->hmap_item, item_id );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 bl_t xoico_compiler_s_is_group( const xoico_compiler_s* o, tp_t name )
 {
     if( bcore_hmap_tpvd_s_exists( &o->hmap_group, name ) )
@@ -141,7 +134,7 @@ bl_t xoico_compiler_s_is_stamp( const xoico_compiler_s* o, tp_t name )
 {
     if( bcore_hmap_tpvd_s_exists( &o->hmap_item, name ) )
     {
-        const xoico* item = xoico_compiler_s_item_get( o, name );
+        const xoico* item = xoico_compiler_s_const_item_get( o, name );
         if( item->_ == TYPEOF_xoico_stamp_s ) return true;
     }
     return false;
@@ -159,17 +152,9 @@ bl_t xoico_compiler_s_is_type( const xoico_compiler_s* o, tp_t name )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-const xoico* xoico_compiler_s_item_get( const xoico_compiler_s* o, tp_t item_id )
-{
-    vd_t* ptr = bcore_hmap_tpvd_s_get( &o->hmap_item, item_id );
-    return ptr ? ( const xoico* )*ptr : NULL;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 const xoico_signature_s* xoico_compiler_s_get_signature( const xoico_compiler_s* o, tp_t item_id )
 {
-    const xoico* item = xoico_compiler_s_item_get( o, item_id );
+    const xoico* item = xoico_compiler_s_const_item_get( o, item_id );
     if( item )
     {
         if( *(aware_t*)item == TYPEOF_xoico_feature_s )

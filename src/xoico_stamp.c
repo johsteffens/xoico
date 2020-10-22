@@ -193,7 +193,42 @@ tp_t xoico_stamp_s_get_hash( const xoico_stamp_s* o )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_stamp_s_parse_extend( xoico_stamp_s* o, bcore_source* source, bl_t verbatim )
+er_t xoico_stamp_s_parse_func( xoico_stamp_s* o, bcore_source* source )
+{
+    BLM_INIT();
+    xoico_func_s* func = BLM_CREATE( xoico_func_s );
+    func->group = o->group;
+    func->stamp = o;
+    BLM_TRY( xoico_func_s_parse( func, source ) );
+
+    bl_t register_func = xoico_func_s_registerable( func );
+    sz_t idx = xoico_funcs_s_get_index_from_type( &o->funcs, func->type );
+
+    if( idx >= 0 )
+    {
+        xoico_func_s* prex_func = o->funcs.data[ idx ];
+        if( prex_func->overloadable )
+        {
+            BLM_TRY( xoico_funcs_s_replace_fork( &o->funcs, idx, func ) );
+            st_s_replace_sc_sc( o->self_source, prex_func->flect_decl.sc, "" );
+            if( register_func ) st_s_push_st( o->self_source, &func->flect_decl );
+        }
+        else
+        {
+            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Function '#<sc_t>' has already been defined and is not overloadable.", XOICO_NAMEOF( func->name ) );
+        }
+    }
+    else
+    {
+        bcore_array_a_push( ( bcore_array* )&o->funcs, sr_asd( bcore_fork( func ) ) );
+        if( register_func ) st_s_push_st( o->self_source, &func->flect_decl );
+    }
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_stamp_s_parse_extend( xoico_stamp_s* o, bcore_source* source )
 {
     BLM_INIT();
     ASSERT( o->self_source );
@@ -213,35 +248,7 @@ er_t xoico_stamp_s_parse_extend( xoico_stamp_s* o, bcore_source* source, bl_t ve
     {
         if( bcore_source_a_parse_bl_fa( source, " #?w'func'" ) )
         {
-            BLM_INIT();
-            xoico_func_s* func = BLM_CREATE( xoico_func_s );
-            func->group = o->group;
-            func->stamp = o;
-            BLM_TRY( xoico_func_s_parse( func, source ) );
-
-            bl_t register_func = xoico_func_s_registerable( func );
-            sz_t idx = xoico_funcs_s_get_index_from_type( &o->funcs, func->type );
-
-            if( idx >= 0 )
-            {
-                xoico_func_s* prex_func = o->funcs.data[ idx ];
-                if( prex_func->overloadable )
-                {
-                    BLM_TRY( xoico_funcs_s_replace_fork( &o->funcs, idx, func ) );
-                    st_s_replace_sc_sc( o->self_source, prex_func->flect_decl.sc, "" );
-                    if( register_func ) st_s_push_st( o->self_source, &func->flect_decl );
-                }
-                else
-                {
-                    XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Function '#<sc_t>' has already been defined and is not overloadable.", XOICO_NAMEOF( func->name ) );
-                }
-            }
-            else
-            {
-                bcore_array_a_push( ( bcore_array* )&o->funcs, sr_asd( bcore_fork( func ) ) );
-                if( register_func ) st_s_push_st( o->self_source, &func->flect_decl );
-            }
-            BLM_DOWN();
+            BLM_TRY( xoico_stamp_s_parse_func( o, source ) );
         }
         else
         {
@@ -356,7 +363,7 @@ er_t xoico_stamp_s_parse( xoico_stamp_s* o, xoico_group_s* group, bcore_source* 
         st_s* templ_name = BLM_CREATE( st_s );
         BLM_TRY( xoico_group_s_parse_name( group, templ_name, source ) );
         st_s_push_fa( templ_name, "_s" );
-        const xoico* item = xoico_compiler_s_item_get( xoico_group_s_get_compiler( o->group ), typeof( templ_name->sc ) );
+        const xoico* item = xoico_compiler_s_const_item_get( xoico_group_s_get_compiler( o->group ), typeof( templ_name->sc ) );
         if( !item ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Template #<sc_t> not found.", templ_name->sc );
         if( *(aware_t*)item != TYPEOF_xoico_stamp_s ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Template #<sc_t> is no stamp.", templ_name->sc );
         xoico_stamp_s_copy( o, ( xoico_stamp_s* )item );
@@ -388,7 +395,7 @@ er_t xoico_stamp_s_parse( xoico_stamp_s* o, xoico_group_s* group, bcore_source* 
     st_s_copy( &o->st_name, stamp_name );
     o->tp_name = XOICO_ENTYPEOF( stamp_name->sc );
 
-    BLM_TRY( xoico_stamp_s_parse_extend( o, source, verbatim ) );
+    BLM_TRY( xoico_stamp_s_parse_extend( o, source ) );
 
     BLM_RETURNV( er_t, 0 );
 }

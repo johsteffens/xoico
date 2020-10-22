@@ -27,19 +27,22 @@
 XOILA_DEFINE_GROUP( xoico_compiler, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-signature const xoico* item_get(       const, tp_t item_id );
-signature        bl_t  item_exists(    const, tp_t item_id );
-signature        er_t  item_register(  mutable, const xoico* item,          bcore_source* source );
+signature const xoico* const_item_get( const,  tp_t item_id );
+signature xoico*             item_get( mutable, tp_t item_id );
+signature xoico_stamp_s*    stamp_get( mutable, tp_t item_id );
 
-signature        er_t  group_register( mutable, const xoico_group_s* group, bcore_source* source );
-signature        er_t  type_register(  mutable, tp_t type );
+signature bl_t  item_exists(    const, tp_t item_id );
+signature er_t  item_register(  mutable, const xoico* item,          bcore_source* source );
 
-signature        er_t  life_a_push(    mutable, vd_t object );
-signature        er_t  check_overwrite( const,  sc_t file );
-signature        bl_t  is_group(        const,  tp_t name ); // check if name represents a registered group
-signature        bl_t  is_stamp(        const,  tp_t name ); // check if name represents a registered stamp
-signature        bl_t  is_type(         const,  tp_t name ); // check if name represents a registered type (either group, stamp, or generic type)
-signature        bl_t  get_self(        const,  tp_t type, const bcore_self_s** self ); // returns success
+signature er_t  group_register( mutable, const xoico_group_s* group, bcore_source* source );
+signature er_t  type_register(  mutable, tp_t type );
+
+signature er_t  life_a_push(    mutable, vd_t object );
+signature er_t  check_overwrite( const,  sc_t file );
+signature bl_t  is_group(        const,  tp_t name ); // check if name represents a registered group
+signature bl_t  is_stamp(        const,  tp_t name ); // check if name represents a registered stamp
+signature bl_t  is_type(         const,  tp_t name ); // check if name represents a registered type (either group, stamp, or generic type)
+signature bl_t  get_self(        const,  tp_t type, const bcore_self_s** self ); // returns success
 
 signature const xoico_signature_s* get_signature( const, tp_t item_id ); // returns NULL in case item-Id cannot be resolved to a signature
 
@@ -95,8 +98,32 @@ stamp : = aware :
     // functions
     func xoico .finalize;
     func xoico .expand_setup;
-    func : .item_get;
-    func : .item_exists;
+
+    func : .const_item_get =
+    {
+        vd_t* ptr = o.hmap_item.get( item_id );
+        return ptr ? ( const xoico* )*ptr : NULL;
+    };
+
+    func : .item_get =
+    {
+        vd_t* ptr = o.hmap_item.get( item_id );
+        return ptr ? ( xoico* )*ptr : NULL;
+    };
+
+    func : .stamp_get =
+    {
+        vd_t* ptr = o.hmap_item.get( item_id );
+        if( !ptr ) return NULL;
+        assert( (( const xoico* )*ptr)->_ == TYPEOF_xoico_stamp_s );
+        return ( xoico_stamp_s* )*ptr;
+    };
+
+    func : .item_exists =
+    {
+        return bcore_hmap_tpvd_s_exists( &o->hmap_item, item_id );
+    };
+
     func : .item_register;
     func : .group_register;
     func : .type_register;

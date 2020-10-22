@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-10-21T09:35:59Z
+ *  Last File Update: 2020-10-21T21:07:44Z
  *
  *  Copyright and License of this File:
  *
@@ -39,7 +39,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0xB2378FF5CD932D62ull
+#define HKEYOF_xoico_xoila_out 0xAFD37AD75CE7A157ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -514,6 +514,7 @@
       bl_t expandable; \
       bl_t overloadable; \
       xoico_body_s* body; \
+      tp_t pre_hash; \
       xoico_group_s* group; \
       xoico_stamp_s* stamp; \
       bcore_source_point_s source_point; \
@@ -670,6 +671,7 @@
   er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_stamp_s_expand_init1( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_stamp_s_parse( xoico_stamp_s* o, xoico_group_s* group, bcore_source* source ); \
+  er_t xoico_stamp_s_parse_func( xoico_stamp_s* o, bcore_source* source ); \
   er_t xoico_stamp_s_make_funcs_overloadable( xoico_stamp_s* o ); \
   er_t xoico_stamp_s_push_default_funcs( xoico_stamp_s* o );
 #define BETH_EXPAND_GROUP_xoico_stamp \
@@ -838,7 +840,9 @@
   }; \
   er_t xoico_compiler_s_finalize( xoico_compiler_s* o ); \
   er_t xoico_compiler_s_expand_setup( xoico_compiler_s* o ); \
-  const xoico* xoico_compiler_s_item_get( const xoico_compiler_s* o, tp_t item_id ); \
+  const xoico* xoico_compiler_s_const_item_get( const xoico_compiler_s* o, tp_t item_id ); \
+  xoico* xoico_compiler_s_item_get( xoico_compiler_s* o, tp_t item_id ); \
+  xoico_stamp_s* xoico_compiler_s_stamp_get( xoico_compiler_s* o, tp_t item_id ); \
   bl_t xoico_compiler_s_item_exists( const xoico_compiler_s* o, tp_t item_id ); \
   er_t xoico_compiler_s_item_register( xoico_compiler_s* o, const xoico* item, bcore_source* source ); \
   er_t xoico_compiler_s_group_register( xoico_compiler_s* o, const xoico_group_s* group, bcore_source* source ); \
@@ -1397,4 +1401,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0x01A0067BBBFF8BCDull
+// XOILA_OUT_SIGNATURE 0x931B8F414C6AF4EBull

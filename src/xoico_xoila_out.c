@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-10-21T09:35:59Z
+ *  Last File Update: 2020-10-21T21:07:44Z
  *
  *  Copyright and License of this File:
  *
@@ -320,6 +320,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_func_s )
     "bl_t expandable = true;"
     "bl_t overloadable = false;"
     "xoico_body_s => body;"
+    "tp_t pre_hash = 0;"
     "hidden aware xoico_group_s* group;"
     "hidden aware xoico_stamp_s* stamp;"
     "bcore_source_point_s source_point;"
@@ -546,9 +547,38 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_compiler_s )
     "func bcore_inst_call:init_x;"
 "}";
 
+const xoico* xoico_compiler_s_const_item_get( const xoico_compiler_s* o, tp_t item_id )
+{
+    // xoico_compiler.h:103:5
+    vd_t* ptr = bcore_hmap_tpvd_s_get( &(o->hmap_item), item_id );
+    return ptr ? ( const xoico* )*ptr : NULL;
+}
+
+xoico* xoico_compiler_s_item_get( xoico_compiler_s* o, tp_t item_id )
+{
+    // xoico_compiler.h:109:5
+    vd_t* ptr = bcore_hmap_tpvd_s_get( &(o->hmap_item), item_id );
+    return ptr ? ( xoico* )*ptr : NULL;
+}
+
+xoico_stamp_s* xoico_compiler_s_stamp_get( xoico_compiler_s* o, tp_t item_id )
+{
+    // xoico_compiler.h:115:5
+    vd_t* ptr = bcore_hmap_tpvd_s_get( &(o->hmap_item), item_id );
+    if( !ptr ) return NULL;
+    assert( (( const xoico* )*ptr)->_ == TYPEOF_xoico_stamp_s );
+    return ( xoico_stamp_s* )*ptr;
+}
+
+bl_t xoico_compiler_s_item_exists( const xoico_compiler_s* o, tp_t item_id )
+{
+    // xoico_compiler.h:123:5
+    return bcore_hmap_tpvd_s_exists( &o->hmap_item, item_id );
+}
+
 void xoico_compiler_s_init_x( xoico_compiler_s* o )
 {
-    // xoico_compiler.h:124:5
+    // xoico_compiler.h:151:5
     if( o->work_build_time_into_pre_hash )
     {
         o->target_pre_hash = bcore_tp_fold_sc( o->target_pre_hash, __DATE__ );
@@ -1472,4 +1502,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0x1643A58890172FD2ull
+// XOILA_OUT_SIGNATURE 0x3B2082594E04D56Dull

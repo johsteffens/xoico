@@ -27,6 +27,7 @@ XOILA_DEFINE_GROUP( xoico_stamp, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 signature er_t parse( mutable, xoico_group_s* group, bcore_source* source );
+signature er_t parse_func( mutable, bcore_source* source );
 signature er_t make_funcs_overloadable( mutable );
 signature er_t push_default_funcs( mutable );
 
@@ -55,6 +56,7 @@ stamp : = aware :
     func xoico . expand_init1;
 
     func : . parse;
+    func : . parse_func;
     func : . make_funcs_overloadable;
     func : . push_default_funcs;
 };

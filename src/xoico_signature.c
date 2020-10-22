@@ -118,7 +118,14 @@ er_t xoico_signature_s_parse( xoico_signature_s* o, bcore_source* source )
         XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
     }
 
-    st_s_copy_fa( &o->st_global_name, "#<sc_t>_#<sc_t>", o->group->st_name.sc, o->st_name.sc );
+    if( o->stamp )
+    {
+        st_s_copy_fa( &o->st_global_name, "#<sc_t>_#<sc_t>", o->stamp->st_name.sc, o->st_name.sc );
+    }
+    else
+    {
+        st_s_copy_fa( &o->st_global_name, "#<sc_t>_#<sc_t>", o->group->st_name.sc, o->st_name.sc );
+    }
     BLM_RETURNV( er_t, 0 );
 }
 

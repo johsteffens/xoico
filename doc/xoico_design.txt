@@ -48,7 +48,7 @@ XOILA_DEFINE_GROUP( <group_name>, <trait_name> )
 
     group <name> = [<trait>] { ... }; // sub-group; inheriting from parent: 'extending', 'func'
 
-    include "<include path>";
+    embed "<include file path>";
 
     ...
 #endif // <xoila-closer>
@@ -138,13 +138,16 @@ stamp:
   C-Prototypes are generated and registered as featured function.
 
   Function Syntax:
-   func <group_name> : <signature_name> [ = { <body> }];
+   func <group_name> . <signature_name> [ = { <body> }];
          <signature_name> is a signature defined in group <group_name>
          Creates a function <stamp_name>_s_<signature_name>.
 
-   func <group_name> : <feature_name> [ = { <body> }];
+   func <group_name> . <feature_name> [ = { <body> }];
          <feature_name> is a feature defined in group <group_name>
          Creates a function <stamp_name>_s_<feature_name> and binds it to <group_name>_<feature_name>.
+
+   func (<signature-def>) [ = { <body> }];
+         Creates a function <stamp_name>_s_<signature_name>.
 
   Special conditions:
     ':' following stamp means that '<group_name>_' is prefixed to the following name
@@ -188,8 +191,8 @@ set:
 
 ----------------------------------------------------------------------------------------------
 
-include:
-  Includes the content of a file into the section.
+embed:
+  Embeds the content of a file into the section.
   A relative path is considered relative to the given file location
 
 ----------------------------------------------------------------------------------------------
@@ -250,9 +253,9 @@ TODO:
 - (done) isolate trans_declaration: processes declaration (with assignment) in case a declaration is intended, otherwise does nothing.
 - (done) move trans_declaration from trans_expression to trans_statement and trans_for
 - implement try-expression
-- allow signature definition along with function declaration
-- allow stamp member function declaration outside stamp
-- allow signature definition inside a function declaration
+- (done) allow signature definition along with function declaration
+- (done) allow stamp member function declaration outside stamp
+- (done) allow signature definition inside a function declaration
 - remove redundant 'plain' specifier in plain-functions
 - (done) replace function name delimiter ':' with '.'
 - (done) bracket-expressions '(....)' should yield typespec where possible
