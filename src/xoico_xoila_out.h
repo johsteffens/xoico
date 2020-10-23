@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-10-21T21:07:44Z
+ *  Last File Update: 2020-10-23T11:30:22Z
  *
  *  Copyright and License of this File:
  *
@@ -39,7 +39,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0xAFD37AD75CE7A157ull
+#define HKEYOF_xoico_xoila_out 0x9888822620AC9078ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -731,7 +731,6 @@
       BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_group_s, ); \
       xoico_target_s* target; \
   }; \
-  er_t xoico_source_s_finalize( xoico_source_s* o ); \
   er_t xoico_source_s_expand_setup( xoico_source_s* o ); \
   er_t xoico_source_s_push_group( xoico_source_s* o, xoico_group_s* group ); \
   er_t xoico_source_s_parse( xoico_source_s* o, bcore_source* source ); \
@@ -1224,6 +1223,10 @@
 #define TYPEOF_cast 0xB55E7090E879494Eull
 #define TYPEOF_verbatim_C 0x7C0F5E2B3285120Dull
 #define TYPEOF_keep 0x585D7CD75CF6F848ull
+#define TYPEOF_keep_func 0xA74182F52F6E64F7ull
+#define TYPEOF_keep_block 0xD904ABF6228783B2ull
+#define TYPEOF_fork 0xDD1D0D790C2F1881ull
+#define TYPEOF_try 0x570AC119447423EEull
 #define TYPEOF_if 0x08B73007B55C3E26ull
 #define TYPEOF_else 0x7F2B6C605332DD30ull
 #define TYPEOF_while 0xCE87A3885811296Eull
@@ -1260,6 +1263,7 @@
   void xoico_cdaleth_s_dec_level( xoico_cdaleth_s* o ); \
   void xoico_cdaleth_s_dec_block( xoico_cdaleth_s* o ); \
   xoico_cdaleth_stack_block_unit_s* xoico_cdaleth_s_stack_block_get_top_unit( xoico_cdaleth_s* o ); \
+  xoico_cdaleth_stack_block_unit_s* xoico_cdaleth_s_stack_block_get_bottom_unit( xoico_cdaleth_s* o ); \
   void xoico_cdaleth_s_push_typedecl( xoico_cdaleth_s* o, const xoico_typespec_s* typespec, tp_t name ); \
   static inline bl_t xoico_cdaleth_s_is_type( const xoico_cdaleth_s* o, tp_t name ){return xoico_compiler_s_is_type( o->compiler, name );} \
   static inline bl_t xoico_cdaleth_s_is_group( const xoico_cdaleth_s* o, tp_t name ){return xoico_compiler_s_is_group( o->compiler, name );} \
@@ -1401,4 +1405,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0x931B8F414C6AF4EBull
+// XOILA_OUT_SIGNATURE 0x36A53059BB897F59ull

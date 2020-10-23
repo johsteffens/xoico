@@ -252,6 +252,12 @@ TODO:
 - (done) add lifetime management for return and break statements
 - (done) isolate trans_declaration: processes declaration (with assignment) in case a declaration is intended, otherwise does nothing.
 - (done) move trans_declaration from trans_expression to trans_statement and trans_for
+- auto-keep function return values marked 'keep'
+- auto-try functions when value is marked 'try'
+- add 'fork' a functional keyword representing a type-reserving bcore_fork.
+- add 'keep_func', 'keep_block'
+- define plain functions in a group
+- cengie: recognize a full function name (non-member)
 - implement try-expression
 - (done) allow signature definition along with function declaration
 - (done) allow stamp member function declaration outside stamp
@@ -268,7 +274,7 @@ TODO:
 Keywords (for syntax highlight)
 
 xoila:
-group stamp stump hidden private func name signature body aware feature extending verbatim mutable plain retrievable forward embed cast foreach in verbatim_C keep
+group stamp stump hidden private func name signature body aware feature extending verbatim mutable plain retrievable forward embed cast foreach in verbatim_C keep fork try
 
 cengine:
 deduce

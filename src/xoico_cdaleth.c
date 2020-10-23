@@ -826,6 +826,14 @@ er_t xoico_cdaleth_s_try_take_typespec
         if( tp_name == TYPEOF_static   ) typespec->flag_static   = true;
         if( tp_name == TYPEOF_volatile ) typespec->flag_volatile = true;
         if( tp_name == TYPEOF_keep     ) typespec->flag_keep     = true;
+
+        // keyword is actually a function
+        if( bcore_source_a_parse_bl_fa( source, "#?'('" ) )
+        {
+            bcore_source_a_set_index( source, index );
+            BLM_RETURNV( er_t, 0 );
+        }
+
         BLM_TRY( xoico_cdaleth_s_trans_identifier( o, source, NULL, &tp_name ) );
         BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, NULL ) );
     }
@@ -1094,31 +1102,60 @@ er_t xoico_cdaleth_s_trans_expression
 
     if( tp_identifier )
     {
-        if( tp_identifier == TYPEOF_keep )
+        if
+        (
+            tp_identifier == TYPEOF_keep ||
+            tp_identifier == TYPEOF_keep_block ||
+            tp_identifier == TYPEOF_keep_func
+        )
         {
-            XOICO_BLM_SOURCE_PARSE_FA( source, "keep (" );
+            XOICO_BLM_SOURCE_PARSE_FA
+            (
+                source,
+                ( tp_identifier == TYPEOF_keep_block ) ? "keep_block" :
+                ( tp_identifier == TYPEOF_keep_func  ) ? "keep_func"  : "keep"
+            );
+
+            XOICO_BLM_SOURCE_PARSE_FA( source, " (" );
+
             xoico_typespec_s* typespec_keep = BLM_CREATE( xoico_typespec_s );
 
             st_s* buf_ = BLM_CREATE( st_s );
             xoico_cdaleth_s_trans_expression( o, source, buf_, typespec_keep );
 
-            if( typespec_keep->type        == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Keep operator: Expression not tractable." );
-            if( typespec_keep->indirection != 1 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Keep operator: Expression's indirection != 1." );
+            if( typespec_keep->type        == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Operator 'keep': Expression not tractable." );
+            if( typespec_keep->indirection != 1 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Operator 'keep': Expression's indirection != 1." );
 
             if( !typespec_keep->flag_keep )
             {
                 st_s_push_sc( buf, "((" );
                 BLM_TRY( xoico_cdaleth_s_push_typespec( o, typespec_keep, buf ) );
 
-                if( xoico_cdaleth_s_is_group( o, typespec_keep->type ) )
+                if( tp_identifier == TYPEOF_keep_func )
                 {
-                    st_s_push_fa( buf, ")BLM_A_PUSH(#<sc_t>))", buf_->sc );
+                    if( xoico_cdaleth_s_is_group( o, typespec_keep->type ) )
+                    {
+                        st_s_push_fa( buf, ")BLM_LEVEL_A_PUSH(0,#<sc_t>))", buf_->sc );
+                    }
+                    else
+                    {
+                        st_s_push_fa( buf, ")BLM_LEVEL_T_PUSH(0,#<sc_t>,#<sc_t>))", xoico_cdaleth_s_nameof( o, typespec_keep->type ), buf_->sc );
+                    }
+                    xoico_cdaleth_s_stack_block_get_bottom_unit( o )->use_blm = true;
                 }
                 else
                 {
-                    st_s_push_fa( buf, ")BLM_T_PUSH(#<sc_t>,#<sc_t>))", xoico_cdaleth_s_nameof( o, typespec_keep->type ), buf_->sc );
+                    if( xoico_cdaleth_s_is_group( o, typespec_keep->type ) )
+                    {
+                        st_s_push_fa( buf, ")BLM_A_PUSH(#<sc_t>))", buf_->sc );
+                    }
+                    else
+                    {
+                        st_s_push_fa( buf, ")BLM_T_PUSH(#<sc_t>,#<sc_t>))", xoico_cdaleth_s_nameof( o, typespec_keep->type ), buf_->sc );
+                    }
+                    xoico_cdaleth_s_stack_block_get_top_unit( o )->use_blm = true;
                 }
-                xoico_cdaleth_s_stack_block_get_top_unit( o )->use_blm = true;
+
                 typespec_keep->flag_keep = true;
             }
             else
@@ -1128,6 +1165,38 @@ er_t xoico_cdaleth_s_trans_expression
 
             XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
             xoico_cdaleth_s_trans_typespec_expression( o, source, buf, typespec_keep, out_typespec );
+            continuation = false;
+        }
+        else if( tp_identifier == TYPEOF_fork )
+        {
+            XOICO_BLM_SOURCE_PARSE_FA( source, "fork (" );
+            xoico_typespec_s* typespec_fork = BLM_CREATE( xoico_typespec_s );
+
+            st_s* buf_ = BLM_CREATE( st_s );
+            xoico_cdaleth_s_trans_expression( o, source, buf_, typespec_fork );
+
+            if( typespec_fork->type        == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Operator 'fork': Expression not tractable." );
+            if( typespec_fork->indirection != 1 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Operator 'fork': Expression's indirection != 1." );
+
+            st_s_push_sc( buf, "((" );
+            BLM_TRY( xoico_cdaleth_s_push_typespec( o, typespec_fork, buf ) );
+            st_s_push_fa( buf, ")bcore_fork(#<sc_t>))", buf_->sc );
+
+            XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
+            xoico_cdaleth_s_trans_typespec_expression( o, source, buf, typespec_fork, out_typespec );
+            continuation = false;
+        }
+        else if( tp_identifier == TYPEOF_try )
+        {
+            XOICO_BLM_SOURCE_PARSE_FA( source, "try (" );
+            xoico_typespec_s* typespec_try = BLM_CREATE( xoico_typespec_s );
+            st_s* buf_ = BLM_CREATE( st_s );
+            xoico_cdaleth_s_trans_expression( o, source, buf_, typespec_try );
+            if( typespec_try->type == 0           ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Operator 'try': Expression not tractable." );
+            if( typespec_try->type != TYPEOF_er_t ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Operator 'try': Expression must yield er_t." );
+            if( typespec_try->indirection != 0    ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Operator 'try': Expression's indirection != 0." );
+            st_s_push_fa( buf, "BLM_TRY(#<sc_t>)", buf_->sc );
+            XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
             continuation = false;
         }
         else if( tp_identifier == TYPEOF_cast )

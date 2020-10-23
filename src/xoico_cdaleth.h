@@ -142,6 +142,7 @@ signature void inc_block( mutable );
 signature void dec_block( mutable );
 signature void push_typedecl( mutable, const xoico_typespec_s* typespec, tp_t name );
 signature :stack_block_unit_s* stack_block_get_top_unit( mutable );
+signature :stack_block_unit_s* stack_block_get_bottom_unit( mutable );
 
 signature bl_t is_type(  const, tp_t name );
 signature bl_t is_group( const, tp_t name );
@@ -153,6 +154,10 @@ name volatile;
 name cast;
 name verbatim_C;
 name keep;
+name keep_func;
+name keep_block;
+name fork;
+name try;
 name if;
 name else;
 name while;
@@ -233,6 +238,11 @@ stamp : = aware :
     func : .stack_block_get_top_unit =
     {
         return o.stack_block.adl.[ o.stack_block.adl.size - 1 ];
+    };
+
+    func : .stack_block_get_bottom_unit =
+    {
+        return o.stack_block.adl.[ 0 ];
     };
 
     func : .push_typedecl =

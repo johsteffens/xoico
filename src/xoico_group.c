@@ -243,17 +243,26 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'func' " ) )
         {
-            st_s* stamp_name = BLM_CREATE( st_s );
-            BLM_TRY( xoico_group_s_parse_name( o, stamp_name, source ) );
-            st_s_push_sc( stamp_name, "_s" );
-            tp_t tp_stamp_name = btypeof( stamp_name->sc );
-            if( !xoico_compiler_s_is_stamp( compiler, tp_stamp_name ) )
+            if( bcore_source_a_parse_bl_fa( source, " #?'('" ) )
             {
-                XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Stamp name expected" );
-            }
+                st_s* stamp_name = BLM_CREATE( st_s );
+                BLM_TRY( xoico_group_s_parse_name( o, stamp_name, source ) );
+                XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
+                st_s_push_sc( stamp_name, "_s" );
+                tp_t tp_stamp_name = btypeof( stamp_name->sc );
+                if( !xoico_compiler_s_is_stamp( compiler, tp_stamp_name ) )
+                {
+                    XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Cannot associate type name '#<sc_t>' with a stamp.", stamp_name->sc );
+                }
 
-            xoico_stamp_s* stamp = xoico_compiler_s_stamp_get( compiler, tp_stamp_name );
-            BLM_TRY( xoico_stamp_s_parse_func( stamp, source ) );
+                xoico_stamp_s* stamp = xoico_compiler_s_stamp_get( compiler, tp_stamp_name );
+                BLM_TRY( xoico_stamp_s_parse_func( stamp, source ) );
+                o->hash = bcore_tp_fold_tp( o->hash, xoico_stamp_s_get_hash( stamp ) );
+            }
+            else
+            {
+                XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Stamp name must be in brackets '(...)'." );
+            }
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'name' " ) )
         {

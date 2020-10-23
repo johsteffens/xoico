@@ -202,16 +202,15 @@ er_t xoico_stamp_s_parse_func( xoico_stamp_s* o, bcore_source* source )
     BLM_TRY( xoico_func_s_parse( func, source ) );
 
     bl_t register_func = xoico_func_s_registerable( func );
-    sz_t idx = xoico_funcs_s_get_index_from_type( &o->funcs, func->type );
+    sz_t idx = xoico_funcs_s_get_index_from_name( &o->funcs, func->name );
 
     if( idx >= 0 )
     {
         xoico_func_s* prex_func = o->funcs.data[ idx ];
-        if( prex_func->overloadable )
+        if( prex_func->overloadable || ( prex_func->type == func->type ) )
         {
             BLM_TRY( xoico_funcs_s_replace_fork( &o->funcs, idx, func ) );
             st_s_replace_sc_sc( o->self_source, prex_func->flect_decl.sc, "" );
-            if( register_func ) st_s_push_st( o->self_source, &func->flect_decl );
         }
         else
         {
@@ -221,8 +220,21 @@ er_t xoico_stamp_s_parse_func( xoico_stamp_s* o, bcore_source* source )
     else
     {
         bcore_array_a_push( ( bcore_array* )&o->funcs, sr_asd( bcore_fork( func ) ) );
-        if( register_func ) st_s_push_st( o->self_source, &func->flect_decl );
     }
+
+
+    if( register_func )
+    {
+        bl_t push_brace = false;
+        if( o->self_source->size > 0 && o->self_source->sc[ o->self_source->size - 1 ] == '}' )
+        {
+            o->self_source->size--;
+            push_brace = true;
+        }
+        st_s_push_st( o->self_source, &func->flect_decl );
+        if( push_brace ) st_s_push_sc( o->self_source, "}" );
+    }
+
     BLM_RETURNV( er_t, 0 );
 }
 
@@ -235,7 +247,7 @@ er_t xoico_stamp_s_parse_extend( xoico_stamp_s* o, bcore_source* source )
 
     XOICO_BLM_SOURCE_PARSE_FA( source, " {" );
 
-    if( o->self_source->sc[ o->self_source->size - 1 ] == '}' )
+    if( o->self_source->size > 0 && o->self_source->sc[ o->self_source->size - 1 ] == '}' )
     {
         o->self_source->size--;
     }
@@ -285,7 +297,6 @@ er_t xoico_stamp_s_parse_extend( xoico_stamp_s* o, bcore_source* source )
         }
     }
     XOICO_BLM_SOURCE_PARSE_FA( source, " ; " );
-
     st_s_push_sc( o->self_source, "}" );
 
     BLM_RETURNV( er_t, 0 );
@@ -405,6 +416,8 @@ er_t xoico_stamp_s_parse( xoico_stamp_s* o, xoico_group_s* group, bcore_source* 
 er_t xoico_stamp_s_finalize( xoico_stamp_s* o )
 {
     BLM_INIT();
+
+    // TODO: move functions declaration in self_source to finalize
     st_s_replace_sc_sc( o->self_source, "@", o->st_name.sc );
 
     for( sz_t i = 0; i < o->funcs.size; i++ )
@@ -527,16 +540,15 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcor
                 );
             }
 
-            if( go_inline ) bcore_sink_a_push_fa( sink, "static inline " );
-
-            xoico_signature_s_expand_declaration( signature, o, XOICO_NAMEOF( func->global_name ), indent, sink );
-
             if( go_inline )
             {
+                bcore_sink_a_push_fa( sink, "static inline " );
+                BLM_TRY( xoico_signature_s_expand_declaration( signature, o, XOICO_NAMEOF( func->global_name ), indent, sink ) );
                 BLM_TRY( xoico_body_s_expand( func->body, signature, indent, sink ) );
             }
             else
             {
+                BLM_TRY( xoico_signature_s_expand_declaration( signature, o, XOICO_NAMEOF( func->global_name ), indent, sink ) );
                 bcore_sink_a_push_fa( sink, ";" );
             }
         }

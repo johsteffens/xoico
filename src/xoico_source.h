@@ -42,7 +42,6 @@ stamp : = aware :
 
     hidden aware xoico_target_s* target;
 
-    func xoico . finalize;
     func xoico . expand_setup;
 
     func : .push_group;
