@@ -827,7 +827,7 @@ er_t xoico_cdaleth_s_try_take_typespec
         if( tp_name == TYPEOF_volatile ) typespec->flag_volatile = true;
         if( tp_name == TYPEOF_keep     ) typespec->flag_keep     = true;
 
-        // keyword is actually a function
+        // take fails if keyword is actually a function
         if( bcore_source_a_parse_bl_fa( source, "#?'('" ) )
         {
             bcore_source_a_set_index( source, index );
@@ -949,9 +949,9 @@ er_t xoico_cdaleth_s_trans_cast
 
     st_s* buf_expr = BLM_CREATE( st_s );
 
-    BLM_TRY( xoico_cdaleth_s_take_typespec( o, source, typespec_cast, true ) );
-    XOICO_BLM_SOURCE_PARSE_FA( source, " , " );
     BLM_TRY( xoico_cdaleth_s_trans_expression( o, source, buf_expr, typespec_expr ) );
+    XOICO_BLM_SOURCE_PARSE_FA( source, " , " );
+    BLM_TRY( xoico_cdaleth_s_take_typespec( o, source, typespec_cast, true ) );
 
     if( typespec_cast->type == TYPEOF_type_deduce )
     {
@@ -1028,6 +1028,14 @@ er_t xoico_cdaleth_s_try_trans_declaration
         BLM_TRY( xoico_cdaleth_s_trans_identifier( o, source, buf_var, &tp_name ) );
         BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf_var ) );
 
+        bl_t pushed_typedecl = false;
+
+        if( typespec_var->type != TYPEOF_type_deduce )
+        {
+            xoico_cdaleth_s_push_typedecl( o, typespec_var, tp_name );
+            pushed_typedecl = true;
+        }
+
         if( bcore_source_a_parse_bl_fa( source, "#?'='" ) )
         {
             st_s_push_sc( buf_var, "=" );
@@ -1061,10 +1069,15 @@ er_t xoico_cdaleth_s_try_trans_declaration
             }
         }
 
+        if( !pushed_typedecl )
+        {
+            xoico_cdaleth_s_push_typedecl( o, typespec_var, tp_name );
+            pushed_typedecl = true;
+        }
+
         xoico_cdaleth_s_push_typespec( o, typespec_var, buf_out );
         st_s_push_char( buf_out, ' ' );
         st_s_push_st( buf_out, buf_var );
-        xoico_cdaleth_s_push_typedecl( o, typespec_var, tp_name );
         if( success ) *success = true;
     }
     else
@@ -1109,6 +1122,7 @@ er_t xoico_cdaleth_s_trans_expression
             tp_identifier == TYPEOF_keep_func
         )
         {
+            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Operator 'keep': Deprecated - Use scope." );
             XOICO_BLM_SOURCE_PARSE_FA
             (
                 source,
@@ -1165,6 +1179,63 @@ er_t xoico_cdaleth_s_trans_expression
 
             XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
             xoico_cdaleth_s_trans_typespec_expression( o, source, buf, typespec_keep, out_typespec );
+            continuation = false;
+        }
+        else if( tp_identifier == TYPEOF_scope )
+        {
+            XOICO_BLM_SOURCE_PARSE_FA( source, "scope (" );
+            xoico_typespec_s* typespec_scope = BLM_CREATE( xoico_typespec_s );
+
+            st_s* buf_ = BLM_CREATE( st_s );
+            xoico_cdaleth_s_trans_expression( o, source, buf_, typespec_scope );
+            xoico_cdaleth_s_trans_whitespace( o, source, buf_ );
+
+            sz_t level = 0;
+
+            if( bcore_source_a_parse_bl_fa( source, "#?','" ) )
+            {
+                bcore_source_a_parse_fa( source, " " );
+                tp_t identifier = 0;
+                BLM_TRY( xoico_cdaleth_s_trans_identifier( o, source, NULL, &identifier ) );
+                if( xoico_cdaleth_s_is_var( o, identifier ) )
+                {
+                    level = xoico_cdaleth_stack_var_s_get_level( &o->stack_var, identifier );
+                }
+                else if( identifier == TYPEOF_scope_local )
+                {
+                    level = o->level;
+                }
+                else if( identifier == TYPEOF_scope_func )
+                {
+                    level = 0;
+                }
+                else
+                {
+                    XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "scope: identifier '#<sc_t>' does not represent a variable.", xoico_cdaleth_s_nameof( o, identifier ) );
+                }
+            }
+
+            if( typespec_scope->type        == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Operator 'scope': Expression not tractable." );
+            if( typespec_scope->indirection != 1 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Operator 'scope': Expression's indirection != 1." );
+            if( typespec_scope->flag_keep )        XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Operator 'scope': Expression is already in scope." );
+
+            st_s_push_sc( buf, "((" );
+            BLM_TRY( xoico_cdaleth_s_push_typespec( o, typespec_scope, buf ) );
+
+            if( xoico_cdaleth_s_is_group( o, typespec_scope->type ) )
+            {
+                st_s_push_fa( buf, ")BLM_LEVEL_A_PUSH(#<sz_t>,#<sc_t>))", level, buf_->sc );
+            }
+            else
+            {
+                st_s_push_fa( buf, ")BLM_LEVEL_T_PUSH(#<sz_t>,#<sc_t>,#<sc_t>))", level, xoico_cdaleth_s_nameof( o, typespec_scope->type ), buf_->sc );
+            }
+            o->stack_block.adl.data[ level ]->use_blm = true;
+
+            typespec_scope->flag_keep = true;
+
+            XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
+            xoico_cdaleth_s_trans_typespec_expression( o, source, buf, typespec_scope, out_typespec );
             continuation = false;
         }
         else if( tp_identifier == TYPEOF_fork )
@@ -1395,7 +1466,8 @@ er_t xoico_cdaleth_s_trans_expression
 er_t xoico_cdaleth_s_trans_for_expression( xoico_cdaleth_s* o, bcore_source* source, st_s* buf )
 {
     BLM_INIT();
-    xoico_cdaleth_s_inc_level( o );
+    xoico_cdaleth_s_inc_block( o );
+    xoico_cdaleth_s_stack_block_get_top_unit( o )->break_ledge = true;
     XOICO_BLM_SOURCE_PARSE_FA( source, "for" );
     st_s_push_sc( buf, "for" );
     BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
@@ -1414,13 +1486,13 @@ er_t xoico_cdaleth_s_trans_for_expression( xoico_cdaleth_s* o, bcore_source* sou
     BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
     if( bcore_source_a_parse_bl_fa( source, "#=?'{'" ) )
     {
-        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf, true ) )
+        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf, false ) )
     }
     else
     {
-        BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf, true ) )
+        BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf, false ) )
     }
-    xoico_cdaleth_s_dec_level( o );
+    xoico_cdaleth_s_dec_block( o );
     BLM_RETURNV( er_t, 0 );
 }
 
@@ -1433,7 +1505,8 @@ er_t xoico_cdaleth_s_trans_for_expression( xoico_cdaleth_s* o, bcore_source* sou
 er_t xoico_cdaleth_s_trans_foreach_expression( xoico_cdaleth_s* o, bcore_source* source, st_s* buf )
 {
     BLM_INIT();
-    xoico_cdaleth_s_inc_level( o );
+    xoico_cdaleth_s_inc_block( o );
+    xoico_cdaleth_s_stack_block_get_top_unit( o )->break_ledge = true;
     XOICO_BLM_SOURCE_PARSE_FA( source, "foreach ( " );
 
     xoico_typespec_s* typespec_var = BLM_CREATE( xoico_typespec_s );
@@ -1487,11 +1560,11 @@ er_t xoico_cdaleth_s_trans_foreach_expression( xoico_cdaleth_s* o, bcore_source*
     st_s* buf_statement = BLM_CREATE( st_s );
     if( bcore_source_a_parse_bl_fa( source, "#=?'{'" ) )
     {
-        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf_statement, true ) );
+        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf_statement, false ) );
     }
     else
     {
-        BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf_statement, true ) )
+        BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf_statement, false ) )
     }
 
     st_s_push_fa( buf, "{" );
@@ -1501,7 +1574,7 @@ er_t xoico_cdaleth_s_trans_foreach_expression( xoico_cdaleth_s* o, bcore_source*
     st_s_push_fa( buf, " __a=" );
     BLM_TRY( xoico_cdaleth_s_adapt_expression( o, source, typespec_arr_expr, typespec_arr, buf_arr_expr, buf ) );
     st_s_push_fa( buf, ";" );
-    st_s_push_fa( buf, "for(sz_t __i=0; __i<__a->size; __i++){" );
+    st_s_push_fa( buf, "if(__a)for(sz_t __i=0; __i<__a->size; __i++){" );
     xoico_cdaleth_s_push_typespec( o, typespec_var, buf );
     st_s_push_fa( buf, " #<sc_t>=", xoico_cdaleth_s_nameof( o, tp_var_name ) );
 
@@ -1513,7 +1586,7 @@ er_t xoico_cdaleth_s_trans_foreach_expression( xoico_cdaleth_s* o, bcore_source*
 
     st_s_push_fa( buf, "}" );
     st_s_push_fa( buf, "}" );
-    xoico_cdaleth_s_dec_level( o );
+    xoico_cdaleth_s_dec_block( o );
     BLM_RETURNV( er_t, 0 );
 }
 

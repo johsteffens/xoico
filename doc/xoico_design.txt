@@ -254,8 +254,9 @@ TODO:
 - (done) move trans_declaration from trans_expression to trans_statement and trans_for
 - auto-keep function return values marked 'keep'
 - auto-try functions when value is marked 'try'
-- add 'fork' a functional keyword representing a type-reserving bcore_fork.
-- add 'keep_func', 'keep_block'
+- (done) add 'fork' a functional keyword representing a type-reserving bcore_fork.
+- (done) add 'keep_func', 'keep_block'
+- redefine keep: scope( expr [, var] ), which keeps the result of expression in the scope of var. Without 'var', the scope is the current block.
 - define plain functions in a group
 - cengie: recognize a full function name (non-member)
 - implement try-expression
@@ -273,8 +274,7 @@ TODO:
 
 Keywords (for syntax highlight)
 
-xoila:
-group stamp stump hidden private func name signature body aware feature extending verbatim mutable plain retrievable forward embed cast foreach in verbatim_C keep fork try
+group stamp stump hidden private func name signature body aware feature extending verbatim
+mutable plain retrievable forward embed cast foreach in verbatim_C keep fork try deduce scope
+scope_local scope_func
 
-cengine:
-deduce

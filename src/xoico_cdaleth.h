@@ -48,26 +48,27 @@ group :stack_var = :
 
     signature bl_t exists( const, tp_t name );
     signature const xoico_typespec_s* get_typespec( const, tp_t name );
+    signature const sz_t get_level( const, tp_t name );
     signature void clear( mutable );
     signature void rehash_names( mutable );
 
     stamp : = aware :
     {
         :unit_adl_s adl;
-        bcore_hmap_tp_s hmap_name;
+        bcore_hmap_tpuz_s hmap_name;
 
         func : .exists = { return o.hmap_name.exists( name ); };
 
         func : .rehash_names =
         {
             o.hmap_name.clear();
-            for( sz_t i = 0; i < o.adl.size; i++ ) o.hmap_name.set( o.adl.[i].name );
+            for( sz_t i = 0; i < o.adl.size; i++ ) o.hmap_name.set( o.adl.[i].name, i );
         };
 
         func : .push_unit =
         {
             o.adl.push_c( unit );
-            o.hmap_name.set( unit->name );
+            o.hmap_name.set( unit->name, o.adl.size - 1 );
             return o;
         };
 
@@ -82,14 +83,21 @@ group :stack_var = :
 
         func : .get_typespec =
         {
-            for( sz_t i = o->adl.size - 1; i >= 0; i-- )
-            {
-                if( o->adl.data[ i ]->name == name ) return &o->adl.data[ i ]->typespec;
-            }
-            return NULL;
+            uz_t* p_idx = o.hmap_name.get( name );
+            if( !p_idx ) return NULL;
+            return o.adl.[ *p_idx ].typespec;
+        };
+
+        /// returns -1 if not found
+        func : .get_level =
+        {
+            uz_t* p_idx = o.hmap_name.get( name );
+            if( !p_idx ) return -1;
+            return o.adl.[ *p_idx ].level;
         };
 
         func : .clear = { o.adl.clear(); o.hmap_name.clear(); };
+
     };
 };
 
@@ -116,18 +124,17 @@ group :stack_block = :
     stamp : = aware :
     {
         :unit_adl_s adl;
-        func : .push      = { :unit_adl_s_push_d( &o->adl, :unit_s_create() );  return o; };
-        func : .push_unit = { :unit_adl_s_push_c( &o->adl, unit );  return o; };
+        func : .push      = { o.adl.push_d( :unit_s! );  return o; };
+        func : .push_unit = { o.adl.push_c( unit );  return o; };
 
         func : .pop =
         {
-            :unit_adl_s_set_size( &o->adl, sz_max( o->adl.size - 1, 0 ) );
+            o.adl.set_size( sz_max( o->adl.size - 1, 0 ) );
             return o;
         };
 
-        func : .clear = { :unit_adl_s_clear( &o->adl ); };
-
-        func : .get_size = { return o->adl.size; };
+        func : .clear = { o.adl.clear(); };
+        func : .get_size = { return o.adl.size; };
     };
 };
 
@@ -143,6 +150,7 @@ signature void dec_block( mutable );
 signature void push_typedecl( mutable, const xoico_typespec_s* typespec, tp_t name );
 signature :stack_block_unit_s* stack_block_get_top_unit( mutable );
 signature :stack_block_unit_s* stack_block_get_bottom_unit( mutable );
+signature :stack_block_unit_s* stack_block_get_level_unit( mutable, sz_t level );
 
 signature bl_t is_type(  const, tp_t name );
 signature bl_t is_group( const, tp_t name );
@@ -154,6 +162,9 @@ name volatile;
 name cast;
 name verbatim_C;
 name keep;
+name scope;
+name scope_local;
+name scope_func;
 name keep_func;
 name keep_block;
 name fork;
@@ -210,28 +221,18 @@ stamp : = aware :
         o->level = 0;
     };
 
-    func : .inc_level =
-    {
-        o->level++;
-    };
-
     func : .inc_block =
     {
         o.stack_block.push();
-        o.inc_level();
+        o->level++;
         o.stack_block_get_top_unit().level = o.level;
-    };
-
-    func : .dec_level =
-    {
-        o.stack_var.pop_level( o->level );
-        o.level--;
-        ASSERT( o.level >= 0 );
     };
 
     func : .dec_block =
     {
-        o.dec_level();
+        o.stack_var.pop_level( o->level );
+        o.level--;
+        ASSERT( o.level >= 0 );
         o.stack_block.pop();
     };
 
@@ -245,15 +246,20 @@ stamp : = aware :
         return o.stack_block.adl.[ 0 ];
     };
 
+    func : .stack_block_get_level_unit =
+    {
+        foreach( $* e in o.stack_block.adl ) if( e.level == level ) return e;
+        ERR_fa( "Lveel #<sz_t> not found.", level );
+        return NULL;
+    };
+
     func : .push_typedecl =
     {
-        BLM_INIT();
-        :stack_var_unit_s* unit = BLM_CREATE( :stack_var_unit_s );
+        :stack_var_unit_s* unit = scope( :stack_var_unit_s! );
         unit->level = o->level;
         unit->name = name;
         xoico_typespec_s_copy( &unit->typespec, typespec );
         :stack_var_s_push_unit( &o->stack_var, unit );
-        BLM_DOWN();
     };
 
     func : .is_type  = { return o.compiler.is_type( name ); };
@@ -262,7 +268,20 @@ stamp : = aware :
     func : .is_var   = { return o.stack_var.exists( name ); };
 
     func xoico_cengine . translate;
+
+    func (er_t parse( const, bcore_source* source, sc_t format )) =
+    {
+        return bcore_source_a_parse_em_fa( source, format );
+    };
+
+    func (bl_t parse_bl( const, bcore_source* source, sc_t format )) =
+    {
+        return bcore_source_a_parse_bl( source, format );
+    };
+
 };
+
+embed "xoico_cdaleth.x";
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
