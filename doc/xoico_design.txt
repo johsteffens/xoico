@@ -271,6 +271,7 @@ TODO:
 - (speculative) modify trans_declaration: flag indicating that the declaration in c-code is to be prepended
 - (speculative) preprend flagged declarations to the beginning of the current block
 - (speculative) allow (prepended) declaration after opening a bracket
+- add variadic function
 
 Keywords (for syntax highlight)
 

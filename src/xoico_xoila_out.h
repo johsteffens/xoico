@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-10-27T13:22:33Z
+ *  Last File Update: 2020-10-29T14:51:47Z
  *
  *  Copyright and License of this File:
  *
@@ -30,7 +30,8 @@
  *  xoico_cbeth.h
  *  xoico_cgimel.h
  *  xoico_cdaleth.h
- *  xoico_cdaleth.x
+ *  xoico_cdaleth_builtin.x
+ *  xoico_cdaleth_control.x
  *
  */
 
@@ -40,7 +41,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0xE2018F690871D357ull
+#define HKEYOF_xoico_xoila_out 0xA84668C121594720ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -972,18 +973,23 @@
   BCORE_FORWARD_OBJECT( xoico_cengine ); \
   typedef er_t (*xoico_cengine_translate)( const xoico_cengine* o, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink ); \
   typedef tp_t (*xoico_cengine_get_hash)( const xoico_cengine* o ); \
+  typedef bl_t (*xoico_cengine_is_reserved)( const xoico_cengine* o, tp_t tp_identifier ); \
   XOILA_DECLARE_SPECT( xoico_cengine ) \
   { \
       bcore_spect_header_s header; \
       xoico_cengine_translate translate; \
       xoico_cengine_get_hash get_hash; \
+      xoico_cengine_is_reserved is_reserved; \
   }; \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_cengine ) \
   static inline er_t xoico_cengine_a_translate( const xoico_cengine* o, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink ) { const xoico_cengine_spect_s* p = xoico_cengine_spect_s_get_aware( o ); assert( p->translate ); return p->translate( o, body, signature, sink ); } \
   static inline bl_t xoico_cengine_a_defines_translate( const xoico_cengine* o ) { return xoico_cengine_spect_s_get_aware( o )->translate != NULL; } \
   static inline tp_t xoico_cengine_a_get_hash( const xoico_cengine* o ) { const xoico_cengine_spect_s* p = xoico_cengine_spect_s_get_aware( o ); assert( p->get_hash ); return p->get_hash( o ); } \
   static inline bl_t xoico_cengine_a_defines_get_hash( const xoico_cengine* o ) { return true; } \
-  static inline tp_t xoico_cengine_get_hash_default( const xoico_cengine* o ){return  bcore_hash_a_get_tp( (bcore_hash*)o );}
+  static inline tp_t xoico_cengine_get_hash_default( const xoico_cengine* o ){return  bcore_hash_a_get_tp( (bcore_hash*)o );} \
+  static inline bl_t xoico_cengine_a_is_reserved( const xoico_cengine* o, tp_t tp_identifier ) { const xoico_cengine_spect_s* p = xoico_cengine_spect_s_get_aware( o ); assert( p->is_reserved ); return p->is_reserved( o, tp_identifier ); } \
+  static inline bl_t xoico_cengine_a_defines_is_reserved( const xoico_cengine* o ) { return true; } \
+  static inline bl_t xoico_cengine_is_reserved_default( const xoico_cengine* o, tp_t tp_identifier ){return  false;}
 
 /**********************************************************************************************************************/
 // source: xoico_caleph.h
@@ -1236,6 +1242,7 @@
 #define TYPEOF_while 0xCE87A3885811296Eull
 #define TYPEOF_do 0x08915907B53BB494ull
 #define TYPEOF_for 0xDCB27818FED9DA90ull
+#define TYPEOF_foreach 0x8AD09EA0575C3439ull
 #define TYPEOF_switch 0xA5A87AC5B0B379B1ull
 #define TYPEOF_case 0xB55E6190E8792FD1ull
 #define TYPEOF_default 0xEBADA5168620C5FEull
@@ -1259,6 +1266,8 @@
       xoico_cdaleth_stack_block_s stack_block; \
       bcore_hmap_name_s hmap_name; \
   }; \
+  er_t xoico_cdaleth_s_translate( const xoico_cdaleth_s* o, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink ); \
+  bl_t xoico_cdaleth_s_is_reserved( const xoico_cdaleth_s* o, tp_t tp_identifier ); \
   static inline tp_t xoico_cdaleth_s_entypeof( xoico_cdaleth_s* o, sc_t name ){return  bcore_hmap_name_s_set_sc( &o->hmap_name, name );} \
   sc_t xoico_cdaleth_s_nameof( xoico_cdaleth_s* o, tp_t type ); \
   void xoico_cdaleth_s_init_level0( xoico_cdaleth_s* o ); \
@@ -1272,10 +1281,38 @@
   static inline bl_t xoico_cdaleth_s_is_group( const xoico_cdaleth_s* o, tp_t name ){return  xoico_compiler_s_is_group( o->compiler, name );} \
   static inline bl_t xoico_cdaleth_s_is_stamp( const xoico_cdaleth_s* o, tp_t name ){return  xoico_compiler_s_is_stamp( o->compiler, name );} \
   static inline bl_t xoico_cdaleth_s_is_var( const xoico_cdaleth_s* o, tp_t name ){return  xoico_cdaleth_stack_var_s_exists( &(o->stack_var), name );} \
-  er_t xoico_cdaleth_s_translate( const xoico_cdaleth_s* o, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink ); \
+  tp_t xoico_cdaleth_s_get_identifier( xoico_cdaleth_s* o, bcore_source* source, bl_t take_from_source ); \
+  er_t xoico_cdaleth_s_trans_identifier( xoico_cdaleth_s* o, bcore_source* source, st_s* buf, tp_t* tp_identifier ); \
+  er_t xoico_cdaleth_s_trans_whitespace( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_statement( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_block( xoico_cdaleth_s* o, bcore_source* source, st_s* buf, bl_t is_break_ledge ); \
+  er_t xoico_cdaleth_s_trans_statement_as_block( xoico_cdaleth_s* o, bcore_source* source, st_s* buf_out, bl_t is_break_ledge ); \
+  bl_t xoico_cdaleth_s_returns_a_value( const xoico_cdaleth_s* o ); \
   er_t xoico_cdaleth_s_parse( const xoico_cdaleth_s* o, bcore_source* source, sc_t format ); \
   bl_t xoico_cdaleth_s_parse_bl( const xoico_cdaleth_s* o, bcore_source* source, sc_t format ); \
-  er_t xoico_cdaleth_s_trans_builtin_cast( xoico_cdaleth_s* o, bcore_source* source, st_s* expr, xoico_typespec_s* typespec_expr, st_s* buf, xoico_typespec_s* typespec_out );
+  er_t xoico_cdaleth_s_trans_expression( xoico_cdaleth_s* o, bcore_source* source, st_s* buf_out, xoico_typespec_s* out_typespec ); \
+  er_t xoico_cdaleth_s_take_typespec( xoico_cdaleth_s* o, bcore_source* source, xoico_typespec_s* typespec, bl_t require_tractable_type ); \
+  er_t xoico_cdaleth_s_push_typespec( xoico_cdaleth_s* o, const xoico_typespec_s* typespec, st_s* buf ); \
+  er_t xoico_cdaleth_s_adapt_expression( xoico_cdaleth_s* o, bcore_source* source, const xoico_typespec_s* typespec_expr, const xoico_typespec_s* typespec_target, const st_s* expr, st_s* buf ); \
+  bl_t xoico_cdaleth_s_is_builtin_func( const xoico_cdaleth_s* o, tp_t tp_identifier ); \
+  er_t xoico_cdaleth_s_trans_builtin( xoico_cdaleth_s* o, tp_t tp_builtin, bcore_source* source, const st_s* buf_expr, const xoico_typespec_s* typespec_expr, st_s* buf_out, xoico_typespec_s* typespec_out ); \
+  er_t xoico_cdaleth_s_trans_builtin_cast( xoico_cdaleth_s* o, bcore_source* source, const st_s* buf_expr, const xoico_typespec_s* typespec_expr, st_s* buf_out, xoico_typespec_s* typespec_out ); \
+  er_t xoico_cdaleth_s_trans_builtin_scope( xoico_cdaleth_s* o, bcore_source* source, const st_s* buf_expr, const xoico_typespec_s* typespec_expr, st_s* buf_out, xoico_typespec_s* typespec_out ); \
+  er_t xoico_cdaleth_s_trans_builtin_fork( xoico_cdaleth_s* o, bcore_source* source, const st_s* buf_expr, const xoico_typespec_s* typespec_expr, st_s* buf_out, xoico_typespec_s* typespec_out ); \
+  er_t xoico_cdaleth_s_trans_builtin_try( xoico_cdaleth_s* o, bcore_source* source, const st_s* buf_expr, const xoico_typespec_s* typespec_expr, st_s* buf_out, xoico_typespec_s* typespec_out ); \
+  bl_t xoico_cdaleth_s_is_control_name( const xoico_cdaleth_s* o, tp_t tp_identifier ); \
+  er_t xoico_cdaleth_s_trans_control( xoico_cdaleth_s* o, tp_t tp_control, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_control_for( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_control_foreach( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_control_if( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_control_while( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_control_do( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_control_else( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_control_switch( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_control_case( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_control_default( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_control_break( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_control_return( xoico_cdaleth_s* o, bcore_source* source, st_s* buf );
 #define BETH_EXPAND_GROUP_xoico_cdaleth \
   BCORE_FORWARD_OBJECT( xoico_cdaleth ); \
   BCORE_FORWARD_OBJECT( xoico_cdaleth_stack_var ); \
@@ -1412,4 +1449,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0xF5CB85AF5E46ACE6ull
+// XOILA_OUT_SIGNATURE 0x10B56471B2FB1620ull

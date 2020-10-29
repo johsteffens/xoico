@@ -174,6 +174,7 @@ name else;
 name while;
 name do;
 name for;
+name foreach;
 name switch;
 name case;
 name default;
@@ -206,7 +207,16 @@ stamp : = aware :
 
     bcore_hmap_name_s hmap_name;
 
+    func xoico_cengine.translate;
+
+    func xoico_cengine.is_reserved =
+    {
+        return o.is_builtin_func( tp_identifier ) ||
+               o.is_control_name( tp_identifier );
+    };
+
     func : .entypeof = { return bcore_hmap_name_s_set_sc( &o->hmap_name, name ); };
+
     func : .nameof   =
     {
         sc_t name = bcore_hmap_name_s_get_sc( &o->hmap_name, type );
@@ -249,7 +259,7 @@ stamp : = aware :
     func : .stack_block_get_level_unit =
     {
         foreach( $* e in o.stack_block.adl ) if( e.level == level ) return e;
-        ERR_fa( "Lveel #<sz_t> not found.", level );
+        ERR_fa( "Level #<sz_t> not found.", level );
         return NULL;
     };
 
@@ -267,7 +277,13 @@ stamp : = aware :
     func : .is_stamp = { return o.compiler.is_stamp( name ); };
     func : .is_var   = { return o.stack_var.exists( name ); };
 
-    func xoico_cengine . translate;
+    func (tp_t get_identifier( mutable, bcore_source* source, bl_t take_from_source ));
+    func (er_t trans_identifier( mutable, bcore_source* source, st_s* buf /* can be NULL */, tp_t* tp_identifier/* can be NULL */ ));
+    func (er_t trans_whitespace( mutable, bcore_source* source, st_s* buf /* can be NULL */ ));
+    func (er_t trans_statement( mutable, bcore_source* source, st_s* buf ));
+    func (er_t trans_block( mutable, bcore_source* source, st_s* buf, bl_t is_break_ledge ));
+    func (er_t trans_statement_as_block( mutable, bcore_source* source, st_s* buf_out, bl_t is_break_ledge ));
+    func (bl_t returns_a_value( const ));
 
     func (er_t parse( const, bcore_source* source, sc_t format )) =
     {
@@ -279,9 +295,56 @@ stamp : = aware :
         return bcore_source_a_parse_bl( source, format );
     };
 
+    func
+    (
+        er_t trans_expression
+        (
+            mutable,
+            bcore_source* source,
+            st_s* buf_out,                 // can be NULL
+            xoico_typespec_s* out_typespec // optional
+        )
+    );
+
+    func
+    (
+        er_t take_typespec
+        (
+            mutable,
+            bcore_source* source,
+            xoico_typespec_s* typespec,
+            bl_t require_tractable_type
+        )
+    );
+
+    func
+    (
+        er_t push_typespec
+        (
+            mutable,
+            const xoico_typespec_s* typespec,
+            st_s* buf
+        )
+    );
+
+    func
+    (
+        er_t adapt_expression
+        (
+            mutable,
+            bcore_source* source,
+            const xoico_typespec_s* typespec_expr,
+            const xoico_typespec_s* typespec_target,
+            const st_s* expr,
+            st_s* buf
+        )
+    );
+
+
 };
 
-embed "xoico_cdaleth.x";
+embed "xoico_cdaleth_builtin.x";
+embed "xoico_cdaleth_control.x";
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
