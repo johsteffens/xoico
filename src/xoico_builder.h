@@ -21,7 +21,7 @@
 #include "xoico.h"
 #include "xoico_target.h"
 #include "xoico_compiler.h"
-#include "xoico_cgimel.h"
+#include "xoico_cdaleth.h"
 
 /**********************************************************************************************************************/
 
@@ -53,7 +53,7 @@ stamp :target = aware :
     st_s => signal_handler;
 
     /// Optional cengine that is to be used in all bodies of this target
-    aware xoico_cengine => cengine = xoico_cgimel_s;
+    aware xoico_cengine => cengine = xoico_cdaleth_s;
 
     private xoico_compiler_s* compiler;
 

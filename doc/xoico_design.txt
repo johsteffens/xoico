@@ -198,9 +198,9 @@ embed:
 ----------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------
 
-cgimel syntax:
+cdaleth syntax:
 
-The cgimel syntax is 'C' with additional syntactic rules.
+The cdaleth syntax is 'C' with additional syntactic rules.
 Pure C-code can be enforced for any code block with this
 syntax '{\C ... }'.
 

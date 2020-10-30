@@ -56,7 +56,7 @@ func (:)( er_t trans_control( mutable, tp_t tp_control, bcore_source* source, st
         case TYPEOF_case:    return o.trans_control_case(    source, buf );
         case TYPEOF_default: return o.trans_control_default( source, buf );
         case TYPEOF_return:  return o.trans_control_return(  source, buf );
-        default: XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Internal error: Invalid control name '#<sc_t>'", ifnameof( tp_control ) );
+        default: return o.parse_err_fa( source, "Internal error: Invalid control name '#<sc_t>'", ifnameof( tp_control ) );
     }
 };
 
@@ -64,35 +64,29 @@ func (:)( er_t trans_control( mutable, tp_t tp_control, bcore_source* source, st
 
 func (:)( er_t trans_control_for( mutable, bcore_source* source, st_s* buf ) ) =
 {
-    BLM_INIT();
-    xoico_cdaleth_s_inc_block( o );
-    xoico_cdaleth_s_stack_block_get_top_unit( o )->break_ledge = true;
-    XOICO_BLM_SOURCE_PARSE_FA( source, "for" );
-    st_s_push_sc( buf, "for" );
-    BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-    XOICO_BLM_SOURCE_PARSE_FA( source, "(" );
-    st_s_push_sc( buf, "(" );
-    BLM_TRY( xoico_cdaleth_s_trans_statement( o, source, buf ) ); // def
-    XOICO_BLM_SOURCE_PARSE_FA( source, ";" );
-    st_s_push_sc( buf, ";" );
-    BLM_TRY( xoico_cdaleth_s_trans_expression( o, source, buf, NULL ) ); // cond
-    XOICO_BLM_SOURCE_PARSE_FA( source, ";" );
-    st_s_push_sc( buf, ";" );
-    BLM_TRY( xoico_cdaleth_s_trans_expression( o, source, buf, NULL ) ); // update
-    BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-    XOICO_BLM_SOURCE_PARSE_FA( source, ")" );
-    st_s_push_sc( buf, ")" );
-    BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-    if( bcore_source_a_parse_bl_fa( source, "#=?'{'" ) )
+    o.inc_block();
+    o.stack_block_get_top_unit().break_ledge = true;
+    o.trans( source, "for", buf );
+    try( o.trans_whitespace( source, buf ) );
+    o.trans( source, "(", buf );
+    try( o.trans_statement( source, buf ) ); // def
+    o.trans( source, ";", buf );
+    try( o.trans_expression( source, buf, NULL ) ); // cond
+    o.trans( source, ";", buf );
+    try( o.trans_expression( source, buf, NULL ) ); // update
+    try( o.trans_whitespace( source, buf ) );
+    o.trans( source, ")", buf );
+    try( o.trans_whitespace( source, buf ) );
+    if( o.parse_bl( source, "#=?'{'" ) )
     {
-        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf, false ) )
+        try( o.trans_block( source, buf, false ) );
     }
     else
     {
-        BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf, false ) )
+        try( o.trans_statement_as_block( source, buf, false ) );
     }
-    xoico_cdaleth_s_dec_block( o );
-    BLM_RETURNV( er_t, 0 );
+    o.dec_block();
+    return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -103,302 +97,274 @@ func (:)( er_t trans_control_for( mutable, bcore_source* source, st_s* buf ) ) =
  */
 func (:)( er_t trans_control_foreach( mutable, bcore_source* source, st_s* buf ) ) =
 {
-    BLM_INIT();
-    xoico_cdaleth_s_inc_block( o );
-    xoico_cdaleth_s_stack_block_get_top_unit( o )->break_ledge = true;
-    XOICO_BLM_SOURCE_PARSE_FA( source, "foreach ( " );
+    o.inc_block();
+    o.stack_block_get_top_unit().break_ledge = true;
+    o.parse( source, "foreach ( " );
 
-    xoico_typespec_s* typespec_var = BLM_CREATE( xoico_typespec_s );
-    BLM_TRY( xoico_cdaleth_s_take_typespec( o, source, typespec_var, true ) );
+    xoico_typespec_s* typespec_var = scope( xoico_typespec_s! );
+    try( o.take_typespec( source, typespec_var, true ) );
 
     tp_t tp_var_name = 0;
 
-    if( bcore_source_a_parse_bl_fa( source, "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]=='_')" ) )
+    if( o.parse_bl( source, "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]=='_')" ) )
     {
-        tp_var_name = xoico_cdaleth_s_get_identifier( o, source, true );
+        tp_var_name = o.get_identifier( source, true );
     }
     else
     {
-        XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Variable name expected." );
+        return o.parse_err_fa( source, "Variable name expected." );
     }
 
-    XOICO_BLM_SOURCE_PARSE_FA( source, " in " );
+    o.parse( source, " in " );
 
-    xoico_typespec_s* typespec_arr_expr = BLM_CREATE( xoico_typespec_s );
-    st_s* buf_arr_expr = BLM_CREATE( st_s );
-    BLM_TRY( xoico_cdaleth_s_trans_expression( o, source, buf_arr_expr, typespec_arr_expr ) );
+    xoico_typespec_s* typespec_arr_expr = scope( xoico_typespec_s! );
+    st_s* buf_arr_expr = scope( st_s! );
+    try( o.trans_expression( source, buf_arr_expr, typespec_arr_expr ) );
 
-    if( !typespec_arr_expr->type )
+    if( !typespec_arr_expr.type )
     {
-        XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Array expression not tractable." );
+        return o.parse_err_fa( source, "Array expression not tractable." );
     }
 
-    xoico_compiler_element_info_s* info = BLM_CREATE( xoico_compiler_element_info_s );
-    if( !xoico_compiler_s_get_type_array_element_info( o->compiler, typespec_arr_expr->type, info ) )
+    xoico_compiler_element_info_s* info = scope( xoico_compiler_element_info_s! );
+
+    if( !o.compiler.get_type_array_element_info( typespec_arr_expr.type, info ) )
     {
-        XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Expression does not evaluate to an array." );
+        return o.parse_err_fa( source, "Expression does not evaluate to an array." );
     }
 
-    xoico_typespec_s* typespec_element = &info->type_info.typespec;
+    xoico_typespec_s* typespec_element = &info.type_info.typespec;
 
-    if( typespec_var->type == TYPEOF_type_deduce ) typespec_var->type = typespec_element->type;
+    if( typespec_var.type == TYPEOF_type_deduce ) typespec_var.type = typespec_element.type;
 
-    XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
+    o.parse( source, " )" );
 
-    xoico_typespec_s* typespec_arr = BLM_A_CLONE( typespec_arr_expr );
-    typespec_arr->indirection = 1;
-    typespec_arr->flag_const = true;
+    xoico_typespec_s* typespec_arr = scope( typespec_arr_expr.clone() );
+    typespec_arr.indirection = 1;
+    typespec_arr.flag_const = true;
 
-    xoico_typespec_s* typespec_idx = BLM_CREATE( xoico_typespec_s );
-    typespec_idx->type = TYPEOF_sz_t;
+    xoico_typespec_s* typespec_idx = scope( xoico_typespec_s! );
+    typespec_idx.type = TYPEOF_sz_t;
 
-    xoico_cdaleth_s_push_typedecl( o, typespec_var, tp_var_name );
-    xoico_cdaleth_s_push_typedecl( o, typespec_arr, xoico_cdaleth_s_entypeof( o, "__a" ) );
-    xoico_cdaleth_s_push_typedecl( o, typespec_idx, xoico_cdaleth_s_entypeof( o, "__i" ) );
+    o.push_typedecl( typespec_var, tp_var_name );
+    o.push_typedecl( typespec_arr, o.entypeof( "__a" ) );
+    o.push_typedecl( typespec_idx, o.entypeof( "__i" ) );
 
-    st_s* buf_statement = BLM_CREATE( st_s );
-    if( bcore_source_a_parse_bl_fa( source, "#=?'{'" ) )
+    st_s* buf_statement = scope( st_s! );
+    if( o.parse_bl( source, "#=?'{'" ) )
     {
-        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf_statement, false ) );
+        try( o.trans_block( source, buf_statement, false ) );
     }
     else
     {
-        BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf_statement, false ) )
+        try( o.trans_statement_as_block( source, buf_statement, false ) );
     }
 
-    st_s_push_fa( buf, "{" );
+    buf.push_fa( "{" );
 
-    xoico_cdaleth_s_push_typespec( o, typespec_arr, buf );
+    o.push_typespec( typespec_arr, buf );
 
-    st_s_push_fa( buf, " __a=" );
-    BLM_TRY( xoico_cdaleth_s_adapt_expression( o, source, typespec_arr_expr, typespec_arr, buf_arr_expr, buf ) );
-    st_s_push_fa( buf, ";" );
-    st_s_push_fa( buf, "if(__a)for(sz_t __i=0; __i<__a->size; __i++){" );
-    xoico_cdaleth_s_push_typespec( o, typespec_var, buf );
-    st_s_push_fa( buf, " #<sc_t>=", xoico_cdaleth_s_nameof( o, tp_var_name ) );
+    buf.push_fa( " __a=" );
+    try( o.adapt_expression( source, typespec_arr_expr, typespec_arr, buf_arr_expr, buf ) );
+    buf.push_fa( ";" );
+    buf.push_fa( "if(__a)for(sz_t __i=0; __i<__a->size; __i++){" );
+    o.push_typespec( typespec_var, buf );
+    buf.push_fa( " #<sc_t>=", xoico_cdaleth_s_nameof( o, tp_var_name ) );
 
-    st_s* buf_element_expr = BLM_A_PUSH( st_s_create_sc( "__a->data[__i]" ) );
-    BLM_TRY( xoico_cdaleth_s_adapt_expression( o, source, typespec_element, typespec_var, buf_element_expr, buf ) );
-    st_s_push_fa( buf, ";" );
+    st_s* buf_element_expr = scope( cast( st_s_create_sc( "__a->data[__i]" ), st_s* ) );
+    try( o.adapt_expression( source, typespec_element, typespec_var, buf_element_expr, buf ) );
+    buf.push_fa( ";" );
 
-    st_s_push_fa( buf, "#<sc_t>", buf_statement->sc );
+    buf.push_fa( "#<sc_t>", buf_statement.sc );
 
-    st_s_push_fa( buf, "}" );
-    st_s_push_fa( buf, "}" );
-    xoico_cdaleth_s_dec_block( o );
-    BLM_RETURNV( er_t, 0 );
+    buf.push_fa( "}}" );
+    o.dec_block();
+    return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control_if( mutable, bcore_source* source, st_s* buf ) ) =
 {
-    BLM_INIT();
-    XOICO_BLM_SOURCE_PARSE_FA( source, "if" );
-    st_s_push_sc( buf, "if" );
-    BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-    XOICO_BLM_SOURCE_PARSE_FA( source, "(" );
-    st_s_push_sc( buf, "(" );
-    BLM_TRY( xoico_cdaleth_s_trans_expression( o, source, buf, NULL ) ); // def
-    XOICO_BLM_SOURCE_PARSE_FA( source, ")" );
-    st_s_push_sc( buf, ")" );
-    BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-    if( bcore_source_a_parse_bl_fa( source, "#=?'{'" ) )
+    o.trans( source, "if", buf );
+    try( o.trans_whitespace( source, buf ) );
+    o.trans( source, "(", buf );
+    try( o.trans_expression( source, buf, NULL ) ); // def
+    o.trans( source, ")", buf );
+    try( o.trans_whitespace( source, buf ) );
+    if( o.parse_bl( source, "#=?'{'" ) )
     {
-        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf, false ) )
+        try( o.trans_block( source, buf, false ) );
     }
     else
     {
-        BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf, false ) )
+        try( o.trans_statement_as_block( source, buf, false ) );
     }
-    BLM_RETURNV( er_t, 0 );
+    return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control_while( mutable, bcore_source* source, st_s* buf ) ) =
 {
-    BLM_INIT();
-    XOICO_BLM_SOURCE_PARSE_FA( source, "while" );
-    st_s_push_sc( buf, "while" );
-    BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-    XOICO_BLM_SOURCE_PARSE_FA( source, "(" );
-    st_s_push_sc( buf, "(" );
-    BLM_TRY( xoico_cdaleth_s_trans_expression( o, source, buf, NULL ) ); // def
-    XOICO_BLM_SOURCE_PARSE_FA( source, ")" );
-    st_s_push_sc( buf, ")" );
-    BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-    if( bcore_source_a_parse_bl_fa( source, "#=?'{'" ) )
+    o.trans( source, "while", buf );
+    try( o.trans_whitespace( source, buf ) );
+    o.trans( source, "(", buf );
+    try( o.trans_expression( source, buf, NULL ) ); // def
+    o.trans( source, ")", buf );
+    try( o.trans_whitespace( source, buf ) );
+    if( o.parse_bl( source, "#=?'{'" ) )
     {
-        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf, true ) );
+        try( o.trans_block( source, buf, true ) );
     }
     else
     {
-        BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf, true ) )
+        try( o.trans_statement_as_block( source, buf, true ) );
     }
-    BLM_RETURNV( er_t, 0 );
+    return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control_do( mutable, bcore_source* source, st_s* buf ) ) =
 {
-    BLM_INIT();
-    XOICO_BLM_SOURCE_PARSE_FA( source, "do" );
-    st_s_push_sc( buf, "do" );
-    BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-    if( bcore_source_a_parse_bl_fa( source, "#=?'{'" ) )
+    o.trans( source, "do", buf );
+    try( o.trans_whitespace( source, buf ) );
+    if( o.parse_bl( source, "#=?'{'" ) )
     {
-        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf, true ) )
+        try( o.trans_block( source, buf, true ) )
     }
     else
     {
-        BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf, true ) )
+        try( o.trans_statement_as_block( source, buf, true ) )
     }
-    XOICO_BLM_SOURCE_PARSE_FA( source, "while" );
-    st_s_push_sc( buf, "while" );
-    BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-    XOICO_BLM_SOURCE_PARSE_FA( source, "(" );
-    st_s_push_sc( buf, "(" );
-    BLM_TRY( xoico_cdaleth_s_trans_expression( o, source, buf, NULL ) ); // def
-    XOICO_BLM_SOURCE_PARSE_FA( source, ")" );
-    st_s_push_sc( buf, ")" );
-    BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-    XOICO_BLM_SOURCE_PARSE_FA( source, ";" );
-    st_s_push_sc( buf, ";" );
-    BLM_RETURNV( er_t, 0 );
+    o.trans( source, "while", buf );
+    try( o.trans_whitespace( source, buf ) );
+    o.trans( source, "(", buf );
+    try( o.trans_expression( source, buf, NULL ) ); // def
+    o.trans( source, ")", buf );
+    try( o.trans_whitespace( source, buf ) );
+    o.trans( source, ";", buf );
+    return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control_else( mutable, bcore_source* source, st_s* buf ) ) =
 {
-    BLM_INIT();
-    XOICO_BLM_SOURCE_PARSE_FA( source, "else" );
-    st_s_push_sc( buf, "else" );
-    BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-    if( bcore_source_a_parse_bl_fa( source, "#=?'{'" ) )
+    o.trans( source, "else", buf );
+    try( o.trans_whitespace( source, buf ) );
+    if( o.parse_bl( source, "#=?'{'" ) )
     {
-        BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf, false ) )
+        try( o.trans_block( source, buf, false ) );
     }
     else
     {
-        BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf, false ) )
+        try( o.trans_statement_as_block( source, buf, false ) );
     }
-    BLM_RETURNV( er_t, 0 );
+    return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control_switch( mutable, bcore_source* source, st_s* buf ) ) =
 {
-    BLM_INIT();
-    XOICO_BLM_SOURCE_PARSE_FA( source, "switch" );
-    st_s_push_sc( buf, "switch" );
-    BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-    XOICO_BLM_SOURCE_PARSE_FA( source, "(" );
-    st_s_push_sc( buf, "(" );
-    BLM_TRY( xoico_cdaleth_s_trans_expression( o, source, buf, NULL ) ); // def
-    XOICO_BLM_SOURCE_PARSE_FA( source, ")" );
-    st_s_push_sc( buf, ")" );
-    BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-    BLM_TRY( xoico_cdaleth_s_trans_block( o, source, buf, true ) );
-    BLM_RETURNV( er_t, 0 );
+    o.trans( source, "switch", buf );
+    try( o.trans_whitespace( source, buf ) );
+    o.trans( source, "(", buf );
+    try( o.trans_expression( source, buf, NULL ) ); // def
+    o.trans( source, ")", buf );
+    try( o.trans_whitespace( source, buf ) );
+    try( o.trans_block( source, buf, true ) );
+    return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control_case( mutable, bcore_source* source, st_s* buf ) ) =
 {
-    BLM_INIT();
-    XOICO_BLM_SOURCE_PARSE_FA( source, "case" );
-    st_s_push_sc( buf, "case" );
+    o.trans( source, "case", buf );
 
-    BLM_TRY( xoico_cdaleth_s_trans_expression( o, source, buf, NULL ) );
-    BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-    XOICO_BLM_SOURCE_PARSE_FA( source, ": " );
-    st_s_push_sc( buf, ": " );
-    BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf, false ) )
+    try( o.trans_expression( source, buf, NULL ) );
+    try( o.trans_whitespace( source, buf ) );
+    o.trans( source, ": ", buf );
+    try( o.trans_statement_as_block( source, buf, false ) );
 
-    BLM_RETURNV( er_t, 0 );
+    return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control_default( mutable, bcore_source* source, st_s* buf ) ) =
 {
-    BLM_INIT();
-    XOICO_BLM_SOURCE_PARSE_FA( source, "default :" );
-    st_s_push_sc( buf, "default:" );
-
-    BLM_TRY( xoico_cdaleth_s_trans_statement_as_block( o, source, buf, false ) )
-
-    BLM_RETURNV( er_t, 0 );
+    o.trans( source, "default", buf );
+    try( o.trans_whitespace( source, buf ) );
+    o.trans( source, ": ", buf );
+    try( o.trans_statement_as_block( source, buf, false ) )
+    return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control_break( mutable, bcore_source* source, st_s* buf ) ) =
 {
-    BLM_INIT();
-    XOICO_BLM_SOURCE_PARSE_FA( source, "break ;" );
+    o.parse( source, "break ;" );
 
     sz_t ledge_level = -1;
     bl_t use_blm = false;
 
-    for( sz_t i = o->stack_block.adl.size - 1; i >= 0; i-- )
+    for( sz_t i = o.stack_block.adl.size - 1; i >= 0; i-- )
     {
-        const xoico_cdaleth_stack_block_unit_s* unit = o->stack_block.adl.data[ i ];
-        use_blm = use_blm || unit->use_blm;
-        if( unit->break_ledge )
+        const xoico_cdaleth_stack_block_unit_s* unit = o.stack_block.adl.data[ i ];
+        use_blm = use_blm || unit.use_blm;
+        if( unit.break_ledge )
         {
-            ledge_level = unit->level;
+            ledge_level = unit.level;
             break;
         }
     }
 
-    if( ledge_level == -1 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "'break' has no ledge." );
+    if( ledge_level == -1 ) return o.parse_err_fa( source, "'break' has no ledge." );
 
     if( use_blm )
     {
-        st_s_push_fa( buf, "BLM_BREAK_LEVEL(#<sz_t>);", ledge_level );
+        buf.push_fa( "BLM_BREAK_LEVEL(#<sz_t>);", ledge_level );
     }
     else
     {
-        st_s_push_sc( buf, "break;" );
+        buf.push_sc( "break;" );
     }
 
-    BLM_RETURNV( er_t, 0 );
+    return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control_return( mutable, bcore_source* source, st_s* buf ) ) =
 {
-    BLM_INIT();
-    XOICO_BLM_SOURCE_PARSE_FA( source, "return" );
+    o.parse( source, "return" );
 
-    st_s* buf_expr = BLM_CREATE( st_s );
-    xoico_typespec_s* typespec_expr = BLM_CREATE( xoico_typespec_s );
-    const xoico_typespec_s* typespec_ret = o->typespec_ret;
+    st_s* buf_expr = scope( st_s! );
+    xoico_typespec_s* typespec_expr = scope( xoico_typespec_s! );
+    const xoico_typespec_s* typespec_ret = o.typespec_ret;
 
-    BLM_TRY( xoico_cdaleth_s_trans_expression( o, source, buf_expr, typespec_expr ) );
-    BLM_TRY( xoico_cdaleth_s_trans_whitespace( o, source, buf ) );
-    XOICO_BLM_SOURCE_PARSE_FA( source, ";" );
+    try( o.trans_expression( source, buf_expr, typespec_expr ) );
+    try( o.trans_whitespace( source, buf ) );
+    o.parse( source, ";" );
 
-    if( typespec_expr->type )
+    if( typespec_expr.type )
     {
-        if( !xoico_cdaleth_s_returns_a_value( o ) )
+        if( !o.returns_a_value() )
         {
-            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Function does not return a value." );
+            return o.parse_err_fa( source, "Function does not return a value." );
         }
     }
 
     bl_t use_blm = false;
 
-    for( sz_t i = 0; i < o->stack_block.adl.size; i++ )
+    foreach( $* e in o.stack_block.adl )
     {
-        if( o->stack_block.adl.data[ i ]->use_blm )
+        if( e.use_blm )
         {
             use_blm = true;
             break;
@@ -407,43 +373,43 @@ func (:)( er_t trans_control_return( mutable, bcore_source* source, st_s* buf ) 
 
     if( use_blm )
     {
-        if( xoico_cdaleth_s_returns_a_value( o ) )
+        if( o.returns_a_value() )
         {
-            st_s_push_sc( buf, "BLM_RETURNV(" );
-            BLM_TRY( xoico_cdaleth_s_push_typespec( o, typespec_ret, buf ) );
-            st_s_push_sc( buf, "," );
-            if( typespec_expr->type )
+            buf.push_sc( "BLM_RETURNV(" );
+            try( o.push_typespec( typespec_ret, buf ) );
+            buf.push_sc( "," );
+            if( typespec_expr.type )
             {
-                BLM_TRY( xoico_cdaleth_s_adapt_expression( o, source, typespec_expr, typespec_ret, buf_expr, buf ) );
+                try( o.adapt_expression( source, typespec_expr, typespec_ret, buf_expr, buf ) );
             }
             else
             {
-                st_s_push_st( buf, buf_expr );
+                buf.push_st( buf_expr );
             }
-            st_s_push_sc( buf, ");" );
+            buf.push_sc( ");" );
         }
         else
         {
-            st_s_push_sc( buf, "BLM_RETURN" );
-            st_s_push_st( buf, buf_expr );
-            st_s_push_sc( buf, ";" );
+            buf.push_sc( "BLM_RETURN" );
+            buf.push_st( buf_expr );
+            buf.push_sc( ";" );
         }
     }
     else
     {
-        st_s_push_sc( buf, "return " );
-        if( typespec_expr->type )
+        buf.push_sc( "return " );
+        if( typespec_expr.type )
         {
-            BLM_TRY( xoico_cdaleth_s_adapt_expression( o, source, typespec_expr, typespec_ret, buf_expr, buf ) );
+            try( o.adapt_expression( source, typespec_expr, typespec_ret, buf_expr, buf ) );
         }
         else
         {
-            st_s_push_st( buf, buf_expr );
+            buf.push_st( buf_expr );
         }
-        st_s_push_sc( buf, ";" );
+        buf.push_sc( ";" );
     }
 
-    BLM_RETURNV( er_t, 0 );
+    return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -290,6 +290,13 @@ stamp : = aware :
         return bcore_source_a_parse_em_fa( source, format );
     };
 
+    func (er_t trans( const, bcore_source* source, sc_t format, st_s* buf )) =
+    {
+        try( o.parse( source, format ));
+        buf.push_sc( format );
+        return 0;
+    };
+
     func (bl_t parse_bl( const, bcore_source* source, sc_t format )) =
     {
         return bcore_source_a_parse_bl( source, format );
@@ -339,8 +346,6 @@ stamp : = aware :
             st_s* buf
         )
     );
-
-
 };
 
 embed "xoico_cdaleth_builtin.x";
@@ -349,6 +354,11 @@ embed "xoico_cdaleth_control.x";
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+/**********************************************************************************************************************/
+
+er_t xoico_cdaleth_s_parse_err_fv( const xoico_cdaleth_s* o, bcore_source* source, sc_t format, va_list args );
+er_t xoico_cdaleth_s_parse_err_fa( const xoico_cdaleth_s* o, bcore_source* source, sc_t format, ... );
 
 /**********************************************************************************************************************/
 

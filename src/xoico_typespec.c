@@ -25,7 +25,8 @@
 er_t xoico_typespec_s_parse( xoico_typespec_s* o, xoico_group_s* group, bcore_source* source )
 {
     BLM_INIT();
-    o->flag_const = o->flag_static = o->flag_volatile = false;
+
+    xoico_typespec_s_reset( o );
 
     while( !bcore_source_a_eos( source ) )
     {
