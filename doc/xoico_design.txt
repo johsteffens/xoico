@@ -202,7 +202,7 @@ cdaleth syntax:
 
 The cdaleth syntax is 'C' with additional syntactic rules.
 Pure C-code can be enforced for any code block with this
-syntax '{\C ... }'.
+syntax 'verbatim_C{ ... }'.
 
 ':' immediately before an identifier or '*' will replace ':' with the group name
 '@' will be replaced with stamp instance name if applicable or with group name otherwise
@@ -232,7 +232,7 @@ Automatic variable definition:
 
 Function pointer:
 If an object-element is a function pointer, calling that function must be enclosed
-in '{\C ... }'.
+in 'verbatim_C{ ... }'.
 
 TODO:
 - (done) each group has a perspective
@@ -252,25 +252,27 @@ TODO:
 - (done) add lifetime management for return and break statements
 - (done) isolate trans_declaration: processes declaration (with assignment) in case a declaration is intended, otherwise does nothing.
 - (done) move trans_declaration from trans_expression to trans_statement and trans_for
-- auto-keep function return values marked 'keep'
-- auto-try functions when value is marked 'try'
+- (done) try-block: auto-try statement when yielded value is er_t
 - (done) add 'fork' a functional keyword representing a type-reserving bcore_fork.
 - (done) add 'keep_func', 'keep_block'
-- redefine keep: scope( expr [, var] ), which keeps the result of expression in the scope of var. Without 'var', the scope is the current block.
+- (deprecated) redefine keep: scope( expr [, var] ), which keeps the result of expression in the scope of var. Without 'var', the scope is the current block.
 - define plain functions in a group
-- cengie: recognize a full function name (non-member)
-- implement try-expression
+- cengine: recognize a full function name (non-member)
+- (done) implement try-expression
 - (done) allow signature definition along with function declaration
 - (done) allow stamp member function declaration outside stamp
 - (done) allow signature definition inside a function declaration
-- remove redundant 'plain' specifier in plain-functions
+- (done) remove redundant 'plain' specifier in plain-functions
 - (done) replace function name delimiter ':' with '.'
 - (done) bracket-expressions '(....)' should yield typespec where possible
 - (fixed) bug: too many closing ')' stalls
 - (done) let variable declaration hide a type of same name
+
 - (speculative) modify trans_declaration: flag indicating that the declaration in c-code is to be prepended
 - (speculative) preprend flagged declarations to the beginning of the current block
 - (speculative) allow (prepended) declaration after opening a bracket
+- (speculative) auto-keep function return values marked 'keep'
+
 - add variadic function
 
 Keywords (for syntax highlight)

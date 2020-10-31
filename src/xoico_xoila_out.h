@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-10-30T09:31:09Z
+ *  Last File Update: 2020-10-31T16:18:38Z
  *
  *  Copyright and License of this File:
  *
@@ -30,6 +30,7 @@
  *  xoico_cbeth.h
  *  xoico_cgimel.h
  *  xoico_cdaleth.h
+ *  xoico_cdaleth.x
  *  xoico_cdaleth_builtin.x
  *  xoico_cdaleth_control.x
  *
@@ -41,7 +42,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0xB3E2FD132BB6CE49ull
+#define HKEYOF_xoico_xoila_out 0xE47C902F4C47DCAEull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -1262,13 +1263,13 @@
       xoico_stamp_s* stamp; \
       tp_t obj_type; \
       sz_t level; \
+      sz_t try_block_level; \
       xoico_cdaleth_stack_var_s stack_var; \
       xoico_cdaleth_stack_block_s stack_block; \
       bcore_hmap_name_s hmap_name; \
   }; \
-  er_t xoico_cdaleth_s_translate( const xoico_cdaleth_s* o, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink ); \
   bl_t xoico_cdaleth_s_is_reserved( const xoico_cdaleth_s* o, tp_t tp_identifier ); \
-  static inline tp_t xoico_cdaleth_s_entypeof( xoico_cdaleth_s* o, sc_t name ){return  bcore_hmap_name_s_set_sc( &o->hmap_name, name );} \
+  static inline tp_t xoico_cdaleth_s_entypeof( xoico_cdaleth_s* o, sc_t name ){return  bcore_hmap_name_s_set_sc( &(o->hmap_name), name );} \
   sc_t xoico_cdaleth_s_nameof( xoico_cdaleth_s* o, tp_t type ); \
   void xoico_cdaleth_s_init_level0( xoico_cdaleth_s* o ); \
   void xoico_cdaleth_s_inc_block( xoico_cdaleth_s* o ); \
@@ -1281,20 +1282,33 @@
   static inline bl_t xoico_cdaleth_s_is_group( const xoico_cdaleth_s* o, tp_t name ){return  xoico_compiler_s_is_group( o->compiler, name );} \
   static inline bl_t xoico_cdaleth_s_is_stamp( const xoico_cdaleth_s* o, tp_t name ){return  xoico_compiler_s_is_stamp( o->compiler, name );} \
   static inline bl_t xoico_cdaleth_s_is_var( const xoico_cdaleth_s* o, tp_t name ){return  xoico_cdaleth_stack_var_s_exists( &(o->stack_var), name );} \
-  tp_t xoico_cdaleth_s_get_identifier( xoico_cdaleth_s* o, bcore_source* source, bl_t take_from_source ); \
-  er_t xoico_cdaleth_s_trans_identifier( xoico_cdaleth_s* o, bcore_source* source, st_s* buf, tp_t* tp_identifier ); \
-  er_t xoico_cdaleth_s_trans_whitespace( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
-  er_t xoico_cdaleth_s_trans_statement( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
-  er_t xoico_cdaleth_s_trans_block( xoico_cdaleth_s* o, bcore_source* source, st_s* buf, bl_t is_break_ledge ); \
-  er_t xoico_cdaleth_s_trans_statement_as_block( xoico_cdaleth_s* o, bcore_source* source, st_s* buf_out, bl_t is_break_ledge ); \
   bl_t xoico_cdaleth_s_returns_a_value( const xoico_cdaleth_s* o ); \
   er_t xoico_cdaleth_s_parse( const xoico_cdaleth_s* o, bcore_source* source, sc_t format ); \
   er_t xoico_cdaleth_s_trans( const xoico_cdaleth_s* o, bcore_source* source, sc_t format, st_s* buf ); \
-  bl_t xoico_cdaleth_s_parse_bl( const xoico_cdaleth_s* o, bcore_source* source, sc_t format ); \
-  er_t xoico_cdaleth_s_trans_expression( xoico_cdaleth_s* o, bcore_source* source, st_s* buf_out, xoico_typespec_s* out_typespec ); \
+  tp_t xoico_cdaleth_s_get_identifier( xoico_cdaleth_s* o, bcore_source* source, bl_t take_from_source ); \
+  er_t xoico_cdaleth_s_trans_identifier( xoico_cdaleth_s* o, bcore_source* source, st_s* buf, tp_t* tp_identifier ); \
+  er_t xoico_cdaleth_s_trans_number_literal( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_string_literal( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_char_literal( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_whitespace( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_preprocessor( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  tp_t xoico_cdaleth_s_trans_inert_operator( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_adapt_expression( xoico_cdaleth_s* o, bcore_source* source, const xoico_typespec_s* typespec_expr, const xoico_typespec_s* typespec_target, const st_s* expr, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_typespec_expression( xoico_cdaleth_s* o, bcore_source* source, st_s* buf, const xoico_typespec_s* in_typespec, xoico_typespec_s* out_typespec ); \
+  er_t xoico_cdaleth_s_trans_member( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_try_take_typespec( xoico_cdaleth_s* o, bcore_source* source, xoico_typespec_s* typespec, bl_t require_tractable_type, bl_t* success ); \
   er_t xoico_cdaleth_s_take_typespec( xoico_cdaleth_s* o, bcore_source* source, xoico_typespec_s* typespec, bl_t require_tractable_type ); \
   er_t xoico_cdaleth_s_push_typespec( xoico_cdaleth_s* o, const xoico_typespec_s* typespec, st_s* buf ); \
-  er_t xoico_cdaleth_s_adapt_expression( xoico_cdaleth_s* o, bcore_source* source, const xoico_typespec_s* typespec_expr, const xoico_typespec_s* typespec_target, const st_s* expr, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_expression( xoico_cdaleth_s* o, bcore_source* source, st_s* buf_out, xoico_typespec_s* out_typespec ); \
+  er_t xoico_cdaleth_s_try_trans_declaration( xoico_cdaleth_s* o, bcore_source* source, st_s* buf_out, bl_t* success ); \
+  er_t xoico_cdaleth_s_inspect_variable( xoico_cdaleth_s* o, bcore_source* source ); \
+  er_t xoico_cdaleth_s_trans_statement( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_trans_block_inside( xoico_cdaleth_s* o, bcore_source* source, st_s* buf_out ); \
+  er_t xoico_cdaleth_s_trans_block( xoico_cdaleth_s* o, bcore_source* source, st_s* buf, bl_t is_break_ledge ); \
+  er_t xoico_cdaleth_s_trans_statement_as_block( xoico_cdaleth_s* o, bcore_source* source, st_s* buf_out, bl_t is_break_ledge ); \
+  er_t xoico_cdaleth_s_trans_block_inside_verbatim_c( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
+  er_t xoico_cdaleth_s_setup( xoico_cdaleth_s* o, const xoico_body_s* body, const xoico_signature_s* signature ); \
+  er_t xoico_cdaleth_s_translate( const xoico_cdaleth_s* o, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink ); \
   bl_t xoico_cdaleth_s_is_builtin_func( const xoico_cdaleth_s* o, tp_t tp_identifier ); \
   er_t xoico_cdaleth_s_trans_builtin( xoico_cdaleth_s* o, tp_t tp_builtin, bcore_source* source, const st_s* buf_expr, const xoico_typespec_s* typespec_expr, st_s* buf_out, xoico_typespec_s* typespec_out ); \
   er_t xoico_cdaleth_s_trans_builtin_cast( xoico_cdaleth_s* o, bcore_source* source, const st_s* buf_expr, const xoico_typespec_s* typespec_expr, st_s* buf_out, xoico_typespec_s* typespec_out ); \
@@ -1373,7 +1387,7 @@
   xoico_cdaleth_stack_var_s* xoico_cdaleth_stack_var_s_pop_level( xoico_cdaleth_stack_var_s* o, sz_t level ); \
   const xoico_typespec_s* xoico_cdaleth_stack_var_s_get_typespec( const xoico_cdaleth_stack_var_s* o, tp_t name ); \
   const sz_t xoico_cdaleth_stack_var_s_get_level( const xoico_cdaleth_stack_var_s* o, tp_t name ); \
-  static inline void xoico_cdaleth_stack_var_s_clear( xoico_cdaleth_stack_var_s* o ){xoico_cdaleth_stack_var_unit_adl_s_clear( &(o->adl)); bcore_hmap_tpuz_s_clear( &(o->hmap_name));}
+  void xoico_cdaleth_stack_var_s_clear( xoico_cdaleth_stack_var_s* o );
 #define BETH_EXPAND_GROUP_xoico_cdaleth_stack_var \
   BCORE_FORWARD_OBJECT( xoico_cdaleth_stack_var ); \
   BCORE_FORWARD_OBJECT( xoico_cdaleth_stack_var_unit_s ); \
@@ -1450,4 +1464,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0xA37DD36D5297DDEDull
+// XOILA_OUT_SIGNATURE 0x1E4009AE8E6DFBA6ull

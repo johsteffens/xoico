@@ -57,31 +57,31 @@ group :stack_var = :
         :unit_adl_s adl;
         bcore_hmap_tpuz_s hmap_name;
 
-        func : .exists = { return o.hmap_name.exists( name ); };
+        func :.exists = { return o.hmap_name.exists( name ); };
 
-        func : .rehash_names =
+        func :.rehash_names =
         {
             o.hmap_name.clear();
             for( sz_t i = 0; i < o.adl.size; i++ ) o.hmap_name.set( o.adl.[i].name, i );
         };
 
-        func : .push_unit =
+        func :.push_unit =
         {
             o.adl.push_c( unit );
             o.hmap_name.set( unit->name, o.adl.size - 1 );
             return o;
         };
 
-        func : .pop_level =
+        func :.pop_level =
         {
             sz_t size = o->adl.size;
-            while( size > 0 && o->adl.data[ size - 1 ]->level >= level ) size--;
+            while( size > 0 && o.adl.data[ size - 1 ]->level >= level ) size--;
             o.adl.set_size( size );
             o.rehash_names();
             return o;
         };
 
-        func : .get_typespec =
+        func :.get_typespec =
         {
             uz_t* p_idx = o.hmap_name.get( name );
             if( !p_idx ) return NULL;
@@ -89,15 +89,18 @@ group :stack_var = :
         };
 
         /// returns -1 if not found
-        func : .get_level =
+        func :.get_level =
         {
             uz_t* p_idx = o.hmap_name.get( name );
             if( !p_idx ) return -1;
             return o.adl.[ *p_idx ].level;
         };
 
-        func : .clear = { o.adl.clear(); o.hmap_name.clear(); };
-
+        func :.clear =
+        {
+            o.adl.clear();
+            o.hmap_name.clear();
+        };
     };
 };
 
@@ -124,17 +127,17 @@ group :stack_block = :
     stamp : = aware :
     {
         :unit_adl_s adl;
-        func : .push      = { o.adl.push_d( :unit_s! );  return o; };
-        func : .push_unit = { o.adl.push_c( unit );  return o; };
+        func :.push      = { o.adl.push_d( :unit_s! );  return o; };
+        func :.push_unit = { o.adl.push_c( unit );  return o; };
 
-        func : .pop =
+        func :.pop =
         {
             o.adl.set_size( sz_max( o->adl.size - 1, 0 ) );
             return o;
         };
 
-        func : .clear = { o.adl.clear(); };
-        func : .get_size = { return o.adl.size; };
+        func :.clear = { o.adl.clear(); };
+        func :.get_size = { return o.adl.size; };
     };
 };
 
@@ -202,6 +205,8 @@ stamp : = aware :
 
     /// runtime state
     sz_t level;
+    sz_t try_block_level;
+
     :stack_var_s   stack_var;
     :stack_block_s stack_block;
 
@@ -212,33 +217,34 @@ stamp : = aware :
     func xoico_cengine.is_reserved =
     {
         return o.is_builtin_func( tp_identifier ) ||
-               o.is_control_name( tp_identifier );
+               o.is_control_name( tp_identifier ) ||
+               tp_identifier == TYPEOF_verbatim_C;
     };
 
-    func : .entypeof = { return bcore_hmap_name_s_set_sc( &o->hmap_name, name ); };
+    func :.entypeof = { return o.hmap_name.set_sc( name ); };
 
-    func : .nameof   =
+    func :.nameof   =
     {
-        sc_t name = bcore_hmap_name_s_get_sc( &o->hmap_name, type );
-        if( !name ) name = xoico_compiler_s_nameof( o->compiler, type );
+        sc_t name = o.hmap_name.get_sc( type );
+        if( !name ) name = o.compiler.nameof( type );
         return name;
     };
 
-    func : .init_level0 =
+    func :.init_level0 =
     {
-        :stack_block_s_clear( &o->stack_block );
-        :stack_block_s_push( &o->stack_block );
-        o->level = 0;
+        o.stack_block.clear();
+        o.stack_block.push();
+        o.level = 0;
     };
 
-    func : .inc_block =
+    func :.inc_block =
     {
         o.stack_block.push();
         o->level++;
         o.stack_block_get_top_unit().level = o.level;
     };
 
-    func : .dec_block =
+    func :.dec_block =
     {
         o.stack_var.pop_level( o->level );
         o.level--;
@@ -246,48 +252,45 @@ stamp : = aware :
         o.stack_block.pop();
     };
 
-    func : .stack_block_get_top_unit =
+    func :.stack_block_get_top_unit =
     {
         return o.stack_block.adl.[ o.stack_block.adl.size - 1 ];
     };
 
-    func : .stack_block_get_bottom_unit =
+    func :.stack_block_get_bottom_unit =
     {
         return o.stack_block.adl.[ 0 ];
     };
 
-    func : .stack_block_get_level_unit =
+    func :.stack_block_get_level_unit =
     {
         foreach( $* e in o.stack_block.adl ) if( e.level == level ) return e;
         ERR_fa( "Level #<sz_t> not found.", level );
         return NULL;
     };
 
-    func : .push_typedecl =
+    func :.push_typedecl =
     {
-        :stack_var_unit_s* unit = scope( :stack_var_unit_s! );
-        unit->level = o->level;
-        unit->name = name;
-        xoico_typespec_s_copy( &unit->typespec, typespec );
-        :stack_var_s_push_unit( &o->stack_var, unit );
+        :stack_var_unit_s* unit = :stack_var_unit_s!.scope();
+        unit.level = o->level;
+        unit.name = name;
+        unit.typespec.copy( typespec );
+        o.stack_var.push_unit( unit );
     };
 
-    func : .is_type  = { return o.compiler.is_type( name ); };
-    func : .is_group = { return o.compiler.is_group( name ); };
-    func : .is_stamp = { return o.compiler.is_stamp( name ); };
-    func : .is_var   = { return o.stack_var.exists( name ); };
+    func :.is_type  = { return o.compiler.is_type( name ); };
+    func :.is_group = { return o.compiler.is_group( name ); };
+    func :.is_stamp = { return o.compiler.is_stamp( name ); };
+    func :.is_var   = { return o.stack_var.exists( name ); };
 
-    func (tp_t get_identifier( mutable, bcore_source* source, bl_t take_from_source ));
-    func (er_t trans_identifier( mutable, bcore_source* source, st_s* buf /* can be NULL */, tp_t* tp_identifier/* can be NULL */ ));
-    func (er_t trans_whitespace( mutable, bcore_source* source, st_s* buf /* can be NULL */ ));
-    func (er_t trans_statement( mutable, bcore_source* source, st_s* buf ));
-    func (er_t trans_block( mutable, bcore_source* source, st_s* buf, bl_t is_break_ledge ));
-    func (er_t trans_statement_as_block( mutable, bcore_source* source, st_s* buf_out, bl_t is_break_ledge ));
-    func (bl_t returns_a_value( const ));
+    func (bl_t returns_a_value( const )) =
+    {
+        return ( o.typespec_ret.type != TYPEOF_void ) || ( o.typespec_ret.indirection > 0 );
+    };
 
     func (er_t parse( const, bcore_source* source, sc_t format )) =
     {
-        return bcore_source_a_parse_em_fa( source, format );
+        return source.parse_em_fa( format );
     };
 
     func (er_t trans( const, bcore_source* source, sc_t format, st_s* buf )) =
@@ -297,57 +300,9 @@ stamp : = aware :
         return 0;
     };
 
-    func (bl_t parse_bl( const, bcore_source* source, sc_t format )) =
-    {
-        return bcore_source_a_parse_bl( source, format );
-    };
-
-    func
-    (
-        er_t trans_expression
-        (
-            mutable,
-            bcore_source* source,
-            st_s* buf_out,                 // can be NULL
-            xoico_typespec_s* out_typespec // optional
-        )
-    );
-
-    func
-    (
-        er_t take_typespec
-        (
-            mutable,
-            bcore_source* source,
-            xoico_typespec_s* typespec,
-            bl_t require_tractable_type
-        )
-    );
-
-    func
-    (
-        er_t push_typespec
-        (
-            mutable,
-            const xoico_typespec_s* typespec,
-            st_s* buf
-        )
-    );
-
-    func
-    (
-        er_t adapt_expression
-        (
-            mutable,
-            bcore_source* source,
-            const xoico_typespec_s* typespec_expr,
-            const xoico_typespec_s* typespec_target,
-            const st_s* expr,
-            st_s* buf
-        )
-    );
 };
 
+embed "xoico_cdaleth.x";
 embed "xoico_cdaleth_builtin.x";
 embed "xoico_cdaleth_control.x";
 
@@ -357,6 +312,8 @@ embed "xoico_cdaleth_control.x";
 
 /**********************************************************************************************************************/
 
+er_t xoico_cdaleth_s_parse_fv(     const xoico_cdaleth_s* o, bcore_source* source, sc_t format, va_list args );
+er_t xoico_cdaleth_s_parse_fa(     const xoico_cdaleth_s* o, bcore_source* source, sc_t format, ... );
 er_t xoico_cdaleth_s_parse_err_fv( const xoico_cdaleth_s* o, bcore_source* source, sc_t format, va_list args );
 er_t xoico_cdaleth_s_parse_err_fa( const xoico_cdaleth_s* o, bcore_source* source, sc_t format, ... );
 

@@ -71,13 +71,24 @@ er_t xoico_body_code_s_parse( xoico_body_code_s* o, bcore_source* source )
             case '"': // string literal
             {
                 hash = bcore_tp_fold_u0( hash, c );
-                bl_t esc = false;
-                while( !bcore_source_a_eos( source ) )
+                while( !bcore_source_a_eos( source ) && ((c = bcore_source_a_get_char( source )) != '"') )
                 {
-                    u0_t c = bcore_source_a_get_u0( source );
-                    if( !esc && c == '"' ) break;
-                    esc = ( c == '\\' );
+                    hash = bcore_tp_fold_u0( hash, c );
+                    if( c == '\\' ) hash = bcore_tp_fold_u0( hash, bcore_source_a_get_u0( source ) );
                     if( c == '\n' ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Newline in string literal." );
+                }
+                c = 0;
+            }
+            break;
+
+            case '\'': // char literal
+            {
+                hash = bcore_tp_fold_u0( hash, c );
+                while( !bcore_source_a_eos( source ) && ((c = bcore_source_a_get_char( source )) != '\'') )
+                {
+                    hash = bcore_tp_fold_u0( hash, c );
+                    if( c == '\\' ) hash = bcore_tp_fold_u0( hash, bcore_source_a_get_u0( source ) );
+                    if( c == '\n' ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Newline in char literal." );
                 }
                 c = 0;
             }

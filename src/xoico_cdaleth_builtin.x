@@ -48,6 +48,8 @@ func (:)
     )
 ) =
 {
+try
+{
     switch( tp_builtin )
     {
         case TYPEOF_cast : return o.trans_builtin_cast(  source, buf_expr, typespec_expr, buf_out, typespec_out );
@@ -56,6 +58,7 @@ func (:)
         case TYPEOF_try:   return o.trans_builtin_try( source, buf_expr, typespec_expr, buf_out, typespec_out );
         default: return o.parse_err_fa( source, "Internal error: Invalid builtin type '#<sc_t>'", ifnameof( tp_builtin ) );
     }
+} // try
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -73,18 +76,20 @@ func (:)
     )
 ) =
 {
+try
+{
     if( buf_expr ) // member call
     {
-        try( o.parse( source, " ( " ) );
-        st_s_clear( buf_out );
+        o.parse( source, " ( " );
+        buf_out.clear();
     }
     else // direct call
     {
-        try( o.parse( source, "cast ( " ) );
+        o.parse( source, "cast ( " );
         st_s* buf = scope( st_s!, scope_func );
         xoico_typespec_s* typespec = scope( xoico_typespec_s!, scope_func );
-        try( o.trans_expression( source, buf, typespec ) );
-        try( o.parse( source, " , " ) );
+        o.trans_expression( source, buf, typespec );
+        o.parse( source, " , " );
         typespec_expr = typespec;
         buf_expr = buf;
     }
@@ -92,7 +97,7 @@ func (:)
     st_s_push_sc( buf_out, "((" );
     xoico_typespec_s* typespec_cast = scope( xoico_typespec_s! );
 
-    try( o.take_typespec( source, typespec_cast, true ) );
+    o.take_typespec( source, typespec_cast, true );
 
     if( typespec_cast.type == TYPEOF_type_deduce )
     {
@@ -103,19 +108,19 @@ func (:)
         typespec_cast.type = typespec_expr.type;
     }
 
-    try( o.push_typespec( typespec_cast, buf_out ) );
+    o.push_typespec( typespec_cast, buf_out );
     st_s_push_sc( buf_out, ")(" );
 
     if( typespec_expr.type )
     {
-        try( o.adapt_expression( source, typespec_expr, typespec_cast, buf_expr, buf_out ) );
+        o.adapt_expression( source, typespec_expr, typespec_cast, buf_expr, buf_out );
     }
     else
     {
         st_s_push_st( buf_out, buf_expr );
     }
 
-    try( o.parse( source, " )" ) );
+    o.parse( source, " )" );
     st_s_push_sc( buf_out, "))" );
 
     if( typespec_out ) typespec_out.copy( typespec_cast );
@@ -126,6 +131,7 @@ func (:)
     }
 
     return 0;
+} // try
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -143,23 +149,25 @@ func (:)
     )
 ) =
 {
+try
+{
     bl_t has_arg = false;
 
     if( buf_expr ) // member call
     {
-        try( o.parse( source, " ( " ) );
-        st_s_clear( buf_out );
-        has_arg = !o.parse_bl( source, "#=?')'" );
+        o.parse( source, " ( " );
+        buf_out.clear();
+        has_arg = !source.parse_bl( "#=?')'" );
     }
     else // direct call
     {
-        try( o.parse( source, "scope ( " ) );
+        o.parse( source, "scope ( " );
         st_s* buf = scope( st_s!, scope_func );
         xoico_typespec_s* typespec = scope( xoico_typespec_s!, scope_func );
-        try( o.trans_expression( source, buf, typespec ) );
+        o.trans_expression( source, buf, typespec );
         typespec_expr = typespec;
         buf_expr = buf;
-        has_arg = o.parse_bl( source, "#?','" );
+        has_arg = source.parse_bl( "#?','" );
     }
 
     const xoico_typespec_s* typespec_scope = typespec_expr;
@@ -191,32 +199,33 @@ func (:)
         }
     }
 
-    try( o.parse( source, " )" ) );
+    o.parse( source, " )" );
 
-    if( typespec_scope->type        == 0 ) return o.parse_err_fa( source, "Operator 'scope': Expression not tractable." );
-    if( typespec_scope->indirection != 1 ) return o.parse_err_fa( source, "Operator 'scope': Expression's indirection != 1." );
-    if( typespec_scope->flag_keep )        return o.parse_err_fa( source, "Operator 'scope': Target is already scoped." );
+    if( typespec_scope.type        == 0 ) return o.parse_err_fa( source, "Operator 'scope': Expression not tractable." );
+    if( typespec_scope.indirection != 1 ) return o.parse_err_fa( source, "Operator 'scope': Expression's indirection != 1." );
+    if( typespec_scope.flag_keep )        return o.parse_err_fa( source, "Operator 'scope': Target is already scoped." );
 
-    try( o.push_typespec( typespec_scope, buf_out ) );
+    o.push_typespec( typespec_scope, buf_out );
 
-    if( o.is_group( typespec_scope->type ) )
+    if( o.is_group( typespec_scope.type ) )
     {
-        buf_out.push_fa( ")BLM_LEVEL_A_PUSH(#<sz_t>,#<sc_t>))", level, buf_expr->sc );
+        buf_out.push_fa( ")BLM_LEVEL_A_PUSH(#<sz_t>,#<sc_t>))", level, buf_expr.sc );
     }
     else
     {
-        buf_out.push_fa( ")BLM_LEVEL_T_PUSH(#<sz_t>,#<sc_t>,#<sc_t>))", level, o.nameof( typespec_scope->type ), buf_expr->sc );
+        buf_out.push_fa( ")BLM_LEVEL_T_PUSH(#<sz_t>,#<sc_t>,#<sc_t>))", level, o.nameof( typespec_scope.type ), buf_expr.sc );
     }
 
-    o->stack_block.adl.data[ level ]->use_blm = true;
+    o.stack_block.adl.[ level ].use_blm = true;
 
     if( typespec_out )
     {
         typespec_out.copy( typespec_scope );
-        typespec_out->flag_keep = true;
+        typespec_out.flag_keep = true;
     }
 
     return 0;
+} // try
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -234,17 +243,19 @@ func (:)
     )
 ) =
 {
+try
+{
     if( buf_expr ) // member call
     {
-        try( o.parse( source, " ( " ) );
-        st_s_clear( buf_out );
+        o.parse( source, " ( " );
+        buf_out.clear();
     }
     else // direct call
     {
-        try( o.parse( source, "fork ( " ) );
+        o.parse( source, "fork ( " );
         st_s* buf = scope( st_s!, scope_func );
         xoico_typespec_s* typespec = scope( xoico_typespec_s!, scope_func );
-        try( o.trans_expression( source, buf, typespec ) );
+        o.trans_expression( source, buf, typespec );
         typespec_expr = typespec;
         buf_expr = buf;
     }
@@ -253,20 +264,18 @@ func (:)
 
     st_s_push_sc( buf_out, "((" );
 
-    try( o.parse( source, " )" ) );
+    o.parse( source, " )" );
 
-    if( typespec_fork->type        == 0 ) return o.parse_err_fa( source, "Operator 'fork': Expression not tractable." );
-    if( typespec_fork->indirection != 1 ) return o.parse_err_fa( source, "Operator 'fork': Expression's indirection != 1." );
+    if( typespec_fork.type        == 0 ) return o.parse_err_fa( source, "Operator 'fork': Expression not tractable." );
+    if( typespec_fork.indirection != 1 ) return o.parse_err_fa( source, "Operator 'fork': Expression's indirection != 1." );
 
-    try( o.push_typespec( typespec_fork, buf_out ) );
-    buf_out.push_fa( ")bcore_fork(#<sc_t>))", buf_expr->sc );
+    o.push_typespec( typespec_fork, buf_out );
+    buf_out.push_fa( ")bcore_fork(#<sc_t>))", buf_expr.sc );
 
-    if( typespec_out )
-    {
-        typespec_out.copy( typespec_fork );
-    }
+    if( typespec_out ) typespec_out.copy( typespec_fork );
 
     return 0;
+} // try
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -284,34 +293,52 @@ func (:)
     )
 ) =
 {
+try
+{
+    if( o.typespec_ret.type != TYPEOF_er_t || o.typespec_ret.indirection != 0 )
+    {
+        return o.parse_err_fa( source, "Operator 'try': This operator can only be used in functions returning 'er_t'." );
+    }
+
+    if( typespec_out ) typespec_out.reset();
+
     if( buf_expr ) // member call
     {
-        try( o.parse( source, " ( " ) );
-        st_s_clear( buf_out );
+        o.parse( source, " ( " );
+        buf_out.clear();
     }
     else // direct call
     {
-        try( o.parse( source, "try ( " ) );
+        o.parse( source, "try " );
+
+        if( source.parse_bl( "#=?'{'" ) ) // try block
+        {
+            o.try_block_level++;
+            o.trans_block( source, buf_out, false );
+            o.try_block_level--;
+            return 0;
+        }
+
+        o.parse( source, "( " );
         st_s* buf = scope( st_s!, scope_func );
         xoico_typespec_s* typespec = scope( xoico_typespec_s!, scope_func );
-        try( o.trans_expression( source, buf, typespec ) );
+        o.trans_expression( source, buf, typespec );
         typespec_expr = typespec;
         buf_expr = buf;
     }
 
     const xoico_typespec_s* typespec_try = typespec_expr;
 
-    try( o.parse( source, " )" ) );
+    o.parse( source, " ) ;" );
 
-    if( typespec_try->type == 0           ) return o.parse_err_fa( source, "Operator 'try': Expression not tractable." );
-    if( typespec_try->type != TYPEOF_er_t ) return o.parse_err_fa( source, "Operator 'try': Expression must yield er_t." );
-    if( typespec_try->indirection != 0    ) return o.parse_err_fa( source, "Operator 'try': Expression's indirection != 0." );
+    if( typespec_try.type == 0           ) return o.parse_err_fa( source, "Operator 'try': Expression not tractable." );
+    if( typespec_try.type != TYPEOF_er_t ) return o.parse_err_fa( source, "Operator 'try': Expression must yield er_t." );
+    if( typespec_try.indirection != 0    ) return o.parse_err_fa( source, "Operator 'try': Expression's indirection != 0." );
 
-    buf_out.push_fa( "BLM_TRY(#<sc_t>)", buf_expr->sc );
-
-    if( typespec_out ) xoico_typespec_s_reset( typespec_out );
+    buf_out.push_fa( "BLM_TRY(#<sc_t>)", buf_expr.sc );
 
     return 0;
+} // try
 };
 
 //----------------------------------------------------------------------------------------------------------------------
