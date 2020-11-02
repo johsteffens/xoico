@@ -21,9 +21,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns -1 if not found
-sz_t xoico_funcs_s_get_index_from_type( const xoico_funcs_s* o, tp_t type )
+sz_t xoico_funcs_s_get_index_from_signature_global_name( const xoico_funcs_s* o, tp_t signature_global_name )
 {
-    for( sz_t i = 0; i < o->size; i++ ) if( o->data[ i ]->type == type ) return i;
+    for( sz_t i = 0; i < o->size; i++ ) if( o->data[ i ]->signature_global_name == signature_global_name ) return i;
     return -1;
 }
 
@@ -38,9 +38,9 @@ sz_t xoico_funcs_s_get_index_from_name( const xoico_funcs_s* o, tp_t name )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bl_t xoico_funcs_s_exists_from_type( const xoico_funcs_s* o, tp_t type )
+bl_t xoico_funcs_s_exists_from_signature_global_name( const xoico_funcs_s* o, tp_t signature_global_name )
 {
-    return ( xoico_funcs_s_get_index_from_type( o, type ) >= 0 );
+    return ( xoico_funcs_s_get_index_from_signature_global_name( o, signature_global_name ) >= 0 );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -60,9 +60,9 @@ xoico_func_s* xoico_funcs_s_get_func_from_name( const xoico_funcs_s* o, tp_t nam
 
 //----------------------------------------------------------------------------------------------------------------------
 
-xoico_func_s* xoico_funcs_s_get_func_from_type( const xoico_funcs_s* o, tp_t type )
+xoico_func_s* xoico_funcs_s_get_func_from_signature_global_name( const xoico_funcs_s* o, tp_t signature_global_name )
 {
-    sz_t idx = xoico_funcs_s_get_index_from_type( o, type );
+    sz_t idx = xoico_funcs_s_get_index_from_signature_global_name( o, signature_global_name );
     return ( idx >= 0 ) ? o->data[ idx ] : NULL;
 }
 

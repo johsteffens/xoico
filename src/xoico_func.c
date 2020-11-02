@@ -29,7 +29,7 @@ tp_t xoico_func_s_get_hash( const xoico_func_s* o )
     hash = bcore_tp_fold_tp( hash, o->pre_hash );
     hash = bcore_tp_fold_tp( hash, o->name );
     hash = bcore_tp_fold_sc( hash, o->flect_decl.sc );
-    hash = bcore_tp_fold_tp( hash, o->type );
+    hash = bcore_tp_fold_tp( hash, o->signature_global_name );
     hash = bcore_tp_fold_bl( hash, o->overloadable );
     hash = bcore_tp_fold_bl( hash, o->expandable );
     if( o->body ) hash = bcore_tp_fold_tp( hash, xoico_body_s_get_hash( o->body ) );
@@ -86,7 +86,7 @@ er_t xoico_func_s_parse( xoico_func_s* o, bcore_source* source )
         XOICO_BLM_SOURCE_PARSE_FA( source, " ) " );
 
         BLM_TRY( xoico_compiler_s_life_a_push( compiler, signature ) );
-        BLM_TRY( xoico_compiler_s_item_register( compiler, ( xoico* )signature, source ) );
+        BLM_TRY( xoico_compiler_s_register_item( compiler, ( xoico* )signature, source ) );
 
         o->pre_hash = bcore_tp_fold_tp( o->pre_hash, xoico_signature_s_get_hash( signature ) );
 
@@ -99,7 +99,7 @@ er_t xoico_func_s_parse( xoico_func_s* o, bcore_source* source )
             st_s_copy( st_type, &o->group->st_name );
         }
 
-        st_s_copy( st_name, &signature->st_name );
+        st_s_copy_sc( st_name, xoico_compiler_s_nameof( compiler, signature->name ) );
         st_s_push_fa( &o->flect_decl, "#<sc_t>:#<sc_t>", st_type->sc, st_name->sc );
     }
     else
@@ -138,7 +138,7 @@ er_t xoico_func_s_parse( xoico_func_s* o, bcore_source* source )
 
     st_s_push_fa( st_type, "_#<sc_t>", st_name->sc );
 
-    o->type = xoico_compiler_s_entypeof( compiler, st_type->sc );
+    o->signature_global_name = xoico_compiler_s_entypeof( compiler, st_type->sc );
     BLM_TRY( xoico_func_s_set_global_name( o ) );
 
     if( bcore_source_a_parse_bl_fa( source, " #=?'='" ) )
@@ -159,9 +159,9 @@ er_t xoico_func_s_parse( xoico_func_s* o, bcore_source* source )
 bl_t xoico_func_s_registerable( const xoico_func_s* o )
 {
     if( !o->expandable ) return false;
-    if( xoico_compiler_s_item_exists( xoico_group_s_get_compiler( o->group ), o->type ) )
+    if( xoico_compiler_s_is_item( xoico_group_s_get_compiler( o->group ), o->signature_global_name ) )
     {
-        const xoico* item = xoico_compiler_s_const_item_get( xoico_group_s_get_compiler( o->group ), o->type );
+        const xoico* item = xoico_compiler_s_get_const_item( xoico_group_s_get_compiler( o->group ), o->signature_global_name );
         if( *(aware_t*)item == TYPEOF_xoico_signature_s )
         {
             if( !xoico_group_s_get_compiler( o->group )->register_signatures ) return false;

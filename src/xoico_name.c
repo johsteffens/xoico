@@ -22,7 +22,8 @@
 
 sc_t xoico_name_s_get_global_name_sc( const xoico_name_s* o )
 {
-    return XOICO_NAMEOF( o->name );
+    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    return xoico_compiler_s_nameof( compiler, o->name );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -39,6 +40,7 @@ tp_t xoico_name_s_get_hash( const xoico_name_s* o )
 er_t xoico_name_s_parse( xoico_name_s* o, bcore_source* source )
 {
     BLM_INIT();
+    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
     bcore_source_point_s_set( &o->source_point, source );
 
     st_s* st_name = BLM_CREATE( st_s );
@@ -55,7 +57,7 @@ er_t xoico_name_s_parse( xoico_name_s* o, bcore_source* source )
     }
     if( st_name->size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Name missing." );
 
-    o->name = XOICO_ENTYPEOF( st_name->sc );
+    o->name = xoico_compiler_s_entypeof( compiler, st_name->sc );
     XOICO_BLM_SOURCE_PARSE_FA( source, " ; " );
     BLM_RETURNV( er_t, 0 );
 }
@@ -64,7 +66,8 @@ er_t xoico_name_s_parse( xoico_name_s* o, bcore_source* source )
 
 er_t xoico_name_s_expand_declaration( const xoico_name_s* o, sz_t indent, bcore_sink* sink )
 {
-    bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, XOICO_NAMEOF( o->name ), o->name );
+    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, xoico_compiler_s_nameof( compiler, o->name ), o->name );
     return 0;
 }
 
@@ -72,7 +75,8 @@ er_t xoico_name_s_expand_declaration( const xoico_name_s* o, sz_t indent, bcore_
 
 er_t xoico_name_s_expand_init1( const xoico_name_s* o, sz_t indent, bcore_sink* sink )
 {
-    bcore_sink_a_push_fa( sink, "#rn{ }BCORE_REGISTER_NAME( #<sc_t> );\n", indent, XOICO_NAMEOF( o->name ) );
+    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    bcore_sink_a_push_fa( sink, "#rn{ }BCORE_REGISTER_NAME( #<sc_t> );\n", indent, xoico_compiler_s_nameof( compiler, o->name ) );
     return 0;
 }
 

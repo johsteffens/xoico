@@ -21,6 +21,7 @@
 #include "xoico.h"
 #include "xoico_args.h"
 #include "xoico_body.h"
+#include "xoico_func.h"
 #include "xoico_signature.h"
 
 /**********************************************************************************************************************/
@@ -31,6 +32,11 @@ XOILA_DEFINE_GROUP( xoico_feature, xoico )
 stamp : = aware :
 {
     xoico_signature_s signature;
+
+    xoico_func_s => func_a;
+    xoico_func_s => func_a_defines;
+    xoico_func_s => func_t;
+    xoico_func_s => func_t_defines;
 
     st_s st_default_func_name;
     xoico_body_s => default_body;
@@ -45,15 +51,15 @@ stamp : = aware :
     hidden aware xoico_group_s* group;
     bcore_source_point_s source_point;
 
-    func xoico . parse;
-    func xoico . get_hash;
-    func xoico . get_global_name_sc;
-    func xoico . expand_indef_typedef;
-    func xoico . expand_spect_declaration;
-    func xoico . expand_spect_definition;
-    func xoico . expand_indef_declaration;
-    func xoico . expand_definition;
-    func xoico . expand_init1;
+    func xoico.parse;
+    func xoico.get_hash;
+    func xoico.get_global_name_sc;
+    func xoico.expand_indef_typedef;
+    func xoico.expand_spect_declaration;
+    func xoico.expand_spect_definition;
+    func xoico.expand_indef_declaration;
+    func xoico.expand_definition;
+    func xoico.expand_init1;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -25,6 +25,7 @@
 er_t xoico_arg_s_parse( xoico_arg_s* o, bcore_source* source )
 {
     BLM_INIT();
+    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
     bcore_source_point_s_set( &o->source_point, source );
     BLM_TRY( xoico_typespec_s_parse( &o->typespec, o->group, source ) );
 
@@ -38,7 +39,7 @@ er_t xoico_arg_s_parse( xoico_arg_s* o, bcore_source* source )
     XOICO_BLM_SOURCE_PARSE_FA( source, "#name ", s );
     if( s->size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Argument: Name expected." );
 
-    o->name = XOICO_ENTYPEOF( s->sc );
+    o->name = xoico_compiler_s_entypeof( compiler, s->sc );
 
     BLM_RETURNV( er_t, 0 );
 }
@@ -57,7 +58,8 @@ tp_t xoico_arg_s_get_hash( const xoico_arg_s* o )
 
 er_t xoico_arg_s_expand_name( const xoico_arg_s* o, bcore_sink* sink )
 {
-    bcore_sink_a_push_fa( sink, "#<sc_t>", XOICO_NAMEOF( o->name ) );
+    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    bcore_sink_a_push_fa( sink, "#<sc_t>", xoico_compiler_s_nameof( compiler, o->name ) );
     return 0;
 }
 

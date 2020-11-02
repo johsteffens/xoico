@@ -39,12 +39,12 @@ stamp : = aware :
     xoico_typespec_s typespec;
     tp_t name;
 
-    func xoico . parse;
-    func xoico . get_hash;
+    func xoico.parse;
+    func xoico.get_hash;
 
-    func : . relent;
-    func : . expand;
-    func : . expand_name;
+    func :. relent;
+    func :. expand;
+    func :. expand_name;
 
 };
 

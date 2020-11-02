@@ -98,9 +98,6 @@ er_t xoico_embed_file_open( bcore_source* parent, sc_t file_name, bcore_source**
     BLM_RETURNV( er_t, bcore_source_point_s_parse_err_to_em_fa( source_point, TYPEOF_parse_error, __VA_ARGS__ ) ); \
 }
 
-#define XOICO_ENTYPEOF( name ) xoico_compiler_s_entypeof( xoico_group_s_get_compiler( o->group ), name )
-#define XOICO_NAMEOF( type ) xoico_compiler_s_nameof( xoico_group_s_get_compiler( o->group ), type )
-
 /**********************************************************************************************************************/
 
 #endif // XOICO_H

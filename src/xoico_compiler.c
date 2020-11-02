@@ -23,6 +23,42 @@
 
 /**********************************************************************************************************************/
 
+er_t xoico_compiler_s_parse_err_fv( const xoico_compiler_s* o, bcore_source* source, sc_t format, va_list args )
+{
+    return bcore_source_a_parse_err_to_em_fv( source, TYPEOF_parse_error, format, args );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_compiler_s_parse_err_fa( const xoico_compiler_s* o, bcore_source* source, sc_t format, ... )
+{
+    va_list args;
+    va_start( args, format );
+    er_t er = xoico_compiler_s_parse_err_fv( o, source, format, args );
+    va_end( args );
+    return er;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_compiler_s_parse_fv( const xoico_compiler_s* o, bcore_source* source, sc_t format, va_list args )
+{
+    return bcore_source_a_parse_em_fv( source, format, args );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_compiler_s_parse_fa( const xoico_compiler_s* o, bcore_source* source, sc_t format, ... )
+{
+    va_list args;
+    va_start( args, format );
+    er_t er = xoico_compiler_s_parse_fv( o, source, format, args );
+    va_end( args );
+    return er;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 /// returns true if correct signature could be verified
 bl_t xoico_compiler_is_signed( sc_t file )
 {
@@ -80,99 +116,6 @@ er_t xoico_compiler_s_check_overwrite( const xoico_compiler_s* o, sc_t file )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// returns false if already registered; checks for collision
-er_t xoico_compiler_s_group_register( xoico_compiler_s* o, const xoico_group_s* group, bcore_source* source )
-{
-    BLM_INIT();
-    if( bcore_hmap_tpvd_s_exists( &o->hmap_group, group->tp_name ) )
-    {
-        XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "'#<sc_t>' was already registered\n", xoico_compiler_s_nameof( o, group->tp_name ) );
-    }
-    bcore_hmap_tpvd_s_set( &o->hmap_group, group->tp_name, ( vd_t )group );
-    BLM_RETURNV( er_t, 0 );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-/// returns false if already registered;
-er_t xoico_compiler_s_item_register( xoico_compiler_s* o, const xoico* item, bcore_source* source )
-{
-    BLM_INIT();
-    tp_t global_id = xoico_a_get_global_name_tp( item );
-    if( bcore_hmap_tpvd_s_exists( &o->hmap_item, global_id ) )
-    {
-        XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "'#<sc_t>' was already registered\n", xoico_compiler_s_nameof( o, global_id ) );
-    }
-
-    bcore_hmap_tpvd_s_set( &o->hmap_item, global_id, ( vd_t )item );
-    BLM_RETURNV( er_t, 0 );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-/// returns false if already registered;
-er_t xoico_compiler_s_type_register( xoico_compiler_s* o, tp_t type )
-{
-    bcore_hmap_tp_s_set( &o->hmap_type, type );
-    return 0;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-bl_t xoico_compiler_s_is_group( const xoico_compiler_s* o, tp_t name )
-{
-    if( bcore_hmap_tpvd_s_exists( &o->hmap_group, name ) )
-    {
-        return true;
-    }
-    return false;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-bl_t xoico_compiler_s_is_stamp( const xoico_compiler_s* o, tp_t name )
-{
-    if( bcore_hmap_tpvd_s_exists( &o->hmap_item, name ) )
-    {
-        const xoico* item = xoico_compiler_s_const_item_get( o, name );
-        if( item->_ == TYPEOF_xoico_stamp_s ) return true;
-    }
-    return false;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-bl_t xoico_compiler_s_is_type( const xoico_compiler_s* o, tp_t name )
-{
-    if( xoico_compiler_s_is_stamp( o, name ) ) return true;
-    if( xoico_compiler_s_is_group( o, name ) ) return true;
-    if( bcore_hmap_tp_s_exists( &o->hmap_type, name ) ) return true;
-    return false;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-const xoico_signature_s* xoico_compiler_s_get_signature( const xoico_compiler_s* o, tp_t item_id )
-{
-    const xoico* item = xoico_compiler_s_const_item_get( o, item_id );
-    if( item )
-    {
-        if( *(aware_t*)item == TYPEOF_xoico_feature_s )
-        {
-            return &( ( xoico_feature_s* )item )->signature;
-        }
-        else if( *(aware_t*)item == TYPEOF_xoico_signature_s )
-        {
-            return ( const xoico_signature_s* )item;
-        }
-    }
-
-    return NULL;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-/** returns target index */
 er_t xoico_compiler_s_parse( xoico_compiler_s* o, sc_t target_name, sc_t source_path, sz_t* p_target_index )
 {
     BLM_INIT();
@@ -390,7 +333,7 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
             {
                 info->type_info.typespec.type = func->global_name;
                 info->type_info.typespec.indirection = 0;
-                const xoico_signature_s* signature = xoico_compiler_s_get_signature( o, func->type );
+                const xoico_signature_s* signature = xoico_compiler_s_get_signature( o, func->signature_global_name );
                 info->type_info.typespec.flag_const = ( signature->arg_o == TYPEOF_const );
                 xoico_signature_s_attach( &info->signature, xoico_signature_s_clone( signature ) );
                 xoico_signature_s_relent( info->signature, self->type );
@@ -504,17 +447,6 @@ bl_t xoico_compiler_s_get_type_array_element_info( const xoico_compiler_s* o, tp
 
 /**********************************************************************************************************************/
 /// xoico interface
-
-//----------------------------------------------------------------------------------------------------------------------
-
-/// returns target index
-er_t xoico_compiler_s_compile( xoico_compiler_s* o, sc_t target_name, sc_t source_path, sz_t* p_target_index )
-{
-    BLM_INIT();
-    BLM_TRY( xoico_compiler_s_parse( o, target_name, source_path, p_target_index ) );
-    BLM_TRY( xoico_compiler_s_finalize( o ) );
-    BLM_RETURNV( er_t, 0 );
-}
 
 //----------------------------------------------------------------------------------------------------------------------
 

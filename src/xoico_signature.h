@@ -31,8 +31,8 @@ signature er_t expand_declaration( const, const xoico_stamp_s* stamp, sc_t sc_fu
 
 stamp : = aware :
 {
-    st_s st_name;
-    st_s st_global_name;
+    tp_t name;
+    tp_t global_name;
 
     xoico_typespec_s typespec_ret; // return type
     xoico_args_s args;   // e.g.: sz_t a, sz_t b
@@ -42,11 +42,11 @@ stamp : = aware :
 
     bcore_source_point_s source_point;
 
-    func xoico . parse;
-    func xoico . get_hash;
-    func xoico . get_global_name_sc;
-    func     : . relent;
-    func     : . expand_declaration;
+    func xoico.parse;
+    func xoico.get_hash;
+    func xoico.get_global_name_sc;
+    func     :.relent;
+    func     :.expand_declaration;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

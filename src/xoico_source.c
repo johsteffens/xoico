@@ -57,7 +57,7 @@ er_t xoico_source_s_parse( xoico_source_s* o, bcore_source* source )
                 XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
                 BLM_TRY( xoico_group_s_parse( group, source ) );
             }
-            BLM_TRY( xoico_compiler_s_group_register( o->target->compiler, group, source ) );
+            BLM_TRY( xoico_compiler_s_register_group( o->target->compiler, group, source ) );
             o->hash = bcore_tp_fold_tp( o->hash, group->hash );
             BLM_DOWN();
         }

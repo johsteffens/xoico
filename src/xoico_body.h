@@ -42,8 +42,8 @@ stamp :code = aware :
 
     bcore_source_point_s source_point;
 
-    func     : . parse;
-    func xoico . get_hash;
+    func     :.parse;
+    func xoico.get_hash;
 
     hidden aware xoico_group_s* group;
     hidden aware xoico_stamp_s* stamp;
@@ -65,14 +65,14 @@ stamp : = aware :
     hidden aware xoico_group_s* group; // group refers to the place of original definition
     hidden aware xoico_stamp_s* stamp;
 
-    func xoico . get_hash;
-    func xoico . get_global_name_sc;
-    func     : . parse_expression;
-    func     : . parse;
-    func     : . finalize;
-    func     : . expand;
-    func     : . set_group;
-    func     : . set_stamp;
+    func xoico.get_hash;
+    func xoico.get_global_name_sc;
+    func     :.parse_expression;
+    func     :.parse;
+    func     :.finalize;
+    func     :.expand;
+    func     :.set_group;
+    func     :.set_stamp;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

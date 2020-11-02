@@ -65,7 +65,7 @@ stamp :target = aware :
     hidden  sz_t                   target_index_ = -1; // Index for target on the compiler; -1 if this target has no representation
     hidden  bcore_hmap_tpvd_s   => hmap_built_target_; // map of targets that have already been built
 
-    func bcore_via_call . source =
+    func bcore_via_call.source =
     {
         if( !o->root_folder )
         {
@@ -74,14 +74,14 @@ stamp :target = aware :
         }
     };
 
-    func : . name_match =
+    func :. name_match =
     {
         if( o->name && sc_t_equal( name, o->name->sc ) ) return o;
         if( o->parent_ ) return @_name_match( o->parent_, name );
         return NULL;
     };
 
-    func : . push_target_index_to_arr =
+    func :. push_target_index_to_arr =
     {
         if( o->target_index_ != -1 )
         {
@@ -93,8 +93,8 @@ stamp :target = aware :
         }
     };
 
-    func : . load;
-    func : . build;
+    func :. load;
+    func :. build;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -117,39 +117,39 @@ stamp :main = aware :
     xoico_compiler_s => compiler!;
     :target_s => target;
 
-    func : .build_from_file;
-    func : .update_required;
-    func : .update;
+    func :.build_from_file;
+    func :.update_required;
+    func :.update;
 
-    func : .set_dry_run =
+    func :.set_dry_run =
     {
         o->compiler->dry_run = v;
         return 0;
     };
 
-    func : .get_dry_run =
+    func :.get_dry_run =
     {
         return o->compiler->dry_run;
     };
 
-    func : .set_always_expand =
+    func :.set_always_expand =
     {
         o->compiler->always_expand = v;
         return 0;
     };
 
-    func : .get_always_expand =
+    func :.get_always_expand =
     {
         return o->compiler->always_expand;
     };
 
-    func : .set_overwrite_unsigned_target_files =
+    func :.set_overwrite_unsigned_target_files =
     {
         o->compiler->overwrite_unsigned_target_files = v;
         return 0;
     };
 
-    func : .get_overwrite_unsigned_target_files =
+    func :.get_overwrite_unsigned_target_files =
     {
         return o->compiler->overwrite_unsigned_target_files;
     };

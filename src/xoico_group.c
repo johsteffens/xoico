@@ -116,10 +116,10 @@ er_t xoico_group_s_push_default_feature_from_sc( xoico_group_s* o, sc_t sc )
     feature->group = o;
     BLM_TRY( xoico_feature_s_parse( feature, BLM_A_PUSH( bcore_source_string_s_create_from_sc( sc ) ) ) );
 
-    if( !xoico_compiler_s_item_exists( compiler, xoico_a_get_global_name_tp( ( xoico* )feature ) ) )
+    if( !xoico_compiler_s_is_item( compiler, xoico_a_get_global_name_tp( ( xoico* )feature ) ) )
     {
-        BLM_TRY( xoico_compiler_s_item_register( compiler, ( xoico* )feature, o->source_point.source ) );
-        bcore_hmap_tpvd_s_set( &o->hmap_feature, btypeof( feature->signature.st_name.sc ), feature );
+        BLM_TRY( xoico_compiler_s_register_item( compiler, ( xoico* )feature, o->source_point.source ) );
+        bcore_hmap_tpvd_s_set( &o->hmap_feature, feature->signature.name, feature );
         bcore_array_a_push( ( bcore_array* )o, sr_asd( bcore_fork( feature ) ) );
     }
 
@@ -192,10 +192,10 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
         else if( bcore_source_a_parse_bl_fa( source, " #?w'stamp' " ) )
         {
             xoico_stamp_s* stamp = BLM_CREATE( xoico_stamp_s );
-            stamp->group = o->group;
-            BLM_TRY( xoico_stamp_s_parse( stamp, o, source ) );
+            stamp->group = o;
+            BLM_TRY( xoico_stamp_s_parse( stamp, source ) );
             BLM_TRY( xoico_stamp_s_push_default_funcs( stamp ) );
-            BLM_TRY( xoico_compiler_s_item_register( compiler, ( xoico* )stamp, source ) );
+            BLM_TRY( xoico_compiler_s_register_item( compiler, ( xoico* )stamp, source ) );
             item = ( xoico* )bcore_fork( stamp );
         }
 
@@ -203,9 +203,10 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
         else if( bcore_source_a_parse_bl_fa( source, " #?w'stump' " ) )
         {
             xoico_stamp_s* stump = BLM_CREATE( xoico_stamp_s );
-            BLM_TRY( xoico_stamp_s_parse( stump, o, source ) );
+            stump->group = o;
+            BLM_TRY( xoico_stamp_s_parse( stump, source ) );
             BLM_TRY( xoico_stamp_s_make_funcs_overloadable( stump ) );
-            BLM_TRY( xoico_compiler_s_item_register( compiler, ( xoico* )stump, source ) );
+            BLM_TRY( xoico_compiler_s_register_item( compiler, ( xoico* )stump, source ) );
             BLM_TRY( xoico_compiler_s_life_a_push( compiler, bcore_fork( stump ) ) );
             if( extend_stump )
             {
@@ -220,7 +221,7 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             signature->group = o;
             BLM_TRY( xoico_signature_s_parse( signature, source ) );
             XOICO_BLM_SOURCE_PARSE_FA( source, " ; " );
-            BLM_TRY( xoico_compiler_s_item_register( compiler, ( xoico* )signature, source ) );
+            BLM_TRY( xoico_compiler_s_register_item( compiler, ( xoico* )signature, source ) );
             item = ( xoico* )bcore_fork( signature );
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'body' " ) )
@@ -229,7 +230,7 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             BLM_TRY( xoico_body_s_set_group( body, o ) );
             BLM_TRY( xoico_body_s_parse( body, source ) );
             XOICO_BLM_SOURCE_PARSE_FA( source, " ; " );
-            BLM_TRY( xoico_compiler_s_item_register( compiler, ( xoico* )body, source ) );
+            BLM_TRY( xoico_compiler_s_register_item( compiler, ( xoico* )body, source ) );
             item = ( xoico* )bcore_fork( body );
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'feature' " ) )
@@ -237,8 +238,8 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             xoico_feature_s* feature = BLM_CREATE( xoico_feature_s );
             feature->group = o;
             BLM_TRY( xoico_feature_s_parse( feature, source ) );
-            BLM_TRY( xoico_compiler_s_item_register( compiler, ( xoico* )feature, source ) );
-            bcore_hmap_tpvd_s_set( &o->hmap_feature, btypeof( feature->signature.st_name.sc ), feature );
+            BLM_TRY( xoico_compiler_s_register_item( compiler, ( xoico* )feature, source ) );
+            bcore_hmap_tpvd_s_set( &o->hmap_feature, feature->signature.name, feature );
             item = ( xoico* )bcore_fork( feature );
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'func' " ) )
@@ -255,7 +256,7 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
                     XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Cannot associate type name '#<sc_t>' with a stamp.", stamp_name->sc );
                 }
 
-                xoico_stamp_s* stamp = xoico_compiler_s_stamp_get( compiler, tp_stamp_name );
+                xoico_stamp_s* stamp = xoico_compiler_s_get_stamp( compiler, tp_stamp_name );
                 BLM_TRY( xoico_stamp_s_parse_func( stamp, source ) );
                 o->hash = bcore_tp_fold_tp( o->hash, xoico_stamp_s_get_hash( stamp ) );
             }
@@ -277,7 +278,7 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             name->group = o;
             BLM_TRY( xoico_name_s_parse( name, source ) );
             item = ( xoico* )bcore_fork( name );
-            BLM_TRY( xoico_compiler_s_type_register( compiler, name->name ) );
+            BLM_TRY( xoico_compiler_s_register_external_type( compiler, name->name ) );
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'forward' " ) )
         {
@@ -302,7 +303,7 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
                 st_s* templ_name = BLM_CREATE( st_s );
                 BLM_TRY( xoico_group_s_parse_name( o, templ_name, source ) );
                 st_s_push_fa( templ_name, "_s" );
-                const xoico* item = xoico_compiler_s_const_item_get( compiler, typeof( templ_name->sc ) );
+                const xoico* item = xoico_compiler_s_get_const_item( compiler, typeof( templ_name->sc ) );
                 if( !item ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Template #<sc_t> not found.", templ_name->sc );
                 if( *(aware_t*)item != TYPEOF_xoico_stamp_s ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Template #<sc_t> is no stamp.", templ_name->sc );
                 o->extending = ( xoico_stamp_s* )item;
@@ -329,7 +330,7 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
             BLM_TRY( xoico_group_s_parse( group, source ) );
             XOICO_BLM_SOURCE_PARSE_FA( source, " ; " );
             o->source->hash = bcore_tp_fold_tp( o->source->hash, group->hash );
-            BLM_TRY( xoico_compiler_s_group_register( compiler, group, source ) );
+            BLM_TRY( xoico_compiler_s_register_group( compiler, group, source ) );
             xoico_nested_group_s* nested_group = BLM_CREATE( xoico_nested_group_s );
             nested_group->group = group;
             item = ( xoico* )bcore_fork( nested_group );

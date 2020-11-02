@@ -228,9 +228,9 @@ er_t xoico_body_s_parse_expression( xoico_body_s* o, bcore_source* source )
         tp_t tp_name = typeof( name->sc );
 
         // if name_buf refers to another body
-        if( xoico_compiler_s_item_exists( xoico_group_s_get_compiler( o->group ), tp_name ) )
+        if( xoico_compiler_s_is_item( xoico_group_s_get_compiler( o->group ), tp_name ) )
         {
-            vc_t item = xoico_compiler_s_const_item_get( xoico_group_s_get_compiler( o->group ), tp_name );
+            vc_t item = xoico_compiler_s_get_const_item( xoico_group_s_get_compiler( o->group ), tp_name );
             if( *(aware_t*)item == TYPEOF_xoico_body_s )
             {
                 const xoico_body_s* body = item;

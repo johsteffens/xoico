@@ -31,12 +31,12 @@ stamp : = aware :
     hidden aware xoico_group_s* group;
     bcore_source_point_s source_point;
 
-    func xoico . parse;
-    func xoico . get_hash;
-    func xoico . get_global_name_sc;
-    func xoico . expand_declaration;
-    func xoico . expand_forward;
-    func xoico . expand_init1;
+    func xoico.parse;
+    func xoico.get_hash;
+    func xoico.get_global_name_sc;
+    func xoico.expand_declaration;
+    func xoico.expand_forward;
+    func xoico.expand_init1;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

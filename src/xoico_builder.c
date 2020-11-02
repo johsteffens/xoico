@@ -160,7 +160,10 @@ er_t xoico_builder_target_s_build( xoico_builder_target_s* o )
         st_s* xoi_target_name = BLM_A_PUSH( st_s_create_fa( "#<sc_t>_#<sc_t>", o->name->sc, o->extension->sc ) );
 
         sz_t index = -1;
-        BLM_TRY( xoico_compiler_s_compile( o->compiler, xoi_target_name->sc, file_path->sc, &index ) );
+
+//        BLM_TRY( xoico_compiler_s_compile( o->compiler, xoi_target_name->sc, file_path->sc, &index ) );
+        BLM_TRY( xoico_compiler_s_parse( o->compiler, xoi_target_name->sc, file_path->sc, &index ) );
+
         if( o->target_index_ == -1 ) o->target_index_ = index;
         if( index != o->target_index_ )
         {
@@ -233,6 +236,9 @@ er_t xoico_builder_main_s_build_from_file( xoico_builder_main_s* o, sc_t path )
     target->compiler = o->compiler;
     xoico_builder_target_s_attach( &o->target, target );
     BLM_TRY( xoico_builder_target_s_build( o->target ) );
+
+    xoico_compiler_s_finalize( o->compiler );
+
     BLM_RETURNV( er_t, 0 );
 }
 

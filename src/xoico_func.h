@@ -35,7 +35,7 @@ stamp : = aware :
 {
     tp_t name; // declarative name (not global name)
     tp_t global_name; // full implementation name
-    tp_t type; // signature-type
+    tp_t signature_global_name;
 
     st_s flect_decl; // reflection declaration
 
@@ -50,10 +50,10 @@ stamp : = aware :
 
     bcore_source_point_s source_point;
 
-    func : .get_hash;
-    func : .parse;
-    func : .finalize;
-    func : .registerable;
+    func :.get_hash;
+    func :.parse;
+    func :.finalize;
+    func :.registerable;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -24,7 +24,7 @@
 
 sc_t xoico_signature_s_get_global_name_sc( const xoico_signature_s* o )
 {
-    return o->st_global_name.sc;
+    return xoico_compiler_s_nameof( xoico_group_s_get_compiler( o->group ), o->global_name );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -32,7 +32,7 @@ sc_t xoico_signature_s_get_global_name_sc( const xoico_signature_s* o )
 tp_t xoico_signature_s_get_hash( const xoico_signature_s* o )
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
-    hash = bcore_tp_fold_sc( hash, o->st_global_name.sc );
+    hash = bcore_tp_fold_tp( hash, o->global_name );
     hash = bcore_tp_fold_tp( hash, xoico_typespec_s_get_hash( &o->typespec_ret ) );
     hash = bcore_tp_fold_tp( hash, xoico_args_s_get_hash( &o->args ) );
     hash = bcore_tp_fold_tp( hash, o->arg_o );
@@ -46,13 +46,16 @@ er_t xoico_signature_s_parse( xoico_signature_s* o, bcore_source* source )
     BLM_INIT();
     bcore_source_point_s_set( &o->source_point, source );
 
+    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+
+    st_s* name_buf = BLM_CREATE( st_s );
+
     if( bcore_source_a_parse_bl_fa( source, " #?'extending'" ) )
     {
-        st_s* name_buf = BLM_CREATE( st_s );
         BLM_TRY( xoico_group_s_parse_name( o->group, name_buf, source ) );
         tp_t tp_name = typeof( name_buf->sc );
 
-        const xoico_signature_s* signature = xoico_compiler_s_get_signature( xoico_group_s_get_compiler( o->group ), tp_name );
+        const xoico_signature_s* signature = xoico_compiler_s_get_signature( compiler, tp_name );
         if( !signature )
         {
             XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Could not find predefined signature '#<sc_t>'.", name_buf->sc );
@@ -64,7 +67,8 @@ er_t xoico_signature_s_parse( xoico_signature_s* o, bcore_source* source )
 
         XOICO_BLM_SOURCE_PARSE_FA( source, " #name", name_buf );
         if( name_buf->size == 0 )  XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Signature name missing." );
-        st_s_copy( &o->st_name, name_buf );
+        o->name = xoico_compiler_s_entypeof( compiler, name_buf->sc );
+
         XOICO_BLM_SOURCE_PARSE_FA( source, " (" );
         BLM_TRY( xoico_args_s_append( &o->args, source ) );
         XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
@@ -75,10 +79,8 @@ er_t xoico_signature_s_parse( xoico_signature_s* o, bcore_source* source )
         o->typespec_ret.flag_addressable = false;
 
         // get name
-        XOICO_BLM_SOURCE_PARSE_FA( source, " #name", &o->st_name );
-
-        xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
-        xoico_compiler_s_entypeof( compiler, o->st_name.sc );
+        XOICO_BLM_SOURCE_PARSE_FA( source, " #name", name_buf );
+        o->name = xoico_compiler_s_entypeof( compiler, name_buf->sc );
 
         // get args
         ASSERT( o->group );
@@ -118,14 +120,18 @@ er_t xoico_signature_s_parse( xoico_signature_s* o, bcore_source* source )
         XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
     }
 
+    sc_t sc_name = xoico_compiler_s_nameof( compiler, o->name );
+
     if( o->stamp )
     {
-        st_s_copy_fa( &o->st_global_name, "#<sc_t>_#<sc_t>", o->stamp->st_name.sc, o->st_name.sc );
+        st_s_copy_fa( name_buf, "#<sc_t>_#<sc_t>", o->stamp->st_name.sc, sc_name );
     }
     else
     {
-        st_s_copy_fa( &o->st_global_name, "#<sc_t>_#<sc_t>", o->group->st_name.sc, o->st_name.sc );
+        st_s_copy_fa( name_buf, "#<sc_t>_#<sc_t>", o->group->st_name.sc, sc_name );
     }
+
+    o->global_name = xoico_compiler_s_entypeof( compiler, name_buf->sc );
     BLM_RETURNV( er_t, 0 );
 }
 

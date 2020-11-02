@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-10-31T16:18:38Z
+ *  Last File Update: 2020-11-02T16:36:37Z
  *
  *  Copyright and License of this File:
  *
@@ -33,6 +33,7 @@
  *  xoico_cdaleth.x
  *  xoico_cdaleth_builtin.x
  *  xoico_cdaleth_control.x
+ *  xoico_compiler.x
  *
  */
 
@@ -213,8 +214,8 @@ XOILA_DEFINE_SPECT( xoico, xoico_args )
 BCORE_DEFINE_OBJECT_INST_P( xoico_signature_s )
 "aware xoico_signature"
 "{"
-    "st_s st_name;"
-    "st_s st_global_name;"
+    "tp_t name;"
+    "tp_t global_name;"
     "xoico_typespec_s typespec_ret;"
     "xoico_args_s args;"
     "tp_t arg_o;"
@@ -280,6 +281,10 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_feature_s )
 "aware xoico_feature"
 "{"
     "xoico_signature_s signature;"
+    "xoico_func_s => func_a;"
+    "xoico_func_s => func_a_defines;"
+    "xoico_func_s => func_t;"
+    "xoico_func_s => func_t_defines;"
     "st_s st_default_func_name;"
     "xoico_body_s => default_body;"
     "bl_t strict;"
@@ -318,7 +323,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_func_s )
 "{"
     "tp_t name;"
     "tp_t global_name;"
-    "tp_t type;"
+    "tp_t signature_global_name;"
     "st_s flect_decl;"
     "bl_t expandable = true;"
     "bl_t overloadable = false;"
@@ -533,7 +538,8 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_compiler_s )
     "hidden xoico_target_s => [];"
     "hidden bcore_hmap_tpvd_s hmap_group;"
     "hidden bcore_hmap_tpvd_s hmap_item;"
-    "hidden bcore_hmap_tp_s hmap_type;"
+    "hidden bcore_hmap_tpvd_s hmap_func;"
+    "hidden bcore_hmap_tp_s hmap_external_type;"
     "hidden bcore_life_s life;"
     "hidden bcore_hmap_name_s name_map;"
     "tp_t target_pre_hash = 71;"
@@ -549,43 +555,143 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_compiler_s )
     "func bcore_inst_call:init_x;"
 "}";
 
-const xoico* xoico_compiler_s_const_item_get( const xoico_compiler_s* o, tp_t item_id )
+bl_t xoico_compiler_s_is_type( const xoico_compiler_s* o, tp_t name )
 {
-    // xoico_compiler.h:103:5
-    vd_t* ptr = bcore_hmap_tpvd_s_get( &(o->hmap_item), item_id );
+    // xoico_compiler.h:124:5
+    if( xoico_compiler_s_is_group( o, name ) ) return  true;
+    if( xoico_compiler_s_is_stamp( o, name ) ) return  true;
+    if( bcore_hmap_tp_s_exists( &(o->hmap_external_type), name ) ) return  true;
+    return  false;
+}
+
+bl_t xoico_compiler_s_is_stamp( const xoico_compiler_s* o, tp_t name )
+{
+    // xoico_compiler.h:132:5
+    const xoico* item = xoico_compiler_s_get_const_item( o, name );
+    if( item && ( item->_ == TYPEOF_xoico_stamp_s ) ) return  true;
+    return  false;
+}
+
+bl_t xoico_compiler_s_is_signature( const xoico_compiler_s* o, tp_t name )
+{
+    // xoico_compiler.h:139:5
+    const xoico* item = xoico_compiler_s_get_const_item( o, name );
+    if( item && ( item->_ == TYPEOF_xoico_signature_s ) ) return  true;
+    return  false;
+}
+
+bl_t xoico_compiler_s_is_signature_or_feature( const xoico_compiler_s* o, tp_t name )
+{
+    // xoico_compiler.h:146:5
+    const xoico* item = xoico_compiler_s_get_const_item( o, name );
+    if( !item ) return  NULL;
+    if( item->_ == TYPEOF_xoico_signature_s || item->_ == TYPEOF_xoico_feature_s ) return  true;
+    return  false;
+}
+
+bl_t xoico_compiler_s_is_feature( const xoico_compiler_s* o, tp_t name )
+{
+    // xoico_compiler.h:154:5
+    const xoico* item = xoico_compiler_s_get_const_item( o, name );
+    if( item && ( item->_ == TYPEOF_xoico_feature_s ) ) return  true;
+    return  false;
+}
+
+const xoico* xoico_compiler_s_get_const_item( const xoico_compiler_s* o, tp_t name )
+{
+    // xoico_compiler.h:161:5
+    vd_t* ptr = bcore_hmap_tpvd_s_get( &(o->hmap_item), name );
     return  ptr ? ( const xoico* )*ptr : NULL;
 }
 
-xoico* xoico_compiler_s_item_get( xoico_compiler_s* o, tp_t item_id )
+xoico* xoico_compiler_s_get_item( xoico_compiler_s* o, tp_t name )
 {
-    // xoico_compiler.h:109:5
-    vd_t* ptr = bcore_hmap_tpvd_s_get( &(o->hmap_item), item_id );
+    // xoico_compiler.h:167:5
+    vd_t* ptr = bcore_hmap_tpvd_s_get( &(o->hmap_item), name );
     return  ptr ? ( xoico* )*ptr : NULL;
 }
 
-xoico_stamp_s* xoico_compiler_s_stamp_get( xoico_compiler_s* o, tp_t item_id )
+xoico_stamp_s* xoico_compiler_s_get_stamp( xoico_compiler_s* o, tp_t name )
 {
-    // xoico_compiler.h:115:5
-    vd_t* ptr = bcore_hmap_tpvd_s_get( &(o->hmap_item), item_id );
-    if( !ptr ) return  NULL;
-    assert( (( const xoico* )*ptr)->_ == TYPEOF_xoico_stamp_s );
-    return  ( xoico_stamp_s* )*ptr;
+    // xoico_compiler.h:173:5
+    const xoico* item = xoico_compiler_s_get_const_item( o, name );
+    return  ( item ) ? ( item->_ == TYPEOF_xoico_stamp_s ) ? ((xoico_stamp_s*)(item)) : NULL : NULL;
 }
 
-bl_t xoico_compiler_s_item_exists( const xoico_compiler_s* o, tp_t item_id )
+const xoico_feature_s* xoico_compiler_s_get_feature( const xoico_compiler_s* o, tp_t name )
 {
-    // xoico_compiler.h:123:5
-    return  bcore_hmap_tpvd_s_exists( &o->hmap_item, item_id );
+    // xoico_compiler.h:179:5
+    const xoico* item = xoico_compiler_s_get_const_item( o, name );
+    return  ( item ) ? ( item->_ == TYPEOF_xoico_feature_s ) ? ((xoico_feature_s*)(item)) : NULL : NULL;
+}
+
+const xoico_signature_s* xoico_compiler_s_get_signature( const xoico_compiler_s* o, tp_t name )
+{
+    // xoico_compiler.h:185:5
+    const xoico* item = xoico_compiler_s_get_const_item( o, name );
+    if( !item ) return  NULL;
+    if( item->_ == TYPEOF_xoico_signature_s ) return  ((xoico_signature_s*)(item));
+    if( item->_ == TYPEOF_xoico_feature_s   ) return &( ((xoico_feature_s*)(item))->signature);
+    return  NULL;
+}
+
+xoico_group_s* xoico_compiler_s_get_group( xoico_compiler_s* o, tp_t name )
+{
+    // xoico_compiler.h:194:5
+    vd_t* ptr = bcore_hmap_tpvd_s_get( &(o->hmap_group), name );
+    return  ptr ? ( xoico_group_s* )*ptr : NULL;
+}
+
+xoico_func_s* xoico_compiler_s_get_func( xoico_compiler_s* o, tp_t name )
+{
+    // xoico_compiler.h:200:5
+    vd_t* ptr = bcore_hmap_tpvd_s_get( &(o->hmap_func), name );
+    return  ptr ? ( xoico_func_s* )*ptr : NULL;
 }
 
 void xoico_compiler_s_init_x( xoico_compiler_s* o )
 {
-    // xoico_compiler.h:151:5
+    // xoico_compiler.h:223:5
     if( o->work_build_time_into_pre_hash )
     {
         o->target_pre_hash = bcore_tp_fold_sc( o->target_pre_hash, __DATE__ );
         o->target_pre_hash = bcore_tp_fold_sc( o->target_pre_hash, __TIME__ );
     }
+}
+
+er_t xoico_compiler_s_register_group( xoico_compiler_s* o, const xoico_group_s* group, bcore_source* source )
+{
+    // xoico_compiler.x:21:1
+    if( bcore_hmap_tpvd_s_exists( &(o->hmap_group), group->tp_name ) )
+    {
+        return  xoico_compiler_s_parse_err_fa( o, source,  "'#<sc_t>' was already registered\n",  xoico_compiler_s_nameof( o, group->tp_name ) );
+    }
+    bcore_hmap_tpvd_s_set( &(o->hmap_group), group->tp_name,  ( vd_t )group );
+    return  0;
+}
+
+er_t xoico_compiler_s_register_item( xoico_compiler_s* o, const xoico* item, bcore_source* source )
+{
+    // xoico_compiler.x:33:1
+    tp_t global_id = xoico_a_get_global_name_tp( item);
+    if( bcore_hmap_tpvd_s_exists( &(o->hmap_item), global_id ) )
+    {
+        return  xoico_compiler_s_parse_err_fa( o, source,  "'#<sc_t>' was already registered\n",  xoico_compiler_s_nameof( o, global_id ) );
+    }
+    bcore_hmap_tpvd_s_set( &(o->hmap_item), global_id,  ( vd_t )item );
+    return  0;
+}
+
+er_t xoico_compiler_s_register_func( xoico_compiler_s* o, const xoico_func_s* func, bcore_source* source )
+{
+    // xoico_compiler.x:46:1
+    if( bcore_hmap_tpvd_s_exists( &(o->hmap_func), func->global_name ) )
+    {
+        return  xoico_compiler_s_parse_err_fa( o, source,  "'#<sc_t>' was already registered\n",  xoico_compiler_s_nameof( o, func->global_name ) );
+    }
+    
+    bcore_hmap_tpvd_s_set( &(o->hmap_func), func->global_name,  ( vd_t )func );
+    return  0;
 }
 
 XOILA_DEFINE_SPECT( xoico, xoico_compiler )
@@ -3670,4 +3776,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0x7821FED9E5663AA1ull
+// XOILA_OUT_SIGNATURE 0x79817A94EE2B1F7Aull

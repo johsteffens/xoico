@@ -45,12 +45,12 @@ stamp : = aware :
     bl_t flag_keep;
     bl_t flag_addressable = true;  // object can have a pointer ('false' for objects returned by a function)
 
-    func xoico . get_hash;
-    func     : . parse;
-    func     : . relent;
-    func     : . expand;
+    func xoico.get_hash;
+    func     :.parse;
+    func     :.relent;
+    func     :.expand;
 
-    func     : . reset =
+    func     :.reset =
     {
         o->type = 0;
         o->indirection = 0;

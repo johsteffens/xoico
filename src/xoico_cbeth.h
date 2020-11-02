@@ -54,7 +54,7 @@ group :tn = :
         :adl_s adl;
         bcore_hmap_name_s name_map;
 
-        func : .push =
+        func :.push =
         {
             :unit_s* unit = :unit_s_create();
             unit->type = type;
@@ -64,7 +64,7 @@ group :tn = :
             return o;
         };
 
-        func : .push_sc =
+        func :.push_sc =
         {
             :unit_s* unit = :unit_s_create();
             unit->type = bcore_hmap_name_s_set_sc( &o->name_map, type );
@@ -74,7 +74,7 @@ group :tn = :
             return o;
         };
 
-        func : .pop =
+        func :.pop =
         {
             sz_t new_size = o->adl.size;
             for( sz_t i = o->adl.size - 1; i >= 0; i-- )
@@ -86,7 +86,7 @@ group :tn = :
             return o;
         };
 
-        func : .get_type =
+        func :.get_type =
         {
             for( sz_t i = o->adl.size - 1; i >= 0; i-- )
             {
@@ -95,18 +95,18 @@ group :tn = :
             return 0;
         };
 
-        func : .get_type_sc =
+        func :.get_type_sc =
         {
             return bcore_hmap_name_s_get_sc( &o->name_map, @_get_type( o, btypeof( name ) ) );
         };
 
-        func : .clear =
+        func :.clear =
         {
             bcore_hmap_name_s_clear( &o->name_map );
             :adl_s_clear( &o->adl );
         };
 
-        func : .init_from_args =
+        func :.init_from_args =
         {
             const xoico_compiler_s* compiler = xoico_group_s_get_compiler( args->group );
             @_clear( o );
@@ -133,9 +133,9 @@ stamp : = aware :
     xoico_compiler_s -> compiler;
     hidden :tn_stack_s stack;
 
-    func : .take_block;
-    func : .take_block_body;
-    func xoico_cengine . translate;
+    func :.take_block;
+    func :.take_block_body;
+    func xoico_cengine.translate;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

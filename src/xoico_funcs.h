@@ -26,24 +26,24 @@
 XOILA_DEFINE_GROUP( xoico_funcs, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-signature bl_t exists_from_type( const, tp_t type );
+signature bl_t exists_from_signature_global_name( const, tp_t signature_global_name );
 signature bl_t exists_from_name( const, tp_t name );
-signature sz_t get_index_from_type( const, tp_t type ); // returns -1 if not found
+signature sz_t get_index_from_signature_global_name( const, tp_t signature_global_name ); // returns -1 if not found
 signature sz_t get_index_from_name( const, tp_t name ); // returns -1 if not found
-signature xoico_func_s* get_func_from_type( const, tp_t type ); // returns NULL if not found
+signature xoico_func_s* get_func_from_signature_global_name( const, tp_t signature_global_name ); // returns NULL if not found
 signature xoico_func_s* get_func_from_name( const, tp_t name ); // returns NULL if not found
 signature er_t replace_fork( mutable, sz_t idx, xoico_func_s* func );
 
 stamp : = aware :
 {
     xoico_func_s => [];
-    func : .exists_from_type;
-    func : .exists_from_name;
-    func : .get_index_from_type;
-    func : .get_index_from_name;
-    func : .get_func_from_type;
-    func : .get_func_from_name;
-    func : .replace_fork;
+    func :.exists_from_signature_global_name;
+    func :.exists_from_name;
+    func :.get_index_from_signature_global_name;
+    func :.get_index_from_name;
+    func :.get_func_from_signature_global_name;
+    func :.get_func_from_name;
+    func :.replace_fork;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
