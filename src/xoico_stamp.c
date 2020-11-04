@@ -196,7 +196,7 @@ tp_t xoico_stamp_s_get_hash( const xoico_stamp_s* o )
 er_t xoico_stamp_s_parse_func( xoico_stamp_s* o, bcore_source* source )
 {
     BLM_INIT();
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    xoico_compiler_s* compiler = o->group->compiler;
     xoico_func_s* func = BLM_CREATE( xoico_func_s );
     func->group = o->group;
     func->stamp = o;
@@ -208,19 +208,35 @@ er_t xoico_stamp_s_parse_func( xoico_stamp_s* o, bcore_source* source )
     if( idx >= 0 )
     {
         xoico_func_s* prex_func = o->funcs.data[ idx ];
-        if( prex_func->overloadable || ( prex_func->signature_global_name == func->signature_global_name ) )
+        if( ( prex_func->signature_global_name == func->signature_global_name ) )
+        {
+            if( !func->body )
+            {
+                XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Function '#<sc_t>' has already been declared.", xoico_compiler_s_nameof( compiler, func->name ) );
+            }
+            else if( prex_func->body )
+            {
+                XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Function '#<sc_t>' has already a body.", xoico_compiler_s_nameof( compiler, func->name ) );
+            }
+            else
+            {
+                BLM_TRY( xoico_funcs_s_replace_fork( &o->funcs, idx, func ) );
+                st_s_replace_sc_sc( o->self_source, prex_func->flect_decl.sc, "" );
+            }
+        }
+        else if( prex_func->overloadable )
         {
             BLM_TRY( xoico_funcs_s_replace_fork( &o->funcs, idx, func ) );
             st_s_replace_sc_sc( o->self_source, prex_func->flect_decl.sc, "" );
         }
         else
         {
-            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Function '#<sc_t>' has already been defined and is not overloadable.", xoico_compiler_s_nameof( compiler, func->name ) );
+            XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Function '#<sc_t>' has already been declared and is not overloadable.", xoico_compiler_s_nameof( compiler, func->name ) );
         }
     }
     else
     {
-        bcore_array_a_push( ( bcore_array* )&o->funcs, sr_asd( bcore_fork( func ) ) );
+        xoico_funcs_s_push_d( &o->funcs, bcore_fork( func ) );
     }
 
 
@@ -308,7 +324,7 @@ er_t xoico_stamp_s_parse_extend( xoico_stamp_s* o, bcore_source* source )
 er_t xoico_stamp_s_push_default_func_from_sc( xoico_stamp_s* o, sc_t sc )
 {
     BLM_INIT();
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    xoico_compiler_s* compiler = o->group->compiler;
     xoico_func_s* func = BLM_CREATE( xoico_func_s );
     func->group = o->group;
     func->stamp = o;
@@ -349,7 +365,7 @@ er_t xoico_stamp_s_parse( xoico_stamp_s* o, bcore_source* source )
 {
     BLM_INIT();
 
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    xoico_compiler_s* compiler = o->group->compiler;
     bl_t verbatim = bcore_source_a_parse_bl_fa( source, " #?w'verbatim'" );
 
     st_s_attach( &o->self_source, st_s_create() );
@@ -375,14 +391,14 @@ er_t xoico_stamp_s_parse( xoico_stamp_s* o, bcore_source* source )
         st_s* templ_name = BLM_CREATE( st_s );
         BLM_TRY( xoico_group_s_parse_name( o->group, templ_name, source ) );
         st_s_push_fa( templ_name, "_s" );
-        const xoico* item = xoico_compiler_s_get_const_item( xoico_group_s_get_compiler( o->group ), typeof( templ_name->sc ) );
+        const xoico* item = xoico_compiler_s_get_const_item( o->group->compiler, typeof( templ_name->sc ) );
         if( !item ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Template #<sc_t> not found.", templ_name->sc );
         if( *(aware_t*)item != TYPEOF_xoico_stamp_s ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Template #<sc_t> is no stamp.", templ_name->sc );
         xoico_stamp_s_copy( o, ( xoico_stamp_s* )item );
     }
-    else if( !verbatim && o->group->extending )
+    else if( !verbatim && o->group->extending_stamp )
     {
-        xoico_stamp_s_copy( o, o->group->extending );
+        xoico_stamp_s_copy( o, o->group->extending_stamp );
     }
     else
     {
@@ -418,7 +434,7 @@ er_t xoico_stamp_s_finalize( xoico_stamp_s* o )
 {
     BLM_INIT();
 
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    xoico_compiler_s* compiler = o->group->compiler;
 
     // TODO: move functions declaration in self_source to finalize
     st_s_replace_sc_sc( o->self_source, "@", o->st_name.sc );
@@ -429,14 +445,7 @@ er_t xoico_stamp_s_finalize( xoico_stamp_s* o )
         func->group = o->group;
         func->stamp = o;
         BLM_TRY( xoico_func_s_finalize( func ) );
-
-        {
-            bcore_source* source = func->source_point.source;
-            sz_t index = bcore_source_a_get_index( source );
-            bcore_source_a_set_index( source, func->source_point.index );
-            xoico_compiler_s_register_func( compiler, func, source );
-            bcore_source_a_set_index( source, index );
-        }
+        xoico_compiler_s_register_func( compiler, func );
     }
 
     bcore_self_s_attach
@@ -516,8 +525,6 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcor
 {
     BLM_INIT();
 
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
-
     sc_t sc_name = o->st_name.sc;
 
     bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, sc_name, typeof( sc_name ) );
@@ -526,57 +533,10 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcor
     bcore_sink_a_push_fa( sink, " \\\n#rn{ }  BCORE_DECLARE_OBJECT( #<sc_t> )", indent, sc_name );
     bcore_sink_a_push_fa( sink, " \\\n" );
 
-    //bcore_self_s_struct_body_to_sink_single_line( o->self, sink );
     bcore_self_s_struct_body_to_sink_newline_escaped( o->self, indent + 2, sink );
     bcore_sink_a_push_fa( sink, ";" );
 
-    for( sz_t i = 0; i < o->funcs.size; i++ )
-    {
-        xoico_func_s* func = o->funcs.data[ i ];
-        if( !func->expandable ) continue;
-        BLM_INIT();
-        if( xoico_compiler_s_is_item( compiler, func->signature_global_name ) )
-        {
-            bcore_sink_a_push_fa( sink, " \\\n#rn{ }  ", indent );
-            bl_t go_inline = func->body && func->body->go_inline;
-
-            const xoico_signature_s* signature = xoico_compiler_s_get_signature( compiler, func->signature_global_name );
-            if( !signature )
-            {
-                XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA
-                (
-                    &func->source_point,
-                    "Stamp #<sc_t>: Could not resolve function #<sc_t> #<sc_t>",
-                    sc_name,
-                    xoico_compiler_s_nameof( compiler, func->signature_global_name ),
-                    xoico_compiler_s_nameof( compiler, func->name )
-                );
-            }
-
-            if( go_inline )
-            {
-                bcore_sink_a_push_fa( sink, "static inline " );
-                BLM_TRY( xoico_signature_s_expand_declaration( signature, o, xoico_compiler_s_nameof( compiler, func->global_name ), indent, sink ) );
-                BLM_TRY( xoico_body_s_expand( func->body, signature, indent, sink ) );
-            }
-            else
-            {
-                BLM_TRY( xoico_signature_s_expand_declaration( signature, o, xoico_compiler_s_nameof( compiler, func->global_name ), indent, sink ) );
-                bcore_sink_a_push_fa( sink, ";" );
-            }
-        }
-        else
-        {
-            XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA
-            (
-                &func->source_point,
-                "Stamp #<sc_t>: Could not resolve function #<sc_t> #<sc_t>",
-                sc_name,
-                xoico_compiler_s_nameof( compiler, func->signature_global_name ),
-                xoico_compiler_s_nameof( compiler, func->name ) );
-        }
-        BLM_DOWN();
-    }
+    for( sz_t i = 0; i < o->funcs.size; i++ ) BLM_TRY( xoico_func_s_expand_forward(     o->funcs.data[ i ], indent + 2, sink ) ); // expands all prototypes
 
     // expand array
     if( o->self->trait == TYPEOF_bcore_array )
@@ -650,6 +610,8 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcor
         }
     }
 
+    for( sz_t i = 0; i < o->funcs.size; i++ ) BLM_TRY( xoico_func_s_expand_declaration( o->funcs.data[ i ], indent + 2, sink ) ); // only expands static inline functions
+
     bcore_sink_a_push_fa( sink, "\n" );
     BLM_RETURNV( er_t, 0 );
 }
@@ -659,10 +621,6 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcor
 er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink )
 {
     BLM_INIT();
-
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
-
-    sc_t sc_name = o->st_name.sc;
 
     st_s* embedded_string = BLM_A_PUSH( create_embedded_string( o->self_source ) );
 
@@ -693,47 +651,7 @@ er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore
 
     for( sz_t i = 0; i < o->funcs.size; i++ )
     {
-        xoico_func_s* func = o->funcs.data[ i ];
-        if( !func->expandable ) continue;
-
-        BLM_INIT();
-        if( xoico_compiler_s_is_signature_or_feature( compiler, func->signature_global_name ) )
-        {
-            const xoico_signature_s* signature = xoico_compiler_s_get_signature( compiler, func->signature_global_name );
-            if( !signature )
-            {
-                XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA
-                (
-                    &func->source_point,
-                    "Stamp #<sc_t>: Could not resolve function #<sc_t> #<sc_t>",
-                    sc_name,
-                    xoico_compiler_s_nameof( compiler, func->signature_global_name ),
-                    xoico_compiler_s_nameof( compiler, func->name )
-                );
-            }
-
-            if( func->body && !func->body->go_inline )
-            {
-                bcore_sink_a_push_fa( sink, "\n" );
-                bcore_sink_a_push_fa( sink, "#rn{ }", indent );
-                xoico_signature_s_expand_declaration( signature, o, xoico_compiler_s_nameof( compiler, func->global_name ), indent, sink );
-                bcore_sink_a_push_fa( sink, "\n" );
-                BLM_TRY( xoico_body_s_expand( func->body, signature, indent, sink ) );
-                bcore_sink_a_push_fa( sink, "\n" );
-            }
-        }
-        else
-        {
-            XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA
-            (
-                &func->source_point,
-                "Stamp #<sc_t>: Could not resolve function #<sc_t> #<sc_t>",
-                o->st_name.sc,
-                xoico_compiler_s_nameof( compiler, func->signature_global_name ),
-                xoico_compiler_s_nameof( compiler, func->name )
-            );
-        }
-        BLM_DOWN();
+        xoico_func_s_expand_definition( o->funcs.data[ i ], indent, sink );
     }
 
     BLM_RETURNV( er_t, 0 );
@@ -744,36 +662,23 @@ er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore
 er_t xoico_stamp_s_expand_init1( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink )
 {
     BLM_INIT();
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    xoico_compiler_s* compiler = o->group->compiler;
 
     for( sz_t i = 0; i < o->funcs.size; i++ )
     {
         xoico_func_s* func = o->funcs.data[ i ];
         if( !func->expandable ) continue;
 
-        if( xoico_compiler_s_is_signature_or_feature( xoico_group_s_get_compiler( o->group ), func->signature_global_name ) )
+        if( xoico_func_s_registerable( func ) )
         {
-            if( xoico_func_s_registerable( func ) )
-            {
-                const xoico_signature_s* signature = xoico_compiler_s_get_signature( xoico_group_s_get_compiler( o->group ), func->signature_global_name );
-                bcore_sink_a_push_fa
-                (
-                    sink,
-                    "#rn{ }BCORE_REGISTER_FFUNC( #<sc_t>, #<sc_t>_#<sc_t> );\n",
-                    indent,
-                    xoico_compiler_s_nameof( compiler, signature->global_name ),
-                    o->st_name.sc,
-                    xoico_compiler_s_nameof( compiler, func->name )
-                );
-            }
-        }
-        else
-        {
-            XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA
+            const xoico_signature_s* signature = func->signature;
+            bcore_sink_a_push_fa
             (
-                &func->source_point, "Stamp #<sc_t>: Could not resolve function #<sc_t> #<sc_t>",
+                sink,
+                "#rn{ }BCORE_REGISTER_FFUNC( #<sc_t>, #<sc_t>_#<sc_t> );\n",
+                indent,
+                xoico_compiler_s_nameof( compiler, signature->global_name ),
                 o->st_name.sc,
-                xoico_compiler_s_nameof( compiler, func->signature_global_name ),
                 xoico_compiler_s_nameof( compiler, func->name )
             );
         }

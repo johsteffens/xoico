@@ -33,6 +33,7 @@ signature sz_t get_index_from_name( const, tp_t name ); // returns -1 if not fou
 signature xoico_func_s* get_func_from_signature_global_name( const, tp_t signature_global_name ); // returns NULL if not found
 signature xoico_func_s* get_func_from_name( const, tp_t name ); // returns NULL if not found
 signature er_t replace_fork( mutable, sz_t idx, xoico_func_s* func );
+signature er_t push_d( mutable, xoico_func_s* func );
 
 stamp : = aware :
 {
@@ -44,6 +45,8 @@ stamp : = aware :
     func :.get_func_from_signature_global_name;
     func :.get_func_from_name;
     func :.replace_fork;
+    func :.push_d = { o.cast( bcore_array* ).push( sr_asd( func ) ); return 0; };
+
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

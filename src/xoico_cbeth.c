@@ -446,7 +446,7 @@ er_t xoico_cbeth_s_translate( const xoico_cbeth_s* o, const xoico_body_s* body, 
 
     aleph->obj_type = sc_obj_type;
     aleph->args     = bcore_fork( ( xoico_args_s* )args );
-    aleph->compiler = bcore_fork( xoico_group_s_get_compiler( body->group ) );
+    aleph->compiler = bcore_fork( body->group->compiler );
 
     bcore_source* source = BLM_A_PUSH( bcore_source_point_s_clone_source( &body->code->source_point ) );
 

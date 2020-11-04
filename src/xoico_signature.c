@@ -24,7 +24,7 @@
 
 sc_t xoico_signature_s_get_global_name_sc( const xoico_signature_s* o )
 {
-    return xoico_compiler_s_nameof( xoico_group_s_get_compiler( o->group ), o->global_name );
+    return xoico_compiler_s_nameof( o->group->compiler, o->global_name );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ er_t xoico_signature_s_parse( xoico_signature_s* o, bcore_source* source )
     BLM_INIT();
     bcore_source_point_s_set( &o->source_point, source );
 
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    xoico_compiler_s* compiler = o->group->compiler;
 
     st_s* name_buf = BLM_CREATE( st_s );
 
@@ -150,7 +150,7 @@ er_t xoico_signature_s_relent( xoico_signature_s* o, tp_t tp_obj_type )
 er_t xoico_signature_s_expand_declaration( const xoico_signature_s* o, const xoico_stamp_s* stamp, sc_t sc_func_global_name, sz_t indent, bcore_sink* sink )
 {
     BLM_INIT();
-    sc_t sc_name = stamp->st_name.sc;
+    sc_t sc_name = stamp ? stamp->st_name.sc : o->group->st_name.sc;
     xoico_typespec_s_expand( &o->typespec_ret, o->group, sc_name, sink );
     bcore_sink_a_push_fa( sink, " #<sc_t>( ", sc_func_global_name );
 

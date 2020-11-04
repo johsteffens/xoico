@@ -213,7 +213,7 @@ er_t xoico_caleph_s_setup( xoico_caleph_s* o, const xoico_body_s* body, const xo
     o->args     = ( xoico_args_s* )args;
     o->group    = body->code->group;
     o->stamp    = body->code->stamp;
-    o->compiler = xoico_group_s_get_compiler( body->group );
+    o->compiler = body->group->compiler;
     o->obj_type = obj_type;
 
     if( obj_type )

@@ -26,6 +26,7 @@
 XOILA_DEFINE_GROUP( xoico_group, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+signature er_t push_item_d( mutable, xoico* item );
 signature er_t parse_name(           mutable, st_s* name, bcore_source* source );
 signature er_t parse_name_recursive( mutable, st_s* name, bcore_source* source );
 signature er_t expand_declaration(   const, sz_t indent, bcore_sink* sink );
@@ -47,10 +48,10 @@ stamp : = aware :
     st_s st_name; // global name
     tp_t tp_name; // global name
 
-    private @* group; // parent group;
+    private @* parent; // parent group;
 
     st_s trait_name = "bcore_inst"; // trait name
-    tp_t hash;
+    tp_t pre_hash;
 
     /** Beta values > 0 represent experimental or transitional states in development
      *  They can be specified using the set directive: e.g. set beta = 1;
@@ -71,11 +72,12 @@ stamp : = aware :
      */
     bl_t short_spect_name;
 
-    private xoico_stamp_s -> extending; // !=NULL: extends this stamp on subsequent stamps
+    private xoico_stamp_s* extending_stamp; // !=NULL: extends this stamp on subsequent stamps
 
-    //xoico_funcs_s funcs; // functions
+    xoico_funcs_s funcs; // functions defined inside the group
 
-    private aware xoico_source_s* source;
+    private aware xoico_source_s* xoico_source;
+    hidden aware  xoico_compiler_s* compiler;
 
     bcore_source_point_s source_point;
 
@@ -97,8 +99,12 @@ stamp : = aware :
 
     func :.get_source;
     func :.get_target;
-    func :.get_compiler;
 
+    func :.push_item_d =
+    {
+        o.cast( bcore_array* ).push( sr_asd( item ) );
+        return 0;
+    };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -398,6 +398,76 @@ try
 
 //----------------------------------------------------------------------------------------------------------------------
 
+/// Processes the argument section '(....)' of a function
+func (:)
+(
+    er_t trans_function_args
+    (
+        mutable,
+        bcore_source* source,
+        const xoico_signature_s* signature,
+        const st_s* buf_obj_expr,
+        const xoico_typespec_s* typespec_obj_expr,
+        st_s* buf_out
+    )
+) =
+{
+try
+{
+    o.trans( source, "(", buf_out );
+
+    if( signature.arg_o )
+    {
+        if( !buf_obj_expr )
+        {
+            st_s* buf_expr                  = scope( st_s!, scope_func );
+            xoico_typespec_s* typespec_expr = scope( xoico_typespec_s!, scope_func );
+            o.trans_expression( source, buf_expr, typespec_expr );
+            buf_obj_expr = buf_expr;
+            typespec_obj_expr = typespec_expr;
+            if( signature.args.size > 0 ) o.parse( source, " ," );
+        }
+
+        xoico_typespec_s* typespec_obj_out = scope( typespec_obj_expr.clone() );
+        typespec_obj_out.indirection = 1; // first argument of member functions has always indirection 1
+
+        if( typespec_obj_expr.type )
+        {
+            o.adapt_expression( source, typespec_obj_expr, typespec_obj_out, buf_obj_expr, buf_out );
+        }
+        else
+        {
+            buf_out.push_st( buf_obj_expr );
+        }
+        if( signature.args.size > 0 ) buf_out.push_sc( "," );
+    }
+
+    foreach( $* arg in signature.args )
+    {
+        st_s* buf_expr                  = scope( st_s!, scope_local );
+        xoico_typespec_s* typespec_expr = scope( xoico_typespec_s!, scope_local );
+        o.parse( source, " " );
+        if( __i > 0 ) o.parse( source, " ," );
+        o.trans_expression( source, buf_expr, typespec_expr );
+        if( __i > 0 ) buf_out.push_sc( "," );
+        if( typespec_expr.type )
+        {
+            o.adapt_expression( source, typespec_expr, &arg.typespec, buf_expr, buf_out );
+        }
+        else
+        {
+            buf_out.push_st( buf_expr );
+        }
+    }
+
+    o.parse( source, " " );
+    o.trans( source, ")", buf_out );
+    return 0;
+} // try
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
 func (:)
 (
     er_t trans_typespec_expression
@@ -489,49 +559,11 @@ try
             {
                 if( info.signature ) // member function
                 {
-                    if( !source.parse_bl_fa( "#?'('" ) ) return o.parse_err_fa( source, "'(' expected" );
-
                     sc_t sc_func_name = o.nameof( info.type_info.typespec.type );
                     ASSERT( sc_func_name );
-
                     st_s* arg_obj = scope( buf.clone() );
-                    buf.clear();
-                    buf.copy_fa( "#<sc_t>( ", sc_func_name );
-
-                    const xoico_args_s* args = &info.signature.args;
-
-                    if( info.signature.arg_o )
-                    {
-                        xoico_typespec_s* typespec_obj = scope( in_typespec.clone() );
-                        typespec_obj.indirection = 1; // first argument of member functions
-                        o.adapt_expression( source, in_typespec, typespec_obj, arg_obj, buf );
-                        if( args.size > 0 ) buf.push_sc( ", " );
-                    }
-
-                    foreach( $* arg in args )
-                    {
-                        st_s* buf_expr = scope( st_s!, scope_local );
-                        o.parse( source, " " );
-                        if( __i > 0 ) o.parse( source, " ," );
-
-                        xoico_typespec_s* typespec_expr = scope( xoico_typespec_s!, scope_local );
-                        o.trans_expression( source, buf_expr, typespec_expr );
-
-                        if( __i > 0 ) buf.push_sc( ", " );
-
-                        if( typespec_expr.type )
-                        {
-                            o.adapt_expression( source, typespec_expr, &arg.typespec, buf_expr, buf );
-                        }
-                        else
-                        {
-                            buf.push_st( buf_expr );
-                        }
-                    }
-
-                    o.parse( source, " )" );
-                    buf.push_sc( ")" );
-
+                    buf.copy_fa( "#<sc_t>", sc_func_name );
+                    o.trans_function_args( source, info.signature, arg_obj, in_typespec, buf );
                     o.trans_typespec_expression( source, buf, &info.signature.typespec_ret, out_typespec );
                 }
                 else // traced member element
@@ -593,7 +625,7 @@ try
                     if( !first ) o.parse( source, "," );
                     o.trans_expression( source, buf_expr, NULL );
                     o.trans_whitespace( source, buf_expr );
-                    buf.push_fa( ", " );
+                    buf.push_fa( "," );
                     buf.push_fa( "#<sc_t>", buf_expr.sc );
                     first = false;
                 }
@@ -966,7 +998,6 @@ try
             xoico_typespec_s* typespec_builtin = scope( xoico_typespec_s! );
             o.trans_builtin( tp_identifier, source, NULL, NULL, buf, typespec_builtin );
             o.trans_typespec_expression( source, buf, typespec_builtin, out_typespec );
-            continuation = false;
         }
 
         else if( tp_identifier == TYPEOF_verbatim_C )
@@ -1009,11 +1040,27 @@ try
                 typespec.indirection = 1;
                 typespec.flag_addressable = false;
                 o.trans_typespec_expression( source, buf, typespec, out_typespec );
-                continuation = false;
             }
             else
             {
                 buf.push_st( buf_type );
+            }
+        }
+
+        // identifier represents a (global) function name
+        else if( o.is_func( tp_identifier ) )
+        {
+            o.trans_identifier( source, buf, NULL );
+            o.trans_whitespace( source, buf );
+            if( source.parse_bl_fa( "#=?'('" ) ) // actual function call
+            {
+                const xoico_func_s* func = o.get_func( tp_identifier );
+                if( !func.signature )
+                {
+                    return o.parse_err_fa( source, "Function #<sc_t> has no signature.", o.nameof( tp_identifier ) );
+                }
+                o.trans_function_args( source, func.signature, NULL, NULL, buf );
+                o.trans_typespec_expression( source, buf, func.signature.typespec_ret, out_typespec );
             }
         }
         else
@@ -1506,7 +1553,7 @@ try
     o.typespec_ret = signature.typespec_ret.cast( xoico_typespec_s* );
     o.group    = body.code.group;
     o.stamp    = body.code.stamp;
-    o.compiler = body.group.get_compiler();
+    o.compiler = body.group.compiler;
     o.obj_type = obj_type;
     o.level    = 0;
     o.try_block_level = 0;

@@ -228,9 +228,9 @@ er_t xoico_body_s_parse_expression( xoico_body_s* o, bcore_source* source )
         tp_t tp_name = typeof( name->sc );
 
         // if name_buf refers to another body
-        if( xoico_compiler_s_is_item( xoico_group_s_get_compiler( o->group ), tp_name ) )
+        if( xoico_compiler_s_is_item( o->group->compiler, tp_name ) )
         {
-            vc_t item = xoico_compiler_s_get_const_item( xoico_group_s_get_compiler( o->group ), tp_name );
+            vc_t item = xoico_compiler_s_get_const_item( o->group->compiler, tp_name );
             if( *(aware_t*)item == TYPEOF_xoico_body_s )
             {
                 const xoico_body_s* body = item;
@@ -297,7 +297,7 @@ er_t xoico_body_s_expand( const xoico_body_s* o, const xoico_signature_s* signat
     const st_s* final_code = NULL;
     st_s* st_out = BLM_CREATE( st_s );
 
-    xoico_cengine* cengine = o->group->source->target->cengine;
+    xoico_cengine* cengine = o->group->xoico_source->target->cengine;
 
     ASSERT( cengine );
 

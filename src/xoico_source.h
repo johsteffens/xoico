@@ -26,9 +26,9 @@
 XOILA_DEFINE_GROUP( xoico_source, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-signature er_t push_group( mutable, xoico_group_s* group );
-signature er_t parse(      mutable, bcore_source* source );
-signature er_t finalize(  mutable );
+signature er_t push_group_d( mutable, xoico_group_s* group );
+signature er_t parse(        mutable, bcore_source* source );
+signature er_t finalize( mutable );
 signature er_t expand_declaration( const, sz_t indent, bcore_sink* sink );
 signature er_t expand_definition(  const, sz_t indent, bcore_sink* sink );
 signature er_t expand_init1(       const, sz_t indent, bcore_sink* sink );
@@ -37,14 +37,25 @@ stamp : = aware :
 {
     st_s name; // file name excluding directory and extension
     st_s path; // file path excluding extension
-    tp_t hash;
     xoico_group_s => [];
 
     hidden aware xoico_target_s* target;
 
     func xoico.expand_setup;
 
-    func :.push_group;
+    func :.push_group_d =
+    {
+        o.cast( bcore_array* ).push( sr_asd( group ) );
+        return 0;
+    };
+
+    func xoico.get_hash =
+    {
+        tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
+        foreach( xoico_group_s* e in o ) hash = bcore_tp_fold_tp( hash, e.get_hash() );
+        return hash;
+    };
+
     func :.parse;
     func :.finalize;
     func :.expand_declaration;

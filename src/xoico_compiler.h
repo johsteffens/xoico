@@ -28,13 +28,13 @@ XOILA_DEFINE_GROUP( xoico_compiler, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 signature er_t register_item(  mutable, const xoico* item,          bcore_source* source );
-signature er_t register_group( mutable, const xoico_group_s* group, bcore_source* source );
-signature er_t register_func(  mutable, const xoico_func_s* func,   bcore_source* source );
+signature er_t register_group( mutable, const xoico_group_s* group );
+signature er_t register_func(  mutable, const xoico_func_s* func );
 signature er_t register_external_type( mutable, tp_t type );
 
 signature bl_t is_item(  const, tp_t name );
 signature bl_t is_group( const, tp_t name ); // checks if name represents a registered group
-signature bl_t is_func(  const, tp_t name ); // checks if name represents a registered functions
+signature bl_t is_func(  const, tp_t name ); // checks if name represents the global name of a function (==name of implementation)
 signature bl_t is_stamp( const, tp_t name ); // checks if name represents a registered stamp
 signature bl_t is_type(  const, tp_t name ); // checks if name represents a registered type (either group, stamp, or external type)
 signature bl_t is_signature( const, tp_t name ); // checks if name represents a registered signature
@@ -84,11 +84,12 @@ signature sc_t nameof             ( const,   tp_t type );
 stamp : = aware :
 {
     hidden xoico_target_s => [];
+    hidden bcore_life_s life; // lifetime manager for items generation during processing
+
     hidden bcore_hmap_tpvd_s hmap_group;
     hidden bcore_hmap_tpvd_s hmap_item;
     hidden bcore_hmap_tpvd_s hmap_func;  // maps the global name of a function to the func instance
-    hidden bcore_hmap_tp_s   hmap_external_type;  // externally registered types
-    hidden bcore_life_s      life;       // lifetime manager for items generation during processing
+    hidden bcore_hmap_tp_s   hmap_external_type; // externally registered types
     hidden bcore_hmap_name_s name_map;   // name manager
 
     // parameters
@@ -208,7 +209,6 @@ stamp : = aware :
     func :.get_type_info;
     func :.get_type_element_info;
     func :.get_type_array_element_info;
-    //func :.get_signature;
 
     // external interface ...
     func :.parse;

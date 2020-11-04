@@ -39,7 +39,7 @@ er_t xoico_typespec_s_parse( xoico_typespec_s* o, xoico_group_s* group, bcore_so
 
     bcore_source_a_parse_fa( source, " " );
 
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( group );
+    xoico_compiler_s* compiler = group->compiler;
 
     st_s* s = BLM_CREATE( st_s );
     if( bcore_source_a_parse_bl_fa( source, "#?':' " ) )
@@ -98,12 +98,13 @@ er_t xoico_typespec_s_relent( xoico_typespec_s* o, xoico_group_s* group, tp_t tp
 er_t xoico_typespec_s_expand( const xoico_typespec_s* o, xoico_group_s* group, sc_t sc_obj_type, bcore_sink* sink )
 {
     BLM_INIT();
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( group );
+    xoico_compiler_s* compiler = group->compiler;
 
     tp_t type = o->type;
 
     if( type == TYPEOF_type_object )
     {
+        if( !sc_obj_type ) ERR_fa( "Cannot resolve 'type_object' at this point." );
         type = xoico_compiler_s_entypeof( compiler, sc_obj_type );
     }
     else if( type == TYPEOF_type_deduce )

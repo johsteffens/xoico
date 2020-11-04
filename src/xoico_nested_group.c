@@ -22,7 +22,7 @@
 
 tp_t xoico_nested_group_s_get_hash( const xoico_nested_group_s* o )
 {
-    return o->group ? o->group->hash : 0;
+    return o->group ? xoico_group_s_get_hash( o->group ) : 0;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

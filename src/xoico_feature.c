@@ -23,7 +23,7 @@
 
 sc_t xoico_feature_s_get_global_name_sc( const xoico_feature_s* o )
 {
-    return xoico_compiler_s_nameof( xoico_group_s_get_compiler( o->group ), o->signature.global_name );
+    return xoico_compiler_s_nameof( o->group->compiler, o->signature.global_name );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ er_t xoico_feature_s_parse( xoico_feature_s* o, bcore_source* source )
 {
     BLM_INIT();
 
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    xoico_compiler_s* compiler = o->group->compiler;
 
     bcore_source_point_s_set( &o->source_point, source );
 
@@ -132,8 +132,9 @@ er_t xoico_feature_s_parse( xoico_feature_s* o, bcore_source* source )
         o->func_a->global_name = xoico_compiler_s_entypeof( compiler, name_buf->sc );
         o->func_a->signature_global_name = o->signature.global_name;
         o->func_a->expandable = false;
+        o->func_a->signature = &o->signature;
         bcore_source_point_s_copy( &o->func_a->source_point, &o->source_point );
-        xoico_compiler_s_register_func( compiler, o->func_a, source );
+        xoico_compiler_s_register_func( compiler, o->func_a );
     }
 
     BLM_RETURNV( er_t, 0 );
@@ -146,7 +147,7 @@ er_t xoico_feature_s_expand_indef_typedef( const xoico_feature_s* o, sz_t indent
     if( !o->expandable ) return 0;
     BLM_INIT();
 
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    xoico_compiler_s* compiler = o->group->compiler;
 
     bcore_sink_a_push_fa( sink, " \\\n#rn{ }  typedef ", indent );
 
@@ -166,7 +167,7 @@ er_t xoico_feature_s_expand_indef_typedef( const xoico_feature_s* o, sz_t indent
 er_t xoico_feature_s_expand_spect_declaration( const xoico_feature_s* o, sz_t indent, bcore_sink* sink )
 {
     if( !o->expandable ) return 0;
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    xoico_compiler_s* compiler = o->group->compiler;
     bcore_sink_a_push_fa( sink, " \\\n#rn{ }#<sc_t> #<sc_t>;", indent, xoico_compiler_s_nameof( compiler, o->signature.global_name ), xoico_compiler_s_nameof( compiler, o->signature.name ) );
     return 0;
 }
@@ -176,7 +177,7 @@ er_t xoico_feature_s_expand_spect_declaration( const xoico_feature_s* o, sz_t in
 er_t xoico_feature_s_expand_spect_definition( const xoico_feature_s* o, sz_t indent, bcore_sink* sink )
 {
     if( !o->expandable ) return 0;
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    xoico_compiler_s* compiler = o->group->compiler;
     bcore_sink_a_push_fa( sink, "#rn{ }\"feature ", indent );
     if( o->strict ) bcore_sink_a_push_fa( sink, "strict " );
     if( o->flag_a ) bcore_sink_a_push_fa( sink, "aware " );
@@ -196,7 +197,7 @@ er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t in
 {
     if( !o->expandable ) return 0;
     BLM_INIT();
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    xoico_compiler_s* compiler = o->group->compiler;
 
     sc_t sc_name         = xoico_compiler_s_nameof( compiler, o->signature.name );
     sc_t sc_group_name   = o->group->st_name.sc;
@@ -463,7 +464,7 @@ er_t xoico_feature_s_expand_definition( const xoico_feature_s* o, sz_t indent, b
 er_t xoico_feature_s_expand_init1( const xoico_feature_s* o, sz_t indent, bcore_sink* sink )
 {
     if( !o->expandable ) return 0;
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    xoico_compiler_s* compiler = o->group->compiler;
     sc_t sc_global_name = xoico_compiler_s_nameof( compiler, o->signature.global_name );
 
     bcore_sink_a_push_fa( sink, "#rn{ }BCORE_REGISTER_FEATURE( #<sc_t> );\n", indent, sc_global_name );

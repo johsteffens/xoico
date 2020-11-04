@@ -43,7 +43,7 @@ er_t xoico_func_s_set_global_name( xoico_func_s* o )
     BLM_INIT();
     st_s* st_global_name = BLM_CREATE( st_s );
 
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    xoico_compiler_s* compiler = o->group->compiler;
     sc_t sc_name = xoico_compiler_s_nameof( compiler, o->name );
 
     if( o->stamp )
@@ -65,7 +65,7 @@ er_t xoico_func_s_parse( xoico_func_s* o, bcore_source* source )
 {
     BLM_INIT();
 
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    xoico_compiler_s* compiler = o->group->compiler;
 
     // global name signature
     st_s* st_type = BLM_CREATE( st_s );
@@ -79,13 +79,19 @@ er_t xoico_func_s_parse( xoico_func_s* o, bcore_source* source )
     if( bcore_source_a_parse_bl_fa( source, " #?'('" ) )
     {
         xoico_signature_s* signature = xoico_signature_s_create();
+        BLM_TRY( xoico_compiler_s_life_a_push( compiler, signature ) );
+
         signature->group = o->group;
         signature->stamp = o->stamp;
 
         BLM_TRY( xoico_signature_s_parse( signature, source ) );
+        if( signature->arg_o )
+        {
+            if( !o->stamp ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Signature specifies a member-function. A plain function was expected at this point." );
+        }
+
         XOICO_BLM_SOURCE_PARSE_FA( source, " ) " );
 
-        BLM_TRY( xoico_compiler_s_life_a_push( compiler, signature ) );
         BLM_TRY( xoico_compiler_s_register_item( compiler, ( xoico* )signature, source ) );
 
         o->pre_hash = bcore_tp_fold_tp( o->pre_hash, xoico_signature_s_get_hash( signature ) );
@@ -159,14 +165,14 @@ er_t xoico_func_s_parse( xoico_func_s* o, bcore_source* source )
 bl_t xoico_func_s_registerable( const xoico_func_s* o )
 {
     if( !o->expandable ) return false;
-    if( xoico_compiler_s_is_item( xoico_group_s_get_compiler( o->group ), o->signature_global_name ) )
+    if( xoico_compiler_s_is_item( o->group->compiler, o->signature_global_name ) )
     {
-        const xoico* item = xoico_compiler_s_get_const_item( xoico_group_s_get_compiler( o->group ), o->signature_global_name );
+        const xoico* item = xoico_compiler_s_get_const_item( o->group->compiler, o->signature_global_name );
         if( *(aware_t*)item == TYPEOF_xoico_signature_s )
         {
-            if( !xoico_group_s_get_compiler( o->group )->register_signatures ) return false;
+            if( !o->group->compiler->register_signatures ) return false;
             const xoico_signature_s* signature = ( xoico_signature_s* )item;
-            return ( signature->arg_o != 0 || xoico_group_s_get_compiler( o->group )->register_non_feature_functions );
+            return ( signature->arg_o != 0 || o->group->compiler->register_non_feature_functions );
         }
         else
         {
@@ -184,13 +190,107 @@ bl_t xoico_func_s_registerable( const xoico_func_s* o )
 er_t xoico_func_s_finalize( xoico_func_s* o )
 {
     BLM_INIT();
+
+    xoico_compiler_s* compiler = o->group->compiler;
     BLM_TRY( xoico_func_s_set_global_name( o ) );
+
+    xoico_signature_s* signature = ( xoico_signature_s* )xoico_compiler_s_get_signature( compiler, o->signature_global_name );
+    if( !signature )
+    {
+        XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA
+        (
+            &o->source_point,
+            "Function #<sc_t>: Could not find signature #<sc_t>",
+            xoico_compiler_s_nameof( compiler, o->name ),
+            xoico_compiler_s_nameof( compiler, o->signature_global_name )
+        );
+    }
+
+    o->signature = signature;
+
     if( o->body )
     {
         BLM_TRY( xoico_body_s_set_group( o->body, o->group ) );
         BLM_TRY( xoico_body_s_set_stamp( o->body, o->stamp ) );
         BLM_TRY( xoico_body_s_finalize( o->body ) );
     }
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_func_s_expand_forward( const xoico_func_s* o, sz_t indent, bcore_sink* sink )
+{
+    if( !o->expandable ) return 0;
+
+    BLM_INIT();
+
+    xoico_compiler_s* compiler = o->group->compiler;
+    bcore_sink_a_push_fa( sink, " \\\n#rn{ }", indent );
+    bl_t go_inline = o->body && o->body->go_inline;
+    const xoico_signature_s* signature = o->signature;
+    ASSERT( signature );
+    if( go_inline )
+    {
+        bcore_sink_a_push_fa( sink, "static inline " );
+        BLM_TRY( xoico_signature_s_expand_declaration( signature, o->stamp, xoico_compiler_s_nameof( compiler, o->global_name ), indent, sink ) );
+    }
+    else
+    {
+        BLM_TRY( xoico_signature_s_expand_declaration( signature, o->stamp, xoico_compiler_s_nameof( compiler, o->global_name ), indent, sink ) );
+    }
+    bcore_sink_a_push_fa( sink, ";" );
+
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_func_s_expand_declaration( const xoico_func_s* o, sz_t indent, bcore_sink* sink )
+{
+    if( !o->expandable ) return 0;
+
+    BLM_INIT();
+
+    bl_t go_inline = o->body && o->body->go_inline;
+    const xoico_signature_s* signature = o->signature;
+    ASSERT( signature );
+
+    if( go_inline )
+    {
+        xoico_compiler_s* compiler = o->group->compiler;
+        bcore_sink_a_push_fa( sink, " \\\n#rn{ }", indent );
+        bcore_sink_a_push_fa( sink, "static inline " );
+        BLM_TRY( xoico_signature_s_expand_declaration( signature, o->stamp, xoico_compiler_s_nameof( compiler, o->global_name ), indent, sink ) );
+        BLM_TRY( xoico_body_s_expand( o->body, signature, indent, sink ) );
+    }
+    // non-inline functions are already declared in expand_forward
+
+    BLM_RETURNV( er_t, 0 );
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+er_t xoico_func_s_expand_definition( const xoico_func_s* o, sz_t indent, bcore_sink* sink )
+{
+    if( !o->expandable ) return 0;
+
+    BLM_INIT();
+
+    xoico_compiler_s* compiler = o->group->compiler;
+
+    const xoico_signature_s* signature = o->signature;
+    ASSERT( signature );
+    if( o->body && !o->body->go_inline )
+    {
+        bcore_sink_a_push_fa( sink, "\n" );
+        bcore_sink_a_push_fa( sink, "#rn{ }", indent );
+        xoico_signature_s_expand_declaration( signature, o->stamp, xoico_compiler_s_nameof( compiler, o->global_name ), indent, sink );
+        bcore_sink_a_push_fa( sink, "\n" );
+        BLM_TRY( xoico_body_s_expand( o->body, signature, indent, sink ) );
+        bcore_sink_a_push_fa( sink, "\n" );
+    }
+
     BLM_RETURNV( er_t, 0 );
 }
 

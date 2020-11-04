@@ -155,10 +155,7 @@ signature :stack_block_unit_s* stack_block_get_top_unit( mutable );
 signature :stack_block_unit_s* stack_block_get_bottom_unit( mutable );
 signature :stack_block_unit_s* stack_block_get_level_unit( mutable, sz_t level );
 
-signature bl_t is_type(  const, tp_t name );
-signature bl_t is_group( const, tp_t name );
-signature bl_t is_stamp( const, tp_t name );
-signature bl_t is_var(   const, tp_t name );
+signature bl_t is_var( const, tp_t name );
 
 name static;
 name volatile;
@@ -278,10 +275,15 @@ stamp : = aware :
         o.stack_var.push_unit( unit );
     };
 
-    func :.is_type  = { return o.compiler.is_type( name ); };
-    func :.is_group = { return o.compiler.is_group( name ); };
-    func :.is_stamp = { return o.compiler.is_stamp( name ); };
-    func :.is_var   = { return o.stack_var.exists( name ); };
+    func xoico_compiler.is_type  = { return o.compiler.is_type( name ); };
+    func xoico_compiler.is_group = { return o.compiler.is_group( name ); };
+    func xoico_compiler.is_stamp = { return o.compiler.is_stamp( name ); };
+    func xoico_compiler.is_func  = { return o.compiler.is_func( name ); };
+    func :.is_var = { return o.stack_var.exists( name ); };
+
+    func xoico_compiler.get_group = { return o.compiler.get_group( name ); };
+    func xoico_compiler.get_stamp = { return o.compiler.get_stamp( name ); };
+    func xoico_compiler.get_func  = { return o.compiler.get_func( name ); };
 
     func (bl_t returns_a_value( const )) =
     {

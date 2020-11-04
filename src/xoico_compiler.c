@@ -333,7 +333,7 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
             {
                 info->type_info.typespec.type = func->global_name;
                 info->type_info.typespec.indirection = 0;
-                const xoico_signature_s* signature = xoico_compiler_s_get_signature( o, func->signature_global_name );
+                const xoico_signature_s* signature = func->signature;
                 info->type_info.typespec.flag_const = ( signature->arg_o == TYPEOF_const );
                 xoico_signature_s_attach( &info->signature, xoico_signature_s_clone( signature ) );
                 xoico_signature_s_relent( info->signature, self->type );

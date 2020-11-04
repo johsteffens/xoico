@@ -25,7 +25,7 @@
 er_t xoico_arg_s_parse( xoico_arg_s* o, bcore_source* source )
 {
     BLM_INIT();
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    xoico_compiler_s* compiler = o->group->compiler;
     bcore_source_point_s_set( &o->source_point, source );
     BLM_TRY( xoico_typespec_s_parse( &o->typespec, o->group, source ) );
 
@@ -58,7 +58,7 @@ tp_t xoico_arg_s_get_hash( const xoico_arg_s* o )
 
 er_t xoico_arg_s_expand_name( const xoico_arg_s* o, bcore_sink* sink )
 {
-    xoico_compiler_s* compiler = xoico_group_s_get_compiler( o->group );
+    xoico_compiler_s* compiler = o->group->compiler;
     bcore_sink_a_push_fa( sink, "#<sc_t>", xoico_compiler_s_nameof( compiler, o->name ) );
     return 0;
 }

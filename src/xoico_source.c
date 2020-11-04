@@ -21,14 +21,6 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_source_s_push_group( xoico_source_s* o, xoico_group_s* group )
-{
-    bcore_array_a_push( ( bcore_array* )o, sr_asd( group ) );
-    return 0;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 er_t xoico_source_s_parse( xoico_source_s* o, bcore_source* source )
 {
     BLM_INIT();
@@ -40,8 +32,9 @@ er_t xoico_source_s_parse( xoico_source_s* o, bcore_source* source )
         {
             BLM_INIT();
             group = BLM_CREATE( xoico_group_s );
-            BLM_TRY( xoico_source_s_push_group( o, bcore_fork( group ) ) );
-            group->source = o;
+            BLM_TRY( xoico_source_s_push_group_d( o, bcore_fork( group ) ) );
+            group->xoico_source = o;
+            group->compiler = o->target->compiler;
             XOICO_BLM_SOURCE_PARSE_FA( source, " ( #name, #name", &group->st_name, &group->trait_name );
             if( bcore_source_a_parse_bl_fa( source, "#?','" ) )
             {
@@ -57,8 +50,7 @@ er_t xoico_source_s_parse( xoico_source_s* o, bcore_source* source )
                 XOICO_BLM_SOURCE_PARSE_FA( source, " )" );
                 BLM_TRY( xoico_group_s_parse( group, source ) );
             }
-            BLM_TRY( xoico_compiler_s_register_group( o->target->compiler, group, source ) );
-            o->hash = bcore_tp_fold_tp( o->hash, group->hash );
+            BLM_TRY( xoico_compiler_s_register_group( o->target->compiler, group ) );
             BLM_DOWN();
         }
         else

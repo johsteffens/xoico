@@ -108,7 +108,7 @@ group :tn = :
 
         func :.init_from_args =
         {
-            const xoico_compiler_s* compiler = xoico_group_s_get_compiler( args->group );
+            const xoico_compiler_s* compiler = args->group->compiler;
             @_clear( o );
             if( obj_type ) @_push_sc( o, obj_type, obj_name, 0 );
             BFOR_EACH( i, args )

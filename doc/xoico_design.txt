@@ -256,8 +256,6 @@ TODO:
 - (done) add 'fork' a functional keyword representing a type-reserving bcore_fork.
 - (done) add 'keep_func', 'keep_block'
 - (deprecated) redefine keep: scope( expr [, var] ), which keeps the result of expression in the scope of var. Without 'var', the scope is the current block.
-- define plain functions in a group
-- cengine: recognize a full function name (non-member)
 - (done) implement try-expression
 - (done) allow signature definition along with function declaration
 - (done) allow stamp member function declaration outside stamp
@@ -273,6 +271,9 @@ TODO:
 - (speculative) allow (prepended) declaration after opening a bracket
 - (speculative) auto-keep function return values marked 'keep'
 
+- (done) define plain functions in a group
+- (done) cengine: recognize a full function name (non-member)
+- (fixed) bug: bodyless function can be added to a stamp after the same function was defined with a body (removing the body again)
 - add variadic function
 
 Keywords (for syntax highlight)

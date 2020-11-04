@@ -45,6 +45,8 @@ stamp : = aware :
 
     tp_t pre_hash = 0;
 
+    hidden aware xoico_signature_s* signature;
+
     hidden aware xoico_group_s* group;
     hidden aware xoico_stamp_s* stamp;
 
@@ -54,6 +56,9 @@ stamp : = aware :
     func :.parse;
     func :.finalize;
     func :.registerable;
+    func xoico.expand_forward;
+    func xoico.expand_declaration;
+    func xoico.expand_definition;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

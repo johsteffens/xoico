@@ -21,7 +21,13 @@ func (:) :.register_group =
 {
     if( o.hmap_group.exists( group.tp_name ) )
     {
-        return o.parse_err_fa( source, "'#<sc_t>' was already registered\n", o.nameof( group.tp_name ) );
+        return bcore_source_point_s_parse_err_to_em_fa
+        (
+            &group.source_point,
+            TYPEOF_parse_error,
+            "'#<sc_t>' was already registered\n",
+            o.nameof( group.tp_name )
+        );
     }
     o.hmap_group.set( group.tp_name, ( vd_t )group );
     return 0;
@@ -46,7 +52,13 @@ func (:) :.register_func =
 {
     if( o.hmap_func.exists( func.global_name ) )
     {
-        return o.parse_err_fa( source, "'#<sc_t>' was already registered\n", o.nameof( func.global_name ) );
+        return bcore_source_point_s_parse_err_to_em_fa
+        (
+            &func.source_point,
+            TYPEOF_parse_error,
+            "'#<sc_t>' was already registered\n",
+            o.nameof( func.global_name )
+        );
     }
 
     o.hmap_func.set( func.global_name, ( vd_t )func );

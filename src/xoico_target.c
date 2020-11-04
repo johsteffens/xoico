@@ -50,8 +50,6 @@ er_t xoico_target_s_parse( xoico_target_s* o, sc_t source_path )
         st_s_copy_sc( &xsource->name, source_name->sc );
         st_s_copy   ( &xsource->path, source_path_n );
 
-        xsource->hash = bcore_tp_init();
-
         if( bcore_file_exists( source_path_h->sc ) )
         {
             BLM_TRY( xoico_source_s_parse( xsource, BLM_A_PUSH( bcore_file_open_source( source_path_h->sc ) ) ) );
@@ -77,7 +75,7 @@ tp_t xoico_target_s_get_hash( const xoico_target_s* o )
 
     if( o->cengine ) hash = bcore_tp_fold_tp( hash, xoico_cengine_a_get_hash( o->cengine ) );
 
-    BFOR_EACH( i, o ) hash = bcore_tp_fold_tp( hash, o->data[ i ]->hash );
+    BFOR_EACH( i, o ) hash = bcore_tp_fold_tp( hash, xoico_source_s_get_hash( o->data[ i ] ) );
 
     if( o->dependencies.size > 0 )
     {
