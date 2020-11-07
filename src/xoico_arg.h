@@ -26,29 +26,66 @@
 XOILA_DEFINE_GROUP( xoico_arg, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-signature er_t relent(    mutable, tp_t tp_obj_type );
-signature er_t expand(      const, sc_t sc_obj_type, bcore_sink* sink );
-signature er_t expand_name( const, bcore_sink* sink );
-
 stamp : = aware :
 {
     hidden aware xoico_group_s* group;
-
     bcore_source_point_s source_point;
-
     xoico_typespec_s typespec;
     tp_t name;
-
-    func xoico.parse;
-    func xoico.get_hash;
-
-    func :. relent;
-    func :. expand;
-    func :. expand_name;
-
 };
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ---------------------------------------------------------------------------------------------------------------------
+
+func (:) xoico.parse =
+{
+try
+{
+    xoico_compiler_s* compiler = o.group.compiler;
+    o.source_point.set( source );
+    o.typespec.parse( o.group, source );
+
+    if( o.typespec.type == TYPEOF_void && o.typespec.indirection == 0 )
+    {
+        return o.source_point.parse_err_to_em_fa( TYPEOF_parse_error, "'void' is misplaced here." );
+    }
+
+    st_s* s = st_s!.scope();
+    source.parse_fa( "#name ", s );
+    if( s->size == 0 ) return source.parse_err_to_em_fa( TYPEOF_parse_error, "Argument: Name expected." );
+    o->name = compiler.entypeof( s->sc );
+
+    return 0;
+} // try
+};
+
+func (:) xoico.get_hash =
+{
+    tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
+    hash = bcore_tp_fold_tp( hash, o.typespec.get_hash() );
+    hash = bcore_tp_fold_tp( hash, o.name );
+    return hash;
+};
+
+func (:) (er_t relent( mutable, tp_t tp_obj_type )) =
+{
+    return o.typespec.relent( o.group, tp_obj_type );
+};
+
+func (:) (er_t expand( const, sc_t sc_obj_type, bcore_sink* sink )) =
+{
+    try( o.typespec.expand( o.group, sc_obj_type, sink ) );
+    sink.push_fa( " " );
+    o.expand_name( sink );
+    return 0;
+};
+
+func (:) (er_t expand_name( const, bcore_sink* sink )) =
+{
+    sink.push_fa( "#<sc_t>", o.group.compiler.nameof( o->name ) );
+    return 0;
+};
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 #endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

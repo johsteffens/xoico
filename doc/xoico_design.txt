@@ -275,6 +275,7 @@ TODO:
 - (done) cengine: recognize a full function name (non-member)
 - (fixed) bug: bodyless function can be added to a stamp after the same function was defined with a body (removing the body again)
 - add variadic function
+- (fixed) bug: functions in groups do not affect its hash value
 
 Keywords (for syntax highlight)
 

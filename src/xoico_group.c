@@ -45,6 +45,7 @@ tp_t xoico_group_s_get_hash( const xoico_group_s* o )
     hash = bcore_tp_fold_bl( hash, o->expandable );
     hash = bcore_tp_fold_bl( hash, o->short_spect_name );
     hash = bcore_tp_fold_tp( hash, o->beta );
+    hash = bcore_tp_fold_tp( hash, xoico_funcs_s_get_hash( &o->funcs ) );
 
     for( sz_t i = 0; i < o->size; i++ )
     {
@@ -380,7 +381,7 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
         else if( bcore_source_a_parse_bl_fa( source, " #?w'group' " ) )
         {
             xoico_group_s* group = BLM_CREATE( xoico_group_s );
-            BLM_TRY( xoico_source_s_push_group_d( o->xoico_source, bcore_fork( group ) ) );
+            BLM_TRY( xoico_source_s_push_d( o->xoico_source, bcore_fork( group ) ) );
             group->parent = o;
             group->xoico_source = o->xoico_source;
             group->compiler = o->compiler;

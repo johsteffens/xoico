@@ -285,7 +285,7 @@ er_t xoico_func_s_expand_definition( const xoico_func_s* o, sz_t indent, bcore_s
     {
         bcore_sink_a_push_fa( sink, "\n" );
         bcore_sink_a_push_fa( sink, "#rn{ }", indent );
-        xoico_signature_s_expand_declaration( signature, o->stamp, xoico_compiler_s_nameof( compiler, o->global_name ), indent, sink );
+        BLM_TRY( xoico_signature_s_expand_declaration( signature, o->stamp, xoico_compiler_s_nameof( compiler, o->global_name ), indent, sink ) );
         bcore_sink_a_push_fa( sink, "\n" );
         BLM_TRY( xoico_body_s_expand( o->body, signature, indent, sink ) );
         bcore_sink_a_push_fa( sink, "\n" );

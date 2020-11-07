@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-04T12:25:43Z
+ *  Last File Update: 2020-11-04T19:31:23Z
  *
  *  Copyright and License of this File:
  *
@@ -43,7 +43,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x1FEB87EF4B69B48Eull
+#define HKEYOF_xoico_xoila_out 0xA207EBC36E098EF7ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -92,6 +92,7 @@
   BCORE_FORWARD_OBJECT( xoico_target_s ); \
   BCORE_FORWARD_OBJECT( xoico_compiler_s ); \
   BCORE_FORWARD_OBJECT( xoico_cengine ); \
+  er_t xoico_parse_f( bcore_source* source, sc_t format ); \
   typedef er_t (*xoico_parse)( xoico* o, bcore_source* source ); \
   typedef tp_t (*xoico_get_hash)( const xoico* o ); \
   typedef sc_t (*xoico_get_global_name_sc)( const xoico* o ); \
@@ -346,12 +347,23 @@
       BCORE_ARRAY_DYN_SOLID_STATIC_S( xoico_arg_s, ); \
       xoico_group_s* group; \
   }; \
-  er_t xoico_args_s_parse( xoico_args_s* o, bcore_source* source ); \
-  tp_t xoico_args_s_get_hash( const xoico_args_s* o ); \
+  static inline er_t xoico_args_s_parse( xoico_args_s* o, bcore_source* source ); \
   er_t xoico_args_s_append( xoico_args_s* o, bcore_source* source ); \
   er_t xoico_args_s_relent( xoico_args_s* o, tp_t tp_obj_type ); \
   er_t xoico_args_s_expand( const xoico_args_s* o, bl_t first, sc_t sc_obj_type, bcore_sink* sink ); \
-  er_t xoico_args_s_expand_name( const xoico_args_s* o, bl_t first, bcore_sink* sink );
+  er_t xoico_args_s_expand_name( const xoico_args_s* o, bl_t first, bcore_sink* sink ); \
+  tp_t xoico_args_s_get_hash( const xoico_args_s* o ); \
+  static inline xoico_args_s* xoico_args_s_set_space( xoico_args_s* o, sz_t size ) { bcore_array_t_set_space( TYPEOF_xoico_args_s, ( bcore_array* )o, size ); return o; } \
+  static inline xoico_args_s* xoico_args_s_set_size( xoico_args_s* o, sz_t size ) { bcore_array_t_set_size( TYPEOF_xoico_args_s, ( bcore_array* )o, size ); return o; } \
+  static inline xoico_args_s* xoico_args_s_clear( xoico_args_s* o ) { bcore_array_t_set_space( TYPEOF_xoico_args_s, ( bcore_array* )o, 0 ); return o; } \
+  static inline xoico_arg_s* xoico_args_s_push_c( xoico_args_s* o, const xoico_arg_s* v ) { bcore_array_t_push( TYPEOF_xoico_args_s, ( bcore_array* )o, sr_twc( TYPEOF_xoico_arg_s, v ) ); return &o->data[ o->size - 1 ]; } \
+  static inline xoico_arg_s* xoico_args_s_push_d( xoico_args_s* o,       xoico_arg_s* v ) { bcore_array_t_push( TYPEOF_xoico_args_s, ( bcore_array* )o, sr_tsd( TYPEOF_xoico_arg_s, v ) ); return &o->data[ o->size - 1 ]; } \
+  static inline xoico_arg_s* xoico_args_s_push( xoico_args_s* o ) \
+  { \
+      bcore_array_t_push( TYPEOF_xoico_args_s, ( bcore_array* )o, sr_null() ); \
+      return &o->data[ o->size - 1 ]; \
+  } \
+  static inline er_t xoico_args_s_parse( xoico_args_s* o, bcore_source* source ){xoico_args_s_clear( o); return  xoico_args_s_append(o,source );}
 #define BETH_EXPAND_GROUP_xoico_args \
   BCORE_FORWARD_OBJECT( xoico_args ); \
   BCORE_FORWARD_OBJECT( xoico_args_s ); \
@@ -568,6 +580,7 @@
   xoico_func_s* xoico_funcs_s_get_func_from_name( const xoico_funcs_s* o, tp_t name ); \
   er_t xoico_funcs_s_replace_fork( xoico_funcs_s* o, sz_t idx, xoico_func_s* func ); \
   static inline er_t xoico_funcs_s_push_d( xoico_funcs_s* o, xoico_func_s* func ); \
+  tp_t xoico_funcs_s_get_hash( const xoico_funcs_s* o ); \
   static inline er_t xoico_funcs_s_push_d( xoico_funcs_s* o, xoico_func_s* func ){bcore_array_a_push( ((bcore_array*)(o)),sr_asd( func ) ); return  0;}
 #define BETH_EXPAND_GROUP_xoico_funcs \
   BCORE_FORWARD_OBJECT( xoico_funcs ); \
@@ -749,7 +762,7 @@
       xoico_target_s* target; \
   }; \
   er_t xoico_source_s_expand_setup( xoico_source_s* o ); \
-  er_t xoico_source_s_push_group_d( xoico_source_s* o, xoico_group_s* group ); \
+  er_t xoico_source_s_push_d( xoico_source_s* o, xoico_group_s* group ); \
   tp_t xoico_source_s_get_hash( const xoico_source_s* o ); \
   er_t xoico_source_s_parse( xoico_source_s* o, bcore_source* source ); \
   er_t xoico_source_s_finalize( xoico_source_s* o ); \
@@ -800,7 +813,8 @@
   er_t xoico_target_s_expand_phase1( xoico_target_s* o, bl_t* p_modified ); \
   er_t xoico_target_s_expand_phase2( xoico_target_s* o, bl_t* p_modified ); \
   bl_t xoico_target_s_is_cyclic( xoico_target_s* o ); \
-  er_t xoico_target_s_set_dependencies( xoico_target_s* o, const bcore_arr_sz_s* dependencies );
+  er_t xoico_target_s_set_dependencies( xoico_target_s* o, const bcore_arr_sz_s* dependencies ); \
+  void xoico_target_s_push_d( xoico_target_s* o, xoico_source_s* source );
 #define BETH_EXPAND_GROUP_xoico_target \
   BCORE_FORWARD_OBJECT( xoico_target ); \
   BCORE_FORWARD_OBJECT( xoico_target_s ); \
@@ -856,8 +870,6 @@
       bl_t dry_run; \
       sz_t verbosity; \
   }; \
-  er_t xoico_compiler_s_finalize( xoico_compiler_s* o ); \
-  er_t xoico_compiler_s_expand_setup( xoico_compiler_s* o ); \
   static inline er_t xoico_compiler_s_register_external_type( xoico_compiler_s* o, tp_t type ); \
   static inline bl_t xoico_compiler_s_is_item( const xoico_compiler_s* o, tp_t name ); \
   static inline bl_t xoico_compiler_s_is_group( const xoico_compiler_s* o, tp_t name ); \
@@ -875,25 +887,32 @@
   xoico_group_s* xoico_compiler_s_get_group( xoico_compiler_s* o, tp_t name ); \
   xoico_func_s* xoico_compiler_s_get_func( xoico_compiler_s* o, tp_t name ); \
   er_t xoico_compiler_s_life_a_push( xoico_compiler_s* o, vd_t object ); \
+  static inline bl_t xoico_compiler_s_update_required( xoico_compiler_s* o ); \
+  static inline sz_t xoico_compiler_s_get_verbosity( const xoico_compiler_s* o ); \
+  static inline tp_t xoico_compiler_s_entypeof( xoico_compiler_s* o, sc_t name ); \
+  static inline sc_t xoico_compiler_s_nameof( const xoico_compiler_s* o, tp_t type ); \
+  void xoico_compiler_s_init_x( xoico_compiler_s* o ); \
+  void xoico_compiler_s_push_d( xoico_compiler_s* o, xoico_target_s* target ); \
+  er_t xoico_compiler_s_register_group( xoico_compiler_s* o, const xoico_group_s* group ); \
+  er_t xoico_compiler_s_register_item( xoico_compiler_s* o, const xoico* item, bcore_source* source ); \
+  er_t xoico_compiler_s_register_func( xoico_compiler_s* o, const xoico_func_s* func ); \
   er_t xoico_compiler_s_check_overwrite( const xoico_compiler_s* o, sc_t file ); \
+  er_t xoico_compiler_s_parse( xoico_compiler_s* o, sc_t target_name, sc_t source_path, sz_t* p_target_index ); \
+  er_t xoico_compiler_s_finalize( xoico_compiler_s* o ); \
+  er_t xoico_compiler_s_expand_setup( xoico_compiler_s* o ); \
+  bl_t xoico_compiler_s_to_be_modified( const xoico_compiler_s* o ); \
+  er_t xoico_compiler_s_expand( xoico_compiler_s* o, bl_t* p_modified ); \
   bl_t xoico_compiler_s_get_self( const xoico_compiler_s* o, tp_t type, const bcore_self_s** self ); \
   bl_t xoico_compiler_s_get_type_info( const xoico_compiler_s* o, tp_t type, xoico_compiler_type_info_s* info ); \
   bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t type, tp_t name, xoico_compiler_element_info_s* info ); \
   bl_t xoico_compiler_s_get_type_array_element_info( const xoico_compiler_s* o, tp_t type, xoico_compiler_element_info_s* info ); \
-  er_t xoico_compiler_s_parse( xoico_compiler_s* o, sc_t target_name, sc_t source_path, sz_t* p_target_index ); \
   er_t xoico_compiler_s_update_target_files( xoico_compiler_s* o, bl_t* p_modified ); \
-  bl_t xoico_compiler_s_update_required( xoico_compiler_s* o ); \
-  sz_t xoico_compiler_s_get_verbosity( const xoico_compiler_s* o ); \
-  static inline tp_t xoico_compiler_s_entypeof( xoico_compiler_s* o, sc_t name ); \
-  static inline sc_t xoico_compiler_s_nameof( const xoico_compiler_s* o, tp_t type ); \
-  void xoico_compiler_s_init_x( xoico_compiler_s* o ); \
-  er_t xoico_compiler_s_register_group( xoico_compiler_s* o, const xoico_group_s* group ); \
-  er_t xoico_compiler_s_register_item( xoico_compiler_s* o, const xoico* item, bcore_source* source ); \
-  er_t xoico_compiler_s_register_func( xoico_compiler_s* o, const xoico_func_s* func ); \
   static inline er_t xoico_compiler_s_register_external_type( xoico_compiler_s* o, tp_t type ){bcore_hmap_tp_s_set(&(o->hmap_external_type),type ); return  0;} \
   static inline bl_t xoico_compiler_s_is_item( const xoico_compiler_s* o, tp_t name ){return  bcore_hmap_tpvd_s_exists(&(o->hmap_item),name );} \
   static inline bl_t xoico_compiler_s_is_group( const xoico_compiler_s* o, tp_t name ){return  bcore_hmap_tpvd_s_exists(&(o->hmap_group),name );} \
   static inline bl_t xoico_compiler_s_is_func( const xoico_compiler_s* o, tp_t name ){return  bcore_hmap_tpvd_s_exists(&(o->hmap_func),name );} \
+  static inline bl_t xoico_compiler_s_update_required( xoico_compiler_s* o ){return  xoico_compiler_s_to_be_modified(o);} \
+  static inline sz_t xoico_compiler_s_get_verbosity( const xoico_compiler_s* o ){return  o->verbosity;} \
   static inline tp_t xoico_compiler_s_entypeof( xoico_compiler_s* o, sc_t name ){return  bcore_hmap_name_s_set_sc( &o->name_map,name );} \
   static inline sc_t xoico_compiler_s_nameof( const xoico_compiler_s* o, tp_t type ){return  bcore_hmap_name_s_get_sc( &o->name_map,type );}
 #define BETH_EXPAND_GROUP_xoico_compiler \
@@ -901,6 +920,7 @@
   BCORE_FORWARD_OBJECT( xoico_compiler_type_info_s ); \
   BCORE_FORWARD_OBJECT( xoico_compiler_element_info_s ); \
   BCORE_FORWARD_OBJECT( xoico_compiler_s ); \
+  bl_t xoico_compiler_is_signed( sc_t file ); \
   XOILA_DECLARE_SPECT( xoico_compiler ) \
   { \
       bcore_spect_header_s header; \
@@ -1517,4 +1537,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0xAA6EF25B23E437DFull
+// XOILA_OUT_SIGNATURE 0xB737ECBAE4D8268Aull

@@ -32,7 +32,7 @@ er_t xoico_source_s_parse( xoico_source_s* o, bcore_source* source )
         {
             BLM_INIT();
             group = BLM_CREATE( xoico_group_s );
-            BLM_TRY( xoico_source_s_push_group_d( o, bcore_fork( group ) ) );
+            BLM_TRY( xoico_source_s_push_d( o, bcore_fork( group ) ) );
             group->xoico_source = o;
             group->compiler = o->target->compiler;
             XOICO_BLM_SOURCE_PARSE_FA( source, " ( #name, #name", &group->st_name, &group->trait_name );

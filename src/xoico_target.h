@@ -66,6 +66,11 @@ stamp : = aware :
     func :.expand_phase2;
     func :.is_cyclic;
     func :.set_dependencies;
+
+    func (void push_d( mutable, xoico_source_s* source )) =
+    {
+        o.cast( bcore_array* ).push( sr_asd( source ) );
+    };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

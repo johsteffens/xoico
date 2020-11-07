@@ -74,14 +74,14 @@ stamp :target = aware :
         }
     };
 
-    func :. name_match =
+    func :.name_match =
     {
         if( o->name && sc_t_equal( name, o->name->sc ) ) return o;
         if( o->parent_ ) return @_name_match( o->parent_, name );
         return NULL;
     };
 
-    func :. push_target_index_to_arr =
+    func :.push_target_index_to_arr =
     {
         if( o->target_index_ != -1 )
         {
@@ -93,8 +93,8 @@ stamp :target = aware :
         }
     };
 
-    func :. load;
-    func :. build;
+    func :.load;
+    func :.build;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

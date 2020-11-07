@@ -203,7 +203,12 @@ stamp : = aware :
         return ptr ? ( xoico_func_s* )*ptr : NULL;
     };
 
-    func :.life_a_push;
+    func :.life_a_push =
+    {
+        bcore_life_s_push_aware( &o->life, object );
+        return 0;
+    };
+
     func :.check_overwrite;
     func :.get_self;
     func :.get_type_info;
@@ -213,8 +218,8 @@ stamp : = aware :
     // external interface ...
     func :.parse;
     func :.update_target_files;
-    func :.update_required;
-    func :.get_verbosity;
+    func :.update_required = { return o.to_be_modified(); };
+    func :.get_verbosity = { return o.verbosity; };
 
     func :.entypeof = { return bcore_hmap_name_s_set_sc( &o->name_map, name ); };
     func :.nameof   = { return bcore_hmap_name_s_get_sc( &o->name_map, type ); };
@@ -227,6 +232,11 @@ stamp : = aware :
             o->target_pre_hash = bcore_tp_fold_sc( o->target_pre_hash, __TIME__ );
         }
     };
+
+    func (void push_d( mutable, xoico_target_s* target )) =
+    {
+        o.cast( bcore_array* ).push( sr_asd( target ) );
+    };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -237,8 +247,6 @@ embed "xoico_compiler.x";
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_compiler_s_parse_fv(     const xoico_compiler_s* o, bcore_source* source, sc_t format, va_list args );
-er_t xoico_compiler_s_parse_fa(     const xoico_compiler_s* o, bcore_source* source, sc_t format, ... );
 er_t xoico_compiler_s_parse_err_fv( const xoico_compiler_s* o, bcore_source* source, sc_t format, va_list args );
 er_t xoico_compiler_s_parse_err_fa( const xoico_compiler_s* o, bcore_source* source, sc_t format, ... );
 

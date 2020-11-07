@@ -26,27 +26,70 @@
 XOILA_DEFINE_GROUP( xoico_args, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-signature er_t append(      mutable, bcore_source* source );
-signature er_t relent(      mutable, tp_t tp_obj_type );
-signature er_t expand(      const, bl_t first, sc_t sc_obj_type, bcore_sink* sink );
-signature er_t expand_name( const, bl_t first, bcore_sink* sink );
-
-stamp : = aware :
+stamp : = aware bcore_array
 {
     xoico_arg_s [];
     hidden aware xoico_group_s* group;
-
-    func xoico.parse;
-    func xoico.get_hash;
-
-    func     :.append;
-    func     :.relent;
-    func     :.expand;
-    func     :.expand_name;
-
 };
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:) xoico.parse = { o.clear(); return o.append( source ); };
+
+func (:) (er_t append( mutable, bcore_source* source )) =
+{
+    try
+    {
+        bl_t first = true;
+        while( !source.parse_bl_fa( " #=?')' " ) ) // args follow
+        {
+            if( !first ) xoico_parse_f( source, " , " );
+            xoico_arg_s* arg = xoico_arg_s!;
+            arg.group = o.group;
+            arg.parse( source );
+            o.push_d( arg );
+            first = false;
+        }
+    }
+    return 0;
+};
+
+func (:) (er_t relent( mutable, tp_t tp_obj_type )) =
+{
+    foreach( $* arg in o ) try( arg.relent( tp_obj_type ) );
+    return 0;
+};
+
+func (:) (er_t expand( const, bl_t first, sc_t sc_obj_type, bcore_sink* sink )) =
+{
+    foreach( $* arg in o )
+    {
+        if( !first ) sink.push_fa( ", " );
+        first = false;
+        try( arg.expand( sc_obj_type, sink ) );
+    }
+    return 0;
+};
+
+func (:) (er_t expand_name( const, bl_t first, bcore_sink* sink )) =
+{
+    foreach( $* arg in o )
+    {
+        if( !first ) sink.push_fa( ", " );
+        first = false;
+        try( arg.expand_name( sink ) );
+    }
+    return 0;
+};
+
+func (:) xoico.get_hash =
+{
+    tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
+    foreach( $* arg in o ) hash = bcore_tp_fold_tp( hash, arg.get_hash() );
+    return hash;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
 
 #endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -34,6 +34,7 @@ signature xoico_func_s* get_func_from_signature_global_name( const, tp_t signatu
 signature xoico_func_s* get_func_from_name( const, tp_t name ); // returns NULL if not found
 signature er_t replace_fork( mutable, sz_t idx, xoico_func_s* func );
 signature er_t push_d( mutable, xoico_func_s* func );
+signature tp_t get_hash( const );
 
 stamp : = aware :
 {
@@ -46,7 +47,12 @@ stamp : = aware :
     func :.get_func_from_name;
     func :.replace_fork;
     func :.push_d = { o.cast( bcore_array* ).push( sr_asd( func ) ); return 0; };
-
+    func :.get_hash =
+    {
+        tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
+        foreach( $* func in o ) hash = bcore_tp_fold_tp( hash, func.get_hash() );
+        return hash;
+    };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

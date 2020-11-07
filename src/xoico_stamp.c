@@ -184,10 +184,7 @@ tp_t xoico_stamp_s_get_hash( const xoico_stamp_s* o )
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
     hash = bcore_tp_fold_sc( hash, o->st_name.sc );
     hash = bcore_tp_fold_sc( hash, o->self_source->sc );
-    for( sz_t i = 0; i < o->funcs.size; i++ )
-    {
-        hash = bcore_tp_fold_tp( hash, xoico_func_s_get_hash( o->funcs.data[ i ] ) );
-    }
+    hash = bcore_tp_fold_tp( hash, xoico_funcs_s_get_hash( &o->funcs ) );
     return hash;
 }
 
@@ -651,7 +648,7 @@ er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore
 
     for( sz_t i = 0; i < o->funcs.size; i++ )
     {
-        xoico_func_s_expand_definition( o->funcs.data[ i ], indent, sink );
+        BLM_TRY( xoico_func_s_expand_definition( o->funcs.data[ i ], indent, sink ) );
     }
 
     BLM_RETURNV( er_t, 0 );

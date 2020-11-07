@@ -26,7 +26,6 @@
 XOILA_DEFINE_GROUP( xoico_source, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-signature er_t push_group_d( mutable, xoico_group_s* group );
 signature er_t parse(        mutable, bcore_source* source );
 signature er_t finalize( mutable );
 signature er_t expand_declaration( const, sz_t indent, bcore_sink* sink );
@@ -43,7 +42,7 @@ stamp : = aware :
 
     func xoico.expand_setup;
 
-    func :.push_group_d =
+    func (er_t push_d( mutable, xoico_group_s* group )) =
     {
         o.cast( bcore_array* ).push( sr_asd( group ) );
         return 0;
