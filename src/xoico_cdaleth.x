@@ -37,7 +37,7 @@ func (:) (tp_t get_identifier( mutable, bcore_source* source, bl_t take_from_sou
                 st_name.copy( o.stamp ? &o.stamp.st_name : &o.group.st_name );
                 if( source.parse_bl( "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]=='_'||([0]>='0'&&[0]<='9'))" ) )
                 {
-                    o.parse_fa( source, "#:name", st_name );
+                    source.parse_fa( "#:name", st_name );
                 }
                 tp_identifier = o.entypeof( st_name.sc );
             }
@@ -77,28 +77,22 @@ func (:) (tp_t get_identifier( mutable, bcore_source* source, bl_t take_from_sou
 
 /** transfers identifier, enrolls it and sets 'tp_identifier' */
 func(:) (er_t trans_identifier( mutable, bcore_source* source, st_s* buf /* can be NULL */, tp_t* tp_identifier/* can be NULL */ )) =
-{
-try
-{
-
+{ try {
     tp_t identifier = o.get_identifier( source, true );
     if( !identifier )
     {
-        return o.parse_err_fa( source, "Identifier exected" );
+        return source.parse_error_fa( "Identifier exected" );
     }
     if( tp_identifier ) *tp_identifier = identifier;
     if( buf ) buf.push_sc( o.nameof( identifier ) );
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 /** parses number: (all integer, hex and float encodings)*/
 func(:) (er_t trans_number_literal( mutable, bcore_source* source, st_s* buf )) =
-{
-try
-{
+{ try {
     bl_t hex = false;
     if( source.parse_bl( "#?'0x'" ) )
     {
@@ -170,16 +164,13 @@ try
     }
 
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 /// parses string
 func (:) (er_t trans_string_literal( mutable, bcore_source* source, st_s* buf )) =
-{
-try
-{
+{ try {
     o.trans( source, "\"", buf );
 
     while( !source.eos() && !source.parse_bl( "#=?'\"'" ) )
@@ -190,8 +181,7 @@ try
 
     o.trans( source, "\"", buf );
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -210,16 +200,13 @@ try
 
     o.trans( source, "'", buf );
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 /// parses whitespaces including comments
 func (:) (er_t trans_whitespace( mutable, bcore_source* source, st_s* buf /* can be NULL */ )) =
-{
-try
-{
+{ try {
     bl_t exit_loop = false;
     while( !exit_loop && !source.eos() )
     {
@@ -276,15 +263,12 @@ try
         }
     }
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:) (er_t trans_preprocessor( mutable, bcore_source* source, st_s* buf )) =
-{
-try
-{
+{ try {
     o.parse( source, "##" );
     buf.push_sc( "#" );
     while( !source.eos() )
@@ -295,8 +279,7 @@ try
         if( c == '\n' ) break;
     }
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -344,14 +327,11 @@ func (:)
         st_s* buf
     )
 ) =
-{
-try
-{
+{ try {
     if( !typespec_expr.type )
     {
-        return o.parse_err_fa
+        return source.parse_error_fa
         (
-            source,
             "xoico_cdaleth_s_adapt_expression: no type specified.",
             typespec_expr.indirection,
             typespec_target.indirection
@@ -375,7 +355,7 @@ try
         }
         else
         {
-            return o.parse_err_fa( source, "Increasing indirection: Expression has no address." );
+            return source.parse_error_fa( "Increasing indirection: Expression has no address." );
         }
     }
     else if( typespec_target.indirection == typespec_expr.indirection - 1 )
@@ -384,17 +364,15 @@ try
     }
     else
     {
-        return o.parse_err_fa
+        return source.parse_error_fa
         (
-            source,
             "Cannot adapt from expression's indirection '#<sz_t>' to target indirection '#<sz_t>'.",
             typespec_expr.indirection,
             typespec_target.indirection
         );
     }
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -411,9 +389,7 @@ func (:)
         st_s* buf_out
     )
 ) =
-{
-try
-{
+{ try {
     o.trans( source, "(", buf_out );
 
     if( signature.arg_o )
@@ -463,8 +439,7 @@ try
     o.parse( source, " " );
     o.trans( source, ")", buf_out );
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -479,9 +454,7 @@ func (:)
               xoico_typespec_s* out_typespec  // optional
     )
 ) =
-{
-try
-{
+{ try {
     o.trans_whitespace( source, buf );
 
     if( out_typespec ) out_typespec.type = 0;
@@ -492,7 +465,7 @@ try
         {
             if( in_typespec.indirection != 1 )
             {
-                return o.parse_err_fa( source, "Given indirection is '#<sz_t>'. '->' can only be used at indirection '1'.", in_typespec.indirection );
+                return source.parse_error_fa( "Given indirection is '#<sz_t>'. '->' can only be used at indirection '1'.", in_typespec.indirection );
             }
         }
         else
@@ -514,13 +487,12 @@ try
                 o.parse( source, "[" );
             }
 
-            if( bounds_check ) return o.parse_err_fa( source, "Bounds check not yet available." );
+            if( bounds_check ) return source.parse_error_fa( "Bounds check not yet available." );
 
             if( in_typespec.indirection > 1 )
             {
-                return o.parse_err_fa
+                return source.parse_error_fa
                 (
-                    source,
                     "Resolving subscript: Indirection '#<sz_t>' is too large.",
                     in_typespec.indirection
                 );
@@ -570,9 +542,8 @@ try
                 {
                     if( in_typespec.indirection > 1 )
                     {
-                        return o.parse_err_fa
+                        return source.parse_error_fa
                         (
-                            source,
                             "Dereferencing #<sc_t>: Indirection '#<sz_t>' is too large.",
                             o.nameof( tp_identifier ),
                             in_typespec.indirection
@@ -649,7 +620,7 @@ try
         {
             if( in_typespec.type != TYPEOF_sc_t && in_typespec.type != TYPEOF_sd_t )
             {
-                return o.parse_err_fa( source, "Array subscript requires indirection >= 1." );
+                return source.parse_error_fa( "Array subscript requires indirection >= 1." );
             }
         }
         buf.push_sc( "[" );
@@ -674,12 +645,12 @@ try
         {
             if( !( in_typespec.indirection == 1 && in_typespec.flag_addressable ) )
             {
-                return o.parse_err_fa( source, "Create-Operator requires lvalue with addressable indirection of 1." );
+                return source.parse_error_fa( "Create-Operator requires lvalue with addressable indirection of 1." );
             }
 
             if( xoico_cdaleth_s_is_group( o, in_typespec.type ) )
             {
-                return o.parse_err_fa( source, "Create-Operator: lvalue is a group." );
+                return source.parse_error_fa( "Create-Operator: lvalue is a group." );
             }
 
             st_s* arg_obj = scope( buf.clone() );
@@ -701,7 +672,7 @@ try
         {
             if( in_typespec.indirection != 1 )
             {
-                return o.parse_err_fa( source, "Test-Operator requires lvalue with indirection of 1." );
+                return source.parse_error_fa( "Test-Operator requires lvalue with indirection of 1." );
             }
 
             st_s* arg_obj = scope( buf.clone() );
@@ -718,7 +689,7 @@ try
     {
         if( !( in_typespec.indirection == 1 && in_typespec.flag_addressable ) )
         {
-            return o.parse_err_fa( source, "Attach-Operator requires lvalue with addressable indirection of 1" );
+            return source.parse_error_fa( "Attach-Operator requires lvalue with addressable indirection of 1" );
         }
 
         st_s* arg_obj = scope( buf.clone() );
@@ -745,7 +716,7 @@ try
 
         if( typespec_rval.type && typespec_rval.indirection != 1 )
         {
-            return o.parse_err_fa( source, "Attach operator requires rvalue with indirection '1'" );
+            return source.parse_error_fa( "Attach operator requires rvalue with indirection '1'" );
         }
 
         if( out_typespec ) out_typespec.copy( in_typespec );
@@ -772,15 +743,12 @@ try
         out_typespec.copy( in_typespec );
     }
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:) (er_t trans_member( mutable, bcore_source* source, st_s* buf )) =
-{
-try
-{
+{ try {
     if(      source.parse_bl_fa( "#?'.'"  ) ) buf.push_sc( "." );
     else if( source.parse_bl_fa( "#?'->'" ) ) buf.push_sc( "->" );
 
@@ -789,18 +757,17 @@ try
 
     if( o.is_builtin_func( tp_identifier ) )
     {
-        return o.parse_err_fa( source, "Expression before '#<sc_t>' not tractable\n", o.nameof( tp_identifier ) );
+        return source.parse_error_fa( "Expression before '#<sc_t>' not tractable\n", o.nameof( tp_identifier ) );
     }
 
     o.trans_identifier( source, buf, NULL );
     o.trans_whitespace( source, buf );
     if( source.parse_bl_fa( "#?'('") )
     {
-        return o.parse_err_fa( source, "Untraced member function '#<sc_t>'\n", o.nameof( tp_identifier ) );
+        return source.parse_error_fa( "Untraced member function '#<sc_t>'\n", o.nameof( tp_identifier ) );
     }
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -818,9 +785,7 @@ func (:)
         bl_t* success
     )
 ) =
-{
-try
-{
+{ try {
     if( success ) *success = false;
 
     sz_t index = source.get_index();
@@ -878,8 +843,7 @@ try
 
     if( success ) *success = true;
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -893,9 +857,7 @@ func (:)
         bl_t require_tractable_type
     )
 ) =
-{
-try
-{
+{ try {
     bl_t success = false;
     o.try_take_typespec( source, typespec, require_tractable_type, &success );
 
@@ -903,17 +865,16 @@ try
     {
         if( require_tractable_type )
         {
-            return o.parse_err_fa( source, "Typespec: Syntax error or intractable type." );
+            return source.parse_error_fa( "Typespec: Syntax error or intractable type." );
         }
         else
         {
-            return o.parse_err_fa( source, "Typespec: Syntax error." );
+            return source.parse_error_fa( "Typespec: Syntax error." );
         }
     }
 
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -926,9 +887,7 @@ func (:)
         st_s* buf
     )
 ) =
-{
-try
-{
+{ try {
     tp_t type = typespec.type;
 
     if( type == TYPEOF_type_object )
@@ -961,8 +920,7 @@ try
     if( typespec.flag_restrict ) buf.push_fa( "restrict " );
 
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -976,9 +934,7 @@ func (:)
         xoico_typespec_s* out_typespec // optional
     )
 ) =
-{
-try
-{
+{ try {
     sc_t sc_bl_end_of_expression = "#?([0]==';'||[0]=='{'||[0]=='}'||[0]==')'||[0]==']'||[0]==','||([0]==':'&&([1]==' '||[1]=='\t'||[1]=='\n'||[1]=='/')))";
 
     o.trans_whitespace( source, buf_out );
@@ -1032,7 +988,7 @@ try
             {
                 if( o.is_group( tp_identifier ) )
                 {
-                    return o.parse_err_fa( source, "Operator '!': lvalue is a group." );
+                    return source.parse_error_fa( "Operator '!': lvalue is a group." );
                 }
                 buf.push_fa( "#<sc_t>_create()", o.nameof( tp_identifier ) );
                 xoico_typespec_s* typespec = scope( xoico_typespec_s! );
@@ -1057,7 +1013,7 @@ try
                 const xoico_func_s* func = o.get_func( tp_identifier );
                 if( !func.signature )
                 {
-                    return o.parse_err_fa( source, "Function #<sc_t> has no signature.", o.nameof( tp_identifier ) );
+                    return source.parse_error_fa( "Function #<sc_t> has no signature.", o.nameof( tp_identifier ) );
                 }
                 o.trans_function_args( source, func.signature, NULL, NULL, buf );
                 o.trans_typespec_expression( source, buf, func.signature.typespec_ret, out_typespec );
@@ -1077,7 +1033,7 @@ try
     else if( source.parse_bl_fa( "#=?'.'" )                 ) o.trans_member( source, buf );
     else if( source.parse_bl_fa( "#=?'->'" )                ) o.trans_member( source, buf );
 
-    else if( source.parse_bl_fa( "#=?'=<'" )                ) return o.parse_err_fa( source, "Attach operator: Expression not tractable." );
+    else if( source.parse_bl_fa( "#=?'=<'" )                ) return source.parse_error_fa( "Attach operator: Expression not tractable." );
     else if( o.trans_inert_operator( source, buf )          ) {} // inert operators are not interpreted by cdaleth and passed to the c-compiler
 
     // ternary branch operator
@@ -1099,7 +1055,7 @@ try
             o.trans_expression( source, buf, typespec_bracket );
             if     ( source.parse_bl_fa( "#?')'" ) ) break;
             else if( source.parse_bl_fa( "#?','" ) ) buf.push_char( ',' );
-            else return o.parse_err_fa( source, "Syntax error in bracket expression." );
+            else return source.parse_error_fa( "Syntax error in bracket expression." );
             typespec_bracket.type = 0;
         }
         buf.push_char( ')' );
@@ -1124,7 +1080,7 @@ try
     // unhandled
     else
     {
-        return o.parse_err_fa( source, "Syntax error after '#<sc_t>'", buf.sc );
+        return source.parse_error_fa( "Syntax error after '#<sc_t>'", buf.sc );
     }
 
     if( continuation )
@@ -1139,8 +1095,7 @@ try
     if( buf_out ) buf_out.push_st( buf );
 
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -1157,9 +1112,7 @@ func (:)
         bl_t* success
     )
 ) =
-{
-try
-{
+{ try {
     if( success ) *success = false;
 
     xoico_typespec_s* typespec_var = xoico_typespec_s!.scope();
@@ -1208,7 +1161,7 @@ try
             {
                 if( !typespec_expr.type )
                 {
-                    return o.parse_err_fa( source, "Declaration-syntax: Deduce requested but expression is intractable." );
+                    return source.parse_error_fa( "Declaration-syntax: Deduce requested but expression is intractable." );
                 }
                 typespec_var.type = typespec_expr.type;
             }
@@ -1226,7 +1179,7 @@ try
         {
             if( typespec_var.type == TYPEOF_type_deduce )
             {
-                return o.parse_err_fa( source, "Declaration-syntax: Deduce requested without assignment." );
+                return source.parse_error_fa( "Declaration-syntax: Deduce requested without assignment." );
             }
         }
 
@@ -1251,22 +1204,19 @@ try
     if( success ) *success = true;
 
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func(:) (er_t inspect_variable( mutable, bcore_source* source )) =
-{
-try
-{
+{ try {
     o.parse( source, "\?\?" );
 
     st_s* st        = st_s!.scope();
     st_s* buf_local = st_s!.scope();
     xoico_typespec_s* typespec = xoico_typespec_s!.scope();
-    o.parse_fa( source, " #until';' ", st );
-    o.parse_fa( source, ";" );
+    try( source.parse_em_fa( " #until';' ", st ) );
+    try( source.parse_em_fa( ";" ) );
     bcore_msg_fa( " \?? #<sc_t>;\n", st.sc );
     if( o.trans_expression( cast( bcore_source_string_s_create_fa( "#<st_s*>;", st ), bcore_source* ).scope(), buf_local, typespec ) )
     {
@@ -1275,7 +1225,7 @@ try
     }
     else
     {
-        if( st.size == 0 ) return o.parse_err_fa( source, "Variable name expected." );
+        if( st.size == 0 ) return source.parse_error_fa( "Variable name expected." );
         bcore_msg_fa( "--> #<sc_t>;\n", buf_local.sc );
 
         if( typespec.type )
@@ -1292,15 +1242,12 @@ try
     }
     return 0;
 
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:) (er_t trans_statement( mutable, bcore_source* source, st_s* buf )) =
-{
-try
-{
+{ try {
     o.trans_whitespace( source, buf );
 
     if( source.parse_bl_fa( "#?([0]=='{'||[0]=='#'||[0]==';'||[0]==','||[0]==')'||[0]=='}'||([0]=='?'&&[1]=='?'))" ) )
@@ -1342,7 +1289,7 @@ try
 
             case ')':
             {
-                return o.parse_err_fa( source, "Unmatched closing bracket." );
+                return source.parse_error_fa( "Unmatched closing bracket." );
             }
             break;
 
@@ -1384,7 +1331,7 @@ try
                     {
                         if( !source.parse_bl_fa( " #?';'" ) )
                         {
-                            return o.parse_err_fa( source, "Inside a try-block: Expressions yielding 'er_t' must end with ';'" );
+                            return source.parse_error_fa( "Inside a try-block: Expressions yielding 'er_t' must end with ';'" );
                         }
                         buf.push_fa( "BLM_TRY(#<sc_t>)", buf_expr.sc );
                     }
@@ -1407,15 +1354,12 @@ try
     }
 
     return 0;
-}
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:) (er_t trans_block_inside( mutable, bcore_source* source, st_s* buf_out )) =
-{
-try
-{
+{ try {
     st_s* buf = st_s!.scope();
 
     while( !source.parse_bl_fa( "#=?'}'" ) && !source.eos() )
@@ -1439,15 +1383,12 @@ try
     }
 
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:) (er_t trans_block( mutable, bcore_source* source, st_s* buf, bl_t is_break_ledge )) =
-{
-try
-{
+{ try {
     o.inc_block();
     o.stack_block_get_top_unit().break_ledge = is_break_ledge;
     o.trans_whitespace( source, buf );
@@ -1457,15 +1398,12 @@ try
     o.trans( source, "}", buf );
     o.dec_block();
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:) (er_t trans_statement_as_block( mutable, bcore_source* source, st_s* buf_out, bl_t is_break_ledge )) =
-{
-try
-{
+{ try {
     st_s* buf = st_s!.scope();
 
     o.inc_block();
@@ -1488,15 +1426,12 @@ try
 
     o.dec_block();
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:) (er_t trans_block_inside_verbatim_c( mutable, bcore_source* source, st_s* buf )) =
-{
-try
-{
+{ try {
     o.trans_whitespace( source, buf );
     while( !source.parse_bl_fa( "#=?'}'" ) && !source.eos() )
     {
@@ -1532,15 +1467,12 @@ try
         o.trans_whitespace( source, buf );
     }
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:) (er_t setup( mutable, const xoico_body_s* body, const xoico_signature_s* signature )) =
-{
-try
-{
+{ try {
     sc_t sc_obj_type = ( signature.arg_o ) ? ( body.stamp ? body.stamp.st_name.sc : body.group.st_name.sc ) : NULL;
 
     const xoico_args_s* args = &signature.args;
@@ -1588,15 +1520,53 @@ try
         }
     }
     return 0;
-} // try
+} /* try */ };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:) (sz_t assess_indentation( bcore_source* source )) =
+{
+    sz_t index = source.get_index();
+    while( !source.eos() ) if( source.get_char() == '\n' ) break;
+    sz_t indentation = 0;
+    while( !source.eos() )
+    {
+        if( source.get_char() != ' ' ) break;
+        indentation++;
+    }
+    source.set_index( index );
+    return indentation;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:) (void remove_indentation( st_s* buf, sz_t indentation )) =
+{
+    ASSERT( buf.space >= buf.size );
+
+    sz_t j = 0;
+    for( sz_t i = 0; i < buf.size; i++ )
+    {
+        char c = buf.[ i ];
+        buf.[ j++ ] = c;
+        if( c == '\n' )
+        {
+            for( sz_t k = 0; k < indentation; k++ )
+            {
+                if( buf.[ i + 1 ] != ' ' ) break;
+                i++;
+            }
+        }
+    }
+
+    buf.[ j ] = 0;
+    buf.size = j;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:) xoico_cengine.translate =
-{
-try
-{
+{ try {
     xoico_cdaleth_s* engine = o.clone().scope();
     engine.setup( body, signature );
 
@@ -1604,20 +1574,11 @@ try
 
     st_s* buf = st_s!.scope();
 
-    sz_t indent = 0;
     engine.parse( source, " {" );
-
-    while( source.parse_bl_fa( "#?([0]==' '||[0]=='\t')" ) ) { source.get_char(); };
-    if( source.parse_bl_fa( "#?'\n'" ) )
-    {
-        while( source.parse_bl_fa( "#?' '" ) ) indent++;
-    }
-
+    sz_t indentation = 0;
+    if( !body.go_inline ) indentation = o.assess_indentation( source );
     engine.trans_block_inside( source, buf );
-
     engine.parse( source, " }" );
-
-    if( indent > 0 ) buf.replace_st_d_st_d( st_s_create_fa( "\n#rn{ }", indent ), st_s_create_sc( "\n" ) );
 
     //remove trailing whitespaces
     for( sz_t i = buf.size - 1; i >= 0; i-- )
@@ -1627,12 +1588,6 @@ try
         buf.size = i;
     }
 
-    if( engine.verbose )
-    {
-        bcore_sink_a_push_fa( BCORE_STDOUT, "##############################\n" );
-        bcore_sink_a_push_fa( BCORE_STDOUT, "#<st_s*>\n", buf );
-    }
-
     if( engine.insert_source_reference && !body.code.single_line )
     {
         sink.push_fa( "// " );
@@ -1640,11 +1595,18 @@ try
         sink.push_fa( "\n" );
     }
 
+    if( indentation > 0 ) o.remove_indentation( buf, indentation );
+
+    if( engine.verbose )
+    {
+        bcore_sink_a_push_fa( BCORE_STDOUT, "##############################\n" );
+        bcore_sink_a_push_fa( BCORE_STDOUT, "#<st_s*>\n", buf );
+    }
+
     sink.push_sc( buf.sc );
 
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 

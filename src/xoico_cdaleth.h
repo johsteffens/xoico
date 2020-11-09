@@ -314,11 +314,4 @@ embed "xoico_cdaleth_control.x";
 
 /**********************************************************************************************************************/
 
-er_t xoico_cdaleth_s_parse_fv(     const xoico_cdaleth_s* o, bcore_source* source, sc_t format, va_list args );
-er_t xoico_cdaleth_s_parse_fa(     const xoico_cdaleth_s* o, bcore_source* source, sc_t format, ... );
-er_t xoico_cdaleth_s_parse_err_fv( const xoico_cdaleth_s* o, bcore_source* source, sc_t format, va_list args );
-er_t xoico_cdaleth_s_parse_err_fa( const xoico_cdaleth_s* o, bcore_source* source, sc_t format, ... );
-
-/**********************************************************************************************************************/
-
 #endif // XOICO_CDALETH_H

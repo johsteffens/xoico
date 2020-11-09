@@ -39,7 +39,7 @@ func (:) :.register_item =
     tp_t global_id = item.get_global_name_tp();
     if( o.hmap_item.exists( global_id ) )
     {
-        return o.parse_err_fa( source, "'#<sc_t>' was already registered\n", o.nameof( global_id ) );
+        return source.parse_error_fa( "'#<sc_t>' was already registered\n", o.nameof( global_id ) );
     }
     o.hmap_item.set( global_id, ( vd_t )item );
     return 0;

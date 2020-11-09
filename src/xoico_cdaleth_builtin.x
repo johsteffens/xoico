@@ -54,7 +54,7 @@ func (:)
         case TYPEOF_scope: return o.trans_builtin_scope( source, buf_expr, typespec_expr, buf_out, typespec_out );
         case TYPEOF_fork:  return o.trans_builtin_fork( source, buf_expr, typespec_expr, buf_out, typespec_out );
         case TYPEOF_try:   return o.trans_builtin_try( source, buf_expr, typespec_expr, buf_out, typespec_out );
-        default: return o.parse_err_fa( source, "Internal error: Invalid builtin type '#<sc_t>'", ifnameof( tp_builtin ) );
+        default: return source.parse_error_fa( "Internal error: Invalid builtin type '#<sc_t>'", ifnameof( tp_builtin ) );
     }
 } /* try */ };
 
@@ -98,7 +98,7 @@ func (:)
     {
         if( !typespec_expr.type )
         {
-            return o.parse_err_fa( source, "Cast-syntax: Deduce requested but expression is intractable." );
+            return source.parse_error_fa( "Cast-syntax: Deduce requested but expression is intractable." );
         }
         typespec_cast.type = typespec_expr.type;
     }
@@ -187,15 +187,15 @@ func (:)
         }
         else
         {
-            return o.parse_err_fa( source, "scope: identifier '#<sc_t>' does not represent a variable.", o.nameof( tp_identifier ) );
+            return source.parse_error_fa( "scope: identifier '#<sc_t>' does not represent a variable.", o.nameof( tp_identifier ) );
         }
     }
 
     o.parse( source, " )" );
 
-    if( typespec_scope.type        == 0 ) return o.parse_err_fa( source, "Operator 'scope': Expression not tractable." );
-    if( typespec_scope.indirection != 1 ) return o.parse_err_fa( source, "Operator 'scope': Expression's indirection != 1." );
-    if( typespec_scope.flag_keep )        return o.parse_err_fa( source, "Operator 'scope': Target is already scoped." );
+    if( typespec_scope.type        == 0 ) return source.parse_error_fa( "Operator 'scope': Expression not tractable." );
+    if( typespec_scope.indirection != 1 ) return source.parse_error_fa( "Operator 'scope': Expression's indirection != 1." );
+    if( typespec_scope.flag_keep )        return source.parse_error_fa( "Operator 'scope': Target is already scoped." );
 
     o.push_typespec( typespec_scope, buf_out );
 
@@ -255,8 +255,8 @@ func (:)
 
     o.parse( source, " )" );
 
-    if( typespec_fork.type        == 0 ) return o.parse_err_fa( source, "Operator 'fork': Expression not tractable." );
-    if( typespec_fork.indirection != 1 ) return o.parse_err_fa( source, "Operator 'fork': Expression's indirection != 1." );
+    if( typespec_fork.type        == 0 ) return source.parse_error_fa( "Operator 'fork': Expression not tractable." );
+    if( typespec_fork.indirection != 1 ) return source.parse_error_fa( "Operator 'fork': Expression's indirection != 1." );
 
     o.push_typespec( typespec_fork, buf_out );
     buf_out.push_fa( ")bcore_fork(#<sc_t>))", buf_expr.sc );
@@ -283,7 +283,7 @@ func (:)
 { try {
     if( o.typespec_ret.type != TYPEOF_er_t || o.typespec_ret.indirection != 0 )
     {
-        return o.parse_err_fa( source, "Operator 'try': This operator can only be used in functions returning 'er_t'." );
+        return source.parse_error_fa( "Operator 'try': This operator can only be used in functions returning 'er_t'." );
     }
 
     if( typespec_out ) typespec_out.reset();
@@ -319,12 +319,12 @@ func (:)
 
     if( typespec_try.type != 0 )
     {
-        if( typespec_try.type != TYPEOF_er_t ) return o.parse_err_fa( source, "Operator 'try': Expression must yield er_t." );
-        if( typespec_try.indirection != 0    ) return o.parse_err_fa( source, "Operator 'try': Expression's indirection != 0." );
+        if( typespec_try.type != TYPEOF_er_t ) return source.parse_error_fa( "Operator 'try': Expression must yield er_t." );
+        if( typespec_try.indirection != 0    ) return source.parse_error_fa( "Operator 'try': Expression's indirection != 0." );
     }
     else
     {
-        // return o.parse_err_fa( source, "Operator 'try': Expression not tractable." );
+        // return source.parse_error_fa( "Operator 'try': Expression not tractable." );
     }
 
 

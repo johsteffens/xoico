@@ -30,14 +30,8 @@ func (:code) :.parse =
     sz_t nest_count = 1;
     bl_t exit_loop = false;
     o.single_line = true;
-    o.indentation = 0;
 
     while( source.parse_bl_fa( "#?' '" ) ); // skip leading spaces
-    if( source.parse_bl_fa( "#?'\n'" ) )
-    {
-        o.single_line = false;
-        while( source.parse_bl_fa( "#?' '" ) ) o.indentation++;
-    }
 
     while( !source.eos() && !exit_loop )
     {
@@ -98,7 +92,7 @@ func (:code) :.parse =
                         hash = bcore_tp_fold_u0( hash, c );
                         if( c == '\n' )
                         {
-                            for( sz_t i = 0; i < o.indentation; i++ ) { if( ! source.parse_bl_fa( "#?' '" ) ) break; };
+                            o->single_line = false;
                             break;
                         }
                     }
@@ -115,11 +109,8 @@ func (:code) :.parse =
                         else
                         {
                             c = source.get_char();
+                            if( c == '\n' ) o->single_line = false;
                             hash = bcore_tp_fold_u0( hash, c );
-                            if( c == '\n' )
-                            {
-                                for( sz_t i = 0; i < o.indentation; i++ ) { if( !source.parse_bl_fa( "#?' '" ) ) break; };
-                            }
                         }
                     }
                 }
@@ -130,7 +121,6 @@ func (:code) :.parse =
             case '\n' :
             {
                 o->single_line = false;
-                for( sz_t i = 0; i < o.indentation; i++ ) { if( !source.parse_bl_fa( "#?' '" ) ) break; };
                 break;
             }
 
@@ -258,7 +248,7 @@ func (:) :.parse =
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:) :.expand =
-{
+{ try {
     const st_s* final_code = NULL;
     st_s* st_out = st_s!.scope();
 
@@ -288,7 +278,7 @@ func (:) :.expand =
         sink.push_fa( "\n#rn{ }}", indent );
     }
     return 0;
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 

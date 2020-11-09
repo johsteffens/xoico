@@ -247,11 +247,6 @@ embed "xoico_compiler.x";
 
 //----------------------------------------------------------------------------------------------------------------------
 
-er_t xoico_compiler_s_parse_err_fv( const xoico_compiler_s* o, bcore_source* source, sc_t format, va_list args );
-er_t xoico_compiler_s_parse_err_fa( const xoico_compiler_s* o, bcore_source* source, sc_t format, ... );
-
-//----------------------------------------------------------------------------------------------------------------------
-
 /**********************************************************************************************************************/
 
 #endif // XOICO_COMPILER_H

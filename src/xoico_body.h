@@ -40,7 +40,6 @@ signature er_t set_stamp(  mutable, xoico_stamp_s* stamp );
 stamp :code = aware :
 {
     bl_t single_line;
-    sz_t indentation;
     tp_t hash_source;
 
     bcore_source_point_s source_point;

@@ -56,7 +56,7 @@ func (:)( er_t trans_control( mutable, tp_t tp_control, bcore_source* source, st
         case TYPEOF_case:    return o.trans_control_case(    source, buf );
         case TYPEOF_default: return o.trans_control_default( source, buf );
         case TYPEOF_return:  return o.trans_control_return(  source, buf );
-        default: return o.parse_err_fa( source, "Internal error: Invalid control name '#<sc_t>'", ifnameof( tp_control ) );
+        default: return source.parse_error_fa( "Internal error: Invalid control name '#<sc_t>'", ifnameof( tp_control ) );
     }
 } /* try */ };
 
@@ -112,7 +112,7 @@ func (:)( er_t trans_control_foreach( mutable, bcore_source* source, st_s* buf )
     }
     else
     {
-        return o.parse_err_fa( source, "Variable name expected." );
+        return source.parse_error_fa( "Variable name expected." );
     }
 
     o.parse( source, " in " );
@@ -123,14 +123,14 @@ func (:)( er_t trans_control_foreach( mutable, bcore_source* source, st_s* buf )
 
     if( !typespec_arr_expr.type )
     {
-        return o.parse_err_fa( source, "Array expression not tractable." );
+        return source.parse_error_fa( "Array expression not tractable." );
     }
 
     xoico_compiler_element_info_s* info = scope( xoico_compiler_element_info_s! );
 
     if( !o.compiler.get_type_array_element_info( typespec_arr_expr.type, info ) )
     {
-        return o.parse_err_fa( source, "Expression does not evaluate to an array." );
+        return source.parse_error_fa( "Expression does not evaluate to an array." );
     }
 
     xoico_typespec_s* typespec_element = &info.type_info.typespec;
@@ -325,7 +325,7 @@ func (:)( er_t trans_control_break( mutable, bcore_source* source, st_s* buf ) )
         }
     }
 
-    if( ledge_level == -1 ) return o.parse_err_fa( source, "'break' has no ledge." );
+    if( ledge_level == -1 ) return source.parse_error_fa( "'break' has no ledge." );
 
     if( use_blm )
     {
@@ -357,7 +357,7 @@ func (:)( er_t trans_control_return( mutable, bcore_source* source, st_s* buf ) 
     {
         if( !o.returns_a_value() )
         {
-            return o.parse_err_fa( source, "Function does not return a value." );
+            return source.parse_error_fa( "Function does not return a value." );
         }
     }
 
