@@ -1617,7 +1617,7 @@ try
 
     engine.parse( source, " }" );
 
-    if( indent > 0 ) buf.replace_st_d_st_d( st_s_create_fa( "\n#rn{ }", indent ), st_s_create_fa( "\n" ) );
+    if( indent > 0 ) buf.replace_st_d_st_d( st_s_create_fa( "\n#rn{ }", indent ), st_s_create_sc( "\n" ) );
 
     //remove trailing whitespaces
     for( sz_t i = buf.size - 1; i >= 0; i-- )

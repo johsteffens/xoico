@@ -46,9 +46,10 @@ XOILA_DEFINE_GROUP( <group_name>, <trait_name> )
     name <name>;
     type <name>;
 
-    group <name> = [<trait>] { ... }; // sub-group; inheriting from parent: 'extending', 'func'
+    group <name> = [<trait>] { ... }; // sub-group; inheriting from parent: 'extending'
 
-    embed "<include file path>";
+    embed              "<embed file path>";
+    include [deferred] "<include file path>"; // deferred inclusions are placed in the definition file
 
     ...
 #endif // <xoila-closer>
@@ -276,10 +277,11 @@ TODO:
 - (fixed) bug: bodyless function can be added to a stamp after the same function was defined with a body (removing the body again)
 - add variadic function
 - (fixed) bug: functions in groups do not affect its hash value
+- add includes to be placed in *xoila_out.{c,h} files
 
 Keywords (for syntax highlight)
 
 group stamp stump hidden private func name signature body aware feature extending verbatim
-mutable plain retrievable forward embed cast foreach in verbatim_C keep fork try deduce scope
-scope_local scope_func
+mutable plain retrievable forward include deferred embed cast foreach in verbatim_C keep fork try deduce
+scope scope_local scope_func
 

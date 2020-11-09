@@ -52,6 +52,16 @@ tp_t xoico_group_s_get_hash( const xoico_group_s* o )
         hash = bcore_tp_fold_tp( hash, xoico_a_get_hash( o->data[ i ] ) );
     }
 
+    for( sz_t i = 0; i < o->includes_in_declaration.size; i++ )
+    {
+        hash = bcore_tp_fold_sc( hash, o->includes_in_declaration.data[ i ]->sc );
+    }
+
+    for( sz_t i = 0; i < o->includes_in_definition.size; i++ )
+    {
+        hash = bcore_tp_fold_sc( hash, o->includes_in_definition.data[ i ]->sc );
+    }
+
     return hash;
 }
 
@@ -435,6 +445,21 @@ er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source )
 
             xoico_group_source_stack_s_push_d( stack, source = embed_source );
         }
+        else if( bcore_source_a_parse_bl_fa( source, " #?w'include' " ) )
+        {
+            bl_t deferred = bcore_source_a_parse_bl_fa( source, " #?w'deferred' " );
+            st_s* include_file = BLM_CREATE( st_s );
+            XOICO_BLM_SOURCE_PARSE_FA( source, " #string" , include_file );
+            XOICO_BLM_SOURCE_PARSE_FA( source, " ;" );
+            if( deferred )
+            {
+                bcore_arr_st_s_push_st( &o->includes_in_definition, include_file );
+            }
+            else
+            {
+                bcore_arr_st_s_push_st( &o->includes_in_declaration, include_file );
+            }
+        }
         else
         {
             XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Xoico: syntax error." );
@@ -546,6 +571,11 @@ er_t xoico_group_s_expand_declaration( const xoico_group_s* o, sz_t indent, bcor
     bcore_sink_a_push_fa( sink, "#rn{ }//#rn{-}\n", indent, sz_max( 0, 118 - indent ) );
     bcore_sink_a_push_fa( sink, "#rn{ }// group: #<sc_t>\n", indent, o->st_name.sc );
 
+    for( sz_t i = 0; i < o->includes_in_declaration.size; i++ )
+    {
+        bcore_sink_a_push_fa( sink, "##include \"#<sc_t>\"\n", o->includes_in_declaration.data[ i ]->sc );
+    }
+
     bcore_sink_a_push_fa( sink, "\n" );
     bcore_sink_a_push_fa( sink, "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o->st_name.sc, typeof( o->st_name.sc ) );
 
@@ -605,6 +635,12 @@ er_t xoico_group_s_expand_definition( const xoico_group_s* o, sz_t indent, bcore
     bcore_sink_a_push_fa( sink, "\n" );
     bcore_sink_a_push_fa( sink, "#rn{ }//#rn{-}\n", indent, sz_max( 0, 118 - indent ) );
     bcore_sink_a_push_fa( sink, "#rn{ }// group: #<sc_t>\n", indent, o->st_name.sc );
+
+    for( sz_t i = 0; i < o->includes_in_definition.size; i++ )
+    {
+        bcore_sink_a_push_fa( sink, "##include \"#<sc_t>\"\n", o->includes_in_definition.data[ i ]->sc );
+    }
+
     for( sz_t i = 0; i < o->size; i++ )
     {
         // non-features

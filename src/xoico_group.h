@@ -45,10 +45,13 @@ stamp : = aware :
 {
     aware xoico => []; // group elements
 
+    private @* parent; // parent group;
+
+    bcore_arr_st_s includes_in_declaration;
+    bcore_arr_st_s includes_in_definition;
+
     st_s st_name; // global name
     tp_t tp_name; // global name
-
-    private @* parent; // parent group;
 
     st_s trait_name = "bcore_inst"; // trait name
     tp_t pre_hash;

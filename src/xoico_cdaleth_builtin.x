@@ -331,9 +331,16 @@ try
 
     o.parse( source, " ) ;" );
 
-    if( typespec_try.type == 0           ) return o.parse_err_fa( source, "Operator 'try': Expression not tractable." );
-    if( typespec_try.type != TYPEOF_er_t ) return o.parse_err_fa( source, "Operator 'try': Expression must yield er_t." );
-    if( typespec_try.indirection != 0    ) return o.parse_err_fa( source, "Operator 'try': Expression's indirection != 0." );
+    if( typespec_try.type != 0 )
+    {
+        if( typespec_try.type != TYPEOF_er_t ) return o.parse_err_fa( source, "Operator 'try': Expression must yield er_t." );
+        if( typespec_try.indirection != 0    ) return o.parse_err_fa( source, "Operator 'try': Expression's indirection != 0." );
+    }
+    else
+    {
+        // return o.parse_err_fa( source, "Operator 'try': Expression not tractable." );
+    }
+
 
     buf_out.push_fa( "BLM_TRY(#<sc_t>)", buf_expr.sc );
 

@@ -25,6 +25,8 @@
 XOILA_DEFINE_GROUP( xoico_body, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+include deferred "xoico_stamp.h";
+
 signature er_t parse_expression( mutable, bcore_source* source );
 signature er_t parse(      mutable, bcore_source* source );
 signature er_t finalize(   mutable );
@@ -66,7 +68,7 @@ stamp : = aware :
     hidden aware xoico_stamp_s* stamp;
 
     func xoico.get_hash;
-    func xoico.get_global_name_sc;
+    func xoico.get_global_name_sc = { return o.global_name.sc; };
     func     :.parse_expression;
     func     :.parse;
     func     :.finalize;
@@ -76,6 +78,8 @@ stamp : = aware :
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+embed "xoico_body.x";
 
 #endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

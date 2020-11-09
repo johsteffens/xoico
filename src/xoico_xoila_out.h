@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-04T19:31:23Z
+ *  Last File Update: 2020-11-09T11:58:20Z
  *
  *  Copyright and License of this File:
  *
@@ -30,6 +30,7 @@
  *  xoico_cbeth.h
  *  xoico_cgimel.h
  *  xoico_cdaleth.h
+ *  xoico_body.x
  *  xoico_cdaleth.x
  *  xoico_cdaleth_builtin.x
  *  xoico_cdaleth_control.x
@@ -43,7 +44,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0xA207EBC36E098EF7ull
+#define HKEYOF_xoico_xoila_out 0x5614E9C735EA1AD5ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -446,14 +447,15 @@
       xoico_group_s* group; \
       xoico_stamp_s* stamp; \
   }; \
-  tp_t xoico_body_s_get_hash( const xoico_body_s* o ); \
-  sc_t xoico_body_s_get_global_name_sc( const xoico_body_s* o ); \
-  er_t xoico_body_s_parse_expression( xoico_body_s* o, bcore_source* source ); \
+  static inline sc_t xoico_body_s_get_global_name_sc( const xoico_body_s* o ); \
   er_t xoico_body_s_parse( xoico_body_s* o, bcore_source* source ); \
   er_t xoico_body_s_finalize( xoico_body_s* o ); \
   er_t xoico_body_s_expand( const xoico_body_s* o, const xoico_signature_s* signature, sz_t indent, bcore_sink* sink ); \
   er_t xoico_body_s_set_group( xoico_body_s* o, xoico_group_s* group ); \
-  er_t xoico_body_s_set_stamp( xoico_body_s* o, xoico_stamp_s* stamp );
+  er_t xoico_body_s_set_stamp( xoico_body_s* o, xoico_stamp_s* stamp ); \
+  tp_t xoico_body_s_get_hash( const xoico_body_s* o ); \
+  er_t xoico_body_s_parse_expression( xoico_body_s* o, bcore_source* source ); \
+  static inline sc_t xoico_body_s_get_global_name_sc( const xoico_body_s* o ){return  o->global_name.sc;}
 #define BETH_EXPAND_GROUP_xoico_body \
   BCORE_FORWARD_OBJECT( xoico_body ); \
   BCORE_FORWARD_OBJECT( xoico_body_code_s ); \
@@ -624,9 +626,11 @@
   { \
       aware_t _; \
       BCORE_ARRAY_DYN_LINK_STATIC_S( xoico, ); \
+      xoico_group_s* parent; \
+      bcore_arr_st_s includes_in_declaration; \
+      bcore_arr_st_s includes_in_definition; \
       st_s st_name; \
       tp_t tp_name; \
-      xoico_group_s* parent; \
       st_s trait_name; \
       tp_t pre_hash; \
       tp_t beta; \
@@ -1537,4 +1541,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0xB737ECBAE4D8268Aull
+// XOILA_OUT_SIGNATURE 0xF4A54C1161C88BBFull
