@@ -53,7 +53,11 @@ stamp : = aware :
 
     func xoico.parse;
     func xoico.get_hash;
-    func xoico.get_global_name_sc;
+    func xoico.get_global_name_sc =
+    {
+        return o.group.compiler.nameof( o.signature.global_name );
+    };
+
     func xoico.expand_indef_typedef;
     func xoico.expand_spect_declaration;
     func xoico.expand_spect_definition;
@@ -63,6 +67,8 @@ stamp : = aware :
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+embed "xoico_feature.x";
 
 #endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

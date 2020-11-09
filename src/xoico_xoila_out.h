@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-09T19:26:06Z
+ *  Last File Update: 2020-11-09T20:42:38Z
  *
  *  Copyright and License of this File:
  *
@@ -36,6 +36,7 @@
  *  xoico_cdaleth_builtin.x
  *  xoico_cdaleth_control.x
  *  xoico_compiler.x
+ *  xoico_feature.x
  *
  */
 
@@ -45,7 +46,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x2ED1804ED5DA8164ull
+#define HKEYOF_xoico_xoila_out 0x2A3636C973D53905ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -499,15 +500,15 @@
       xoico_group_s* group; \
       bcore_source_point_s source_point; \
   }; \
-  er_t xoico_feature_s_parse( xoico_feature_s* o, bcore_source* source ); \
-  tp_t xoico_feature_s_get_hash( const xoico_feature_s* o ); \
   sc_t xoico_feature_s_get_global_name_sc( const xoico_feature_s* o ); \
   er_t xoico_feature_s_expand_indef_typedef( const xoico_feature_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_feature_s_expand_spect_declaration( const xoico_feature_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_feature_s_expand_spect_definition( const xoico_feature_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_feature_s_expand_definition( const xoico_feature_s* o, sz_t indent, bcore_sink* sink ); \
-  er_t xoico_feature_s_expand_init1( const xoico_feature_s* o, sz_t indent, bcore_sink* sink );
+  er_t xoico_feature_s_expand_init1( const xoico_feature_s* o, sz_t indent, bcore_sink* sink ); \
+  tp_t xoico_feature_s_get_hash( const xoico_feature_s* o ); \
+  er_t xoico_feature_s_parse( xoico_feature_s* o, bcore_source* source );
 #define BETH_EXPAND_GROUP_xoico_feature \
   BCORE_FORWARD_OBJECT( xoico_feature ); \
   BCORE_FORWARD_OBJECT( xoico_feature_s ); \
@@ -1546,4 +1547,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0xA3FF83BE9FBBC41Eull
+// XOILA_OUT_SIGNATURE 0x6D6CAE9A05C6FF57ull

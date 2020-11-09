@@ -459,6 +459,7 @@ func (:)
 
     if( out_typespec ) out_typespec.type = 0;
 
+    /// member object, function or array subscript
     if( source.parse_bl_fa( "#?([0]=='.'||([0]=='-'&&[1]=='>'))" ) )
     {
         if( source.parse_bl_fa( "#?'->'" ) )
@@ -613,7 +614,7 @@ func (:)
             }
         }
     }
-    // array subscript
+    // c-style array subscript
     else if( source.parse_bl_fa( "#?'['" ) )
     {
         if( in_typespec.indirection == 0 )
