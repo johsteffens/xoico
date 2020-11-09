@@ -18,10 +18,8 @@
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:code) :.parse =
-{
-try
-{
-    if( !o.group ) return source.parse_err_to_em_fa( TYPEOF_parse_error, "xoico_body_code_s: Code has no group assigned." );
+{ try {
+    if( !o.group ) return source.parse_error_fa( "xoico_body_code_s: Code has no group assigned." );
 
     tp_t hash = bcore_tp_init();
 
@@ -70,7 +68,7 @@ try
                 {
                     hash = bcore_tp_fold_u0( hash, c );
                     if( c == '\\' ) hash = bcore_tp_fold_u0( hash, source.get_u0() );
-                    if( c == '\n' ) return source.parse_err_to_em_fa( TYPEOF_parse_error, "Newline in string literal." );
+                    if( c == '\n' ) return source.parse_error_fa( "Newline in string literal." );
                 }
                 c = 0;
             }
@@ -83,7 +81,7 @@ try
                 {
                     hash = bcore_tp_fold_u0( hash, c );
                     if( c == '\\' ) hash = bcore_tp_fold_u0( hash, bcore_source_a_get_u0( source ) );
-                    if( c == '\n' ) return source.parse_err_to_em_fa( TYPEOF_parse_error, "Newline in char literal." );
+                    if( c == '\n' ) return source.parse_error_fa( "Newline in char literal." );
                 }
                 c = 0;
             }
@@ -143,8 +141,7 @@ try
 
     o->hash_source = hash;
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -191,9 +188,7 @@ func (:) xoico.get_hash =
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:) :.parse_expression =
-{
-try
-{
+{ try {
     if( source.parse_bl_fa( " #=?'{'" ) )
     {
         o.code =< xoico_body_code_s!;
@@ -208,7 +203,7 @@ try
         st_s* st_name = st_s!.scope( scope_local );
         o.group.parse_name( st_name, source );
 
-        if( st_name.size == 0 ) return source.parse_err_to_em_fa( TYPEOF_parse_error, "Body name expected." );
+        if( st_name.size == 0 ) return source.parse_error_fa( "Body name expected." );
 
         if( o.stamp ) st_name.replace_sc_sc( "@", o.stamp.st_name.sc );
 
@@ -232,13 +227,69 @@ try
         }
         else
         {
-            return source.parse_err_to_em_fa( TYPEOF_parse_error, "Cannot resolve body name '#<sc_t>'\n", st_name.sc );
+            return source.parse_error_fa( "Cannot resolve body name '#<sc_t>'\n", st_name.sc );
         }
     }
     return 0;
 
-} // try
+} /* try */ };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:) :.parse =
+{ try {
+    if( !o.group ) return source.parse_error_fa( "Body has no group assigned." );
+    st_s* string = st_s!.scope();
+    o.source_point.set( source );
+
+    if( !source.parse_bl_fa( " #=?'='" ) )
+    {
+        try( source.parse_em_fa( " #name", string ) );
+        if( string->size == 0 ) return source.parse_error_fa( "Body name expected." );
+        o.name.push_fa( "#<sc_t>", string.sc );
+    }
+
+    try( source.parse_em_fa( " =" ) );
+    o.parse_expression( source );
+    o.global_name.copy_fa( "#<sc_t>_#<sc_t>", o.group.st_name.sc, o.name.sc );
+    return 0;
+} /* try */ };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:) :.expand =
+{
+    const st_s* final_code = NULL;
+    st_s* st_out = st_s!.scope();
+
+    xoico_cengine* cengine = o.group.xoico_source.target.cengine;
+    ASSERT( cengine );
+
+    if( o.code )
+    {
+        if( !o.group ) return o.source_point.parse_error_fa( "Body has no group assigned." );
+        cengine.translate( o, signature, ( bcore_sink* )st_out );
+        final_code = st_out;
+    }
+
+    if( o.go_inline )
+    {
+        sink.push_fa( "{#<sc_t>}", final_code.sc );
+    }
+    else
+    {
+        sink.push_fa( "{\n#rn{ }", indent + 4 );
+        for( sz_t i = 0; i < final_code.size; i++ )
+        {
+            char c = final_code.sc[ i ];
+            sink.push_char( c );
+            if( c == '\n' ) sink.push_fa( "#rn{ }", indent + 4 );
+        }
+        sink.push_fa( "\n#rn{ }}", indent );
+    }
+    return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
+/**********************************************************************************************************************/

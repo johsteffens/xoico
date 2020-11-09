@@ -70,7 +70,7 @@ static er_t take_block_comment( xoico_cbeth_s* o, bcore_source* source, bcore_si
 
     if( !closed )
     {
-        BLM_RETURNV( er_t, bcore_source_a_parse_err_to_em_fa( source, TYPEOF_general_error, "Unterminated block-comment." ) );
+        BLM_RETURNV( er_t, bcore_source_a_parse_error_fa( source, "Unterminated block-comment." ) );
     }
 
     BLM_RETURNV( er_t, 0 );
@@ -130,7 +130,7 @@ static er_t take_string( xoico_cbeth_s* o, bcore_source* source, bcore_sink* sin
 
     if( !closed )
     {
-        BLM_RETURNV( er_t, bcore_source_a_parse_err_to_em_fa( source, TYPEOF_general_error, "Unterminated string." ) );
+        BLM_RETURNV( er_t, bcore_source_a_parse_error_fa( source, "Unterminated string." ) );
     }
 
     BLM_RETURNV( er_t, 0 );
@@ -364,10 +364,9 @@ static er_t take_block_body( xoico_cbeth_s* o, sz_t level, bcore_source* source,
                 BLM_RETURNV
                 (
                     er_t,
-                    bcore_source_a_parse_err_to_em_fa
+                    bcore_source_a_parse_error_fa
                     (
                         source,
-                        TYPEOF_general_error,
                         "Unexpected closing brace '}' at root level."
                     )
                 );
@@ -395,7 +394,7 @@ static er_t take_block_body( xoico_cbeth_s* o, sz_t level, bcore_source* source,
         {
             if( !bcore_source_a_eos( source ) )
             {
-                BLM_RETURNV( er_t, bcore_source_a_parse_err_to_em_fa( source, TYPEOF_general_error, "block_body: invalid character '#<char>'.", c ) );
+                BLM_RETURNV( er_t, bcore_source_a_parse_error_fa( source, "block_body: invalid character '#<char>'.", c ) );
             }
         }
     }

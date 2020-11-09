@@ -77,20 +77,41 @@ func (er_t parse_f( bcore_source* source, sc_t format )) =
     return bcore_source_a_parse_em_fa( source, format );
 };
 
-#endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 //----------------------------------------------------------------------------------------------------------------------
-// functions
 
 /// opens an include file from an include directive in parent
-er_t xoico_embed_file_open( bcore_source* parent, sc_t file_name, bcore_source** include_source );
+func (er_t embed_file_open( bcore_source* parent, sc_t file_name, bcore_source** include_source )) =
+{ try {
+    st_s* folder = cast( bcore_file_folder_path( bcore_source_a_get_file( parent ) ), st_s* ).scope();
+    if( folder.size == 0 ) folder.push_char( '.' );
+
+    st_s* path = st_s!.scope();
+    if( file_name[ 0 ] == '/' )
+    {
+        path.copy_sc( file_name );
+    }
+    else
+    {
+        path.copy_fa( "#<sc_t>/#<sc_t>", folder.sc, file_name );
+    }
+
+    if( !bcore_file_exists( path.sc ) )
+    {
+        return parent.parse_error_fa( "Xoico: File '#<sc_t>' not found.", path->sc );
+    }
+
+    *include_source = bcore_file_open_source( path.sc );
+    return 0;
+} /* try */ };
+
+#endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 //----------------------------------------------------------------------------------------------------------------------
 // macros
 
 #define XOICO_BLM_SOURCE_PARSE_ERR_FA( source, ... ) \
 { \
-    BLM_RETURNV( er_t, bcore_source_a_parse_err_to_em_fa( source, TYPEOF_parse_error, __VA_ARGS__ ) ); \
+    BLM_RETURNV( er_t, bcore_source_a_parse_error_fa( source, __VA_ARGS__ ) ); \
 }
 
 #define XOICO_BLM_SOURCE_PARSE_FA( source, ... ) \
@@ -101,7 +122,7 @@ er_t xoico_embed_file_open( bcore_source* parent, sc_t file_name, bcore_source**
 
 #define XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA( source_point, ... ) \
 { \
-    BLM_RETURNV( er_t, bcore_source_point_s_parse_err_to_em_fa( source_point, TYPEOF_parse_error, __VA_ARGS__ ) ); \
+    BLM_RETURNV( er_t, bcore_source_point_s_parse_error_fa( source_point, __VA_ARGS__ ) ); \
 }
 
 /**********************************************************************************************************************/

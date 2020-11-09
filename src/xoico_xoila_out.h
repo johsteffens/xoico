@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-09T11:58:20Z
+ *  Last File Update: 2020-11-09T14:01:06Z
  *
  *  Copyright and License of this File:
  *
@@ -44,7 +44,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x5614E9C735EA1AD5ull
+#define HKEYOF_xoico_xoila_out 0x096CE4E79AA19423ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -94,6 +94,7 @@
   BCORE_FORWARD_OBJECT( xoico_compiler_s ); \
   BCORE_FORWARD_OBJECT( xoico_cengine ); \
   er_t xoico_parse_f( bcore_source* source, sc_t format ); \
+  er_t xoico_embed_file_open( bcore_source* parent, sc_t file_name, bcore_source** include_source ); \
   typedef er_t (*xoico_parse)( xoico* o, bcore_source* source ); \
   typedef tp_t (*xoico_get_hash)( const xoico* o ); \
   typedef sc_t (*xoico_get_global_name_sc)( const xoico* o ); \
@@ -448,14 +449,15 @@
       xoico_stamp_s* stamp; \
   }; \
   static inline sc_t xoico_body_s_get_global_name_sc( const xoico_body_s* o ); \
-  er_t xoico_body_s_parse( xoico_body_s* o, bcore_source* source ); \
-  er_t xoico_body_s_finalize( xoico_body_s* o ); \
-  er_t xoico_body_s_expand( const xoico_body_s* o, const xoico_signature_s* signature, sz_t indent, bcore_sink* sink ); \
+  static inline er_t xoico_body_s_finalize( xoico_body_s* o ); \
   er_t xoico_body_s_set_group( xoico_body_s* o, xoico_group_s* group ); \
   er_t xoico_body_s_set_stamp( xoico_body_s* o, xoico_stamp_s* stamp ); \
   tp_t xoico_body_s_get_hash( const xoico_body_s* o ); \
   er_t xoico_body_s_parse_expression( xoico_body_s* o, bcore_source* source ); \
-  static inline sc_t xoico_body_s_get_global_name_sc( const xoico_body_s* o ){return  o->global_name.sc;}
+  er_t xoico_body_s_parse( xoico_body_s* o, bcore_source* source ); \
+  er_t xoico_body_s_expand( const xoico_body_s* o, const xoico_signature_s* signature, sz_t indent, bcore_sink* sink ); \
+  static inline sc_t xoico_body_s_get_global_name_sc( const xoico_body_s* o ){return  o->global_name.sc;} \
+  static inline er_t xoico_body_s_finalize( xoico_body_s* o ){return  0;}
 #define BETH_EXPAND_GROUP_xoico_body \
   BCORE_FORWARD_OBJECT( xoico_body ); \
   BCORE_FORWARD_OBJECT( xoico_body_code_s ); \
@@ -1541,4 +1543,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0xF4A54C1161C88BBFull
+// XOILA_OUT_SIGNATURE 0x7AF4BC4D5E41F07Full

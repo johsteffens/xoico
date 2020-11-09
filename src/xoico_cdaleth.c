@@ -40,7 +40,7 @@ er_t xoico_cdaleth_s_trans_block_inside_verbatim_c( xoico_cdaleth_s* o, bcore_so
 
 er_t xoico_cdaleth_s_parse_err_fv( const xoico_cdaleth_s* o, bcore_source* source, sc_t format, va_list args )
 {
-    return bcore_source_a_parse_err_to_em_fv( source, TYPEOF_parse_error, format, args );
+    return bcore_source_a_parse_error_fv( source, format, args );
 }
 
 //----------------------------------------------------------------------------------------------------------------------

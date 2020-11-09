@@ -42,9 +42,7 @@ func (:)( bl_t is_control_name( const, tp_t tp_identifier ) ) =
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control( mutable, tp_t tp_control, bcore_source* source, st_s* buf ) ) =
-{
-try
-{
+{ try {
     switch( tp_control )
     {
         case TYPEOF_for:     return o.trans_control_for(     source, buf );
@@ -60,15 +58,12 @@ try
         case TYPEOF_return:  return o.trans_control_return(  source, buf );
         default: return o.parse_err_fa( source, "Internal error: Invalid control name '#<sc_t>'", ifnameof( tp_control ) );
     }
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control_for( mutable, bcore_source* source, st_s* buf ) ) =
-{
-try
-{
+{ try {
     o.inc_block();
     o.stack_block_get_top_unit().break_ledge = true;
     o.trans( source, "for", buf );
@@ -92,8 +87,7 @@ try
     }
     o.dec_block();
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -102,9 +96,7 @@ try
  * { <typespec> __a = (match)<arr_expr>; for( sz_t __i = 0; __i < __a->size; __i++ ) { <typespec> var = (match)__a->data[ __i ]; <foreach-statement> }  }
  */
 func (:)( er_t trans_control_foreach( mutable, bcore_source* source, st_s* buf ) ) =
-{
-try
-{
+{ try {
     o.inc_block();
     o.stack_block_get_top_unit().break_ledge = true;
     o.parse( source, "foreach ( " );
@@ -188,15 +180,12 @@ try
     buf.push_fa( "}}" );
     o.dec_block();
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control_if( mutable, bcore_source* source, st_s* buf ) ) =
-{
-try
-{
+{ try {
     o.trans( source, "if", buf );
     o.trans_whitespace( source, buf );
     o.trans( source, "(", buf );
@@ -212,15 +201,12 @@ try
         o.trans_statement_as_block( source, buf, false );
     }
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control_while( mutable, bcore_source* source, st_s* buf ) ) =
-{
-try
-{
+{ try {
     o.trans( source, "while", buf );
     o.trans_whitespace( source, buf );
     o.trans( source, "(", buf );
@@ -236,15 +222,12 @@ try
         o.trans_statement_as_block( source, buf, true );
     }
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control_do( mutable, bcore_source* source, st_s* buf ) ) =
-{
-try
-{
+{ try {
     o.trans( source, "do", buf );
     o.trans_whitespace( source, buf );
     if( source.parse_bl( "#=?'{'" ) )
@@ -263,15 +246,12 @@ try
     o.trans_whitespace( source, buf );
     o.trans( source, ";", buf );
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control_else( mutable, bcore_source* source, st_s* buf ) ) =
-{
-try
-{
+{ try {
     o.trans( source, "else", buf );
     o.trans_whitespace( source, buf );
     if( source.parse_bl( "#=?'{'" ) )
@@ -283,15 +263,12 @@ try
         o.trans_statement_as_block( source, buf, false );
     }
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control_switch( mutable, bcore_source* source, st_s* buf ) ) =
-{
-try
-{
+{ try {
     o.trans( source, "switch", buf );
     o.trans_whitespace( source, buf );
     o.trans( source, "(", buf );
@@ -300,15 +277,12 @@ try
     o.trans_whitespace( source, buf );
     o.trans_block( source, buf, true );
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control_case( mutable, bcore_source* source, st_s* buf ) ) =
-{
-try
-{
+{ try {
     o.trans( source, "case", buf );
     o.trans_expression( source, buf, NULL );
     o.trans_whitespace( source, buf );
@@ -317,30 +291,24 @@ try
     o.trans_statement_as_block( source, buf, false );
 
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control_default( mutable, bcore_source* source, st_s* buf ) ) =
-{
-try
-{
+{ try {
     o.trans( source, "default", buf );
     o.trans_whitespace( source, buf );
     o.trans( source, ":", buf );
     o.trans_whitespace( source, buf );
     o.trans_statement_as_block( source, buf, false );
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control_break( mutable, bcore_source* source, st_s* buf ) ) =
-{
-try
-{
+{ try {
     o.parse( source, "break ;" );
 
     sz_t ledge_level = -1;
@@ -369,15 +337,12 @@ try
     }
 
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 func (:)( er_t trans_control_return( mutable, bcore_source* source, st_s* buf ) ) =
-{
-try
-{
+{ try {
     o.parse( source, "return" );
 
     st_s* buf_expr = scope( st_s! );
@@ -446,8 +411,7 @@ try
     }
 
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 

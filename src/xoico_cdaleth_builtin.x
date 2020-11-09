@@ -47,9 +47,7 @@ func (:)
         xoico_typespec_s* typespec_out
     )
 ) =
-{
-try
-{
+{ try {
     switch( tp_builtin )
     {
         case TYPEOF_cast : return o.trans_builtin_cast(  source, buf_expr, typespec_expr, buf_out, typespec_out );
@@ -58,8 +56,7 @@ try
         case TYPEOF_try:   return o.trans_builtin_try( source, buf_expr, typespec_expr, buf_out, typespec_out );
         default: return o.parse_err_fa( source, "Internal error: Invalid builtin type '#<sc_t>'", ifnameof( tp_builtin ) );
     }
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -75,9 +72,7 @@ func (:)
         xoico_typespec_s* typespec_out
     )
 ) =
-{
-try
-{
+{ try {
     if( buf_expr ) // member call
     {
         o.parse( source, " ( " );
@@ -131,8 +126,7 @@ try
     }
 
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -148,9 +142,7 @@ func (:)
         xoico_typespec_s* typespec_out
     )
 ) =
-{
-try
-{
+{ try {
     bl_t has_arg = false;
 
     if( buf_expr ) // member call
@@ -225,8 +217,7 @@ try
     }
 
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -242,9 +233,7 @@ func (:)
         xoico_typespec_s* typespec_out
     )
 ) =
-{
-try
-{
+{ try {
     if( buf_expr ) // member call
     {
         o.parse( source, " ( " );
@@ -275,8 +264,7 @@ try
     if( typespec_out ) typespec_out.copy( typespec_fork );
 
     return 0;
-} // try
-};
+} /* try */ };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -292,9 +280,7 @@ func (:)
         xoico_typespec_s* typespec_out
     )
 ) =
-{
-try
-{
+{ try {
     if( o.typespec_ret.type != TYPEOF_er_t || o.typespec_ret.indirection != 0 )
     {
         return o.parse_err_fa( source, "Operator 'try': This operator can only be used in functions returning 'er_t'." );
@@ -345,8 +331,8 @@ try
     buf_out.push_fa( "BLM_TRY(#<sc_t>)", buf_expr.sc );
 
     return 0;
-} // try
-};
+} /* try */ };
+
 
 //----------------------------------------------------------------------------------------------------------------------
 

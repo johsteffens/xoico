@@ -46,12 +46,12 @@ try
 
     if( o.typespec.type == TYPEOF_void && o.typespec.indirection == 0 )
     {
-        return o.source_point.parse_err_to_em_fa( TYPEOF_parse_error, "'void' is misplaced here." );
+        return o.source_point.parse_error_fa( "'void' is misplaced here." );
     }
 
     st_s* s = st_s!.scope();
     source.parse_fa( "#name ", s );
-    if( s->size == 0 ) return source.parse_err_to_em_fa( TYPEOF_parse_error, "Argument: Name expected." );
+    if( s->size == 0 ) return source.parse_error_fa( "Argument: Name expected." );
     o->name = compiler.entypeof( s->sc );
 
     return 0;
