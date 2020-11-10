@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-10T15:21:48Z
+ *  Last File Update: 2020-11-10T19:29:20Z
  *
  *  Copyright and License of this File:
  *
@@ -38,6 +38,7 @@
  *  xoico_compiler.x
  *  xoico_feature.x
  *  xoico_func.x
+ *  xoico_group.x
  *
  */
 
@@ -47,7 +48,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x1D23DE8430AF1848ull
+#define HKEYOF_xoico_xoila_out 0xA365AFDA1DFFB944ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -650,21 +651,25 @@
       bcore_source_point_s source_point; \
       bcore_hmap_tpvd_s hmap_feature; \
   }; \
-  er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source ); \
-  tp_t xoico_group_s_get_hash( const xoico_group_s* o ); \
-  sc_t xoico_group_s_get_global_name_sc( const xoico_group_s* o ); \
+  static inline sc_t xoico_group_s_get_global_name_sc( const xoico_group_s* o ); \
   static inline tp_t xoico_group_s_get_global_name_tp( const xoico_group_s* o ); \
-  er_t xoico_group_s_finalize( xoico_group_s* o ); \
   er_t xoico_group_s_expand_setup( xoico_group_s* o ); \
+  er_t xoico_group_s_push_item_d( xoico_group_s* o, xoico* item ); \
+  tp_t xoico_group_s_get_hash( const xoico_group_s* o ); \
   st_s* xoico_group_s_create_spect_name( const xoico_group_s* o ); \
-  er_t xoico_group_s_parse_name( xoico_group_s* o, st_s* name, bcore_source* source ); \
   er_t xoico_group_s_parse_name_recursive( xoico_group_s* o, st_s* name, bcore_source* source ); \
+  er_t xoico_group_s_parse_name( xoico_group_s* o, st_s* name, bcore_source* source ); \
+  er_t xoico_group_s_push_default_feature_from_sc( xoico_group_s* o, sc_t sc ); \
+  er_t xoico_group_s_parse_func( xoico_group_s* o, bcore_source* source ); \
+  er_t xoico_group_s_parse( xoico_group_s* o, bcore_source* source ); \
+  er_t xoico_group_s_finalize( xoico_group_s* o ); \
+  er_t xoico_group_s_expand_forward( const xoico_group_s* o, sz_t indent, bcore_sink* sink ); \
+  er_t xoico_group_s_expand_spect_declaration( const xoico_group_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_group_s_expand_declaration( const xoico_group_s* o, sz_t indent, bcore_sink* sink ); \
+  er_t xoico_group_s_expand_spect_definition( const xoico_group_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_group_s_expand_definition( const xoico_group_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_group_s_expand_init1( const xoico_group_s* o, sz_t indent, bcore_sink* sink ); \
-  xoico_source_s* xoico_group_s_get_source( const xoico_group_s* o ); \
-  xoico_target_s* xoico_group_s_get_target( const xoico_group_s* o ); \
-  er_t xoico_group_s_push_item_d( xoico_group_s* o, xoico* item ); \
+  static inline sc_t xoico_group_s_get_global_name_sc( const xoico_group_s* o ){ return  o->st_name.sc;} \
   static inline tp_t xoico_group_s_get_global_name_tp( const xoico_group_s* o ){ return  o->tp_name;}
 #define BETH_EXPAND_GROUP_xoico_group \
   BCORE_FORWARD_OBJECT( xoico_group ); \
@@ -1562,4 +1567,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0x1E768D664AF47346ull
+// XOILA_OUT_SIGNATURE 0x9708F512A103BD9Bull

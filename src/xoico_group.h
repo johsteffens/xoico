@@ -26,6 +26,8 @@
 XOILA_DEFINE_GROUP( xoico_group, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+include deferred "xoico_nested_group.h";
+
 signature er_t push_item_d( mutable, xoico* item );
 signature er_t parse_name(           mutable, st_s* name, bcore_source* source );
 signature er_t parse_name_recursive( mutable, st_s* name, bcore_source* source );
@@ -88,10 +90,14 @@ stamp : = aware :
 
     func xoico.parse;
     func xoico.get_hash;
-    func xoico.get_global_name_sc;
-    func xoico.get_global_name_tp = { return o->tp_name; };
+    func xoico.get_global_name_sc = { return o.st_name.sc; };
+    func xoico.get_global_name_tp = { return o.tp_name; };
     func xoico.finalize;
-    func xoico.expand_setup;
+    func xoico.expand_setup =
+    {
+        foreach( $* e in o ) try( e.expand_setup() );
+        return 0;
+    };
 
     func :.create_spect_name;
     func :.parse_name;
@@ -99,9 +105,6 @@ stamp : = aware :
     func :.expand_declaration;
     func :.expand_definition;
     func :.expand_init1;
-
-    func :.get_source;
-    func :.get_target;
 
     func :.push_item_d =
     {
@@ -111,6 +114,8 @@ stamp : = aware :
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+embed "xoico_group.x";
 
 #endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
