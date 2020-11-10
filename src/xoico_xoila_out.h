@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-09T20:42:38Z
+ *  Last File Update: 2020-11-10T10:53:44Z
  *
  *  Copyright and License of this File:
  *
@@ -46,7 +46,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x2A3636C973D53905ull
+#define HKEYOF_xoico_xoila_out 0x8A13ED26A5E5294Aull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -1361,6 +1361,12 @@
   tp_t xoico_cdaleth_s_trans_inert_operator( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
   er_t xoico_cdaleth_s_adapt_expression( xoico_cdaleth_s* o, bcore_source* source, const xoico_typespec_s* typespec_expr, const xoico_typespec_s* typespec_target, const st_s* expr, st_s* buf ); \
   er_t xoico_cdaleth_s_trans_function_args( xoico_cdaleth_s* o, bcore_source* source, const xoico_signature_s* signature, const st_s* buf_obj_expr, const xoico_typespec_s* typespec_obj_expr, st_s* buf_out ); \
+  er_t xoico_cdaleth_s_trans_typespec_member( xoico_cdaleth_s* o, bcore_source* source, st_s* buf, const xoico_typespec_s* in_typespec, xoico_typespec_s* out_typespec ); \
+  er_t xoico_cdaleth_s_trans_typespec_array_subscript( xoico_cdaleth_s* o, bcore_source* source, st_s* buf, const xoico_typespec_s* in_typespec, xoico_typespec_s* out_typespec ); \
+  er_t xoico_cdaleth_s_trans_typespec_create( xoico_cdaleth_s* o, bcore_source* source, st_s* buf, const xoico_typespec_s* in_typespec, xoico_typespec_s* out_typespec ); \
+  er_t xoico_cdaleth_s_trans_typespec_test_presence( xoico_cdaleth_s* o, bcore_source* source, st_s* buf, const xoico_typespec_s* in_typespec, xoico_typespec_s* out_typespec ); \
+  er_t xoico_cdaleth_s_trans_typespec_attach( xoico_cdaleth_s* o, bcore_source* source, st_s* buf, const xoico_typespec_s* in_typespec, xoico_typespec_s* out_typespec ); \
+  er_t xoico_cdaleth_s_trans_typespec_ternary_branch( xoico_cdaleth_s* o, bcore_source* source, st_s* buf, const xoico_typespec_s* in_typespec, xoico_typespec_s* out_typespec ); \
   er_t xoico_cdaleth_s_trans_typespec_expression( xoico_cdaleth_s* o, bcore_source* source, st_s* buf, const xoico_typespec_s* in_typespec, xoico_typespec_s* out_typespec ); \
   er_t xoico_cdaleth_s_trans_member( xoico_cdaleth_s* o, bcore_source* source, st_s* buf ); \
   er_t xoico_cdaleth_s_try_take_typespec( xoico_cdaleth_s* o, bcore_source* source, xoico_typespec_s* typespec, bl_t require_tractable_type, bl_t* success ); \
@@ -1547,4 +1553,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0x6D6CAE9A05C6FF57ull
+// XOILA_OUT_SIGNATURE 0x6FF0D17A42BC0356ull

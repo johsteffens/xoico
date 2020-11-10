@@ -445,6 +445,368 @@ func (:)
 
 func (:)
 (
+    er_t trans_typespec_member
+    (
+        mutable,
+        bcore_source* source,
+        st_s* buf,
+        const xoico_typespec_s*  in_typespec, // required
+              xoico_typespec_s* out_typespec  // optional
+    )
+) =
+{ try {
+    if( source.parse_bl_fa( "#?'->'" ) )
+    {
+        if( in_typespec.indirection != 1 )
+        {
+            return source.parse_error_fa( "Given indirection is '#<sz_t>'. '->' can only be used at indirection '1'.", in_typespec.indirection );
+        }
+    }
+    else
+    {
+        o.parse( source, "." );
+    }
+    o.parse( source, " " );
+    xoico_compiler_element_info_s* info = scope( xoico_compiler_element_info_s! );
+    if( source.parse_bl_fa( "#=?'['" ) || source.parse_bl_fa( "#=?'?['" ) ) // array subscript
+    {
+        bl_t bounds_check = false;
+        if( source.parse_bl_fa( "#=?'?'" ) )
+        {
+            o.parse( source, "?[" );
+            bounds_check = true;
+        }
+        else
+        {
+            o.parse( source, "[" );
+        }
+
+        if( bounds_check ) return source.parse_error_fa( "Bounds check not yet available." );
+
+        if( in_typespec.indirection > 1 )
+        {
+            return source.parse_error_fa
+            (
+                "Resolving subscript: Indirection '#<sz_t>' is too large.",
+                in_typespec.indirection
+            );
+        }
+
+        buf.push_fa( "#<sc_t>data[", ( in_typespec.indirection == 1 ) ? "->" : "." );
+        o.trans_expression( source, buf, NULL );
+        o.parse( source, "]" );
+        buf.push_sc( "]" );
+
+        if( o.compiler.get_type_array_element_info( in_typespec.type, info ) )
+        {
+            o.trans_typespec_expression( source, buf, &info.type_info.typespec, out_typespec );
+        }
+        else
+        {
+            o.trans_expression( source, buf, NULL );
+        }
+    }
+    else // member (object or function)
+    {
+        st_s* buf_local = scope( st_s! );
+        tp_t tp_identifier = 0;
+        o.trans_identifier( source, buf_local, &tp_identifier );
+        o.trans_whitespace( source, buf_local );
+
+        // builtin functions ...
+        if( o.is_builtin_func( tp_identifier ) )
+        {
+            xoico_typespec_s* typespec_builtin = scope( xoico_typespec_s! );
+            o.trans_builtin( tp_identifier, source, buf, in_typespec, buf_local, typespec_builtin );
+            buf.copy( buf_local );
+            o.trans_typespec_expression( source, buf, typespec_builtin, out_typespec );
+        }
+        else if( o.compiler.get_type_element_info( in_typespec.type, tp_identifier, info ) )
+        {
+            if( info.signature ) // member function
+            {
+                sc_t sc_func_name = o.nameof( info.type_info.typespec.type );
+                ASSERT( sc_func_name );
+                st_s* arg_obj = scope( buf.clone() );
+                buf.copy_fa( "#<sc_t>", sc_func_name );
+                o.trans_function_args( source, info.signature, arg_obj, in_typespec, buf );
+                o.trans_typespec_expression( source, buf, &info.signature.typespec_ret, out_typespec );
+            }
+            else // traced member element
+            {
+                if( in_typespec.indirection > 1 )
+                {
+                    return source.parse_error_fa
+                    (
+                        "Dereferencing #<sc_t>: Indirection '#<sz_t>' is too large.",
+                        o.nameof( tp_identifier ),
+                        in_typespec.indirection
+                    );
+                }
+                buf.push_fa( "#<sc_t>#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : ".", buf_local.sc );
+                o.trans_typespec_expression( source, buf, &info.type_info.typespec, out_typespec );
+            }
+        }
+        else if( source.parse_bl_fa( "#?'('" ) ) // untraced member function
+        {
+            st_s* arg_obj = scope( buf.clone() );
+            st_s_clear( buf );
+
+            /// Untraced member functions of a group are always treated as 'aware'
+            if( o.is_group( in_typespec.type ) )
+            {
+                st_s_copy_fa
+                (
+                    buf,
+                    "#<sc_t>_a_#<sc_t>( ",
+                    o.nameof( in_typespec.type ),
+                    o.nameof( tp_identifier )
+                );
+            }
+            else
+            {
+                st_s_copy_fa
+                (
+                    buf,
+                    "#<sc_t>_#<sc_t>( ",
+                    o.nameof( in_typespec.type ),
+                    o.nameof( tp_identifier )
+                );
+            }
+
+            {
+                xoico_typespec_s* typespec_obj = scope( in_typespec.clone() );
+                typespec_obj.indirection = 1; // first argument of member functions
+                o.adapt_expression( source, in_typespec, typespec_obj, arg_obj, buf );
+            }
+
+            bl_t first = true;
+            o.trans_whitespace( source, buf_local );
+            while( !source.eos() )
+            {
+                if( source.parse_bl_fa( "#=?')'" ) ) break;
+
+                st_s* buf_expr = scope( st_s!, scope_local );
+                if( !first ) o.parse( source, "," );
+                o.trans_expression( source, buf_expr, NULL );
+                o.trans_whitespace( source, buf_expr );
+                buf.push_fa( "," );
+                buf.push_fa( "#<sc_t>", buf_expr.sc );
+                first = false;
+            }
+
+            o.parse( source, ")" );
+            buf.push_sc( ")" );
+
+            o.trans_expression( source, buf, NULL );
+        }
+        else // untraced member element
+        {
+            buf.push_fa( "#<sc_t>#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : ".", buf_local.sc );
+            o.trans_expression( source, buf, NULL );
+        }
+    }
+    return 0;
+} /* try */ };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:)
+(
+    er_t trans_typespec_array_subscript
+    (
+        mutable,
+        bcore_source* source,
+        st_s* buf,
+        const xoico_typespec_s*  in_typespec, // required
+              xoico_typespec_s* out_typespec  // optional
+    )
+) =
+{ try {
+    o.parse( source, "[" );
+    if( in_typespec.indirection == 0 )
+    {
+        if( in_typespec.type != TYPEOF_sc_t && in_typespec.type != TYPEOF_sd_t )
+        {
+            return source.parse_error_fa( "Array subscript requires indirection >= 1." );
+        }
+    }
+    buf.push_sc( "[" );
+    o.trans_expression( source, buf, NULL );
+    o.parse( source, "]" );
+    buf.push_sc( "]" );
+
+    xoico_typespec_s* typespec = scope( in_typespec.clone() );
+    if( in_typespec.type != TYPEOF_sc_t && in_typespec.type != TYPEOF_sd_t )
+    {
+        typespec.indirection--;
+    }
+    o.trans_typespec_expression( source, buf, typespec, out_typespec );
+    return 0;
+} /* try */ };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:)
+(
+    er_t trans_typespec_create
+    (
+        mutable,
+        bcore_source* source,
+        st_s* buf,
+        const xoico_typespec_s*  in_typespec, // required
+              xoico_typespec_s* out_typespec  // optional
+    )
+) =
+{ try {
+    o.parse( source, "!" );
+
+    //ignore in case indirection is 0;
+    if( in_typespec.indirection > 0 )
+    {
+        if( !( in_typespec.indirection == 1 && in_typespec.flag_addressable ) )
+        {
+            return source.parse_error_fa( "Create-Operator requires lvalue with addressable indirection of 1." );
+        }
+
+        if( xoico_cdaleth_s_is_group( o, in_typespec.type ) )
+        {
+            return source.parse_error_fa( "Create-Operator: lvalue is a group." );
+        }
+
+        st_s* arg_obj = scope( buf.clone() );
+        buf.clear();
+
+        sc_t sc_type = o.nameof( in_typespec.type );
+        buf.push_fa( "BCORE_PASS_CREATE(#<sc_t>,#<sc_t>)", sc_type, arg_obj.sc );
+    }
+
+    o.trans_typespec_expression( source, buf, in_typespec, out_typespec );
+    return 0;
+} /* try */ };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:)
+(
+    er_t trans_typespec_test_presence
+    (
+        mutable,
+        bcore_source* source,
+        st_s* buf,
+        const xoico_typespec_s*  in_typespec, // required
+              xoico_typespec_s* out_typespec  // optional
+    )
+) =
+{ try {
+    o.parse( source, "?" );
+
+    //ignore in case indirection is 0;
+    if( in_typespec.indirection > 0 )
+    {
+        if( in_typespec.indirection != 1 )
+        {
+            return source.parse_error_fa( "Test-Operator requires lvalue with indirection of 1." );
+        }
+
+        st_s* arg_obj = scope( buf.clone() );
+        st_s_clear( buf );
+
+        sc_t sc_type = o.nameof( in_typespec.type );
+        buf.push_fa( "BCORE_PASS_TEST(#<sc_t>,#<sc_t>)", sc_type, arg_obj.sc );
+    }
+
+    o.trans_typespec_expression( source, buf, in_typespec, out_typespec );
+    return 0;
+} /* try */ };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:)
+(
+    er_t trans_typespec_attach
+    (
+        mutable,
+        bcore_source* source,
+        st_s* buf,
+        const xoico_typespec_s*  in_typespec, // required
+              xoico_typespec_s* out_typespec  // optional
+    )
+) =
+{ try {
+    if( !( in_typespec.indirection == 1 && in_typespec.flag_addressable ) )
+    {
+        return source.parse_error_fa( "Attach-Operator requires lvalue with addressable indirection of 1" );
+    }
+
+    o.parse( source, "=<" );
+
+    st_s* arg_obj = scope( buf.clone() );
+    buf.clear();
+
+    sc_t sc_type = o.nameof( in_typespec.type );
+    buf.push_fa( "#<sc_t>", sc_type );
+
+    xoico_typespec_s* typespec_rval = scope( xoico_typespec_s! );
+    if( o.is_group( in_typespec.type ) )
+    {
+        buf.push_sc( "_a" );
+        buf.push_fa( "_attach( &(#<sc_t>), (#<sc_t>*)", arg_obj.sc, sc_type );
+        buf.push_fa( "(" );
+        o.trans_expression( source, buf, typespec_rval );
+        buf.push_fa( "))" );
+    }
+    else
+    {
+        buf.push_fa( "_attach( &(#<sc_t>), ", arg_obj.sc );
+        o.trans_expression( source, buf, typespec_rval );
+        buf.push_fa( ")" );
+    }
+
+    if( typespec_rval.type && typespec_rval.indirection != 1 )
+    {
+        return source.parse_error_fa( "Attach operator requires rvalue with indirection '1'" );
+    }
+
+    if( out_typespec ) out_typespec.copy( in_typespec );
+    return 0;
+} /* try */ };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:)
+(
+    er_t trans_typespec_ternary_branch
+    (
+        mutable,
+        bcore_source* source,
+        st_s* buf,
+        const xoico_typespec_s*  in_typespec, // required
+              xoico_typespec_s* out_typespec  // optional
+    )
+) =
+{ try {
+    o.parse( source, "?" );
+    buf.push_sc( "?" );
+    xoico_typespec_s* typespec_true  = scope( xoico_typespec_s! );
+
+    o.trans_expression( source, buf, typespec_true );
+    o.parse( source, ": " );
+    buf.push_sc( ": " );
+    o.trans_expression( source, buf, NULL );
+
+    if( out_typespec && typespec_true.type )
+    {
+        out_typespec.copy( typespec_true );
+        out_typespec.flag_addressable = false;
+    }
+    return 0;
+} /* try */ };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:)
+(
     er_t trans_typespec_expression
     (
         mutable,
@@ -455,294 +817,45 @@ func (:)
     )
 ) =
 { try {
+    if( out_typespec ) out_typespec.type = 0;
     o.trans_whitespace( source, buf );
 
-    if( out_typespec ) out_typespec.type = 0;
+    u0_t c[ 2 ];
+    source.inspect_data( c, sizeof( c ) );
 
-    /// member object, function or array subscript
-    if( source.parse_bl_fa( "#?([0]=='.'||([0]=='-'&&[1]=='>'))" ) )
+    if( c[0] == '.' || ( c[0] == '-' && c[1] == '>' ) )
     {
-        if( source.parse_bl_fa( "#?'->'" ) )
-        {
-            if( in_typespec.indirection != 1 )
-            {
-                return source.parse_error_fa( "Given indirection is '#<sz_t>'. '->' can only be used at indirection '1'.", in_typespec.indirection );
-            }
-        }
-        else
-        {
-            o.parse( source, "." );
-        }
-        o.parse( source, " " );
-        xoico_compiler_element_info_s* info = scope( xoico_compiler_element_info_s! );
-        if( source.parse_bl_fa( "#=?'['" ) || source.parse_bl_fa( "#=?'?['" ) ) // array subscript
-        {
-            bl_t bounds_check = false;
-            if( source.parse_bl_fa( "#=?'?'" ) )
-            {
-                o.parse( source, "?[" );
-                bounds_check = true;
-            }
-            else
-            {
-                o.parse( source, "[" );
-            }
-
-            if( bounds_check ) return source.parse_error_fa( "Bounds check not yet available." );
-
-            if( in_typespec.indirection > 1 )
-            {
-                return source.parse_error_fa
-                (
-                    "Resolving subscript: Indirection '#<sz_t>' is too large.",
-                    in_typespec.indirection
-                );
-            }
-
-            buf.push_fa( "#<sc_t>data[", ( in_typespec.indirection == 1 ) ? "->" : "." );
-            o.trans_expression( source, buf, NULL );
-            o.parse( source, "]" );
-            buf.push_sc( "]" );
-
-            if( o.compiler.get_type_array_element_info( in_typespec.type, info ) )
-            {
-                o.trans_typespec_expression( source, buf, &info.type_info.typespec, out_typespec );
-            }
-            else
-            {
-                o.trans_expression( source, buf, NULL );
-            }
-        }
-        else // member (object or function)
-        {
-            st_s* buf_local = scope( st_s! );
-            tp_t tp_identifier = 0;
-            o.trans_identifier( source, buf_local, &tp_identifier );
-            o.trans_whitespace( source, buf_local );
-
-            // builtin functions ...
-            if( o.is_builtin_func( tp_identifier ) )
-            {
-                xoico_typespec_s* typespec_builtin = scope( xoico_typespec_s! );
-                o.trans_builtin( tp_identifier, source, buf, in_typespec, buf_local, typespec_builtin );
-                buf.copy( buf_local );
-                o.trans_typespec_expression( source, buf, typespec_builtin, out_typespec );
-            }
-            else if( o.compiler.get_type_element_info( in_typespec.type, tp_identifier, info ) )
-            {
-                if( info.signature ) // member function
-                {
-                    sc_t sc_func_name = o.nameof( info.type_info.typespec.type );
-                    ASSERT( sc_func_name );
-                    st_s* arg_obj = scope( buf.clone() );
-                    buf.copy_fa( "#<sc_t>", sc_func_name );
-                    o.trans_function_args( source, info.signature, arg_obj, in_typespec, buf );
-                    o.trans_typespec_expression( source, buf, &info.signature.typespec_ret, out_typespec );
-                }
-                else // traced member element
-                {
-                    if( in_typespec.indirection > 1 )
-                    {
-                        return source.parse_error_fa
-                        (
-                            "Dereferencing #<sc_t>: Indirection '#<sz_t>' is too large.",
-                            o.nameof( tp_identifier ),
-                            in_typespec.indirection
-                        );
-                    }
-                    buf.push_fa( "#<sc_t>#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : ".", buf_local.sc );
-                    o.trans_typespec_expression( source, buf, &info.type_info.typespec, out_typespec );
-                }
-            }
-            else if( source.parse_bl_fa( "#?'('" ) ) // untraced member function
-            {
-                st_s* arg_obj = scope( buf.clone() );
-                st_s_clear( buf );
-
-                /// Untraced member functions of a group are always treated as 'aware'
-                if( o.is_group( in_typespec.type ) )
-                {
-                    st_s_copy_fa
-                    (
-                        buf,
-                        "#<sc_t>_a_#<sc_t>( ",
-                        o.nameof( in_typespec.type ),
-                        o.nameof( tp_identifier )
-                    );
-                }
-                else
-                {
-                    st_s_copy_fa
-                    (
-                        buf,
-                        "#<sc_t>_#<sc_t>( ",
-                        o.nameof( in_typespec.type ),
-                        o.nameof( tp_identifier )
-                    );
-                }
-
-                {
-                    xoico_typespec_s* typespec_obj = scope( in_typespec.clone() );
-                    typespec_obj.indirection = 1; // first argument of member functions
-                    o.adapt_expression( source, in_typespec, typespec_obj, arg_obj, buf );
-                }
-
-                bl_t first = true;
-                o.trans_whitespace( source, buf_local );
-                while( !source.eos() )
-                {
-                    if( source.parse_bl_fa( "#=?')'" ) ) break;
-
-                    st_s* buf_expr = scope( st_s!, scope_local );
-                    if( !first ) o.parse( source, "," );
-                    o.trans_expression( source, buf_expr, NULL );
-                    o.trans_whitespace( source, buf_expr );
-                    buf.push_fa( "," );
-                    buf.push_fa( "#<sc_t>", buf_expr.sc );
-                    first = false;
-                }
-
-                o.parse( source, ")" );
-                buf.push_sc( ")" );
-
-                o.trans_expression( source, buf, NULL );
-            }
-            else // untraced member element
-            {
-                buf.push_fa( "#<sc_t>#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : ".", buf_local.sc );
-                o.trans_expression( source, buf, NULL );
-            }
-        }
+        o.trans_typespec_member( source, buf, in_typespec, out_typespec );
     }
-    // c-style array subscript
-    else if( source.parse_bl_fa( "#?'['" ) )
+    else if( c[0] == '[' )
     {
-        if( in_typespec.indirection == 0 )
-        {
-            if( in_typespec.type != TYPEOF_sc_t && in_typespec.type != TYPEOF_sd_t )
-            {
-                return source.parse_error_fa( "Array subscript requires indirection >= 1." );
-            }
-        }
-        buf.push_sc( "[" );
-        o.trans_expression( source, buf, NULL );
-        o.parse( source, "]" );
-        buf.push_sc( "]" );
-
-        xoico_typespec_s* typespec = scope( in_typespec.clone() );
-        if( in_typespec.type != TYPEOF_sc_t && in_typespec.type != TYPEOF_sd_t )
-        {
-            typespec.indirection--;
-        }
-        o.trans_typespec_expression( source, buf, typespec, out_typespec );
+        o.trans_typespec_array_subscript( source, buf, in_typespec, out_typespec );
     }
     // create if not present
-    else if( source.parse_bl_fa( "#?([0]=='!'&&[1]!='=')" ) )
+    else if( c[0] =='!' && c[1] != '=' )
     {
-        o.parse( source, "!" );
-
-        //ignore in case indirection is 0;
-        if( in_typespec.indirection > 0 )
-        {
-            if( !( in_typespec.indirection == 1 && in_typespec.flag_addressable ) )
-            {
-                return source.parse_error_fa( "Create-Operator requires lvalue with addressable indirection of 1." );
-            }
-
-            if( xoico_cdaleth_s_is_group( o, in_typespec.type ) )
-            {
-                return source.parse_error_fa( "Create-Operator: lvalue is a group." );
-            }
-
-            st_s* arg_obj = scope( buf.clone() );
-            buf.clear();
-
-            sc_t sc_type = o.nameof( in_typespec.type );
-            buf.push_fa( "BCORE_PASS_CREATE(#<sc_t>,#<sc_t>)", sc_type, arg_obj.sc );
-        }
-
-        o.trans_typespec_expression( source, buf, in_typespec, out_typespec );
+        o.trans_typespec_create( source, buf, in_typespec, out_typespec );
     }
     // test for presence
-    else if( source.parse_bl_fa( "#?([0]=='?'&&[1]=='.')" ) )
+    else if( c[0] == '?' && c[1] == '.' )
     {
-        o.parse( source, "?" );
-
-        //ignore in case indirection is 0;
-        if( in_typespec.indirection > 0 )
-        {
-            if( in_typespec.indirection != 1 )
-            {
-                return source.parse_error_fa( "Test-Operator requires lvalue with indirection of 1." );
-            }
-
-            st_s* arg_obj = scope( buf.clone() );
-            st_s_clear( buf );
-
-            sc_t sc_type = o.nameof( in_typespec.type );
-            buf.push_fa( "BCORE_PASS_TEST(#<sc_t>,#<sc_t>)", sc_type, arg_obj.sc );
-        }
-
-        o.trans_typespec_expression( source, buf, in_typespec, out_typespec );
+        o.trans_typespec_test_presence( source, buf, in_typespec, out_typespec );
     }
     // attach (detach)
-    else if( source.parse_bl_fa( "#?'=<'" ) )
+    else if( c[0] == '=' && c[1] == '<' )
     {
-        if( !( in_typespec.indirection == 1 && in_typespec.flag_addressable ) )
-        {
-            return source.parse_error_fa( "Attach-Operator requires lvalue with addressable indirection of 1" );
-        }
-
-        st_s* arg_obj = scope( buf.clone() );
-        buf.clear();
-
-        sc_t sc_type = o.nameof( in_typespec.type );
-        buf.push_fa( "#<sc_t>", sc_type );
-
-        xoico_typespec_s* typespec_rval = scope( xoico_typespec_s! );
-        if( o.is_group( in_typespec.type ) )
-        {
-            buf.push_sc( "_a" );
-            buf.push_fa( "_attach( &(#<sc_t>), (#<sc_t>*)", arg_obj.sc, sc_type );
-            buf.push_fa( "(" );
-            o.trans_expression( source, buf, typespec_rval );
-            buf.push_fa( "))" );
-        }
-        else
-        {
-            buf.push_fa( "_attach( &(#<sc_t>), ", arg_obj.sc );
-            o.trans_expression( source, buf, typespec_rval );
-            buf.push_fa( ")" );
-        }
-
-        if( typespec_rval.type && typespec_rval.indirection != 1 )
-        {
-            return source.parse_error_fa( "Attach operator requires rvalue with indirection '1'" );
-        }
-
-        if( out_typespec ) out_typespec.copy( in_typespec );
+        o.trans_typespec_attach( source, buf, in_typespec, out_typespec );
     }
     // ternary branch operator
-    else if( source.parse_bl_fa( "#?'?'" ) )
+    else if( c[0] == '?' )
     {
-        buf.push_sc( "?" );
-        xoico_typespec_s* typespec_true  = scope( xoico_typespec_s! );
-
-        o.trans_expression( source, buf, typespec_true );
-        o.parse( source, ": " );
-        buf.push_sc( ": " );
-        o.trans_expression( source, buf, NULL );
-
-        if( out_typespec && typespec_true.type )
-        {
-            out_typespec.copy( typespec_true );
-            out_typespec.flag_addressable = false;
-        }
+        o.trans_typespec_ternary_branch( source, buf, in_typespec, out_typespec );
     }
     else if( out_typespec )
     {
         out_typespec.copy( in_typespec );
     }
+
     return 0;
 } /* try */ };
 
@@ -1143,16 +1256,15 @@ func (:)
         o.trans_identifier( source, buf_var, &tp_identifier );
         o.trans_whitespace( source, buf_var );
 
-        bl_t pushed_typedecl = false;
-
-        if( typespec_var.type != TYPEOF_type_deduce )
-        {
-            o.push_typedecl( typespec_var, tp_identifier );
-            pushed_typedecl = true;
-        }
-
         if( source.parse_bl_fa( "#?'='" ) )
         {
+            bl_t pushed_typedecl = false;
+            if( typespec_var.type != TYPEOF_type_deduce )
+            {
+                o.push_typedecl( typespec_var, tp_identifier );
+                pushed_typedecl = true;
+            }
+
             buf_var.push_sc( "=" );
             xoico_typespec_s* typespec_expr = xoico_typespec_s!.scope();
             st_s* buf_expr = st_s!.scope();
@@ -1175,24 +1287,37 @@ func (:)
             {
                 buf_var.push_st( buf_expr );
             }
+            o.push_typespec( typespec_var, buf_out );
+            buf_out.push_char( ' ' );
+            buf_out.push_st( buf_var );
+            if( !pushed_typedecl ) o.push_typedecl( typespec_var, tp_identifier );
+        }
+        else if( typespec_var.type == TYPEOF_type_deduce )
+        {
+            return source.parse_error_fa( "Declaration-syntax: Deduce requested without assignment." );
+        }
+        else if( source.parse_bl_fa( "#=?'['" ) )
+        {
+            o.push_typespec( typespec_var, buf_out );
+            while( source.parse_bl_fa( "#?'['" ) )
+            {
+                buf_var.push_char( '[' );
+                o.trans_expression( source, buf_var, NULL );
+                o.parse( source, "]" );
+                buf_var.push_char( ']' );
+                typespec_var.indirection++;
+            }
+            buf_out.push_char( ' ' );
+            buf_out.push_st( buf_var );
+            o.push_typedecl( typespec_var, tp_identifier );
         }
         else
         {
-            if( typespec_var.type == TYPEOF_type_deduce )
-            {
-                return source.parse_error_fa( "Declaration-syntax: Deduce requested without assignment." );
-            }
-        }
-
-        if( !pushed_typedecl )
-        {
+            o.push_typespec( typespec_var, buf_out );
+            buf_out.push_char( ' ' );
+            buf_out.push_st( buf_var );
             o.push_typedecl( typespec_var, tp_identifier );
-            pushed_typedecl = true;
         }
-
-        o.push_typespec( typespec_var, buf_out );
-        buf_out.push_char( ' ' );
-        buf_out.push_st( buf_var );
 
         if( success ) *success = true;
     }

@@ -278,7 +278,8 @@ TODO:
 - add variadic function
 - (fixed) bug: functions in groups do not affect its hash value
 - (done) add includes to be placed in *xoila_out.{c,h} files
-- assignment: should adapt indirection where possible
+- (rejected) assignment: should adapt indirection where possible --> does not work unless prefixes '*', '&' are evaluated
+- (done) detect c-style arrays  (variables should have proper indirection)
 
 Keywords (for syntax highlight)
 
