@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-10T13:18:15Z
+ *  Last File Update: 2020-11-10T14:07:20Z
  *
  *  Copyright and License of this File:
  *
@@ -152,6 +152,55 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_forward_s )
     "func xoico:expand_forward;"
     "func xoico:expand_init1;"
 "}";
+
+er_t xoico_forward_s_parse( xoico_forward_s* o, bcore_source* source )
+{
+    // xoico_forward.h:35:5
+    BLM_INIT_LEVEL(0); {
+    BLM_INIT();
+    bcore_source_point_s_set( &(o->source_point),source );
+    if( bcore_source_a_parse_bl_fa( source," #?':'" ) )
+    {
+        st_s* name = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,st_s_create()));
+        BLM_TRY(bcore_source_a_parse_em_fa( source," #name", name ) )
+        st_s_push_fa( &(o->name),"#<sc_t>#<sc_t>#<sc_t>", o->group->st_name.sc, name->sc[ 0 ] ? "_" : "", name->sc );
+    }
+    else
+    {
+        BLM_TRY(bcore_source_a_parse_em_fa( source," #name", &o->name ) )
+    }
+    if( o->name.size == 0 ) BLM_RETURNV(er_t, bcore_source_a_parse_error_fa( source,"Feature: Name missing." ))
+    BLM_TRY(bcore_source_a_parse_em_fa( source," ; " ) )
+    BLM_RETURNV(er_t, 0)
+    } /* try */
+}
+
+tp_t xoico_forward_s_get_hash( const xoico_forward_s* o )
+{
+    // xoico_forward.h:54:5
+    
+    tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
+    hash = bcore_tp_fold_sc( hash, o->name.sc );
+    return  hash;
+}
+
+er_t xoico_forward_s_expand_declaration( const xoico_forward_s* o, sz_t indent, bcore_sink* sink )
+{
+    // xoico_forward.h:63:5
+     {
+    bcore_sink_a_push_fa( sink,"#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o->name.sc, btypeof( o->name.sc ) );
+    return  0;
+    } /* try */
+}
+
+er_t xoico_forward_s_expand_forward( const xoico_forward_s* o, sz_t indent, bcore_sink* sink )
+{
+    // xoico_forward.h:69:5
+     {
+    bcore_sink_a_push_fa( sink," \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o->name.sc );
+    return  0;
+    } /* try */
+}
 
 XOILA_DEFINE_SPECT( xoico, xoico_forward )
 "{"
@@ -5524,4 +5573,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0x0A3D5E50BD9C7E9Bull
+// XOILA_OUT_SIGNATURE 0xF80CD3D6072D4AAFull

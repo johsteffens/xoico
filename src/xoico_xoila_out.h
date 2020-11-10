@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-10T13:18:15Z
+ *  Last File Update: 2020-11-10T14:07:20Z
  *
  *  Copyright and License of this File:
  *
@@ -46,7 +46,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x2609FC15F188E214ull
+#define HKEYOF_xoico_xoila_out 0x6BBD0585A7AE47B5ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -249,10 +249,12 @@
   }; \
   er_t xoico_forward_s_parse( xoico_forward_s* o, bcore_source* source ); \
   tp_t xoico_forward_s_get_hash( const xoico_forward_s* o ); \
-  sc_t xoico_forward_s_get_global_name_sc( const xoico_forward_s* o ); \
+  static inline sc_t xoico_forward_s_get_global_name_sc( const xoico_forward_s* o ); \
   er_t xoico_forward_s_expand_declaration( const xoico_forward_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_forward_s_expand_forward( const xoico_forward_s* o, sz_t indent, bcore_sink* sink ); \
-  er_t xoico_forward_s_expand_init1( const xoico_forward_s* o, sz_t indent, bcore_sink* sink );
+  static inline er_t xoico_forward_s_expand_init1( const xoico_forward_s* o, sz_t indent, bcore_sink* sink ); \
+  static inline sc_t xoico_forward_s_get_global_name_sc( const xoico_forward_s* o ){ return  o->name.sc;} \
+  static inline er_t xoico_forward_s_expand_init1( const xoico_forward_s* o, sz_t indent, bcore_sink* sink ){ return  0;}
 #define BETH_EXPAND_GROUP_xoico_forward \
   BCORE_FORWARD_OBJECT( xoico_forward ); \
   BCORE_FORWARD_OBJECT( xoico_forward_s ); \
@@ -1559,4 +1561,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0x02874EFDDDBECFB4ull
+// XOILA_OUT_SIGNATURE 0x20B252958FB79D0Full
