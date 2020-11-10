@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-10T12:39:40Z
+ *  Last File Update: 2020-11-10T13:18:15Z
  *
  *  Copyright and License of this File:
  *
@@ -46,7 +46,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x3490C0B94A3B3948ull
+#define HKEYOF_xoico_xoila_out 0x2609FC15F188E214ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -501,14 +501,14 @@
       bcore_source_point_s source_point; \
   }; \
   sc_t xoico_feature_s_get_global_name_sc( const xoico_feature_s* o ); \
+  tp_t xoico_feature_s_get_hash( const xoico_feature_s* o ); \
+  er_t xoico_feature_s_parse( xoico_feature_s* o, bcore_source* source ); \
   er_t xoico_feature_s_expand_indef_typedef( const xoico_feature_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_feature_s_expand_spect_declaration( const xoico_feature_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_feature_s_expand_spect_definition( const xoico_feature_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_feature_s_expand_indef_declaration( const xoico_feature_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_feature_s_expand_definition( const xoico_feature_s* o, sz_t indent, bcore_sink* sink ); \
-  er_t xoico_feature_s_expand_init1( const xoico_feature_s* o, sz_t indent, bcore_sink* sink ); \
-  tp_t xoico_feature_s_get_hash( const xoico_feature_s* o ); \
-  er_t xoico_feature_s_parse( xoico_feature_s* o, bcore_source* source );
+  er_t xoico_feature_s_expand_init1( const xoico_feature_s* o, sz_t indent, bcore_sink* sink );
 #define BETH_EXPAND_GROUP_xoico_feature \
   BCORE_FORWARD_OBJECT( xoico_feature ); \
   BCORE_FORWARD_OBJECT( xoico_feature_s ); \
@@ -1559,4 +1559,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0x56923AA982F81F95ull
+// XOILA_OUT_SIGNATURE 0x02874EFDDDBECFB4ull
