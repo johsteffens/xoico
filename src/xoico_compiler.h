@@ -52,7 +52,7 @@ signature const xoico_feature_s* get_feature( const, tp_t name );
 /// returns signature in case name represents a signature or feature
 signature const xoico_signature_s* get_signature( const, tp_t name );
 
-signature er_t  life_a_push(    mutable, vd_t object );
+signature er_t  life_a_push(    mutable, bcore_inst* object );
 signature er_t  check_overwrite( const,  sc_t file );
 signature bl_t  get_self(        const,  tp_t type, const bcore_self_s** self ); // returns success
 

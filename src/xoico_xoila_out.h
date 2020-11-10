@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-10T14:07:20Z
+ *  Last File Update: 2020-11-10T15:21:48Z
  *
  *  Copyright and License of this File:
  *
@@ -37,6 +37,7 @@
  *  xoico_cdaleth_control.x
  *  xoico_compiler.x
  *  xoico_feature.x
+ *  xoico_func.x
  *
  */
 
@@ -46,7 +47,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x6BBD0585A7AE47B5ull
+#define HKEYOF_xoico_xoila_out 0x1D23DE8430AF1848ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -548,9 +549,10 @@
       bcore_source_point_s source_point; \
   }; \
   tp_t xoico_func_s_get_hash( const xoico_func_s* o ); \
+  er_t xoico_func_s_set_global_name( xoico_func_s* o ); \
   er_t xoico_func_s_parse( xoico_func_s* o, bcore_source* source ); \
-  er_t xoico_func_s_finalize( xoico_func_s* o ); \
   bl_t xoico_func_s_registerable( const xoico_func_s* o ); \
+  er_t xoico_func_s_finalize( xoico_func_s* o ); \
   er_t xoico_func_s_expand_forward( const xoico_func_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_func_s_expand_declaration( const xoico_func_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_func_s_expand_definition( const xoico_func_s* o, sz_t indent, bcore_sink* sink );
@@ -579,16 +581,15 @@
       aware_t _; \
       BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_func_s, ); \
   }; \
-  bl_t xoico_funcs_s_exists_from_signature_global_name( const xoico_funcs_s* o, tp_t signature_global_name ); \
-  bl_t xoico_funcs_s_exists_from_name( const xoico_funcs_s* o, tp_t name ); \
   sz_t xoico_funcs_s_get_index_from_signature_global_name( const xoico_funcs_s* o, tp_t signature_global_name ); \
+  bl_t xoico_funcs_s_exists_from_signature_global_name( const xoico_funcs_s* o, tp_t signature_global_name ); \
   sz_t xoico_funcs_s_get_index_from_name( const xoico_funcs_s* o, tp_t name ); \
+  bl_t xoico_funcs_s_exists_from_name( const xoico_funcs_s* o, tp_t name ); \
   xoico_func_s* xoico_funcs_s_get_func_from_signature_global_name( const xoico_funcs_s* o, tp_t signature_global_name ); \
   xoico_func_s* xoico_funcs_s_get_func_from_name( const xoico_funcs_s* o, tp_t name ); \
   er_t xoico_funcs_s_replace_fork( xoico_funcs_s* o, sz_t idx, xoico_func_s* func ); \
-  static inline er_t xoico_funcs_s_push_d( xoico_funcs_s* o, xoico_func_s* func ); \
-  tp_t xoico_funcs_s_get_hash( const xoico_funcs_s* o ); \
-  static inline er_t xoico_funcs_s_push_d( xoico_funcs_s* o, xoico_func_s* func ){ bcore_array_a_push( ((bcore_array*)(o)),sr_asd( func ) ); return  0;}
+  er_t xoico_funcs_s_push_d( xoico_funcs_s* o, xoico_func_s* func ); \
+  tp_t xoico_funcs_s_get_hash( const xoico_funcs_s* o );
 #define BETH_EXPAND_GROUP_xoico_funcs \
   BCORE_FORWARD_OBJECT( xoico_funcs ); \
   BCORE_FORWARD_OBJECT( xoico_funcs_s ); \
@@ -895,7 +896,7 @@
   const xoico_signature_s* xoico_compiler_s_get_signature( const xoico_compiler_s* o, tp_t name ); \
   xoico_group_s* xoico_compiler_s_get_group( xoico_compiler_s* o, tp_t name ); \
   xoico_func_s* xoico_compiler_s_get_func( xoico_compiler_s* o, tp_t name ); \
-  er_t xoico_compiler_s_life_a_push( xoico_compiler_s* o, vd_t object ); \
+  er_t xoico_compiler_s_life_a_push( xoico_compiler_s* o, bcore_inst* object ); \
   static inline bl_t xoico_compiler_s_update_required( xoico_compiler_s* o ); \
   static inline sz_t xoico_compiler_s_get_verbosity( const xoico_compiler_s* o ); \
   static inline tp_t xoico_compiler_s_entypeof( xoico_compiler_s* o, sc_t name ); \
@@ -1561,4 +1562,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0x20B252958FB79D0Full
+// XOILA_OUT_SIGNATURE 0x1E768D664AF47346ull

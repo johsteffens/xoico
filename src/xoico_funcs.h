@@ -39,14 +39,56 @@ signature tp_t get_hash( const );
 stamp : = aware :
 {
     xoico_func_s => [];
-    func :.exists_from_signature_global_name;
-    func :.exists_from_name;
-    func :.get_index_from_signature_global_name;
-    func :.get_index_from_name;
-    func :.get_func_from_signature_global_name;
-    func :.get_func_from_name;
-    func :.replace_fork;
-    func :.push_d = { o.cast( bcore_array* ).push( sr_asd( func ) ); return 0; };
+
+    func :.get_index_from_signature_global_name =
+    {
+        foreach( $* e in o ) if( e.signature_global_name == signature_global_name ) return __i;
+        return -1;
+    };
+
+    func :.exists_from_signature_global_name =
+    {
+        return ( o.get_index_from_signature_global_name( signature_global_name ) >= 0 );
+    };
+
+    func :.get_index_from_name =
+    {
+        foreach( $* e in o ) if( e.name == name ) return __i;
+        return -1;
+    };
+
+    func :.exists_from_name =
+    {
+        return ( o.get_index_from_name( name ) >= 0 );
+    };
+
+    func :.get_func_from_signature_global_name =
+    {
+        sz_t idx = o.get_index_from_signature_global_name( signature_global_name );
+        return ( idx >= 0 ) ? o.[ idx ] : NULL;
+    };
+
+    func :.get_func_from_name =
+    {
+        sz_t idx = o.get_index_from_name( name );
+        return ( idx >= 0 ) ? o.[ idx ] : NULL;
+    };
+
+    func :.replace_fork =
+    {
+        ASSERT( idx >= 0 && idx < o.size );
+        o.[ idx ] =< NULL;
+        for( sz_t i = idx + 1; i < o->size; i++ ) o.[ i - 1 ] = o.[ i ];
+        o.[ o->size - 1 ] = func.fork();
+        return 0;
+    };
+
+    func :.push_d =
+    {
+        o.cast( bcore_array* ).push( sr_asd( func ) );
+        return 0;
+    };
+
     func :.get_hash =
     {
         tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
