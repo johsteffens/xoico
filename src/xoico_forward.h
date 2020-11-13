@@ -33,7 +33,6 @@ stamp : = aware :
 
     func xoico.parse =
     { try {
-        BLM_INIT();
         o.source_point.set( source );
         if( source.parse_bl_fa( " #?':'" ) )
         {

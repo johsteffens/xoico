@@ -118,7 +118,7 @@ func (:)( er_t trans_control_foreach( mutable, bcore_source* source, :result* re
     o.parse( source, " in " );
 
     xoico_typespec_s* typespec_arr_expr = scope( xoico_typespec_s! );
-    $* result_arr_expr = :result_create_plain().scope();
+    $* result_arr_expr = :result_create_arr().scope();
     o.trans_expression( source, result_arr_expr, typespec_arr_expr );
 
     if( !typespec_arr_expr.type )
@@ -150,7 +150,7 @@ func (:)( er_t trans_control_foreach( mutable, bcore_source* source, :result* re
     o.push_typedecl( typespec_arr, o.entypeof( "__a" ) );
     o.push_typedecl( typespec_idx, o.entypeof( "__i" ) );
 
-    $* result_statement = :result_create_plain().scope();
+    $* result_statement = :result_create_arr().scope();
     if( source.parse_bl( "#=?'{'" ) )
     {
         o.trans_block( source, result_statement, false );
@@ -171,12 +171,12 @@ func (:)( er_t trans_control_foreach( mutable, bcore_source* source, :result* re
     o.push_typespec( typespec_var, result );
     result.push_fa( " #<sc_t>=", xoico_che_s_nameof( o, tp_var_name ) );
 
-    $* result_element_expr = :result_create_plain_from_sc( "__a->data[__i]" ).scope();
+    $* result_element_expr = :result_create_from_sc( "__a->data[__i]" ).scope();
 
     o.adapt_expression( source, typespec_element, typespec_var, result_element_expr, result );
     result.push_fa( ";" );
 
-    result.push_result( result_statement );
+    result.push_result_d( result_statement.fork() );
 
     result.push_fa( "}}" );
     o.dec_block();
@@ -307,6 +307,30 @@ func (:)( er_t trans_control_default( mutable, bcore_source* source, :result* re
 
 //----------------------------------------------------------------------------------------------------------------------
 
+stamp :result_break = aware :result
+{
+    sz_t ledge_level;
+    hidden :result_block_s* parent;
+
+    func :result.set_parent_block = { o.parent = parent; };
+
+    func :result.to_sink =
+    {
+        if( !o.parent ) ERR_fa( "Parent missing." );
+        if( o.parent.is_using_blm_until_level( o.ledge_level ) )
+        {
+            sink.push_fa( "BLM_BREAK_LEVEL(#<sz_t>);", o.ledge_level );
+        }
+        else
+        {
+            sink.push_fa( "break;" );
+        }
+        return 0;
+    };
+
+    func (@* create_setup( sz_t ledge_level )) = { $* o = @!; o.ledge_level = ledge_level; return o; };
+};
+
 func (:)( er_t trans_control_break( mutable, bcore_source* source, :result* result ) ) =
 { try {
     o.parse( source, "break ;" );
@@ -327,17 +351,35 @@ func (:)( er_t trans_control_break( mutable, bcore_source* source, :result* resu
 
     if( ledge_level == -1 ) return source.parse_error_fa( "'break' has no ledge." );
 
-    if( use_blm )
-    {
-        result.push_fa( "BLM_BREAK_LEVEL(#<sz_t>);", ledge_level );
-    }
-    else
-    {
-        result.push_sc( "break;" );
-    }
+    result.push_result_d( :result_break_s_create_setup( ledge_level ).cast( :result* ) );
 
     return 0;
 } /* try */ };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+stamp :result_return = aware :result
+{
+    hidden :result_block_s* parent;
+    hidden aware :result -> result_blm;
+    hidden aware :result -> result_direct;
+
+    func :result.set_parent_block = { o.parent = parent; };
+
+    func :result.to_sink =
+    {
+        if( !o.parent ) ERR_fa( "Parent missing." );
+        if( o.parent.is_using_blm_until_level( 0 ) )
+        {
+            o.result_blm.to_sink( sink );
+        }
+        else
+        {
+            o.result_direct.to_sink( sink );
+        }
+        return 0;
+    };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -345,12 +387,13 @@ func (:)( er_t trans_control_return( mutable, bcore_source* source, :result* res
 { try {
     o.parse( source, "return" );
 
-    $* result_expr = :result_create_plain().scope();
+    $* result_expr = :result_create_arr().scope();
+
     xoico_typespec_s* typespec_expr = scope( xoico_typespec_s! );
     const xoico_typespec_s* typespec_ret = o.typespec_ret;
 
     o.trans_expression( source, result_expr, typespec_expr );
-    o.trans_whitespace( source, result );
+    o.trans_whitespace( source, result_expr );
     o.parse( source, ";" );
 
     if( typespec_expr.type )
@@ -361,54 +404,43 @@ func (:)( er_t trans_control_return( mutable, bcore_source* source, :result* res
         }
     }
 
-    bl_t use_blm = false;
-
-    foreach( $* e in o.stack_block.adl )
+    $* result_expr_adapted = :result_create_arr().scope();
+    if( o.returns_a_value() && typespec_expr.type )
     {
-        if( e.use_blm )
-        {
-            use_blm = true;
-            break;
-        }
-    }
-
-    if( use_blm )
-    {
-        if( o.returns_a_value() )
-        {
-            result.push_sc( "BLM_RETURNV(" );
-            o.push_typespec( typespec_ret, result );
-            result.push_sc( "," );
-            if( typespec_expr.type )
-            {
-                o.adapt_expression( source, typespec_expr, typespec_ret, result_expr, result );
-            }
-            else
-            {
-                result.push_result( result_expr );
-            }
-            result.push_sc( ")" );  // do not terminate BLM_RETURNV macro with a semicolon, otherwise if-else statements might not be handled correctly
-        }
-        else
-        {
-            result.push_sc( "BLM_RETURN" );
-            result.push_result( result_expr );
-            result.push_sc( ";" );
-        }
+        o.adapt_expression( source, typespec_expr, typespec_ret, result_expr, result_expr_adapted );
     }
     else
     {
-        result.push_sc( "return " );
-        if( typespec_expr.type )
-        {
-            o.adapt_expression( source, typespec_expr, typespec_ret, result_expr, result );
-        }
-        else
-        {
-            result.push_result( result_expr );
-        }
-        result.push_sc( ";" );
+        result_expr_adapted.push_result_d( result_expr.fork() );
     }
+
+
+    $* result_blm = :result_create_arr().scope();
+    if( o.returns_a_value() )
+    {
+        result_blm.push_sc( "BLM_RETURNV(" );
+        o.push_typespec( typespec_ret, result_blm );
+        result_blm.push_sc( "," );
+        result_blm.push_result_d( result_expr_adapted.fork() );
+        result_blm.push_sc( ")" );  // do not terminate BLM_RETURNV macro with a semicolon, otherwise if-else statements might not be handled correctly
+    }
+    else
+    {
+        result_blm.push_sc( "BLM_RETURN" );
+        result_blm.push_result_d( result_expr_adapted.fork() );
+        result_blm.push_sc( ";" );
+    }
+
+    $* result_direct = :result_create_arr().scope();
+    result_direct.push_sc( "return " );
+    result_direct.push_result_d( result_expr_adapted.fork() );
+    result_direct.push_sc( ";" );
+
+    $* result_return = :result_return_s!.scope();
+    result_return.result_blm =< result_blm.fork();
+    result_return.result_direct =< result_direct.fork();
+
+    result.push_result_d( result_return.cast( :result* ).fork() );
 
     return 0;
 } /* try */ };

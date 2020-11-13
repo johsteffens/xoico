@@ -281,8 +281,15 @@ TODO:
 - (rejected) assignment: should adapt indirection where possible --> does not work unless prefixes '*', '&' are evaluated
 - (done) detect c-style arrays  (variables should have proper indirection)
 
-- bug: If the parser encounters a return or break statement, lifetime manager is not taken down in case the parser has not seen any 'scope' yet' .
-  -> fix: remember such return or break positions and revisit them after a block has been completed.
+- (fixed) bug: If the parser encounters a return or break statement, lifetime manager is not taken down in case the parser has not seen any 'scope' yet' .
+  -> fix: remember such return or break positions and revisit them after a block has been completed. (fixed in 'che')
+
+- introduce postfix operators to increment or decrement indirection
+- trace all assignments and apply automatic typespec adaptation
+- In stamp: introduce 'auto_cast' list
+- apply automatic cast in adaptations in case of type discrepancy if target is in auto-cast list.
+- automatically cast (known) aware stamps to a group
+- introduce simple way to call the default implementation of a feature
 
 Keywords (for syntax highlight)
 

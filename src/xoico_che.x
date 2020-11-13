@@ -345,13 +345,15 @@ func (:)
 
     if( no_adaptation )
     {
-        result.push_result( result_expr );
+        result.push_result_c( result_expr );
     }
     else if( typespec_target.indirection == typespec_expr.indirection + 1 )
     {
         if( typespec_expr.flag_addressable )
         {
-            result.push_fa( "&(#<st_s*>)", result_expr.create_st().scope() );
+            result.push_sc( "&(" );
+            result.push_result_c( result_expr );
+            result.push_sc( ")" );
         }
         else
         {
@@ -360,7 +362,9 @@ func (:)
     }
     else if( typespec_target.indirection == typespec_expr.indirection - 1 )
     {
-        result.push_fa( "*(#<st_s*>)", result_expr.create_st().scope() );
+        result.push_sc( "*(" );
+        result.push_result_c( result_expr );
+        result.push_sc( ")" );
     }
     else
     {
@@ -396,7 +400,7 @@ func (:)
     {
         if( !result_obj_expr )
         {
-            $* result_expr   = :result_create_plain().scope();
+            $* result_expr   = :result_create_arr().scope();
             $* typespec_expr = xoico_typespec_s!.scope();
             o.trans_expression( source, result_expr, typespec_expr );
             result_obj_expr = result_expr;
@@ -413,14 +417,14 @@ func (:)
         }
         else
         {
-            result_out.push_result( result_obj_expr );
+            result_out.push_result_c( result_obj_expr );
         }
         if( signature.args.size > 0 ) result_out.push_sc( "," );
     }
 
     foreach( $* arg in signature.args )
     {
-        $* result_expr = :result_create_plain().scope();
+        $* result_expr = :result_create_arr().scope();
         $* typespec_expr = xoico_typespec_s!.scope( scope_local );
         o.parse( source, " " );
         if( __i > 0 ) o.parse( source, " ," );
@@ -432,7 +436,7 @@ func (:)
         }
         else
         {
-            result_out.push_result( result_expr );
+            result_out.push_result_d( result_expr.fork() );
         }
     }
 
@@ -508,7 +512,7 @@ func (:)
     }
     else // member (object or function)
     {
-        $* result_local = :result_create_plain().scope();
+        $* result_local = :result_create_arr().scope();
         tp_t tp_identifier = 0;
         o.trans_identifier( source, result_local, &tp_identifier );
         o.trans_whitespace( source, result_local );
@@ -543,7 +547,9 @@ func (:)
                         in_typespec.indirection
                     );
                 }
-                result.push_fa( "#<sc_t>#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : ".", result_local.create_st().scope().sc );
+                result.push_fa( "#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : "." );
+                result.push_result_d( result_local.fork() );
+
                 o.trans_typespec_expression( source, result, &info.type_info.typespec, out_typespec );
             }
         }
@@ -584,12 +590,12 @@ func (:)
             {
                 if( source.parse_bl_fa( "#=?')'" ) ) break;
 
-                $* result_expr = :result_create_plain().scope();
+                $* result_expr = :result_create_arr().scope();
                 if( !first ) o.parse( source, "," );
                 o.trans_expression( source, result_expr, NULL );
                 o.trans_whitespace( source, result_expr );
                 result.push_fa( "," );
-                result.push_fa( "#<sc_t>", result_expr.create_st().scope().sc );
+                result.push_result_d( result_expr.fork() );
                 first = false;
             }
 
@@ -600,7 +606,8 @@ func (:)
         }
         else // untraced member element
         {
-            result.push_fa( "#<sc_t>#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : ".", result_local.create_st().scope().sc );
+            result.push_fa( "#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : "." );
+            result.push_result_d( result_local.fork() );
             o.trans_expression( source, result, NULL );
         }
     }
@@ -676,7 +683,9 @@ func (:)
         result.clear();
 
         sc_t sc_type = o.nameof( in_typespec.type );
-        result.push_fa( "BCORE_PASS_CREATE(#<sc_t>,#<sc_t>)", sc_type, result_arg_obj.create_st().scope().sc );
+        result.push_fa( "BCORE_PASS_CREATE(#<sc_t>,", sc_type );
+        result.push_result_d( result_arg_obj.fork() );
+        result.push_sc( ")" );
     }
 
     o.trans_typespec_expression( source, result, in_typespec, out_typespec );
@@ -711,7 +720,9 @@ func (:)
         result.clear();
 
         sc_t sc_type = o.nameof( in_typespec.type );
-        result.push_fa( "BCORE_PASS_TEST(#<sc_t>,#<sc_t>)", sc_type, result_arg_obj.create_st().scope().sc );
+        result.push_fa( "BCORE_PASS_TEST(#<sc_t>,", sc_type );
+        result.push_result_d( result_arg_obj.fork() );
+        result.push_sc( ")" );
     }
 
     o.trans_typespec_expression( source, result, in_typespec, out_typespec );
@@ -749,16 +760,21 @@ func (:)
     if( o.is_group( in_typespec.type ) )
     {
         result.push_sc( "_a" );
-        result.push_fa( "_attach( &(#<sc_t>), (#<sc_t>*)", result_arg_obj.create_st().scope().sc, sc_type );
-        result.push_fa( "(" );
+        result.push_sc( "_attach( &(" );
+        result.push_result_d( result_arg_obj.fork() );
+        result.push_fa( "), (#<sc_t>*)", sc_type );
+
+        result.push_sc( "(" );
         o.trans_expression( source, result, typespec_rval );
-        result.push_fa( "))" );
+        result.push_sc( "))" );
     }
     else
     {
-        result.push_fa( "_attach( &(#<sc_t>), ", result_arg_obj.create_st().scope().sc );
+        result.push_sc( "_attach( &(" );
+        result.push_result_d( result_arg_obj.fork() );
+        result.push_sc( "), " );
         o.trans_expression( source, result, typespec_rval );
-        result.push_fa( ")" );
+        result.push_sc( ")" );
     }
 
     if( typespec_rval.type && typespec_rval.indirection != 1 )
@@ -1004,7 +1020,7 @@ func (:)
 
     if( type == TYPEOF_type_object )
     {
-        type = o.obj_type;
+        type = o.obj_type ? o.obj_type : o.group.tp_name;
     }
     else if( type == TYPEOF_type_deduce )
     {
@@ -1019,7 +1035,7 @@ func (:)
 
     if( st_type.size == 0 )
     {
-        ERR_fa( "Type has no name." );
+        ERR_fa( "Type '#<tp_t>' has no name.", type );
     }
 
     sc_t sc_type = st_type.sc;
@@ -1047,7 +1063,7 @@ func (:)
     )
 ) =
 { try {
-    $* result_type = :result_create_plain().scope();
+    $* result_type = :result_create_arr().scope();
     tp_t tp_identifier;
     o.trans_identifier( source, result_type, &tp_identifier );
     o.trans_whitespace( source, result_type );
@@ -1066,7 +1082,7 @@ func (:)
     }
     else
     {
-        result.push_result( result_type );
+        result.push_result_d( result_type.fork() );
     }
     return 0;
 } /* try */ };
@@ -1188,7 +1204,7 @@ func (:)
 
     o.trans_whitespace( source, result_out );
 
-    $* result = :result_create_plain().scope();
+    $* result = :result_create_arr().scope();
     bl_t continuation = true;
 
     if( out_typespec ) out_typespec.reset();
@@ -1294,7 +1310,7 @@ func (:)
         }
     }
 
-    if( result_out ) result_out.push_result( result );
+    if( result_out ) result_out.push_result_d( result.fork() );
 
     return 0;
 } /* try */ };
@@ -1321,7 +1337,7 @@ func (:)
 
     sz_t index = source.get_index();
 
-    $* result_var = :result_create_plain().scope();
+    $* result_var = :result_create_arr().scope();
 
     bl_t success_take_typespec = false;
     o.try_take_typespec( source, typespec_var, true, &success_take_typespec );
@@ -1355,7 +1371,7 @@ func (:)
 
             result_var.push_sc( "=" );
             xoico_typespec_s* typespec_expr = xoico_typespec_s!.scope();
-            $* result_expr = :result_create_plain().scope();
+            $* result_expr = :result_create_arr().scope();
             o.trans_expression( source, result_expr, typespec_expr );
 
             if( typespec_var.type == TYPEOF_type_deduce )
@@ -1373,11 +1389,11 @@ func (:)
             }
             else
             {
-                result_var.push_result( result_expr );
+                result_var.push_result_d( result_expr.fork() );
             }
             o.push_typespec( typespec_var, result_out );
             result_out.push_char( ' ' );
-            result_out.push_result( result_var );
+            result_out.push_result_d( result_var.fork() );
             if( !pushed_typedecl ) o.push_typedecl( typespec_var, tp_identifier );
         }
         else if( typespec_var.type == TYPEOF_type_deduce )
@@ -1396,14 +1412,14 @@ func (:)
                 typespec_var.indirection++;
             }
             result_out.push_char( ' ' );
-            result_out.push_result( result_var );
+            result_out.push_result_d( result_var.fork() );
             o.push_typedecl( typespec_var, tp_identifier );
         }
         else
         {
             o.push_typespec( typespec_var, result_out );
             result_out.push_char( ' ' );
-            result_out.push_result( result_var );
+            result_out.push_result_d( result_var.fork() );
             o.push_typedecl( typespec_var, tp_identifier );
         }
 
@@ -1427,7 +1443,7 @@ func(:) (er_t inspect_variable( mutable, bcore_source* source )) =
     o.parse( source, "\?\?" );
 
     $* st = st_s!.scope();
-    $* result_local = :result_create_plain().scope();
+    $* result_local = :result_create_arr().scope();
     xoico_typespec_s* typespec = xoico_typespec_s!.scope();
     try( source.parse_em_fa( " #until';' ", st ) );
     try( source.parse_em_fa( ";" ) );
@@ -1464,7 +1480,7 @@ func (:) (er_t trans_statement_expression( mutable, bcore_source* source, :resul
     if( o.try_block_level > 0 )
     {
         xoico_typespec_s* typespec = xoico_typespec_s!.scope();
-        $* result_expr = :result_create_plain().scope();
+        $* result_expr = :result_create_arr().scope();
         o.trans_expression( source, result_expr, typespec );
         if
         (
@@ -1477,11 +1493,13 @@ func (:) (er_t trans_statement_expression( mutable, bcore_source* source, :resul
             {
                 return source.parse_error_fa( "Inside a try-block: Expressions yielding 'er_t' must end with ';'" );
             }
-            result.push_fa( "BLM_TRY(#<sc_t>)", result_expr.create_st().scope().sc );
+            result.push_sc( "BLM_TRY(" );
+            result.push_result_d( result_expr.fork() );
+            result.push_sc( ")" );
         }
         else
         {
-            result.push_result( result_expr );
+            result.push_result_d( result_expr.fork() );
         }
     }
     else
@@ -1577,7 +1595,7 @@ func (:) (er_t trans_statement( mutable, bcore_source* source, :result* result )
 
 func (:) (er_t trans_block_inside( mutable, bcore_source* source, :result* result_out )) =
 { try {
-    $* result = :result_create_plain().scope();
+    $* result = :result_create_arr().scope();
 
     while( !source.parse_bl_fa( "#=?'}'" ) && !source.eos() )
     {
@@ -1586,17 +1604,21 @@ func (:) (er_t trans_block_inside( mutable, bcore_source* source, :result* resul
 
     if( o.stack_block_get_top_unit().use_blm )
     {
-        result_out.push_fa( "BLM_INIT_LEVEL(#<sz_t>);", o.level );
-        result_out.push_result( result );
+        $* result_block = :result_create_block( o.level, true ).scope();
+
+        result_block.push_result_d( :result_create_blm_init( o.level ) );
+        result_block.push_result_d( result.fork() );
 
         if( ( o.level > 0 ) || !o.returns_a_value() )
         {
-            result_out.push_sc( "BLM_DOWN();" );
+            result_block.push_result_d( :result_create_blm_down() );
         }
+
+        result_out.push_result_d( result_block.fork() );
     }
     else
     {
-        result_out.push_result( result );
+        result_out.push_result_d( result.fork() );
     }
 
     return 0;
@@ -1604,15 +1626,17 @@ func (:) (er_t trans_block_inside( mutable, bcore_source* source, :result* resul
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t trans_block( mutable, bcore_source* source, :result* result, bl_t is_break_ledge )) =
+func (:) (er_t trans_block( mutable, bcore_source* source, :result* result_out, bl_t is_break_ledge )) =
 { try {
     o.inc_block();
+    $* result = :result_create_arr().scope();
     o.stack_block_get_top_unit().break_ledge = is_break_ledge;
     o.trans_whitespace( source, result );
     o.trans( source, "{", result );
     o.trans_block_inside( source, result );
     o.trans_whitespace( source, result );
     o.trans( source, "}", result );
+    result_out.push_result_d( result.fork() );
     o.dec_block();
     return 0;
 } /* try */ };
@@ -1621,7 +1645,7 @@ func (:) (er_t trans_block( mutable, bcore_source* source, :result* result, bl_t
 
 func (:) (er_t trans_statement_as_block( mutable, bcore_source* source, :result* result_out, bl_t is_break_ledge )) =
 { try {
-    $* result = :result_create_plain().scope();
+    $* result = :result_create_arr().scope();
 
     o.inc_block();
     o.stack_block_get_top_unit().break_ledge = is_break_ledge;
@@ -1632,13 +1656,18 @@ func (:) (er_t trans_statement_as_block( mutable, bcore_source* source, :result*
 
     if( o.stack_block_get_top_unit().use_blm )
     {
-        result_out.push_fa( "{BLM_INIT_LEVEL(#<sz_t>);", o.level );
-        result_out.push_result( result );
-        result_out.push_sc( "BLM_DOWN();}" );
+        $* result_block = :result_create_block( o.level, true ).scope();
+        result_block.push_result_d( :result_create_blm_init( o.level ) );
+        result_block.push_result_d( result.fork() );
+        result_block.push_result_d( :result_create_blm_down() );
+
+        result_out.push_sc( "{" );
+        result_out.push_result_d( result_block.fork() );
+        result_out.push_sc( "}" );
     }
     else
     {
-        result_out.push_result( result );
+        result_out.push_result_d( result.fork() );
     }
 
     o.dec_block();
@@ -1782,23 +1811,27 @@ func (:) (void remove_indentation( st_s* string, sz_t indentation )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico_cengine.translate =
+func (:) (er_t translate_mutable( mutable, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink )) =
 { try {
-    xoico_che_s* engine = o.clone().scope();
-    engine.setup( body, signature );
+    o.setup( body, signature );
 
     bcore_source* source = cast( bcore_source_point_s_clone_source( &body.code.source_point ), bcore_source* ).scope();
 
-    $* result = :result_create_plain().scope();
+    $* result = :result_create_arr().scope();
 
-    engine.parse( source, " {" );
+    o.parse( source, " {" );
     sz_t indentation = 0;
     if( !body.go_inline ) indentation = o.assess_indentation( source );
-    engine.trans_block_inside( source, result );
-    engine.parse( source, " }" );
+    o.trans_block_inside( source, result );
+    o.parse( source, " }" );
+
+    $* result_block = :result_create_block( o.level, o.stack_block_get_bottom_unit().use_blm ).scope();
+    result_block.cast( :result_block_s* ).is_root = true;
+//    $* result_block = :result_create_block( o.level, true ).scope();
+    result_block.push_result_d( result.fork() );
 
     st_s* buf = st_s!.scope();
-    result.to_sink( buf.cast( bcore_sink* ) );
+    result_block.to_sink( buf.cast( bcore_sink* ) );
 
     //remove trailing whitespaces
     for( sz_t i = buf.size - 1; i >= 0; i-- )
@@ -1808,7 +1841,7 @@ func (:) xoico_cengine.translate =
         buf.size = i;
     }
 
-    if( engine.insert_source_reference && !body.code.single_line )
+    if( o.insert_source_reference && !body.code.single_line )
     {
         sink.push_fa( "// " );
         body.code.source_point.source_reference_to_sink( true, sink );
@@ -1817,7 +1850,7 @@ func (:) xoico_cengine.translate =
 
     if( indentation > 0 ) o.remove_indentation( buf, indentation );
 
-    if( engine.verbose )
+    if( o.verbose )
     {
         bcore_sink_a_push_fa( BCORE_STDOUT, "##############################\n" );
         bcore_sink_a_push_fa( BCORE_STDOUT, "#<st_s*>\n", buf );
@@ -1827,6 +1860,14 @@ func (:) xoico_cengine.translate =
 
     return 0;
 } /* try */ };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:) xoico_cengine.translate =
+{
+    er_t er = o.clone().scope().translate_mutable( body, signature, sink );
+    return er;
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 

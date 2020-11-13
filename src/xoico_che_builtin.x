@@ -81,7 +81,7 @@ func (:)
     else // direct call
     {
         o.parse( source, "cast ( " );
-        $* result = :result_create_plain().scope();
+        $* result = :result_create_arr().scope();
         $* typespec = xoico_typespec_s!.scope();
         o.trans_expression( source, result, typespec );
         o.parse( source, " , " );
@@ -112,7 +112,7 @@ func (:)
     }
     else
     {
-        result_out.push_result( result_expr );
+        result_out.push_result_c( result_expr );
     }
 
     o.parse( source, " )" );
@@ -154,7 +154,7 @@ func (:)
     else // direct call
     {
         o.parse( source, "scope ( " );
-        $* result = :result_create_plain().scope();
+        $* result = :result_create_arr().scope();
         $* typespec = xoico_typespec_s!.scope();
         o.trans_expression( source, result, typespec );
         typespec_expr = typespec;
@@ -201,11 +201,15 @@ func (:)
 
     if( o.is_group( typespec_scope.type ) )
     {
-        result_out.push_fa( ")BLM_LEVEL_A_PUSH(#<sz_t>,#<sc_t>))", level, result_expr.create_st().scope().sc );
+        result_out.push_fa( ")BLM_LEVEL_A_PUSH(#<sz_t>,", level );
+        result_out.push_result_c( result_expr );
+        result_out.push_sc( "))" );
     }
     else
     {
-        result_out.push_fa( ")BLM_LEVEL_T_PUSH(#<sz_t>,#<sc_t>,#<sc_t>))", level, o.nameof( typespec_scope.type ), result_expr.create_st().scope().sc );
+        result_out.push_fa( ")BLM_LEVEL_T_PUSH(#<sz_t>,#<sc_t>,", level, o.nameof( typespec_scope.type ) );
+        result_out.push_result_c( result_expr );
+        result_out.push_sc( "))" );
     }
 
     o.stack_block.adl.[ level ].use_blm = true;
@@ -242,7 +246,7 @@ func (:)
     else // direct call
     {
         o.parse( source, "fork ( " );
-        $* result = :result_create_plain().scope();
+        $* result = :result_create_arr().scope();
         $* typespec = xoico_typespec_s!.scope();
         o.trans_expression( source, result, typespec );
         typespec_expr = typespec;
@@ -259,7 +263,9 @@ func (:)
     if( typespec_fork.indirection != 1 ) return source.parse_error_fa( "Operator 'fork': Expression's indirection != 1." );
 
     o.push_typespec( typespec_fork, result_out );
-    result_out.push_fa( ")bcore_fork(#<sc_t>))", result_expr.create_st().scope().sc );
+    result_out.push_sc( ")bcore_fork(" );
+    result_out.push_result_c( result_expr );
+    result_out.push_sc( "))" );
 
     if( typespec_out ) typespec_out.copy( typespec_fork );
 
@@ -306,7 +312,7 @@ func (:)
         }
 
         o.parse( source, "( " );
-        $* result = :result_create_plain().scope();
+        $* result = :result_create_arr().scope();
         $* typespec = xoico_typespec_s!.scope();
         o.trans_expression( source, result, typespec );
         typespec_expr = typespec;
@@ -327,8 +333,9 @@ func (:)
         // return source.parse_error_fa( "Operator 'try': Expression not tractable." );
     }
 
-
-    result_out.push_fa( "BLM_TRY(#<sc_t>)", result_expr.create_st().scope().sc );
+    result_out.push_sc( "BLM_TRY(" );
+    result_out.push_result_c( result_expr );
+    result_out.push_sc( ")" );
 
     return 0;
 } /* try */ };

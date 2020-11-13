@@ -34,15 +34,24 @@ XOILA_DEFINE_GROUP( xoico_che, xoico_cengine )
 /// stack for variable declarations
 group :result = :
 {
-    feature void clear( mutable );
-    feature er_t push_char( mutable, char c );
-    feature er_t push_sc( mutable, sc_t sc );
-    feature er_t push_st( mutable, const st_s* st );
-    feature er_t push_result( mutable, const :* result );
-    feature er_t push_result_d( mutable, :* result );
+    feature void clear( mutable )             = {};
+    feature er_t push_char( mutable, char c ) = { ERR_fa( "Not implemented." ); return 0; };
+    feature er_t push_sc( mutable, sc_t sc )  = { ERR_fa( "Not implemented." ); return 0; };
+    feature er_t push_st( mutable, const st_s* st ) = { ERR_fa( "Not implemented." ); return 0; };
+    feature :* push_result_c( mutable, const :* result ) = { ERR_fa( "Not implemented." ); return NULL; };
+    feature :* push_result_d( mutable, :* result ) = { ERR_fa( "Not implemented." ); return NULL; };
     feature er_t to_sink( const, bcore_sink* sink );
-    feature st_s* create_st( const );
 
+    feature void set_parent_block( mutable, :block_s* parent ) = {};
+
+    feature st_s* create_st( const ) =
+    {
+        $* st = st_s!;
+        o.to_sink( st.cast( bcore_sink* ) );
+        return st;
+    };
+
+//----------------------------------------------------------------------------------------------------------------------
 
     stamp :plain = aware :
     {
@@ -56,16 +65,125 @@ group :result = :
         func :.push_char = { o.st.push_char( c ); return 0; };
         func :.push_sc   = { o.st.push_sc( sc ); return 0; };
         func :.push_st   = { o.st.push_st( st ); return 0; };
-        func :.push_result   = { result.to_sink( o.st.cast( bcore_sink* ) ); return 0; };
-        func :.push_result_d = { result.to_sink( o.st.cast( bcore_sink* ) ); result.discard(); return 0; };
         func :.to_sink   = { sink.push_string( &o.st );  return 0; };
         func :.create_st = { return o.st.clone(); };
     };
 
-    func (:* create_plain() )                         = { return :plain_s!.cast( :* ); };
-    func (:* create_plain_from_st( const st_s* st ) ) = { return :plain_s_create_from_st( st ).cast( :* ); };
-    func (:* create_plain_from_st_d(     st_s* st ) ) = { return :plain_s_create_from_st_d( st ).cast( :* ); };
-    func (:* create_plain_from_sc(       sc_t  sc ) ) = { return :plain_s_create_from_sc( sc ).cast( :* ); };
+    func (:* create_from_st( const st_s* st ) ) = { $* o = :arr_s!; o.push_st( st ); return o.cast( :* ); };
+    func (:* create_from_sc(       sc_t  sc ) ) = { $* o = :arr_s!; o.push_sc( sc ); return o.cast( :* ); };
+
+    stamp :adl = aware bcore_array { aware : -> []; }; // !! weak links !!  (if this causes problems revert to strong links)
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    stamp :arr = aware :
+    {
+        :adl_s adl;
+
+        func :.clear = { o.adl.clear(); };
+
+        func (:* last( mutable )) =
+        {
+            return ( o.adl.size == 0 ) ? o.adl.push_d( :plain_s!.cast( :* ) ) : o.adl.[ o.adl.size - 1 ];
+        };
+
+        func (:* last_plain( mutable )) =
+        {
+            return ( o.last()._ != TYPEOF_:plain_s ) ? o.adl.push_d( :plain_s!.cast( :* ) ) : o.adl.[ o.adl.size - 1 ];
+        };
+
+        func :.push_char = { return o.last_plain().push_char( c ); };
+        func :.push_sc   = { return o.last_plain().push_sc( sc );  };
+        func :.push_st   = { return o.last_plain().push_st( st );  };
+        func :.push_result_d = { return o.adl.push_d( result ); };
+        func :.push_result_c = { return o.adl.push_c( result ); };
+
+        func :.to_sink =
+        {
+            foreach( $* e in o.adl ) e.to_sink( sink );
+            return 0;
+        };
+
+        func :.set_parent_block =
+        {
+            foreach( $* e in o.adl ) e.set_parent_block( parent );
+        };
+    };
+
+    func (:* create_arr() ) = { return :arr_s!.cast( :* ); };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    stamp :block = aware :
+    {
+        :arr_s arr;
+        sz_t level = 0;
+        bl_t is_using_blm = false;
+        bl_t is_root = false;
+        hidden @* parent;
+        func :.clear = { o.arr.clear(); };
+        func :.push_char = { return o.arr.push_char( c ); };
+        func :.push_sc   = { return o.arr.push_sc( sc );  };
+        func :.push_st   = { return o.arr.push_st( st );  };
+
+        func :.push_result_d =
+        {
+            :* result_pushed = o.arr.push_result_d( result );
+            result_pushed.set_parent_block( o );
+            return result_pushed;
+        };
+
+        func :.push_result_c =
+        {
+            :* result_pushed = o.arr.push_result_c( result );
+            result_pushed.set_parent_block( o );
+            return result_pushed;
+        };
+
+        func :.to_sink = { return o.arr.to_sink( sink ); };
+        func :.set_parent_block = { o.parent = parent; };
+
+        func (bl_t is_using_blm_until_level( const, sz_t level )) =
+        {
+            if( level > o.level ) return false;
+            if( o.is_using_blm ) return true;
+            if( o.is_root ) return false;
+
+            ASSERT( o.parent );
+            return o.parent.is_using_blm_until_level( level );
+        };
+
+    };
+
+    func (:* create_block( sz_t level, bl_t is_using_blm  ) ) =
+    {
+        $* o = :block_s!;
+        o.level = level;
+        o.is_using_blm = is_using_blm;
+        return o.cast( :* );
+    };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    stamp :blm_init = aware :
+    {
+        sz_t level;
+        func :.to_sink = { sink.push_fa( "BLM_INIT_LEVEL(#<sz_t>);", o.level ); return 0; };
+    };
+
+    func (:* create_blm_init( sz_t level ) ) = { $* o = :blm_init_s!; o.level = level; return o.cast( :* ); };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    stamp :blm_down = aware :
+    {
+        func :.to_sink = { sink.push_sc( "BLM_DOWN();" ); return 0; };
+    };
+
+    func (:* create_blm_down() ) = { $* o = :blm_down_s!; return o.cast( :* ); };
+
+//----------------------------------------------------------------------------------------------------------------------
+
 };
 
 /// stack for variable declarations
@@ -164,8 +282,8 @@ group :stack_block = :
     stamp : = aware :
     {
         :unit_adl_s adl;
-        func :.push      = { o.adl.push_d( :unit_s! );  return o; };
-        func :.push_unit = { o.adl.push_c( unit );  return o; };
+        func :.push      = { o.adl.push_d( :unit_s! ); return o; };
+        func :.push_unit = { o.adl.push_c( unit ); return o; };
 
         func :.pop =
         {
@@ -324,7 +442,7 @@ stamp : = aware :
 
     func (bl_t returns_a_value( const )) =
     {
-        return ( o.typespec_ret.type != TYPEOF_void ) || ( o.typespec_ret.indirection > 0 );
+        return ( !( ( o.typespec_ret.type == 0 ) || ( o.typespec_ret.type == TYPEOF_void ) ) ) || ( o.typespec_ret.indirection > 0 );
     };
 
     func (er_t parse( const, bcore_source* source, sc_t format )) =
