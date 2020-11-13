@@ -309,6 +309,8 @@ signature void push_typedecl( mutable, const xoico_typespec_s* typespec, tp_t na
 signature :stack_block_unit_s* stack_block_get_top_unit( mutable );
 signature :stack_block_unit_s* stack_block_get_bottom_unit( mutable );
 signature :stack_block_unit_s* stack_block_get_level_unit( mutable, sz_t level );
+signature er_t push_typespec( mutable, const xoico_typespec_s* typespec, :result* result );
+signature void typespec_to_sink( mutable, const xoico_typespec_s* typespec, bcore_sink* sink );
 
 signature bl_t is_var( const, tp_t name );
 
@@ -347,13 +349,13 @@ stamp : = aware :
 
     /// runtime data
 
-    hidden xoico_args_s*     args;
-    hidden xoico_typespec_s* typespec_ret;
     hidden xoico_compiler_s* compiler;
     hidden xoico_group_s*    group;
     hidden xoico_stamp_s*    stamp;
 
-    tp_t obj_type;
+    xoico_typespec_s typespec_ret;
+
+    tp_t member_obj_type; // 0 in case function has no arg_o
 
     /// runtime state
     sz_t level;
@@ -428,6 +430,14 @@ stamp : = aware :
         unit.name = name;
         unit.typespec.copy( typespec );
         o.stack_var.push_unit( unit );
+    };
+
+    func :.push_typespec;
+    func :.typespec_to_sink =
+    {
+        $* result = :result_create_arr().scope();
+        o.push_typespec( typespec, result );
+        sink.push_sc( result.create_st().scope().sc );
     };
 
     func xoico_compiler.is_type  = { return o.compiler.is_type( name ); };

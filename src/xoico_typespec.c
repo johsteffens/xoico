@@ -128,5 +128,99 @@ er_t xoico_typespec_s_expand( const xoico_typespec_s* o, xoico_group_s* group, s
 
 //----------------------------------------------------------------------------------------------------------------------
 
+static bl_t xoico_is_numeric( tp_t type )
+{
+    switch( type )
+    {
+        case TYPEOF_u0_t: return true;
+        case TYPEOF_u1_t: return true;
+        case TYPEOF_u2_t: return true;
+        case TYPEOF_u3_t: return true;
+        case TYPEOF_s0_t: return true;
+        case TYPEOF_s1_t: return true;
+        case TYPEOF_s2_t: return true;
+        case TYPEOF_s3_t: return true;
+        case TYPEOF_f2_t: return true;
+        case TYPEOF_f3_t: return true;
+        case TYPEOF_sz_t: return true;
+        case TYPEOF_uz_t: return true;
+        case TYPEOF_tp_t: return true;
+        case TYPEOF_er_t: return true;
+        case TYPEOF_bl_t: return true;
+        default: break;
+    }
+    return false;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bl_t xoico_typespec_s_converts_to( const xoico_typespec_s* o, const xoico_typespec_s* b )
+{
+    if( o->type == b->type )
+    {
+        if( o->indirection == b->indirection )
+        {
+            if( o->flag_const )
+            {
+                return b->flag_const;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+    {
+        if( o->indirection == 0 && b->indirection == 0 )
+        {
+            if( xoico_is_numeric( o->type ) && xoico_is_numeric( b->type ) )
+            {
+                return true;
+            }
+            else if( b->type == TYPEOF_vd_t && b->type == TYPEOF_vc_t )
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else if( b->type == TYPEOF_vc_t && b->indirection == 0 )
+        {
+            if( o->indirection == 1 )
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else if( b->type == TYPEOF_vd_t && b->indirection == 0 )
+        {
+            if( o->indirection == 1 && !o->flag_const )
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 /**********************************************************************************************************************/
 

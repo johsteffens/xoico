@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-13T10:13:49Z
+ *  Last File Update: 2020-11-13T17:42:47Z
  *
  *  Copyright and License of this File:
  *
@@ -52,7 +52,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x267E8FE4D85A7B9Cull
+#define HKEYOF_xoico_xoila_out 0x817ED870CD855195ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -299,6 +299,7 @@
   er_t xoico_typespec_s_parse( xoico_typespec_s* o, xoico_group_s* group, bcore_source* source ); \
   er_t xoico_typespec_s_relent( xoico_typespec_s* o, xoico_group_s* group, tp_t tp_obj_type ); \
   er_t xoico_typespec_s_expand( const xoico_typespec_s* o, xoico_group_s* group, sc_t sc_obj_type, bcore_sink* sink ); \
+  bl_t xoico_typespec_s_converts_to( const xoico_typespec_s* o, const xoico_typespec_s* b ); \
   void xoico_typespec_s_reset( xoico_typespec_s* o );
 #define BETH_EXPAND_GROUP_xoico_typespec \
   BCORE_FORWARD_OBJECT( xoico_typespec ); \
@@ -1604,12 +1605,11 @@
       aware_t _; \
       bl_t verbose; \
       bl_t insert_source_reference; \
-      xoico_args_s* args; \
-      xoico_typespec_s* typespec_ret; \
       xoico_compiler_s* compiler; \
       xoico_group_s* group; \
       xoico_stamp_s* stamp; \
-      tp_t obj_type; \
+      xoico_typespec_s typespec_ret; \
+      tp_t member_obj_type; \
       sz_t level; \
       sz_t try_block_level; \
       xoico_che_stack_var_s stack_var; \
@@ -1626,6 +1626,7 @@
   xoico_che_stack_block_unit_s* xoico_che_s_stack_block_get_bottom_unit( xoico_che_s* o ); \
   xoico_che_stack_block_unit_s* xoico_che_s_stack_block_get_level_unit( xoico_che_s* o, sz_t level ); \
   void xoico_che_s_push_typedecl( xoico_che_s* o, const xoico_typespec_s* typespec, tp_t name ); \
+  void xoico_che_s_typespec_to_sink( xoico_che_s* o, const xoico_typespec_s* typespec, bcore_sink* sink ); \
   static inline bl_t xoico_che_s_is_type( const xoico_che_s* o, tp_t name ); \
   static inline bl_t xoico_che_s_is_group( const xoico_che_s* o, tp_t name ); \
   static inline bl_t xoico_che_s_is_stamp( const xoico_che_s* o, tp_t name ); \
@@ -1645,6 +1646,7 @@
   er_t xoico_che_s_trans_whitespace( xoico_che_s* o, bcore_source* source, xoico_che_result* result ); \
   er_t xoico_che_s_trans_preprocessor( xoico_che_s* o, bcore_source* source, xoico_che_result* result ); \
   tp_t xoico_che_s_trans_inert_operator( xoico_che_s* o, bcore_source* source, xoico_che_result* result ); \
+  er_t xoico_che_s_adapt_expression_indirection( xoico_che_s* o, bcore_source* source, const xoico_typespec_s* typespec_expr, sz_t target_indirection, const xoico_che_result* result_expr, xoico_che_result* result ); \
   er_t xoico_che_s_adapt_expression( xoico_che_s* o, bcore_source* source, const xoico_typespec_s* typespec_expr, const xoico_typespec_s* typespec_target, const xoico_che_result* result_expr, xoico_che_result* result ); \
   er_t xoico_che_s_trans_function_args( xoico_che_s* o, bcore_source* source, const xoico_signature_s* signature, const xoico_che_result* result_obj_expr, const xoico_typespec_s* typespec_obj_expr, xoico_che_result* result_out ); \
   er_t xoico_che_s_trans_typespec_member( xoico_che_s* o, bcore_source* source, xoico_che_result* result, const xoico_typespec_s* in_typespec, xoico_typespec_s* out_typespec ); \
@@ -2066,4 +2068,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0x22277FF553E77516ull
+// XOILA_OUT_SIGNATURE 0xE1514B4FE65D0E47ull

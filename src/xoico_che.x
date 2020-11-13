@@ -317,6 +317,58 @@ func (:) (tp_t trans_inert_operator( mutable, bcore_source* source, :result* res
 
 func (:)
 (
+    er_t adapt_expression_indirection
+    (
+        mutable,
+        bcore_source* source,
+        const xoico_typespec_s* typespec_expr,
+        sz_t target_indirection,
+        const :result* result_expr,
+        :result* result
+    )
+) =
+{ try {
+    if( !typespec_expr.type ) return source.parse_error_fa( "xoico_che_s_adapt_expression: no expression type specified." );
+
+    if( target_indirection == typespec_expr.indirection )
+    {
+        result.push_result_c( result_expr );
+    }
+    else if( target_indirection == typespec_expr.indirection + 1 )
+    {
+        if( typespec_expr.flag_addressable )
+        {
+            result.push_sc( "&(" );
+            result.push_result_c( result_expr );
+            result.push_sc( ")" );
+        }
+        else
+        {
+            return source.parse_error_fa( "Increasing indirection: Expression has no address." );
+        }
+    }
+    else if( target_indirection == typespec_expr.indirection - 1 )
+    {
+        result.push_sc( "*(" );
+        result.push_result_c( result_expr );
+        result.push_sc( ")" );
+    }
+    else
+    {
+        return source.parse_error_fa
+        (
+            "Cannot adapt from expression's indirection '#<sz_t>' to target indirection '#<sz_t>'.",
+            typespec_expr.indirection,
+            target_indirection
+        );
+    }
+    return 0;
+} /* try */ };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:)
+(
     er_t adapt_expression
     (
         mutable,
@@ -332,48 +384,49 @@ func (:)
     {
         return source.parse_error_fa
         (
-            "xoico_che_s_adapt_expression: no type specified.",
+            "xoico_che_s_adapt_expression: no expression type specified.",
             typespec_expr.indirection,
             typespec_target.indirection
         );
     }
 
-    bl_t no_adaptation =
-        ( typespec_target.indirection == typespec_expr.indirection ) ||
-        ( typespec_expr.type == TYPEOF_vd_t ) ||
-        ( typespec_expr.type == TYPEOF_vc_t );
-
-    if( no_adaptation )
-    {
-        result.push_result_c( result_expr );
-    }
-    else if( typespec_target.indirection == typespec_expr.indirection + 1 )
-    {
-        if( typespec_expr.flag_addressable )
-        {
-            result.push_sc( "&(" );
-            result.push_result_c( result_expr );
-            result.push_sc( ")" );
-        }
-        else
-        {
-            return source.parse_error_fa( "Increasing indirection: Expression has no address." );
-        }
-    }
-    else if( typespec_target.indirection == typespec_expr.indirection - 1 )
-    {
-        result.push_sc( "*(" );
-        result.push_result_c( result_expr );
-        result.push_sc( ")" );
-    }
-    else
+    if( !typespec_target.type )
     {
         return source.parse_error_fa
         (
-            "Cannot adapt from expression's indirection '#<sz_t>' to target indirection '#<sz_t>'.",
+            "xoico_che_s_adapt_expression: no target type specified.",
             typespec_expr.indirection,
             typespec_target.indirection
         );
+    }
+
+    if( typespec_target.type == TYPEOF_type_deduce ) return source.parse_error_fa( "adapt_expression: typespec_target is 'type_deduce'" );
+    if( typespec_target.type == TYPEOF_type_object ) return source.parse_error_fa( "adapt_expression: typespec_target is 'type_object'" );
+    if( typespec_expr.type == TYPEOF_type_deduce ) return source.parse_error_fa( "adapt_expression: typespec_expr is 'type_deduce'" );
+    if( typespec_expr.type == TYPEOF_type_object ) return source.parse_error_fa( "adapt_expression: typespec_expr is 'type_object'" );
+
+    bl_t discarding_const =
+        ( typespec_expr.flag_const && !typespec_target.flag_const ) &&
+        ( typespec_expr.indirection > 0 || typespec_target.indirection > 0 );
+
+    if( discarding_const ) return source.parse_error_fa( "Discarding 'const' qualifier." );
+
+    if( typespec_expr.converts_to( typespec_target ) )
+    {
+        result.push_result_c( result_expr );
+    }
+    else
+    {
+        if( typespec_target.type != typespec_expr.type )
+        {
+            $* st_typespec_expr = st_s!.scope();
+            $* st_typespec_target = st_s!.scope();
+            o.typespec_to_sink( typespec_expr, st_typespec_expr.cast( bcore_sink* ) );
+            o.typespec_to_sink( typespec_target, st_typespec_target.cast( bcore_sink* ) );
+            return source.parse_error_fa( "Type conversion from '#<sc_t>' to '#<sc_t>' without a cast", st_typespec_expr.sc, st_typespec_target.sc );
+        }
+
+        o.adapt_expression_indirection( source, typespec_expr, typespec_target.indirection, result_expr, result );
     }
     return 0;
 } /* try */ };
@@ -629,24 +682,32 @@ func (:)
 ) =
 { try {
     o.parse( source, "[" );
-    if( in_typespec.indirection == 0 )
-    {
-        if( in_typespec.type != TYPEOF_sc_t && in_typespec.type != TYPEOF_sd_t )
-        {
-            return source.parse_error_fa( "Array subscript requires indirection >= 1." );
-        }
-    }
+
     result.push_sc( "[" );
     o.trans_expression( source, result, NULL );
     o.parse( source, "]" );
     result.push_sc( "]" );
 
     xoico_typespec_s* typespec = in_typespec.clone().scope();
-    if( in_typespec.type != TYPEOF_sc_t && in_typespec.type != TYPEOF_sd_t )
+
+    if( typespec.indirection == 0 )
+    {
+        if( in_typespec.type == TYPEOF_sc_t || in_typespec.type == TYPEOF_sd_t )
+        {
+            typespec.type = TYPEOF_u0_t;
+        }
+        else
+        {
+            return source.parse_error_fa( "Array subscript requires indirection >= 1." );
+        }
+    }
+    else
     {
         typespec.indirection--;
     }
+
     o.trans_typespec_expression( source, result, typespec, out_typespec );
+
     return 0;
 } /* try */ };
 
@@ -1006,21 +1067,13 @@ func (:)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)
-(
-    er_t push_typespec
-    (
-        mutable,
-        const xoico_typespec_s* typespec,
-        :result* result
-    )
-) =
+func (:) :.push_typespec  =
 { try {
     tp_t type = typespec.type;
 
     if( type == TYPEOF_type_object )
     {
-        type = o.obj_type ? o.obj_type : o.group.tp_name;
+        ERR_fa( "Cannot resolve 'type_object' at this point." );
     }
     else if( type == TYPEOF_type_deduce )
     {
@@ -1103,15 +1156,21 @@ func (:)
     tp_t tp_identifier = 0;
     o.trans_identifier( source, result, &tp_identifier );
     o.trans_whitespace( source, result );
+
     if( source.parse_bl_fa( "#=?'('" ) ) // actual function call
     {
         const xoico_func_s* func = o.get_func( tp_identifier );
+
         if( !func.signature )
         {
             return source.parse_error_fa( "Function #<sc_t> has no signature.", o.nameof( tp_identifier ) );
         }
-        o.trans_function_args( source, func.signature, NULL, NULL, result );
-        o.trans_typespec_expression( source, result, func.signature.typespec_ret, out_typespec );
+
+        $* signature = func.signature.clone().scope();
+        signature.relent( func.stamp ? func.stamp.tp_name : func.group.tp_name );
+
+        o.trans_function_args( source, signature, NULL, NULL, result );
+        o.trans_typespec_expression( source, result, signature.typespec_ret, out_typespec );
     }
     return 0;
 } /* try */ };
@@ -1719,20 +1778,21 @@ func (:) (er_t trans_block_inside_verbatim_c( mutable, bcore_source* source, :re
 
 func (:) (er_t setup( mutable, const xoico_body_s* body, const xoico_signature_s* signature )) =
 { try {
-    sc_t sc_obj_type = ( signature.arg_o ) ? ( body.stamp ? body.stamp.st_name.sc : body.group.st_name.sc ) : NULL;
+    tp_t tp_assoc_obj_type = body.stamp ? body.stamp.tp_name : body.group.tp_name;
 
     const xoico_args_s* args = &signature.args;
 
-    tp_t obj_type  = ( signature.arg_o == 0 ) ? 0 : o.entypeof( sc_obj_type );
-    bl_t obj_const = ( signature.arg_o == TYPEOF_const );
-    tp_t obj_name  = o.entypeof( "o" );
+    tp_t tp_member_obj_type  = ( signature.arg_o == 0 ) ? 0 : tp_assoc_obj_type;
+    bl_t member_obj_const = ( signature.arg_o == TYPEOF_const );
+    tp_t tp_member_obj_name  = o.entypeof( "o" );
 
-    o.args     = args.cast( xoico_args_s* );
-    o.typespec_ret = signature.typespec_ret.cast( xoico_typespec_s* );
+    o.typespec_ret.copy( signature.typespec_ret );
+    o.typespec_ret.relent( body.code.group, tp_assoc_obj_type );
+
     o.group    = body.code.group;
     o.stamp    = body.code.stamp;
     o.compiler = body.group.compiler;
-    o.obj_type = obj_type;
+    o.member_obj_type = tp_member_obj_type;
     o.level    = 0;
     o.try_block_level = 0;
     o.stack_var.clear();
@@ -1740,16 +1800,16 @@ func (:) (er_t setup( mutable, const xoico_body_s* body, const xoico_signature_s
 
     xoico_che_stack_var_unit_s* unit = xoico_che_stack_var_unit_s!.scope();
 
-    if( obj_type )
+    if( tp_member_obj_type )
     {
-        unit.typespec.flag_const = obj_const;
-        unit.typespec.type = obj_type;
+        unit.typespec.flag_const = member_obj_const;
+        unit.typespec.type = tp_member_obj_type;
         unit.typespec.indirection = 1;
-        unit.name = obj_name;
+        unit.name = tp_member_obj_name;
         unit.level = o.level;
         o.stack_var.push_unit( unit );
-        o.hmap_name.set_sc( o.compiler.nameof( obj_type ) );
-        o.hmap_name.set_sc( o.compiler.nameof( obj_name ) );
+        o.hmap_name.set_sc( o.compiler.nameof( tp_member_obj_type ) );
+        o.hmap_name.set_sc( o.compiler.nameof( tp_member_obj_name ) );
     }
 
     foreach( $* arg in args )
@@ -1757,7 +1817,7 @@ func (:) (er_t setup( mutable, const xoico_body_s* body, const xoico_signature_s
         if( arg.typespec.type && arg.name )
         {
             unit.typespec.copy( arg.typespec );
-            if( obj_type ) unit.typespec.relent( o.group, obj_type );
+            unit.typespec.relent( o.group, tp_assoc_obj_type );
             unit.name = arg.name;
             unit.level = o.level;
             o.stack_var.push_unit( unit );

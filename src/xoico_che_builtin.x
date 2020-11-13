@@ -106,9 +106,17 @@ func (:)
     o.push_typespec( typespec_cast, result_out );
     result_out.push_sc( ")(" );
 
-    if( typespec_expr.type )
+    if
+    (
+        typespec_expr.type &&
+        ( typespec_expr.type != TYPEOF_vc_t ) &&
+        ( typespec_expr.type != TYPEOF_vd_t ) &&
+        ( typespec_expr.type != TYPEOF_sc_t ) &&
+        ( typespec_expr.type != TYPEOF_sd_t ) &&
+        ( typespec_expr.type != TYPEOF_void )
+    )
     {
-        o.adapt_expression( source, typespec_expr, typespec_cast, result_expr, result_out );
+        o.adapt_expression_indirection( source, typespec_expr, typespec_cast.indirection, result_expr, result_out );
     }
     else
     {

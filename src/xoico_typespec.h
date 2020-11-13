@@ -28,6 +28,8 @@ XOILA_DEFINE_GROUP( xoico_typespec, xoico )
 signature er_t parse( mutable,  xoico_group_s* group, bcore_source* source );
 signature er_t relent( mutable, xoico_group_s* group, tp_t tp_obj_type );
 signature er_t expand( const, xoico_group_s* group, sc_t sc_obj_type, bcore_sink* sink );
+signature bl_t converts_to( const, const @* b ); // converts to b without a cast
+
 signature void reset( mutable );
 
 name type_deduce;
@@ -49,6 +51,7 @@ stamp : = aware :
     func     :.parse;
     func     :.relent;
     func     :.expand;
+    func     :.converts_to;
 
     func     :.reset =
     {
