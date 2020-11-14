@@ -328,8 +328,6 @@ func (:)
     )
 ) =
 { try {
-    if( !typespec_expr.type ) return source.parse_error_fa( "xoico_che_s_adapt_expression: no expression type specified." );
-
     if( target_indirection == typespec_expr.indirection )
     {
         result.push_result_c( result_expr );
@@ -417,16 +415,40 @@ func (:)
     }
     else
     {
+        bl_t implicit_cast = false;
         if( typespec_target.type != typespec_expr.type )
         {
-            $* st_typespec_expr = st_s!.scope();
-            $* st_typespec_target = st_s!.scope();
-            o.typespec_to_sink( typespec_expr, st_typespec_expr.cast( bcore_sink* ) );
-            o.typespec_to_sink( typespec_target, st_typespec_target.cast( bcore_sink* ) );
-            return source.parse_error_fa( "Type conversion from '#<sc_t>' to '#<sc_t>' without a cast", st_typespec_expr.sc, st_typespec_target.sc );
+            if( o.is_group( typespec_target.type ) && typespec_target.indirection == 1 )
+            {
+                if( o.is_group( typespec_expr.type ) )
+                {
+                    implicit_cast = true;
+                }
+                else if( o.is_stamp( typespec_expr.type ) )
+                {
+                    const xoico_stamp_s* stamp = o.get_stamp( typespec_expr.type );
+                    implicit_cast = stamp.is_aware;
+                }
+            }
+
+            if( !implicit_cast )
+            {
+                $* st_typespec_expr = st_s!.scope();
+                $* st_typespec_target = st_s!.scope();
+                o.typespec_to_sink( typespec_expr, st_typespec_expr );
+                o.typespec_to_sink( typespec_target, st_typespec_target );
+                return source.parse_error_fa( "Implicit cast from '#<sc_t>' to '#<sc_t>' is not possible.", st_typespec_expr.sc, st_typespec_target.sc );
+            }
         }
 
+        if( implicit_cast )
+        {
+            result.push_sc( "((" );
+            o.push_typespec( typespec_target, result );
+            result.push_sc( ")(" );
+        }
         o.adapt_expression_indirection( source, typespec_expr, typespec_target.indirection, result_expr, result );
+        if( implicit_cast ) result.push_sc( "))" );
     }
     return 0;
 } /* try */ };
@@ -1209,19 +1231,17 @@ func (:)
     )
 ) =
 { try {
-    xoico_typespec_s* typespec_bracket = xoico_typespec_s!.scope();
     o.parse( source, "(" );
     result.push_char( '(' );
     while( !source.eos() )
     {
-        o.trans_expression( source, result, typespec_bracket );
+        o.trans_expression( source, result, out_typespec );
         if     ( source.parse_bl_fa( "#?')'" ) ) break;
         else if( source.parse_bl_fa( "#?','" ) ) result.push_char( ',' );
         else return source.parse_error_fa( "Syntax error in bracket expression." );
-        typespec_bracket.type = 0;
+        if( out_typespec ) out_typespec.type = 0;
     }
     result.push_char( ')' );
-    if( typespec_bracket.type ) o.trans_typespec_expression( source, result, typespec_bracket, out_typespec );
     return 0;
 } /* try */ };
 
@@ -1313,10 +1333,16 @@ func (:)
         {
             o.trans_func( source, result, out_typespec );
         }
-        else
+        else // unknown identifier
         {
             o.trans_identifier( source, result, NULL );
-            o.trans_expression( source, result, NULL );
+            o.trans_whitespace( source, result );
+
+            // assume untraced function call: bracket evaluation without internal type evaluation
+            if( source.parse_bl_fa( "#=?'('" ) )
+            {
+                o.trans_bracket( source, result, NULL );
+            }
         }
     }
 
@@ -1339,7 +1365,9 @@ func (:)
     // general bracket
     else if( source.parse_bl_fa( "#=?'('" ) )
     {
-        o.trans_bracket( source, result, out_typespec );
+        xoico_typespec_s* typespec_bracket = xoico_typespec_s!.scope();
+        o.trans_bracket( source, result, typespec_bracket );
+        if( typespec_bracket.type ) o.trans_typespec_expression( source, result, typespec_bracket, out_typespec );
     }
 
     // array subscript

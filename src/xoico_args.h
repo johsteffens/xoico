@@ -44,7 +44,7 @@ func (:) (er_t append( mutable, bcore_source* source )) =
         while( !source.parse_bl_fa( " #=?')' " ) ) // args follow
         {
             if( !first ) xoico_parse_f( source, " , " );
-            xoico_arg_s* arg = xoico_arg_s!;
+            $* arg = xoico_arg_s!;
             arg.group = o.group;
             arg.parse( source );
             o.push_d( arg );
@@ -56,7 +56,7 @@ func (:) (er_t append( mutable, bcore_source* source )) =
 
 func (:) (er_t relent( mutable, tp_t tp_obj_type )) =
 {
-    foreach( $* arg in o ) try( arg.relent( tp_obj_type ) );
+    foreach( $* arg in o ) arg.relent( tp_obj_type ).try();
     return 0;
 };
 
@@ -66,7 +66,7 @@ func (:) (er_t expand( const, bl_t first, sc_t sc_obj_type, bcore_sink* sink )) 
     {
         if( !first ) sink.push_fa( ", " );
         first = false;
-        try( arg.expand( sc_obj_type, sink ) );
+        arg.expand( sc_obj_type, sink ).try();
     }
     return 0;
 };
@@ -77,7 +77,7 @@ func (:) (er_t expand_name( const, bl_t first, bcore_sink* sink )) =
     {
         if( !first ) sink.push_fa( ", " );
         first = false;
-        try( arg.expand_name( sink ) );
+        arg.expand_name( sink ).try();
     }
     return 0;
 };

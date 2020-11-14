@@ -401,7 +401,11 @@ er_t xoico_stamp_s_parse( xoico_stamp_s* o, bcore_source* source )
     {
         st_s_push_fa( o->self_source, "@ =" );
 
-        if( bcore_source_a_parse_bl_fa( source, " #?w'aware'" ) ) st_s_push_sc( o->self_source, "aware " );
+        if( bcore_source_a_parse_bl_fa( source, " #?w'aware'" ) )
+        {
+            st_s_push_sc( o->self_source, "aware " );
+            o->is_aware = true;
+        }
 
         BLM_TRY( xoico_group_s_parse_name( o->group, trait_name, source ) );
         if( trait_name->size == 0 ) XOICO_BLM_SOURCE_PARSE_ERR_FA( source, "Trait name expected." );

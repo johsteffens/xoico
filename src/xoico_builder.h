@@ -21,7 +21,7 @@
 #include "xoico.h"
 #include "xoico_target.h"
 #include "xoico_compiler.h"
-#include "xoico_cdaleth.h"
+#include "xoico_che.h"
 
 /**********************************************************************************************************************/
 
@@ -53,13 +53,13 @@ stamp :target = aware :
     st_s => signal_handler;
 
     /// Optional cengine that is to be used in all bodies of this target
-    aware xoico_cengine => cengine = xoico_cdaleth_s;
+    aware xoico_cengine => cengine = xoico_che_s;
 
     private xoico_compiler_s* compiler;
 
     // Runtime data
-    private :target_s*             parent_;
-    private :target_s*             root_;
+    private @* parent_;
+    private @* root_;
     hidden  aware :arr_target_s => dependencies_target_;
     hidden  st_s                   full_path_;
     hidden  sz_t                   target_index_ = -1; // Index for target on the compiler; -1 if this target has no representation
@@ -76,20 +76,20 @@ stamp :target = aware :
 
     func :.name_match =
     {
-        if( o->name && sc_t_equal( name, o->name->sc ) ) return o;
-        if( o->parent_ ) return @_name_match( o->parent_, name );
+        if( o.name && sc_t_equal( name, o.name.sc ) ) return o;
+        if( o.parent_ ) return o->parent_.name_match( name );
         return NULL;
     };
 
     func :.push_target_index_to_arr =
     {
-        if( o->target_index_ != -1 )
+        if( o.target_index_ != -1 )
         {
-             bcore_arr_sz_s_push( arr, o->target_index_ );
+             arr.push( o.target_index_ );
         }
         else
         {
-            BFOR_EACH( i, o->dependencies_target_ ) @_push_target_index_to_arr( o->dependencies_target_->data[ i ], arr );
+            foreach( $* e in o.dependencies_target_ ) e.push_target_index_to_arr( arr );
         }
     };
 
@@ -123,35 +123,35 @@ stamp :main = aware :
 
     func :.set_dry_run =
     {
-        o->compiler->dry_run = v;
+        o.compiler.dry_run = v;
         return 0;
     };
 
     func :.get_dry_run =
     {
-        return o->compiler->dry_run;
+        return o.compiler.dry_run;
     };
 
     func :.set_always_expand =
     {
-        o->compiler->always_expand = v;
+        o.compiler.always_expand = v;
         return 0;
     };
 
     func :.get_always_expand =
     {
-        return o->compiler->always_expand;
+        return o.compiler.always_expand;
     };
 
     func :.set_overwrite_unsigned_target_files =
     {
-        o->compiler->overwrite_unsigned_target_files = v;
+        o.compiler.overwrite_unsigned_target_files = v;
         return 0;
     };
 
     func :.get_overwrite_unsigned_target_files =
     {
-        return o->compiler->overwrite_unsigned_target_files;
+        return o.compiler.overwrite_unsigned_target_files;
     };
 };
 
@@ -160,18 +160,6 @@ stamp :main = aware :
 embed "xoico_builder.x";
 
 #endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-/**********************************************************************************************************************/
-/// XOICO Interface Functions
-
-/// build target from configuration file (thread safe)
-er_t xoico_build_from_file( sc_t path );
-
-/// Checks if compiled targets require an update of the corresponding target files (thread safe)
-bl_t xoico_update_required( void );
-
-/// Updates all target files that require an update; returns true if any file was modified. (thread safe)
-er_t xoico_update( bl_t* modified );
 
 //----------------------------------------------------------------------------------------------------------------------
 

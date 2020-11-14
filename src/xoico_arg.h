@@ -49,10 +49,10 @@ try
         return o.source_point.parse_error_fa( "'void' is misplaced here." );
     }
 
-    st_s* s = st_s!.scope();
+    $* s = st_s!.scope();
     source.parse_fa( "#name ", s );
-    if( s->size == 0 ) return source.parse_error_fa( "Argument: Name expected." );
-    o->name = compiler.entypeof( s->sc );
+    if( s.size == 0 ) return source.parse_error_fa( "Argument: Name expected." );
+    o.name = compiler.entypeof( s.sc );
 
     return 0;
 } // try
@@ -81,7 +81,7 @@ func (:) (er_t expand( const, sc_t sc_obj_type, bcore_sink* sink )) =
 
 func (:) (er_t expand_name( const, bcore_sink* sink )) =
 {
-    sink.push_fa( "#<sc_t>", o.group.compiler.nameof( o->name ) );
+    sink.push_fa( "#<sc_t>", o.group.compiler.nameof( o.name ) );
     return 0;
 };
 

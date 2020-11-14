@@ -288,8 +288,10 @@ TODO:
 - trace all assignments and apply automatic typespec adaptation
 - In stamp: introduce 'auto_cast' list
 - apply automatic cast in adaptations in case of type discrepancy if target is in auto-cast list.
-- automatically cast (known) aware stamps to a group
+- (done) automatically cast of stamp to group is stamp is aware
 - introduce simple way to call the default implementation of a feature
+- introduce traceable stepping down/up of indirection
+- (done) detect an untractable function call: otherwise the bracket section might be traced and considered an expression with typespec
 
 Keywords (for syntax highlight)
 

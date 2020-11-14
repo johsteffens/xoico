@@ -92,7 +92,7 @@ func (:code) :.parse =
                         hash = bcore_tp_fold_u0( hash, c );
                         if( c == '\n' )
                         {
-                            o->single_line = false;
+                            o.single_line = false;
                             break;
                         }
                     }
@@ -109,7 +109,7 @@ func (:code) :.parse =
                         else
                         {
                             c = source.get_char();
-                            if( c == '\n' ) o->single_line = false;
+                            if( c == '\n' ) o.single_line = false;
                             hash = bcore_tp_fold_u0( hash, c );
                         }
                     }
@@ -120,7 +120,7 @@ func (:code) :.parse =
 
             case '\n' :
             {
-                o->single_line = false;
+                o.single_line = false;
                 break;
             }
 
@@ -129,7 +129,7 @@ func (:code) :.parse =
         hash = bcore_tp_fold_u0( hash, c );
     }
 
-    o->hash_source = hash;
+    o.hash_source = hash;
     return 0;
 } /* try */ };
 
@@ -137,8 +137,8 @@ func (:code) :.parse =
 
 func (:code) xoico.get_hash =
 {
-    tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
-    hash = bcore_tp_fold_tp( hash, o->hash_source );
+    tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
+    hash = bcore_tp_fold_tp( hash, o.hash_source );
     return hash;
 };
 
@@ -171,7 +171,7 @@ func (:) xoico.get_hash =
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
     hash = bcore_tp_fold_sc( hash, o.name.sc );
     if( o.code ) hash = bcore_tp_fold_tp( hash, o.code.get_hash() );
-    hash = bcore_tp_fold_bl( hash, o->go_inline );
+    hash = bcore_tp_fold_bl( hash, o.go_inline );
     return hash;
 };
 
@@ -190,14 +190,14 @@ func (:) :.parse_expression =
     else
     {
         xoico_compiler_s* compiler = o.group.compiler;
-        st_s* st_name = st_s!.scope( scope_local );
+        $* st_name = st_s!.scope();
         o.group.parse_name( st_name, source );
 
         if( st_name.size == 0 ) return source.parse_error_fa( "Body name expected." );
 
         if( o.stamp ) st_name.replace_sc_sc( "@", o.stamp.st_name.sc );
 
-        tp_t tp_name = compiler.entypeof( st_name->sc );
+        tp_t tp_name = compiler.entypeof( st_name.sc );
 
         // if name_buf refers to another body
         if( compiler.is_item( tp_name ) )
@@ -205,7 +205,7 @@ func (:) :.parse_expression =
             const xoico* item = compiler.get_const_item( tp_name );
             if( item._ == TYPEOF_xoico_body_s )
             {
-                const xoico_body_s* body = item.cast( xoico_body_s* );
+                const $* body = item.cast( xoico_body_s* );
                 o.code =< body.code.clone();
                 if( o.code )
                 {
@@ -235,7 +235,7 @@ func (:) :.parse =
     if( !source.parse_bl_fa( " #=?'='" ) )
     {
         try( source.parse_em_fa( " #name", string ) );
-        if( string->size == 0 ) return source.parse_error_fa( "Body name expected." );
+        if( string.size == 0 ) return source.parse_error_fa( "Body name expected." );
         o.name.push_fa( "#<sc_t>", string.sc );
     }
 

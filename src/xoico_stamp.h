@@ -36,6 +36,7 @@ stamp : = aware :
     st_s    st_name;
     tp_t    tp_name; // typeof( st_name )
     st_s    st_trait_name;
+    bl_t    is_aware;
     st_s => self_source;
     bcore_self_s => self; // created in expand_setup
     xoico_funcs_s funcs;
