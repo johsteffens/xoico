@@ -1919,7 +1919,7 @@ func (:) (er_t translate_mutable( mutable, const xoico_body_s* body, const xoico
     result_block.push_result_d( result.fork() );
 
     st_s* buf = st_s!.scope();
-    result_block.to_sink( buf.cast( bcore_sink* ) );
+    result_block.to_sink( buf );
 
     //remove trailing whitespaces
     for( sz_t i = buf.size - 1; i >= 0; i-- )

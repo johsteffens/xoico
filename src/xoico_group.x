@@ -102,9 +102,9 @@ func (:) (er_t push_default_feature_from_sc( mutable, sc_t sc )) =
 
     if( !compiler.is_item( feature.cast( xoico* ).get_global_name_tp() ) )
     {
-        compiler.register_item( feature.cast( xoico* ), o.source_point.source );
+        compiler.register_item( feature, o.source_point.source );
         o.hmap_feature.set( feature.signature.name, ( vd_t )feature );
-        o.push_item_d( feature.fork().cast( xoico* ) );
+        o.push_item_d( feature.fork() );
     }
 
     return 0;
@@ -215,8 +215,8 @@ func (:) xoico.parse =
             stamp.group = o;
             stamp.parse( source );
             stamp.push_default_funcs();
-            compiler.register_item( stamp.cast( xoico* ), source );
-            o.push_item_d( stamp.fork().cast( xoico* ) );
+            compiler.register_item( stamp, source );
+            o.push_item_d( stamp.fork() );
         }
 
         /// stumps are inexpandable stamps. They can be used as template.
@@ -226,8 +226,8 @@ func (:) xoico.parse =
             stump.group = o;
             stump.parse( source );
             stump.make_funcs_overloadable();
-            compiler.register_item( stump.cast( xoico* ), source );
-            compiler.life_a_push( stump.fork().cast( bcore_inst* ) );
+            compiler.register_item( stump, source );
+            compiler.life_a_push( stump.fork() );
             if( extend_stump )
             {
                 o.extending_stamp = stump;
@@ -240,8 +240,8 @@ func (:) xoico.parse =
             signature.group = o;
             signature.parse( source );
             try( source.parse_em_fa( " ; " ) );
-            compiler.register_item( signature.cast( xoico* ), source );
-            o.push_item_d( signature.fork().cast( xoico* ) );
+            compiler.register_item( signature, source );
+            o.push_item_d( signature.fork() );
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'body' " ) )
         {
@@ -249,17 +249,17 @@ func (:) xoico.parse =
             body.set_group( o );
             body.parse( source );
             try( source.parse_em_fa( " ; " ) );
-            compiler.register_item( body.cast( xoico* ), source );
-            o.push_item_d( body.fork().cast( xoico* ) );
+            compiler.register_item( body, source );
+            o.push_item_d( body.fork() );
         }
         else if( source.parse_bl_fa( " #?w'feature' " ) )
         {
             $* feature = xoico_feature_s!.scope( scope_local );
             feature.group = o;
             feature.parse( source );
-            compiler.register_item( feature.cast( xoico* ), source );
+            compiler.register_item( feature, source );
             o.hmap_feature.set( feature.signature.name, ( vd_t )feature );
-            o.push_item_d( feature.fork().cast( xoico* ) );
+            o.push_item_d( feature.fork() );
         }
         else if( source.parse_bl_fa( " #?w'func' " ) )
         {
@@ -301,7 +301,7 @@ func (:) xoico.parse =
             $* name = xoico_name_s!.scope( scope_local );
             name.group = o;
             name.parse( source );
-            o.push_item_d( name.fork().cast( xoico* ) );
+            o.push_item_d( name.fork() );
         }
         else if( source.parse_bl_fa( " #?w'type' " ) )
         {
@@ -309,14 +309,14 @@ func (:) xoico.parse =
             name.group = o;
             name.parse( source );
             compiler.register_external_type( name->name );
-            o.push_item_d( name.fork().cast( xoico* ) );
+            o.push_item_d( name.fork() );
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'forward' " ) )
         {
             $* forward = xoico_forward_s!.scope( scope_local );
             forward.group = o;
             forward.parse( source );
-            o.push_item_d( forward.fork().cast( xoico* ) );
+            o.push_item_d( forward.fork() );
         }
         else if( bcore_source_a_parse_bl_fa( source, " #?w'extending'" ) )
         {
@@ -364,7 +364,7 @@ func (:) xoico.parse =
             compiler.register_group( group );
             xoico_nested_group_s* nested_group = xoico_nested_group_s!.scope( scope_local );
             nested_group.group = group;
-            o.push_item_d( nested_group.fork().cast( xoico* ) );
+            o.push_item_d( nested_group.fork() );
         }
         else if( source.parse_bl_fa( " #?w'set' " ) )
         {

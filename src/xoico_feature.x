@@ -177,7 +177,7 @@ func (:) xoico.expand_indef_declaration =
     st_s* st_spect_name = o.group.create_spect_name().scope();
     sc_t  sc_spect_name = st_spect_name.sc;
 
-    o.signature.typespec_ret.expand( o.group, sc_group_name, st_ret_typespec.cast( bcore_sink* ) );
+    o.signature.typespec_ret.expand( o.group, sc_group_name, st_ret_typespec );
     bl_t has_ret = ( o.signature.typespec_ret.type != TYPEOF_void );
 
     sc_t sc_ret_typespec = st_ret_typespec.sc;
@@ -406,7 +406,7 @@ func (:) xoico.expand_definition =
     {
         sc_t sc_group_name = o.group.st_name.sc;
         st_s* st_ret_typespec = st_s!.scope();
-        o.signature.typespec_ret.expand( o->group, sc_group_name, st_ret_typespec.cast( bcore_sink* ) );
+        o.signature.typespec_ret.expand( o->group, sc_group_name, st_ret_typespec );
 
         sink.push_fa( "\n" );
         sink.push_fa( "\n#<sc_t> #<sc_t>_#<sc_t>(", st_ret_typespec.sc, sc_group_name, o.st_default_func_name.sc );

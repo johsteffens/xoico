@@ -351,7 +351,7 @@ func (:)( er_t trans_control_break( mutable, bcore_source* source, :result* resu
 
     if( ledge_level == -1 ) return source.parse_error_fa( "'break' has no ledge." );
 
-    result.push_result_d( :result_break_s_create_setup( ledge_level ).cast( :result* ) );
+    result.push_result_d( :result_break_s_create_setup( ledge_level ) );
 
     return 0;
 } /* try */ };
@@ -440,7 +440,7 @@ func (:)( er_t trans_control_return( mutable, bcore_source* source, :result* res
     result_return.result_blm =< result_blm.fork();
     result_return.result_direct =< result_direct.fork();
 
-    result.push_result_d( result_return.cast( :result* ).fork() );
+    result.push_result_d( result_return.fork() );
 
     return 0;
 } /* try */ };

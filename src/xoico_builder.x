@@ -167,7 +167,7 @@ func (:target) :.build =
         xoico_target_s* target = o.compiler.[ o.target_index_ ];
 
         target.set_dependencies( dependencies );
-        st_s* signal_handler = cast( st_s_create_fa( "#<sc_t>_general_signal_handler", o->name->sc ), st_s* ).scope();
+        st_s* signal_handler = cast( st_s_create_fa( "#<sc_t>_general_signal_handler", o.name.sc ), st_s* ).scope();
         if( o.signal_handler ) signal_handler.copy( o.signal_handler );
         target.signal_handler_name.copy_sc( signal_handler.sc );
         target.readonly = o.readonly;

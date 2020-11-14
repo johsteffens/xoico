@@ -69,7 +69,7 @@ func (:) :.parse =
     if( source.parse_bl_fa( " #?'('" ) )
     {
         xoico_signature_s* signature = xoico_signature_s!;
-        compiler.life_a_push( signature.cast( bcore_inst* ) );
+        compiler.life_a_push( signature );
 
         signature.group = o.group;
         signature.stamp = o.stamp;
@@ -83,7 +83,7 @@ func (:) :.parse =
 
         try( source.parse_em_fa( " ) " ) );
 
-        compiler.register_item( signature.cast( xoico* ), source );
+        compiler.register_item( signature, source );
 
         o.pre_hash = bcore_tp_fold_tp( o.pre_hash, signature.get_hash() );
 
