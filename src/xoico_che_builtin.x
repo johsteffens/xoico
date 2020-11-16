@@ -203,7 +203,7 @@ func (:)
 
     if( typespec_scope.type        == 0 ) return source.parse_error_fa( "Operator 'scope': Expression not tractable." );
     if( typespec_scope.indirection != 1 ) return source.parse_error_fa( "Operator 'scope': Expression's indirection != 1." );
-    if( typespec_scope.flag_keep )        return source.parse_error_fa( "Operator 'scope': Target is already scoped." );
+    if( typespec_scope.flag_scope )       return source.parse_error_fa( "Operator 'scope': Target is already scoped." );
 
     o.push_typespec( typespec_scope, result_out );
 
@@ -225,7 +225,7 @@ func (:)
     if( typespec_out )
     {
         typespec_out.copy( typespec_scope );
-        typespec_out.flag_keep = true;
+        typespec_out.flag_scope = true;
     }
 
     return 0;

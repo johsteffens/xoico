@@ -499,12 +499,19 @@ func (:)
 
     foreach( $* arg in signature.args )
     {
+        if( arg.is_variadic() ) break;
+
         $* result_expr = :result_create_arr().scope();
         $* typespec_expr = xoico_typespec_s!.scope( scope_local );
         o.parse( source, " " );
-        if( __i > 0 ) o.parse( source, " ," );
+
+        if( __i > 0 )
+        {
+            o.parse( source, " ," );
+            result_out.push_sc( "," );
+        }
+
         o.trans_expression( source, result_expr, typespec_expr );
-        if( __i > 0 ) result_out.push_sc( "," );
         if( typespec_expr.type )
         {
             o.adapt_expression( source, typespec_expr, &arg.typespec, result_expr, result_out );
@@ -512,6 +519,16 @@ func (:)
         else
         {
             result_out.push_result_d( result_expr.fork() );
+        }
+    }
+
+    if( signature.args.is_variadic() )
+    {
+        while( !source.eos() && !source.parse_bl( " #=?')'" ) )
+        {
+            o.parse( source, " ," );
+            result_out.push_sc( "," );
+            o.trans_expression( source, result_out, NULL );
         }
     }
 
@@ -1023,7 +1040,7 @@ func (:)
         if( tp_identifier == TYPEOF_const    ) typespec.flag_const    = true;
         if( tp_identifier == TYPEOF_static   ) typespec.flag_static   = true;
         if( tp_identifier == TYPEOF_volatile ) typespec.flag_volatile = true;
-        if( tp_identifier == TYPEOF_keep     ) typespec.flag_keep     = true;
+        if( tp_identifier == TYPEOF_scope    ) typespec.flag_scope    = true;
 
         // take fails if keyword is actually a function
         if( source.parse_bl_fa( "#?'('" ) )

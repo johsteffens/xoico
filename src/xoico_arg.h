@@ -26,12 +26,16 @@
 XOILA_DEFINE_GROUP( xoico_arg, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+signature bl_t is_variadic( const );
+
 stamp : = aware :
 {
     hidden aware xoico_group_s* group;
     bcore_source_point_s source_point;
     xoico_typespec_s typespec;
     tp_t name;
+
+    func :.is_variadic = { return o.typespec.flag_variadic; };
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -44,6 +48,8 @@ try
     o.source_point.set( source );
     o.typespec.parse( o.group, source );
 
+    if( o.typespec.flag_variadic ) return 0;
+
     if( o.typespec.type == TYPEOF_void && o.typespec.indirection == 0 )
     {
         return o.source_point.parse_error_fa( "'void' is misplaced here." );
@@ -51,7 +57,10 @@ try
 
     $* s = st_s!.scope();
     source.parse_fa( "#name ", s );
-    if( s.size == 0 ) return source.parse_error_fa( "Argument: Name expected." );
+    if( s.size == 0 )
+    {
+        return source.parse_error_fa( "Argument: Name expected." );
+    }
     o.name = compiler.entypeof( s.sc );
 
     return 0;
@@ -74,13 +83,17 @@ func (:) (er_t relent( mutable, tp_t tp_obj_type )) =
 func (:) (er_t expand( const, sc_t sc_obj_type, bcore_sink* sink )) =
 {
     try( o.typespec.expand( o.group, sc_obj_type, sink ) );
-    sink.push_fa( " " );
-    o.expand_name( sink );
+    if( o.name )
+    {
+        sink.push_fa( " " );
+        o.expand_name( sink );
+    }
     return 0;
 };
 
 func (:) (er_t expand_name( const, bcore_sink* sink )) =
 {
+    if( !o.name ) return 0;
     sink.push_fa( "#<sc_t>", o.group.compiler.nameof( o.name ) );
     return 0;
 };

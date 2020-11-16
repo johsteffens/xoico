@@ -44,8 +44,9 @@ stamp : = aware :
     bl_t flag_static;
     bl_t flag_volatile;
     bl_t flag_restrict;
-    bl_t flag_keep;
+    bl_t flag_scope;  // object is in scope
     bl_t flag_addressable = true;  // object can have a pointer ('false' for objects returned by a function)
+    bl_t flag_variadic; // variadic arguments
 
     func xoico.get_hash;
     func     :.parse;
@@ -61,7 +62,7 @@ stamp : = aware :
         o->flag_static   = false;
         o->flag_volatile = false;
         o->flag_restrict = false;
-        o->flag_keep     = false;
+        o->flag_scope    = false;
         o->flag_addressable = true;  // object can have a pointer ('false' for objects returned by a function)
     };
 };

@@ -47,6 +47,9 @@ stamp : = aware :
     func xoico.get_global_name_sc;
     func     :.relent;
     func     :.expand_declaration;
+
+    func xoico_arg.is_variadic = { return o.args.is_variadic(); };
+
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

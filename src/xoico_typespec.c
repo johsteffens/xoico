@@ -28,12 +28,18 @@ er_t xoico_typespec_s_parse( xoico_typespec_s* o, xoico_group_s* group, bcore_so
 
     xoico_typespec_s_reset( o );
 
+    if( bcore_source_a_parse_bl_fa( source, "#?'...' " ) )
+    {
+        o->flag_variadic = true;
+        BLM_RETURNV( er_t, 0 );
+    }
+
     while( !bcore_source_a_eos( source ) )
     {
         if     ( bcore_source_a_parse_bl_fa( source, " #?'const'"    ) ) o->flag_const = true;
         else if( bcore_source_a_parse_bl_fa( source, " #?'static'"   ) ) o->flag_static = true;
         else if( bcore_source_a_parse_bl_fa( source, " #?'volatile'" ) ) o->flag_volatile = true;
-        else if( bcore_source_a_parse_bl_fa( source, " #?'keep'"     ) ) o->flag_keep = true;
+        else if( bcore_source_a_parse_bl_fa( source, " #?'scope'"    ) ) o->flag_scope = true;
         else break;
     }
 
@@ -78,7 +84,7 @@ tp_t xoico_typespec_s_get_hash( const xoico_typespec_s* o )
     hash = bcore_tp_fold_bl( hash, o->flag_static );
     hash = bcore_tp_fold_bl( hash, o->flag_volatile );
     hash = bcore_tp_fold_bl( hash, o->flag_restrict );
-    hash = bcore_tp_fold_bl( hash, o->flag_keep );
+    hash = bcore_tp_fold_bl( hash, o->flag_scope );
     hash = bcore_tp_fold_tp( hash, o->type );
     hash = bcore_tp_fold_u3( hash, o->indirection );
     return hash;
@@ -97,6 +103,12 @@ er_t xoico_typespec_s_relent( xoico_typespec_s* o, xoico_group_s* group, tp_t tp
 
 er_t xoico_typespec_s_expand( const xoico_typespec_s* o, xoico_group_s* group, sc_t sc_obj_type, bcore_sink* sink )
 {
+    if( o->flag_variadic )
+    {
+        bcore_sink_a_push_fa( sink, "..." );
+        return 0;
+    }
+
     BLM_INIT();
     xoico_compiler_s* compiler = group->compiler;
 
@@ -147,6 +159,7 @@ static bl_t xoico_is_numeric( tp_t type )
         case TYPEOF_tp_t: return true;
         case TYPEOF_er_t: return true;
         case TYPEOF_bl_t: return true;
+        case TYPEOF_char: return true;
         default: break;
     }
     return false;

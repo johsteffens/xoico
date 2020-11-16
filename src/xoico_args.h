@@ -30,6 +30,8 @@ stamp : = aware bcore_array
 {
     xoico_arg_s [];
     hidden aware xoico_group_s* group;
+
+    func xoico_arg.is_variadic = { return ( o.size > 0 && o.[ o.size - 1 ].is_variadic() ); };
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -43,11 +45,12 @@ func (:) (er_t append( mutable, bcore_source* source )) =
         bl_t first = true;
         while( !source.parse_bl_fa( " #=?')' " ) ) // args follow
         {
+            if( o.is_variadic() ) return source.parse_error_fa( "Cannot append to variadic argument list." );
             if( !first ) xoico_parse_f( source, " , " );
-            $* arg = xoico_arg_s!;
+            $* arg = xoico_arg_s!.scope();
             arg.group = o.group;
             arg.parse( source );
-            o.push_d( arg );
+            o.push_d( arg.fork() );
             first = false;
         }
     }

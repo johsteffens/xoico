@@ -926,7 +926,7 @@ func (:)
         if( tp_identifier == TYPEOF_const    ) typespec.flag_const    = true;
         if( tp_identifier == TYPEOF_static   ) typespec.flag_static   = true;
         if( tp_identifier == TYPEOF_volatile ) typespec.flag_volatile = true;
-        if( tp_identifier == TYPEOF_keep     ) typespec.flag_keep     = true;
+        if( tp_identifier == TYPEOF_scope    ) typespec.flag_scope    = true;
 
         // take fails if keyword is actually a function
         if( source.parse_bl_fa( "#?'('" ) )
