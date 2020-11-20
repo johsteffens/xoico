@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-20T13:51:26Z
+ *  Last File Update: 2020-11-20T14:04:34Z
  *
  *  Copyright and License of this File:
  *
@@ -26,9 +26,6 @@
  *  xoico_compiler.h
  *  xoico_builder.h
  *  xoico_cengine.h
- *  xoico_caleph.h
- *  xoico_cbeth.h
- *  xoico_cgimel.h
  *  xoico_cdaleth.h
  *  xoico_che.h
  *  xoico_body.x
@@ -53,7 +50,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0xB516006B713B6FE5ull
+#define HKEYOF_xoico_xoila_out 0x2A8F6FDB39C995AEull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -1073,236 +1070,6 @@
   static inline bl_t xoico_cengine_is_reserved_default( const xoico_cengine* o, tp_t tp_identifier ){ return  false;}
 
 /**********************************************************************************************************************/
-// source: xoico_caleph.h
-
-//----------------------------------------------------------------------------------------------------------------------
-// group: xoico_caleph
-
-#define TYPEOF_xoico_caleph 0x63239F765351BC25ull
-#define TYPEOF_xoico_caleph_spect_s 0x1C612FBD0B14E041ull
-#define TYPEOF_xoico_caleph_s 0x7C8DA7784B2B40A7ull
-#define BETH_EXPAND_ITEM_xoico_caleph_s \
-  BCORE_DECLARE_OBJECT( xoico_caleph_s ) \
-  { \
-      aware_t _; \
-      bl_t insert_source_reference; \
-      xoico_args_s* args; \
-      xoico_compiler_s* compiler; \
-      xoico_group_s* group; \
-      xoico_stamp_s* stamp; \
-      tp_t obj_type; \
-      bcore_hmap_name_s hmap_name; \
-  }; \
-  static inline tp_t xoico_caleph_s_entypeof( xoico_caleph_s* o, sc_t name ); \
-  sc_t xoico_caleph_s_nameof( xoico_caleph_s* o, tp_t type ); \
-  er_t xoico_caleph_s_translate( const xoico_caleph_s* o, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink ); \
-  static inline tp_t xoico_caleph_s_entypeof( xoico_caleph_s* o, sc_t name ){ return  bcore_hmap_name_s_set_sc(&(o->hmap_name),name );}
-#define BETH_EXPAND_GROUP_xoico_caleph \
-  BCORE_FORWARD_OBJECT( xoico_caleph ); \
-  BCORE_FORWARD_OBJECT( xoico_caleph_s ); \
-  XOILA_DECLARE_SPECT( xoico_caleph ) \
-  { \
-      bcore_spect_header_s header; \
-  }; \
-  BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_caleph ) \
-  BETH_EXPAND_ITEM_xoico_caleph_s
-
-/**********************************************************************************************************************/
-// source: xoico_cbeth.h
-
-//----------------------------------------------------------------------------------------------------------------------
-// group: xoico_cbeth
-
-#define TYPEOF_xoico_cbeth 0xDE82C80C9103D0FAull
-#define TYPEOF_xoico_cbeth_spect_s 0xF2FB105DEEA1EFA6ull
-#define TYPEOF_xoico_cbeth_s 0x217EDBA13CE862C4ull
-#define BETH_EXPAND_ITEM_xoico_cbeth_s \
-  BCORE_DECLARE_OBJECT( xoico_cbeth_s ) \
-  { \
-      aware_t _; \
-      sc_t obj_type; \
-      xoico_args_s* args; \
-      xoico_compiler_s* compiler; \
-      xoico_cbeth_tn_stack_s stack; \
-  }; \
-  er_t xoico_cbeth_s_take_block( xoico_cbeth_s* o, bcore_source* source, bcore_sink* sink ); \
-  er_t xoico_cbeth_s_take_block_body( xoico_cbeth_s* o, bcore_source* source, bcore_sink* sink ); \
-  er_t xoico_cbeth_s_translate( const xoico_cbeth_s* o, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink );
-#define BETH_EXPAND_GROUP_xoico_cbeth \
-  BCORE_FORWARD_OBJECT( xoico_cbeth ); \
-  BCORE_FORWARD_OBJECT( xoico_cbeth_tn ); \
-  BCORE_FORWARD_OBJECT( xoico_cbeth_s ); \
-  XOILA_DECLARE_SPECT( xoico_cbeth ) \
-  { \
-      bcore_spect_header_s header; \
-  }; \
-  BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_cbeth ) \
-  BETH_EXPAND_GROUP_xoico_cbeth_tn \
-  BETH_EXPAND_ITEM_xoico_cbeth_s
-
-//----------------------------------------------------------------------------------------------------------------------
-// group: xoico_cbeth_tn
-
-#define TYPEOF_xoico_cbeth_tn 0xD2EEFEFA7EDDAACDull
-#define TYPEOF_xoico_cbeth_tn_spect_s 0x7486836198500909ull
-#define TYPEOF_xoico_cbeth_tn_unit_s 0x16252D35C39CBBFAull
-#define BETH_EXPAND_ITEM_xoico_cbeth_tn_unit_s \
-  BCORE_DECLARE_OBJECT( xoico_cbeth_tn_unit_s ) \
-  { \
-      tp_t type; \
-      tp_t name; \
-      sz_t level; \
-  };
-#define TYPEOF_xoico_cbeth_tn_adl_s 0x5477B7042FFD2CCFull
-#define BETH_EXPAND_ITEM_xoico_cbeth_tn_adl_s \
-  BCORE_DECLARE_OBJECT( xoico_cbeth_tn_adl_s ) \
-  { \
-      aware_t _; \
-      BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_cbeth_tn_unit_s, ); \
-  }; \
-  static inline xoico_cbeth_tn_adl_s* xoico_cbeth_tn_adl_s_set_space( xoico_cbeth_tn_adl_s* o, sz_t size ) { bcore_array_t_set_space( TYPEOF_xoico_cbeth_tn_adl_s, ( bcore_array* )o, size ); return o; } \
-  static inline xoico_cbeth_tn_adl_s* xoico_cbeth_tn_adl_s_set_size( xoico_cbeth_tn_adl_s* o, sz_t size ) { bcore_array_t_set_size( TYPEOF_xoico_cbeth_tn_adl_s, ( bcore_array* )o, size ); return o; } \
-  static inline xoico_cbeth_tn_adl_s* xoico_cbeth_tn_adl_s_clear( xoico_cbeth_tn_adl_s* o ) { bcore_array_t_set_space( TYPEOF_xoico_cbeth_tn_adl_s, ( bcore_array* )o, 0 ); return o; } \
-  static inline xoico_cbeth_tn_unit_s* xoico_cbeth_tn_adl_s_push_c( xoico_cbeth_tn_adl_s* o, const xoico_cbeth_tn_unit_s* v ) { bcore_array_t_push( TYPEOF_xoico_cbeth_tn_adl_s, ( bcore_array* )o, sr_twc( TYPEOF_xoico_cbeth_tn_unit_s, v ) ); return o->data[ o->size - 1 ]; } \
-  static inline xoico_cbeth_tn_unit_s* xoico_cbeth_tn_adl_s_push_d( xoico_cbeth_tn_adl_s* o,       xoico_cbeth_tn_unit_s* v ) { bcore_array_t_push( TYPEOF_xoico_cbeth_tn_adl_s, ( bcore_array* )o, sr_tsd( TYPEOF_xoico_cbeth_tn_unit_s, v ) ); return o->data[ o->size - 1 ]; } \
-  static inline xoico_cbeth_tn_unit_s* xoico_cbeth_tn_adl_s_push( xoico_cbeth_tn_adl_s* o ) \
-  { \
-      bcore_array_t_push( TYPEOF_xoico_cbeth_tn_adl_s, ( bcore_array* )o, sr_t_create( TYPEOF_xoico_cbeth_tn_unit_s ) ); \
-      return o->data[ o->size - 1 ]; \
-  }
-#define TYPEOF_xoico_cbeth_tn_stack_s 0xAF005D3F7A0594F8ull
-#define BETH_EXPAND_ITEM_xoico_cbeth_tn_stack_s \
-  BCORE_DECLARE_OBJECT( xoico_cbeth_tn_stack_s ) \
-  { \
-      aware_t _; \
-      xoico_cbeth_tn_adl_s adl; \
-      bcore_hmap_name_s name_map; \
-  }; \
-  xoico_cbeth_tn_stack_s* xoico_cbeth_tn_stack_s_push( xoico_cbeth_tn_stack_s* o, tp_t type, tp_t name, sz_t level ); \
-  xoico_cbeth_tn_stack_s* xoico_cbeth_tn_stack_s_push_sc( xoico_cbeth_tn_stack_s* o, sc_t type, sc_t name, sz_t level ); \
-  xoico_cbeth_tn_stack_s* xoico_cbeth_tn_stack_s_pop( xoico_cbeth_tn_stack_s* o, sz_t level ); \
-  tp_t xoico_cbeth_tn_stack_s_get_type( xoico_cbeth_tn_stack_s* o, tp_t name ); \
-  sc_t xoico_cbeth_tn_stack_s_get_type_sc( xoico_cbeth_tn_stack_s* o, sc_t name ); \
-  void xoico_cbeth_tn_stack_s_clear( xoico_cbeth_tn_stack_s* o ); \
-  void xoico_cbeth_tn_stack_s_init_from_args( xoico_cbeth_tn_stack_s* o, sc_t obj_type, sc_t obj_name, const xoico_args_s* args );
-#define BETH_EXPAND_GROUP_xoico_cbeth_tn \
-  BCORE_FORWARD_OBJECT( xoico_cbeth_tn ); \
-  BCORE_FORWARD_OBJECT( xoico_cbeth_tn_unit_s ); \
-  BCORE_FORWARD_OBJECT( xoico_cbeth_tn_adl_s ); \
-  BCORE_FORWARD_OBJECT( xoico_cbeth_tn_stack_s ); \
-  XOILA_DECLARE_SPECT( xoico_cbeth_tn ) \
-  { \
-      bcore_spect_header_s header; \
-  }; \
-  BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_cbeth_tn ) \
-  BETH_EXPAND_ITEM_xoico_cbeth_tn_unit_s \
-  BETH_EXPAND_ITEM_xoico_cbeth_tn_adl_s \
-  BETH_EXPAND_ITEM_xoico_cbeth_tn_stack_s
-
-/**********************************************************************************************************************/
-// source: xoico_cgimel.h
-
-//----------------------------------------------------------------------------------------------------------------------
-// group: xoico_cgimel
-
-#define TYPEOF_xoico_cgimel 0xEB414677BBBC4D13ull
-#define TYPEOF_xoico_cgimel_spect_s 0xE9A5B3268ED6C273ull
-#define TYPEOF_static 0xC534816D6D11E97Bull
-#define TYPEOF_volatile 0x9575F08FB5A48F0Dull
-#define TYPEOF_cast 0xB55E7090E879494Eull
-#define TYPEOF_xoico_cgimel_s 0x0A90671DA44B1BD5ull
-#define BETH_EXPAND_ITEM_xoico_cgimel_s \
-  BCORE_DECLARE_OBJECT( xoico_cgimel_s ) \
-  { \
-      aware_t _; \
-      bl_t verbose; \
-      bl_t insert_source_reference; \
-      xoico_args_s* args; \
-      xoico_compiler_s* compiler; \
-      xoico_group_s* group; \
-      xoico_stamp_s* stamp; \
-      tp_t obj_type; \
-      sz_t level; \
-      xoico_cgimel_stack_s stack; \
-      bcore_hmap_name_s hmap_name; \
-  }; \
-  static inline tp_t xoico_cgimel_s_entypeof( xoico_cgimel_s* o, sc_t name ); \
-  sc_t xoico_cgimel_s_nameof( xoico_cgimel_s* o, tp_t type ); \
-  void xoico_cgimel_s_inc_level( xoico_cgimel_s* o ); \
-  void xoico_cgimel_s_dec_level( xoico_cgimel_s* o ); \
-  void xoico_cgimel_s_push_typedecl( xoico_cgimel_s* o, const xoico_typespec_s* typespec, tp_t name ); \
-  er_t xoico_cgimel_s_translate( const xoico_cgimel_s* o, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink ); \
-  static inline tp_t xoico_cgimel_s_entypeof( xoico_cgimel_s* o, sc_t name ){ return  bcore_hmap_name_s_set_sc(&(o->hmap_name),name );}
-#define BETH_EXPAND_GROUP_xoico_cgimel \
-  BCORE_FORWARD_OBJECT( xoico_cgimel ); \
-  BCORE_FORWARD_OBJECT( xoico_cgimel_stack ); \
-  BCORE_FORWARD_OBJECT( xoico_cgimel_s ); \
-  XOILA_DECLARE_SPECT( xoico_cgimel ) \
-  { \
-      bcore_spect_header_s header; \
-  }; \
-  BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_cgimel ) \
-  BETH_EXPAND_GROUP_xoico_cgimel_stack \
-  BETH_EXPAND_ITEM_xoico_cgimel_s
-
-//----------------------------------------------------------------------------------------------------------------------
-// group: xoico_cgimel_stack
-
-#define TYPEOF_xoico_cgimel_stack 0x2049084FD79A2FCCull
-#define TYPEOF_xoico_cgimel_stack_spect_s 0x9C573585D2AA8704ull
-#define TYPEOF_xoico_cgimel_stack_unit_s 0xC30CE4D5C6041A25ull
-#define BETH_EXPAND_ITEM_xoico_cgimel_stack_unit_s \
-  BCORE_DECLARE_OBJECT( xoico_cgimel_stack_unit_s ) \
-  { \
-      sz_t level; \
-      tp_t name; \
-      xoico_typespec_s typespec; \
-  };
-#define TYPEOF_xoico_cgimel_stack_unit_adl_s 0x49CFBD5C09538C81ull
-#define BETH_EXPAND_ITEM_xoico_cgimel_stack_unit_adl_s \
-  BCORE_DECLARE_OBJECT( xoico_cgimel_stack_unit_adl_s ) \
-  { \
-      aware_t _; \
-      BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_cgimel_stack_unit_s, ); \
-  }; \
-  static inline xoico_cgimel_stack_unit_adl_s* xoico_cgimel_stack_unit_adl_s_set_space( xoico_cgimel_stack_unit_adl_s* o, sz_t size ) { bcore_array_t_set_space( TYPEOF_xoico_cgimel_stack_unit_adl_s, ( bcore_array* )o, size ); return o; } \
-  static inline xoico_cgimel_stack_unit_adl_s* xoico_cgimel_stack_unit_adl_s_set_size( xoico_cgimel_stack_unit_adl_s* o, sz_t size ) { bcore_array_t_set_size( TYPEOF_xoico_cgimel_stack_unit_adl_s, ( bcore_array* )o, size ); return o; } \
-  static inline xoico_cgimel_stack_unit_adl_s* xoico_cgimel_stack_unit_adl_s_clear( xoico_cgimel_stack_unit_adl_s* o ) { bcore_array_t_set_space( TYPEOF_xoico_cgimel_stack_unit_adl_s, ( bcore_array* )o, 0 ); return o; } \
-  static inline xoico_cgimel_stack_unit_s* xoico_cgimel_stack_unit_adl_s_push_c( xoico_cgimel_stack_unit_adl_s* o, const xoico_cgimel_stack_unit_s* v ) { bcore_array_t_push( TYPEOF_xoico_cgimel_stack_unit_adl_s, ( bcore_array* )o, sr_twc( TYPEOF_xoico_cgimel_stack_unit_s, v ) ); return o->data[ o->size - 1 ]; } \
-  static inline xoico_cgimel_stack_unit_s* xoico_cgimel_stack_unit_adl_s_push_d( xoico_cgimel_stack_unit_adl_s* o,       xoico_cgimel_stack_unit_s* v ) { bcore_array_t_push( TYPEOF_xoico_cgimel_stack_unit_adl_s, ( bcore_array* )o, sr_tsd( TYPEOF_xoico_cgimel_stack_unit_s, v ) ); return o->data[ o->size - 1 ]; } \
-  static inline xoico_cgimel_stack_unit_s* xoico_cgimel_stack_unit_adl_s_push( xoico_cgimel_stack_unit_adl_s* o ) \
-  { \
-      bcore_array_t_push( TYPEOF_xoico_cgimel_stack_unit_adl_s, ( bcore_array* )o, sr_t_create( TYPEOF_xoico_cgimel_stack_unit_s ) ); \
-      return o->data[ o->size - 1 ]; \
-  }
-#define TYPEOF_xoico_cgimel_stack_s 0xFC5E532B9F06DE0Eull
-#define BETH_EXPAND_ITEM_xoico_cgimel_stack_s \
-  BCORE_DECLARE_OBJECT( xoico_cgimel_stack_s ) \
-  { \
-      aware_t _; \
-      xoico_cgimel_stack_unit_adl_s adl; \
-  }; \
-  static inline xoico_cgimel_stack_s* xoico_cgimel_stack_s_push_unit( xoico_cgimel_stack_s* o, const xoico_cgimel_stack_unit_s* unit ); \
-  xoico_cgimel_stack_s* xoico_cgimel_stack_s_pop_level( xoico_cgimel_stack_s* o, sz_t level ); \
-  const xoico_typespec_s* xoico_cgimel_stack_s_get_typespec( const xoico_cgimel_stack_s* o, tp_t name ); \
-  static inline void xoico_cgimel_stack_s_clear( xoico_cgimel_stack_s* o ); \
-  static inline xoico_cgimel_stack_s* xoico_cgimel_stack_s_push_unit( xoico_cgimel_stack_s* o, const xoico_cgimel_stack_unit_s* unit ){ xoico_cgimel_stack_unit_adl_s_push_c( &(o->adl),unit );  return  o;} \
-  static inline void xoico_cgimel_stack_s_clear( xoico_cgimel_stack_s* o ){ xoico_cgimel_stack_unit_adl_s_clear( &(o->adl));}
-#define BETH_EXPAND_GROUP_xoico_cgimel_stack \
-  BCORE_FORWARD_OBJECT( xoico_cgimel_stack ); \
-  BCORE_FORWARD_OBJECT( xoico_cgimel_stack_unit_s ); \
-  BCORE_FORWARD_OBJECT( xoico_cgimel_stack_unit_adl_s ); \
-  BCORE_FORWARD_OBJECT( xoico_cgimel_stack_s ); \
-  XOILA_DECLARE_SPECT( xoico_cgimel_stack ) \
-  { \
-      bcore_spect_header_s header; \
-  }; \
-  BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_cgimel_stack ) \
-  BETH_EXPAND_ITEM_xoico_cgimel_stack_unit_s \
-  BETH_EXPAND_ITEM_xoico_cgimel_stack_unit_adl_s \
-  BETH_EXPAND_ITEM_xoico_cgimel_stack_s
-
-/**********************************************************************************************************************/
 // source: xoico_cdaleth.h
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -2078,4 +1845,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0x2235435826CB5575ull
+// XOILA_OUT_SIGNATURE 0xA0FFA062AC1980EFull
