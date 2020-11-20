@@ -24,9 +24,11 @@
 /**********************************************************************************************************************/
 
 XOILA_DEFINE_GROUP( xoico_source, xoico )
-#ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#ifdef XOILA_SECTION
 
-signature er_t parse(        mutable, bcore_source* source );
+//----------------------------------------------------------------------------------------------------------------------
+
+signature er_t parse( mutable, bcore_source* source );
 signature er_t finalize( mutable );
 signature er_t expand_declaration( const, sz_t indent, bcore_sink* sink );
 signature er_t expand_definition(  const, sz_t indent, bcore_sink* sink );
@@ -40,7 +42,11 @@ stamp : = aware :
 
     hidden aware xoico_target_s* target;
 
-    func xoico.expand_setup;
+    func xoico.expand_setup =
+    {
+        foreach( $* e in o ) e.expand_setup().try();
+        return 0;
+    };
 
     func (er_t push_d( mutable, xoico_group_s* group )) =
     {
@@ -56,13 +62,85 @@ stamp : = aware :
     };
 
     func :.parse;
-    func :.finalize;
-    func :.expand_declaration;
-    func :.expand_definition;
-    func :.expand_init1;
+
+    func :.finalize =
+    {
+        foreach( $* e in o ) e.finalize().try();
+        return 0;
+    };
+
+
+    func :.expand_declaration =
+    {
+        sink.push_fa( "\n" );
+        sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
+        sink.push_fa( "#rn{ }// source: #<sc_t>.h\n", indent, o.name.sc );
+        foreach( $* e in o ) e.expand_declaration( indent, sink ).try();
+        return 0;
+    };
+
+    func :.expand_definition =
+    {
+        sink.push_fa( "\n" );
+        sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
+        sink.push_fa( "#rn{ }// source: #<sc_t>.h\n", indent, o.name.sc );
+        sink.push_fa( "#rn{ }##include \"#<sc_t>.h\"\n", indent, o.name.sc );
+        foreach( $* e in o ) e.expand_definition( indent, sink ).try();
+        return 0;
+    };
+
+    func :.expand_init1 =
+    {
+        sink.push_fa( "\n" );
+        sink.push_fa( "#rn{ }// #rn{-}\n", indent, sz_max( 0, 80 - indent ) );
+        sink.push_fa( "#rn{ }// source: #<sc_t>.h\n", indent, o.name.sc );
+        foreach( $* e in o ) e.expand_init1( indent, sink ).try();
+        return 0;
+    };
+
 };
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:) :.parse =
+{ try {
+    while( !source.eos() )
+    {
+        xoico_group_s* group = NULL;
+
+        if( source.parse_bl( " #?w'XOILA_DEFINE_GROUP'" ) )
+        {
+            group = xoico_group_s!.scope();
+            o.push_d( group.fork() );
+            group.xoico_source = o;
+            group.compiler = o.target.compiler;
+            source.parse_em_fa( " ( #name, #name", group.st_name.1, group.trait_name.1 );
+            if( source.parse_bl( "#?','" ) )
+            {
+                st_s* include_file = st_s!.scope();
+                source.parse_em_fa( " #string )", include_file );
+                o.target.explicit_embeddings.push_st( include_file );
+                bcore_source* include_source = NULL;
+                xoico_embed_file_open( source, include_file.sc, include_source.2 );
+                include_source.scope();
+                group.parse( include_source );
+            }
+            else
+            {
+                source.parse_em_fa( " )" );
+                group.parse( source );
+            }
+            o.target.compiler.register_group( group );
+        }
+        else
+        {
+            source.get_u0();
+        }
+    }
+    return 0;
+} /* try */ };
+
+//----------------------------------------------------------------------------------------------------------------------
 
 #endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

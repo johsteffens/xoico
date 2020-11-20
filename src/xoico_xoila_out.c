@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-20T14:11:26Z
+ *  Last File Update: 2020-11-20T17:18:06Z
  *
  *  Copyright and License of this File:
  *
@@ -2558,9 +2558,17 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_source_s )
     "func xoico:get_hash;"
 "}";
 
-er_t xoico_source_s_push_d( xoico_source_s* o, xoico_group_s* group )
+er_t xoico_source_s_expand_setup( xoico_source_s* o )
 {
     // xoico_source.h:46:5
+    
+    {const xoico_source_s* __a=o ;if(__a)for(sz_t __i=0; __i<__a->size; __i++){xoico_group_s* e=__a->data[__i]; BLM_TRY(xoico_group_s_expand_setup(e))
+    }}return  0;
+}
+
+er_t xoico_source_s_push_d( xoico_source_s* o, xoico_group_s* group )
+{
+    // xoico_source.h:52:5
     
     bcore_array_a_push( ((bcore_array*)(o)),sr_asd( group ) );
     return  0;
@@ -2568,11 +2576,94 @@ er_t xoico_source_s_push_d( xoico_source_s* o, xoico_group_s* group )
 
 tp_t xoico_source_s_get_hash( const xoico_source_s* o )
 {
-    // xoico_source.h:52:5
+    // xoico_source.h:58:5
     
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
     {const xoico_source_s* __a=o ;if(__a)for(sz_t __i=0; __i<__a->size; __i++){xoico_group_s* e=__a->data[__i]; hash = bcore_tp_fold_tp( hash, xoico_group_s_get_hash(e) );}}
     return  hash;
+}
+
+er_t xoico_source_s_finalize( xoico_source_s* o )
+{
+    // xoico_source.h:67:5
+    
+    {const xoico_source_s* __a=o ;if(__a)for(sz_t __i=0; __i<__a->size; __i++){xoico_group_s* e=__a->data[__i]; BLM_TRY(xoico_group_s_finalize(e))
+    }}return  0;
+}
+
+er_t xoico_source_s_expand_declaration( const xoico_source_s* o, sz_t indent, bcore_sink* sink )
+{
+    // xoico_source.h:74:5
+    
+    bcore_sink_a_push_fa(sink,"\n" );
+    bcore_sink_a_push_fa(sink,"#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
+    bcore_sink_a_push_fa(sink,"#rn{ }// source: #<sc_t>.h\n", indent, o->name.sc );
+    {const xoico_source_s* __a=o ;if(__a)for(sz_t __i=0; __i<__a->size; __i++){xoico_group_s* e=__a->data[__i]; BLM_TRY(xoico_group_s_expand_declaration(e,indent, sink ))
+    }}return  0;
+}
+
+er_t xoico_source_s_expand_definition( const xoico_source_s* o, sz_t indent, bcore_sink* sink )
+{
+    // xoico_source.h:83:5
+    
+    bcore_sink_a_push_fa(sink,"\n" );
+    bcore_sink_a_push_fa(sink,"#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
+    bcore_sink_a_push_fa(sink,"#rn{ }// source: #<sc_t>.h\n", indent, o->name.sc );
+    bcore_sink_a_push_fa(sink,"#rn{ }##include \"#<sc_t>.h\"\n", indent, o->name.sc );
+    {const xoico_source_s* __a=o ;if(__a)for(sz_t __i=0; __i<__a->size; __i++){xoico_group_s* e=__a->data[__i]; BLM_TRY(xoico_group_s_expand_definition(e,indent, sink ))
+    }}return  0;
+}
+
+er_t xoico_source_s_expand_init1( const xoico_source_s* o, sz_t indent, bcore_sink* sink )
+{
+    // xoico_source.h:93:5
+    
+    bcore_sink_a_push_fa(sink,"\n" );
+    bcore_sink_a_push_fa(sink,"#rn{ }// #rn{-}\n", indent, sz_max( 0, 80 - indent ) );
+    bcore_sink_a_push_fa(sink,"#rn{ }// source: #<sc_t>.h\n", indent, o->name.sc );
+    {const xoico_source_s* __a=o ;if(__a)for(sz_t __i=0; __i<__a->size; __i++){xoico_group_s* e=__a->data[__i]; BLM_TRY(xoico_group_s_expand_init1(e,indent, sink ))
+    }}return  0;
+}
+
+er_t xoico_source_s_parse( xoico_source_s* o, bcore_source* source )
+{
+    // xoico_source.h:106:1
+    BLM_INIT_LEVEL(0); {
+    while( !bcore_source_a_eos(source) )
+    {
+        xoico_group_s* group = NULL;
+    
+        if( bcore_source_a_parse_bl(source," #?w'XOILA_DEFINE_GROUP'" ) )
+        {
+            group = ((xoico_group_s*)BLM_LEVEL_T_PUSH(0,xoico_group_s,xoico_group_s_create()));
+            BLM_TRY(xoico_source_s_push_d(o,((xoico_group_s*)bcore_fork(group)) ))
+            group->xoico_source = o;
+            group->compiler = o->target->compiler;
+            BLM_TRY(bcore_source_a_parse_em_fa(source," ( #name, #name", (&(group->st_name)), (&(group->trait_name)) ))
+            if( bcore_source_a_parse_bl(source,"#?','" ) )
+            {
+                st_s* include_file = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,st_s_create()));
+                BLM_TRY(bcore_source_a_parse_em_fa(source," #string )", include_file ))
+                bcore_arr_st_s_push_st(&(o->target->explicit_embeddings),include_file );
+                bcore_source* include_source = NULL;
+                BLM_TRY(xoico_embed_file_open(source, include_file->sc, (&(include_source)) ))
+                ((bcore_source*)BLM_LEVEL_A_PUSH(0,include_source));
+                BLM_TRY(xoico_group_s_parse(group,include_source ))
+            }
+            else
+            {
+                BLM_TRY(bcore_source_a_parse_em_fa(source," )" ))
+                BLM_TRY(xoico_group_s_parse(group,source ))
+            }
+            BLM_TRY(xoico_compiler_s_register_group(o->target->compiler,group ))
+        }
+        else
+        {
+            bcore_source_a_get_u0(source);
+        }
+    }
+    BLM_RETURNV(er_t, 0)
+    } /* try */
 }
 
 XOILA_DEFINE_SPECT( xoico, xoico_source )
@@ -6997,4 +7088,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0x7E5A9BA64C01D5A5ull
+// XOILA_OUT_SIGNATURE 0x3B10D0D6F68D5660ull

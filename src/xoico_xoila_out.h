@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-20T14:11:26Z
+ *  Last File Update: 2020-11-20T17:18:06Z
  *
  *  Copyright and License of this File:
  *
@@ -46,7 +46,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0xC00F89190C4D8A02ull
+#define HKEYOF_xoico_xoila_out 0x557859237E58DFEBull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -786,11 +786,11 @@
   er_t xoico_source_s_expand_setup( xoico_source_s* o ); \
   er_t xoico_source_s_push_d( xoico_source_s* o, xoico_group_s* group ); \
   tp_t xoico_source_s_get_hash( const xoico_source_s* o ); \
-  er_t xoico_source_s_parse( xoico_source_s* o, bcore_source* source ); \
   er_t xoico_source_s_finalize( xoico_source_s* o ); \
   er_t xoico_source_s_expand_declaration( const xoico_source_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_source_s_expand_definition( const xoico_source_s* o, sz_t indent, bcore_sink* sink ); \
-  er_t xoico_source_s_expand_init1( const xoico_source_s* o, sz_t indent, bcore_sink* sink );
+  er_t xoico_source_s_expand_init1( const xoico_source_s* o, sz_t indent, bcore_sink* sink ); \
+  er_t xoico_source_s_parse( xoico_source_s* o, bcore_source* source );
 #define BETH_EXPAND_GROUP_xoico_source \
   BCORE_FORWARD_OBJECT( xoico_source ); \
   BCORE_FORWARD_OBJECT( xoico_source_s ); \
@@ -1567,4 +1567,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0xD7F7C6069C0EAB68ull
+// XOILA_OUT_SIGNATURE 0x0D0CFEBA00C49DBEull
