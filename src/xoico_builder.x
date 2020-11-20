@@ -26,10 +26,10 @@ func (:target) :.load =
     {
         st_s* current_folder = st_s!.scope();
         bcore_folder_get_current( current_folder );
-        st_path = cast( st_s_create_fa( "#<sc_t>/#<sc_t>", current_folder.sc, st_path.sc ), st_s* ).scope();
+        st_path = st_s_create_fa( "#<sc_t>/#<sc_t>", current_folder.sc, st_path.sc ).scope();
     }
 
-    st_path = cast( bcore_file_path_minimized( st_path.sc ), st_s* ).scope();
+    st_path = bcore_file_path_minimized( st_path.sc ).scope();
 
     bcore_txt_ml_a_from_file( o, st_path.sc );
     o->full_path_.copy( st_path );
@@ -43,7 +43,7 @@ func (:target) :.load =
         const xoico_builder_target_s* match = o->parent_.name_match( o->name.sc );
         if( match )
         {
-            if( match->full_path_.equal_st( &o.full_path_ ) )
+            if( match.full_path_.equal_st( o.full_path_ ) )
             {
                 return bcore_error_push_fa( TYPEOF_general_error, "In target file: '#<sc_t>'\nCyclic dependency detected.", st_path.sc );
             }
@@ -66,7 +66,7 @@ func (:target) :.load =
 
         bl_t dep_readonly = o.readonly;
 
-        bcore_source* source = cast( bcore_source_string_s_create_sc( e.sc ), bcore_source* ).scope( scope_local );
+        bcore_source* source = bcore_source_string_s_create_sc( e.sc ).scope( scope_local );
         try( source.parse_em_fa( " #:until':'", file_path ) );
 
         /// remove trailing spaces
@@ -115,7 +115,7 @@ func (:target) :.build =
 
     if( o.root_.hmap_built_target_.exists( tp_target_name ) )
     {
-        xoico_builder_target_s* target = *o.root_.hmap_built_target_.get( tp_target_name );
+        xoico_builder_target_s* target = o.root_.hmap_built_target_.get( tp_target_name ).cast( xoico_builder_target_s** ).1;
         o.target_index_ = target.target_index_;
         return 0;
     }
@@ -137,11 +137,11 @@ func (:target) :.build =
 
         ASSERT( o.name );
         ASSERT( o.extension );
-        st_s* xoi_target_name = cast( st_s_create_fa( "#<sc_t>_#<sc_t>", o->name->sc, o->extension->sc ), st_s* ).scope( scope_local );
+        st_s* xoi_target_name = st_s_create_fa( "#<sc_t>_#<sc_t>", o->name->sc, o->extension->sc ).scope( scope_local );
 
         sz_t index = -1;
 
-        o.compiler.parse( xoi_target_name.sc, file_path.sc, &index );
+        o.compiler.parse( xoi_target_name.sc, file_path.sc, index );
 
         if( o.target_index_ == -1 ) o.target_index_ = index;
         if( index != o.target_index_ )
@@ -167,7 +167,7 @@ func (:target) :.build =
         xoico_target_s* target = o.compiler.[ o.target_index_ ];
 
         target.set_dependencies( dependencies );
-        st_s* signal_handler = cast( st_s_create_fa( "#<sc_t>_general_signal_handler", o.name.sc ), st_s* ).scope();
+        st_s* signal_handler = st_s_create_fa( "#<sc_t>_general_signal_handler", o.name.sc ).scope();
         if( o.signal_handler ) signal_handler.copy( o.signal_handler );
         target.signal_handler_name.copy_sc( signal_handler.sc );
         target.readonly = o.readonly;

@@ -34,7 +34,7 @@ func (:) (tp_t get_identifier( mutable, bcore_source* source, bl_t take_from_sou
             {
                 source.get_char();
                 st_s* st_name = st_s!.scope();
-                st_name.copy( o.stamp ? &o.stamp.st_name : &o.group.st_name );
+                st_name.copy( o.stamp ? o.stamp.st_name.1 : o.group.st_name.1 );
                 if( source.parse_bl( "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]=='_'||([0]>='0'&&[0]<='9'))" ) )
                 {
                     source.parse_fa( "#:name", st_name );
@@ -83,7 +83,7 @@ func(:) (er_t trans_identifier( mutable, bcore_source* source, st_s* buf /* can 
     {
         return source.parse_error_fa( "Identifier exected" );
     }
-    if( tp_identifier ) *tp_identifier = identifier;
+    if( tp_identifier ) tp_identifier.0 = identifier;
     if( buf ) buf.push_sc( o.nameof( identifier ) );
     return 0;
 } /* try */ };
@@ -428,7 +428,7 @@ func (:)
         if( __i > 0 ) buf_out.push_sc( "," );
         if( typespec_expr.type )
         {
-            o.adapt_expression( source, typespec_expr, &arg.typespec, buf_expr, buf_out );
+            o.adapt_expression( source, typespec_expr, arg.typespec.1, buf_expr, buf_out );
         }
         else
         {
@@ -499,7 +499,7 @@ func (:)
 
         if( o.compiler.get_type_array_element_info( in_typespec.type, info ) )
         {
-            o.trans_typespec_expression( source, buf, &info.type_info.typespec, out_typespec );
+            o.trans_typespec_expression( source, buf, info.type_info.typespec.1, out_typespec );
         }
         else
         {
@@ -510,7 +510,7 @@ func (:)
     {
         st_s* buf_local = st_s!.scope();
         tp_t tp_identifier = 0;
-        o.trans_identifier( source, buf_local, &tp_identifier );
+        o.trans_identifier( source, buf_local, tp_identifier.1 );
         o.trans_whitespace( source, buf_local );
 
         // builtin functions ...
@@ -530,7 +530,7 @@ func (:)
                 st_s* arg_obj = buf.clone().scope();
                 buf.copy_fa( "#<sc_t>", sc_func_name );
                 o.trans_function_args( source, info.signature, arg_obj, in_typespec, buf );
-                o.trans_typespec_expression( source, buf, &info.signature.typespec_ret, out_typespec );
+                o.trans_typespec_expression( source, buf, info.signature.typespec_ret.1, out_typespec );
             }
             else // traced member element
             {
@@ -544,7 +544,7 @@ func (:)
                     );
                 }
                 buf.push_fa( "#<sc_t>#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : ".", buf_local.sc );
-                o.trans_typespec_expression( source, buf, &info.type_info.typespec, out_typespec );
+                o.trans_typespec_expression( source, buf, info.type_info.typespec.1, out_typespec );
             }
         }
         else if( source.parse_bl_fa( "#?'('" ) ) // untraced member function
@@ -900,7 +900,7 @@ func (:)
     )
 ) =
 { try {
-    if( success ) *success = false;
+    if( success ) success.0 = false;
 
     sz_t index = source.get_index();
 
@@ -935,7 +935,7 @@ func (:)
             return 0;
         }
 
-        o.trans_identifier( source, NULL, &tp_identifier );
+        o.trans_identifier( source, NULL, tp_identifier );
         o.trans_whitespace( source, NULL );
     }
 
@@ -955,7 +955,7 @@ func (:)
         }
     }
 
-    if( success ) *success = true;
+    if( success ) success.0 = true;
     return 0;
 } /* try */ };
 
@@ -973,7 +973,7 @@ func (:)
 ) =
 { try {
     bl_t success = false;
-    o.try_take_typespec( source, typespec, require_tractable_type, &success );
+    o.try_take_typespec( source, typespec, require_tractable_type, success );
 
     if( !success )
     {
@@ -1051,7 +1051,7 @@ func (:)
 { try {
     st_s* buf_type = st_s!.scope();
     tp_t tp_identifier;
-    o.trans_identifier( source, buf_type, &tp_identifier );
+    o.trans_identifier( source, buf_type, tp_identifier );
     o.trans_whitespace( source, buf_type );
     if( source.parse_bl_fa( "#?'!'" ) )
     {
@@ -1087,7 +1087,7 @@ func (:)
 ) =
 { try {
     tp_t tp_identifier = 0;
-    o.trans_identifier( source, buf, &tp_identifier );
+    o.trans_identifier( source, buf, tp_identifier );
     o.trans_whitespace( source, buf );
     if( source.parse_bl_fa( "#=?'('" ) ) // actual function call
     {
@@ -1317,7 +1317,7 @@ func (:)
     )
 ) =
 { try {
-    if( success ) *success = false;
+    if( success ) success.0 = false;
 
     xoico_typespec_s* typespec_var = xoico_typespec_s!.scope();
 
@@ -1326,7 +1326,7 @@ func (:)
     st_s* buf_var = st_s!.scope();
 
     bl_t success_take_typespec = false;
-    o.try_take_typespec( source, typespec_var, true, &success_take_typespec );
+    o.try_take_typespec( source, typespec_var, true, success_take_typespec );
 
     if( !success_take_typespec )
     {
@@ -1343,7 +1343,7 @@ func (:)
     )
     {
         tp_t tp_identifier = 0;
-        o.trans_identifier( source, buf_var, &tp_identifier );
+        o.trans_identifier( source, buf_var, tp_identifier );
         o.trans_whitespace( source, buf_var );
 
         if( source.parse_bl_fa( "#?'='" ) )
@@ -1409,7 +1409,7 @@ func (:)
             o.push_typedecl( typespec_var, tp_identifier );
         }
 
-        if( success ) *success = true;
+        if( success ) success.0 = true;
     }
     else
     {
@@ -1417,7 +1417,7 @@ func (:)
         return 0;
     }
 
-    if( success ) *success = true;
+    if( success ) success.0 = true;
 
     return 0;
 } /* try */ };
@@ -1567,7 +1567,7 @@ func (:) (er_t trans_statement( mutable, bcore_source* source, st_s* buf )) =
         else
         {
             bl_t success_declaration = false;
-            o.try_trans_declaration( source, buf, &success_declaration );
+            o.try_trans_declaration( source, buf, success_declaration );
             if( !success_declaration ) o.trans_statement_expression( source, buf );
         }
     }
@@ -1581,7 +1581,7 @@ func (:) (er_t trans_block_inside( mutable, bcore_source* source, st_s* buf_out 
 { try {
     st_s* buf = st_s!.scope();
 
-    while( !source.parse_bl_fa( "#=?'}'" ) && !source.eos() )
+    while( !source.parse_bl( "#=?'}'" ) && !source.eos() )
     {
         o.trans_statement( source, buf );
     }
@@ -1652,7 +1652,7 @@ func (:) (er_t trans_statement_as_block( mutable, bcore_source* source, st_s* bu
 func (:) (er_t trans_block_inside_verbatim_c( mutable, bcore_source* source, st_s* buf )) =
 { try {
     o.trans_whitespace( source, buf );
-    while( !source.parse_bl_fa( "#=?'}'" ) && !source.eos() )
+    while( !source.parse_bl( "#=?'}'" ) && !source.eos() )
     {
         switch( source.inspect_char() )
         {
@@ -1694,7 +1694,7 @@ func (:) (er_t setup( mutable, const xoico_body_s* body, const xoico_signature_s
 { try {
     sc_t sc_obj_type = ( signature.arg_o ) ? ( body.stamp ? body.stamp.st_name.sc : body.group.st_name.sc ) : NULL;
 
-    const xoico_args_s* args = &signature.args;
+    const xoico_args_s* args = signature.args;
 
     tp_t obj_type  = ( signature.arg_o == 0 ) ? 0 : o.entypeof( sc_obj_type );
     bl_t obj_const = ( signature.arg_o == TYPEOF_const );
@@ -1789,7 +1789,7 @@ func (:) xoico_cengine.translate =
     xoico_cdaleth_s* engine = o.clone().scope();
     engine.setup( body, signature );
 
-    bcore_source* source = cast( bcore_source_point_s_clone_source( &body.code.source_point ), bcore_source* ).scope();
+    bcore_source* source = cast( body.code.source_point.clone_source(), bcore_source* ).scope();
 
     st_s* buf = st_s!.scope();
 

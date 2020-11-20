@@ -133,7 +133,7 @@ func (:)( er_t trans_control_foreach( mutable, bcore_source* source, :result* re
         return source.parse_error_fa( "Expression does not evaluate to an array." );
     }
 
-    xoico_typespec_s* typespec_element = &info.type_info.typespec;
+    xoico_typespec_s* typespec_element = info.type_info.typespec;
 
     if( typespec_var.type == TYPEOF_type_deduce ) typespec_var.type = typespec_element.type;
 

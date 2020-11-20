@@ -60,17 +60,17 @@ group :tn = :
             unit->type = type;
             unit->name = name;
             unit->level = level;
-            :adl_s_push_d( &o->adl, unit );
+            o->adl.push_d( unit );
             return o;
         };
 
         func :.push_sc =
         {
             :unit_s* unit = :unit_s_create();
-            unit->type = bcore_hmap_name_s_set_sc( &o->name_map, type );
-            unit->name = bcore_hmap_name_s_set_sc( &o->name_map, name );
+            unit->type = o.name_map.set_sc( type );
+            unit->name = o.name_map.set_sc( name );
             unit->level = level;
-            :adl_s_push_d( &o->adl, unit );
+            o.adl.push_d( unit );
             return o;
         };
 
@@ -82,7 +82,7 @@ group :tn = :
                 if( o->adl.data[ i ]->level < level ) break;
                 new_size = i;
             }
-            :adl_s_set_size( &o->adl, new_size );
+            o.adl.set_size( new_size );
             return o;
         };
 
@@ -97,13 +97,13 @@ group :tn = :
 
         func :.get_type_sc =
         {
-            return bcore_hmap_name_s_get_sc( &o->name_map, @_get_type( o, btypeof( name ) ) );
+            return o.name_map.get_sc( @_get_type( o, btypeof( name ) ) );
         };
 
         func :.clear =
         {
-            bcore_hmap_name_s_clear( &o->name_map );
-            :adl_s_clear( &o->adl );
+             o.name_map.clear();
+             o.adl.clear();
         };
 
         func :.init_from_args =

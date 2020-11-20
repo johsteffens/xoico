@@ -47,7 +47,7 @@ group :result = :
     feature st_s* create_st( const ) =
     {
         $* st = st_s!;
-        o.to_sink( st.cast( bcore_sink* ) );
+        o.to_sink( st );
         return st;
     };
 
@@ -65,12 +65,12 @@ group :result = :
         func :.push_char = { o.st.push_char( c ); return 0; };
         func :.push_sc   = { o.st.push_sc( sc ); return 0; };
         func :.push_st   = { o.st.push_st( st ); return 0; };
-        func :.to_sink   = { sink.push_string( &o.st );  return 0; };
+        func :.to_sink   = { sink.push_string( o.st );  return 0; };
         func :.create_st = { return o.st.clone(); };
     };
 
-    func (:* create_from_st( const st_s* st ) ) = { $* o = :arr_s!; o.push_st( st ); return o.cast( :* ); };
-    func (:* create_from_sc(       sc_t  sc ) ) = { $* o = :arr_s!; o.push_sc( sc ); return o.cast( :* ); };
+    func (:* create_from_st( const st_s* st ) ) = { $* o = :arr_s!; o.push_st( st ); return o; };
+    func (:* create_from_sc(       sc_t  sc ) ) = { $* o = :arr_s!; o.push_sc( sc ); return o; };
 
     stamp :adl = aware bcore_array { aware : -> []; }; // !! weak links !!  (if this causes problems revert to strong links)
 
@@ -110,7 +110,7 @@ group :result = :
         };
     };
 
-    func (:* create_arr() ) = { return :arr_s!.cast( :* ); };
+    func (:* create_arr() ) = { return :arr_s!; };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -160,7 +160,7 @@ group :result = :
         $* o = :block_s!;
         o.level = level;
         o.is_using_blm = is_using_blm;
-        return o.cast( :* );
+        return o;
     };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -171,7 +171,7 @@ group :result = :
         func :.to_sink = { sink.push_fa( "BLM_INIT_LEVEL(#<sz_t>);", o.level ); return 0; };
     };
 
-    func (:* create_blm_init( sz_t level ) ) = { $* o = :blm_init_s!; o.level = level; return o.cast( :* ); };
+    func (:* create_blm_init( sz_t level ) ) = { $* o = :blm_init_s!; o.level = level; return o; };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -180,7 +180,7 @@ group :result = :
         func :.to_sink = { sink.push_sc( "BLM_DOWN();" ); return 0; };
     };
 
-    func (:* create_blm_down() ) = { $* o = :blm_down_s!; return o.cast( :* ); };
+    func (:* create_blm_down() ) = { $* o = :blm_down_s!; return o; };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -240,7 +240,7 @@ group :stack_var = :
         {
             uz_t* p_idx = o.hmap_name.get( name );
             if( !p_idx ) return NULL;
-            return o.adl.[ *p_idx ].typespec;
+            return o.adl.[ p_idx.0 ].typespec;
         };
 
         /// returns -1 if not found
@@ -248,7 +248,7 @@ group :stack_var = :
         {
             uz_t* p_idx = o.hmap_name.get( name );
             if( !p_idx ) return -1;
-            return o.adl.[ *p_idx ].level;
+            return o.adl.[ p_idx.0 ].level;
         };
 
         func :.clear =

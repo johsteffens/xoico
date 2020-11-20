@@ -42,7 +42,7 @@ stamp : = aware :
         }
         else
         {
-            try( source.parse_em_fa( " #name", &o->name ) );
+            try( source.parse_em_fa( " #name", o.name.1 ) );
         }
         if( o.name.size == 0 ) return source.parse_error_fa( "Feature: Name missing." );
         try( source.parse_em_fa( " ; " ) );

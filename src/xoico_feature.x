@@ -86,7 +86,7 @@ func (:) xoico.parse =
         else
         {
             if( o.strict )  return source.parse_error_fa( "Feature is 'strict'. Default function would have no effect." );
-            try( source.parse_em_fa( " #name ", &o.st_default_func_name ) );
+            try( source.parse_em_fa( " #name ", o.st_default_func_name.1 ) );
             if( o.st_default_func_name.size == 0 ) return source.parse_error_fa( "Feature: Default function name expected." );
             if( o.st_default_func_name.equal_sc( compiler.nameof( o.signature.name ) ) )
             {
@@ -110,8 +110,8 @@ func (:) xoico.parse =
         o.func_a.global_name = compiler.entypeof( name_buf.sc );
         o.func_a.signature_global_name = o.signature.global_name;
         o.func_a.expandable = false;
-        o.func_a.signature = &o.signature;
-        o.func_a.source_point.copy( &o.source_point );
+        o.func_a.signature = o.signature.1;
+        o.func_a.source_point.copy( o.source_point.1 );
         compiler.register_func( o.func_a );
     }
 
@@ -383,7 +383,7 @@ func (:) xoico.expand_indef_declaration =
             sink.push_fa( " #<sc_t>* o", sc_group_name );
             o.signature.args.expand( false, sc_group_name, sink );
             sink.push_fa( " )" );
-            o.default_body.expand( &o.signature, indent, sink );
+            o.default_body.expand( o.signature.1, indent, sink );
         }
         else
         {
@@ -414,7 +414,7 @@ func (:) xoico.expand_definition =
         sink.push_fa( " #<sc_t>* o", sc_group_name );
         o.signature.args.expand( false, sc_group_name, sink );
         sink.push_fa( " )\n" );
-        o.default_body.expand( &o.signature, indent, sink );
+        o.default_body.expand( o.signature.1, indent, sink );
     }
     return 0;
 } /* try */ };

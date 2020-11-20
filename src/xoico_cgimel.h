@@ -51,13 +51,13 @@ group :stack = :
     stamp : = aware :
     {
         :unit_adl_s adl;
-        func :.push_unit = { :unit_adl_s_push_c( &o->adl, unit );  return o; };
+        func :.push_unit = { o.adl.push_c( unit );  return o; };
 
         func :.pop_level =
         {
             sz_t size = o->adl.size;
             while( size > 0 && o->adl.data[ size - 1 ]->level >= level ) size--;
-            :unit_adl_s_set_size( &o->adl, size );
+            o.adl.set_size( size );
             return o;
         };
 
@@ -65,12 +65,12 @@ group :stack = :
         {
             for( sz_t i = o->adl.size - 1; i >= 0; i-- )
             {
-                if( o->adl.data[ i ]->name == name ) return &o->adl.data[ i ]->typespec;
+                if( o->adl.[ i ]->name == name ) return o.adl.[ i ].typespec;
             }
             return NULL;
         };
 
-        func :.clear = { :unit_adl_s_clear( &o->adl ); };
+        func :.clear = { o.adl.clear(); };
     };
 };
 
@@ -109,10 +109,10 @@ stamp : = aware :
     :stack_s stack;
     bcore_hmap_name_s hmap_name;
 
-    func :.entypeof = { return bcore_hmap_name_s_set_sc( &o->hmap_name, name ); };
+    func :.entypeof = { return o.hmap_name.set_sc( name ); };
     func :.nameof   =
     {
-        sc_t name = bcore_hmap_name_s_get_sc( &o->hmap_name, type );
+        sc_t name = o.hmap_name.get_sc( type );
         if( !name ) name = xoico_compiler_s_nameof( o->compiler, type );
         return name;
     };
@@ -124,8 +124,8 @@ stamp : = aware :
 
     func :.dec_level =
     {
-        :stack_s_pop_level( &o->stack, o->level );
-        o->level--;
+        o.stack.pop_level( o->level );
+        o.level--;
     };
 
     func :.push_typedecl =
@@ -134,8 +134,8 @@ stamp : = aware :
         :stack_unit_s* unit = BLM_CREATE( :stack_unit_s );
         unit->level = o->level;
         unit->name = name;
-        xoico_typespec_s_copy( &unit->typespec, typespec );
-        :stack_s_push_unit( &o->stack, unit );
+        unit.typespec.copy( typespec );
+        o.stack.push_unit( unit );
         BLM_DOWN();
     };
 

@@ -199,7 +199,7 @@ embed:
 ----------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------
 
-cdaleth syntax:
+che syntax:
 
 The cdaleth syntax is 'C' with additional syntactic rules.
 Pure C-code can be enforced for any code block with this
@@ -235,6 +235,10 @@ Function pointer:
 If an object-element is a function pointer, calling that function must be enclosed
 in 'verbatim_C{ ... }'.
 
+Setting indirection:
+<expr>.<positive integer literal>
+sets indirection-level.
+
 TODO:
 - (done) each group has a perspective
 - (done) each group has default (aware, typed) features: *_t_create, _a_discard, _a_attach, _a_detach, _a_copy, _t_clone
@@ -268,31 +272,46 @@ TODO:
 - (done) let variable declaration hide a type of same name
 
 - (speculative) modify trans_declaration: flag indicating that the declaration in c-code is to be prepended
-- (speculative) preprend flagged declarations to the beginning of the current block
+- (speculative) prepend flagged declarations to the beginning of the current block
 - (speculative) allow (prepended) declaration after opening a bracket
-- (speculative) auto-keep function return values marked 'keep'
+- (speculative) auto-scpect function return values marked 'scpect'
+
+- (speculative) non declarative assignment: allow type adaptation.
+    Problems:
+      - Use of prefix '*', '&' requires priority handling.
+      - When the target indirection is changed the actual desired functionality might change drastically in an unpredictable manner.
+             - not clear what is intended with the target's 'old' object.
+             - id-level1: not clear if source is to be copied or merely referenced;
+             - not clear if scoping is desired.
+             --> when the target's indirection is changed, actual code must change at various places
+                 adaptation of indirection might hide this necessity -> possible source of bugs.
 
 - (done) define plain functions in a group
 - (done) cengine: recognize a full function name (non-member)
 - (fixed) bug: bodyless function can be added to a stamp after the same function was defined with a body (removing the body again)
-- add variadic function
 - (fixed) bug: functions in groups do not affect its hash value
 - (done) add includes to be placed in *xoila_out.{c,h} files
-- (rejected) assignment: should adapt indirection where possible --> does not work unless prefixes '*', '&' are evaluated
 - (done) detect c-style arrays  (variables should have proper indirection)
 
 - (fixed) bug: If the parser encounters a return or break statement, lifetime manager is not taken down in case the parser has not seen any 'scope' yet' .
   -> fix: remember such return or break positions and revisit them after a block has been completed. (fixed in 'che')
 
-- introduce postfix operators to increment or decrement indirection
-- trace all assignments and apply automatic typespec adaptation (requires resolving of prefix operators)
 - (speculative - might introduce dependencies I'd like to avoid) apply automatic cast in adaptations in case of type discrepancy if target is in auto-cast list.
 - (done) automatically cast of stamp to group is stamp is aware
-- introduce simple way to call the default implementation of a feature
-- introduce traceable stepping down/up of indirection
 - (done) detect an untractable function call: otherwise the bracket section might be traced and considered an expression with typespec
+- (done) add functions with variadic arguments
+- (fixed: bl_t was not registered as type) bug: bl_t modified = false; // modified seems not registered as variable
+- (done) allow adaptation across indirection difference >1 if possible.
+- (done) introduce postfix operators to set indirection
+
+- fully handle default functions for arrays  (add them as 'func' and let cengine generate the code)
+- introduce simple way to call the default implementation of a feature
 - scope instances on stack: e.g. scope st_s st;
-- add functions with variadic arguments
+- is term 'indirection' used according to common consent?
+- (rejected) disallow prefix operator *, & for changing indirection  (causes too many problems with untraced c-code; main objective for this feature (adaptive assignment) was rejected)
+- bug: binary operator not recognized after unregistered member function
+- use numeric value to specify indirection-level.
+
 
 Keywords (for syntax highlight)
 

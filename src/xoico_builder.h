@@ -70,7 +70,7 @@ stamp :target = aware :
         if( !o->root_folder )
         {
             o->root_folder = bcore_file_folder_path( bcore_source_a_get_file( source ) );
-            st_s_attach( &o->root_folder, bcore_file_path_minimized( o->root_folder->sc ) );
+            o.root_folder =< bcore_file_path_minimized( o.root_folder.sc );
         }
     };
 

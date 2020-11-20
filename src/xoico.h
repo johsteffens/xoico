@@ -100,7 +100,7 @@ func (er_t embed_file_open( bcore_source* parent, sc_t file_name, bcore_source**
         return parent.parse_error_fa( "Xoico: File '#<sc_t>' not found.", path->sc );
     }
 
-    *include_source = bcore_file_open_source( path.sc );
+    include_source.1 = bcore_file_open_source( path.sc );
     return 0;
 } /* try */ };
 

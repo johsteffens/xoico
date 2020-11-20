@@ -34,7 +34,7 @@ func (:) (tp_t get_identifier( mutable, bcore_source* source, bl_t take_from_sou
             {
                 source.get_char();
                 st_s* st_name = st_s!.scope();
-                st_name.copy( o.stamp ? &o.stamp.st_name : &o.group.st_name );
+                st_name.copy( o.stamp ? o.stamp.st_name.1 : o.group.st_name.1 );
                 if( source.parse_bl( "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]=='_'||([0]>='0'&&[0]<='9'))" ) )
                 {
                     source.parse_fa( "#:name", st_name );
@@ -83,7 +83,7 @@ func(:) (er_t trans_identifier( mutable, bcore_source* source, :result* result /
     {
         return source.parse_error_fa( "Identifier exected" );
     }
-    if( tp_identifier ) *tp_identifier = identifier;
+    if( tp_identifier ) tp_identifier.0 = identifier;
     if( result ) result.push_sc( o.nameof( identifier ) );
     return 0;
 } /* try */ };
@@ -315,6 +315,86 @@ func (:) (tp_t trans_inert_operator( mutable, bcore_source* source, :result* res
 
 //----------------------------------------------------------------------------------------------------------------------
 
+func (:) (bl_t trans_operator( mutable, bcore_source* source, :result* result )) =
+{
+    switch( source.inspect_char() )
+    {
+        case '+':
+        {
+            result.push_char( source.get_char() );
+            char c = source.inspect_char();
+            if( c == '=' || c == '+' ) result.push_char( source.get_char() );
+        }
+        return true;
+
+        case '-':
+        {
+            result.push_char( source.get_char() );
+            char c = source.inspect_char();
+            if( c == '=' || c == '-' ) result.push_char( source.get_char() );
+        }
+        return true;
+
+        case '*':
+        case '/':
+        case '=':
+        case '!':
+        case '^':
+        case '%':
+        {
+            result.push_char( source.get_char() );
+            if( source.inspect_char() == '=' ) result.push_char( source.get_char() );
+        }
+        return true;
+
+        case '>':
+        {
+            result.push_char( source.get_char() );
+            char c = source.inspect_char();
+            if( c == '=' || c == '>' ) result.push_char( source.get_char() );
+            if( c == '>' && source.inspect_char() == '=' ) result.push_char( source.get_char() );
+        }
+        return true;
+
+        case '<':
+        {
+            result.push_char( source.get_char() );
+            char c = source.inspect_char();
+            if( c == '=' || c == '<' ) result.push_char( source.get_char() );
+            if( c == '<' && source.inspect_char() == '=' ) result.push_char( source.get_char() );
+        }
+        return true;
+
+        case '|':
+        {
+            result.push_char( source.get_char() );
+            char c = source.inspect_char();
+            if( c == '=' || c == '|' ) result.push_char( source.get_char() );
+        }
+        return true;
+
+        case '&':
+        {
+            result.push_char( source.get_char() );
+            char c = source.inspect_char();
+            if( c == '=' || c == '&' ) result.push_char( source.get_char() );
+        }
+        return true;
+
+        case '~':
+        {
+            result.push_char( source.get_char() );
+        }
+        return true;
+
+        default: break;
+    }
+
+    return false;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
 func (:)
 (
     er_t adapt_expression_indirection
@@ -345,9 +425,10 @@ func (:)
             return source.parse_error_fa( "Increasing indirection: Expression has no address." );
         }
     }
-    else if( target_indirection == typespec_expr.indirection - 1 )
+    else if( target_indirection < typespec_expr.indirection )
     {
-        result.push_sc( "*(" );
+        for( sz_t ind = typespec_expr.indirection; ind > target_indirection; ind-- ) result.push_sc( "*" );
+        result.push_sc( "(" );
         result.push_result_c( result_expr );
         result.push_sc( ")" );
     }
@@ -514,7 +595,7 @@ func (:)
         o.trans_expression( source, result_expr, typespec_expr );
         if( typespec_expr.type )
         {
-            o.adapt_expression( source, typespec_expr, &arg.typespec, result_expr, result_out );
+            o.adapt_expression( source, typespec_expr, arg.typespec, result_expr, result_out );
         }
         else
         {
@@ -564,7 +645,68 @@ func (:)
     }
     o.parse( source, " " );
     xoico_compiler_element_info_s* info = xoico_compiler_element_info_s!.scope();
-    if( source.parse_bl_fa( "#=?'['" ) || source.parse_bl_fa( "#=?'?['" ) ) // array subscript
+
+    char c = source.inspect_char();
+
+    if( c == '*' || c == '&' )
+    {
+        return source.parse_error_fa( "Postfix operators '&' and '*' are deprecated. Use numeric indirection level.\n" );
+    }
+
+    if( c >= '0' && c <= '9' )
+    {
+        $* typespec_adapted = in_typespec.clone().scope();
+        sz_t adapted_indirection = 0;
+        source.parse_em_fa( "#<sz_t*>", &adapted_indirection );
+
+        typespec_adapted.indirection = adapted_indirection;
+
+        $* result_adapted = :result_arr_s!.scope();
+        result_adapted.push_sc( "(" );
+        o.adapt_expression( source, in_typespec, typespec_adapted, result, result_adapted );
+        result_adapted.push_sc( ")" );
+        result.clear();
+        result.push_result_d( result_adapted.fork() );
+        o.trans_typespec_expression( source, result, typespec_adapted, out_typespec );
+        return 0;
+    }
+
+    if( source.parse_bl_fa( "#=?'*'" ) ) // decreasing indirection
+    {
+        if( in_typespec.indirection == 0 ) return source.parse_error_fa( "Decrementing indirection: Indirection-level is already zero." );
+        source.get_char();
+        $* result_cloned = result.clone().scope();
+
+        $* typespec_adapted = in_typespec.clone().scope();
+        typespec_adapted.indirection--;
+
+        result.clear();
+        result.push_sc( "(*(" );
+        result.push_result_d( result_cloned.fork() );
+        result.push_sc( "))" );
+
+        o.trans_typespec_expression( source, result, typespec_adapted, out_typespec );
+        return 0;
+    }
+    else if( source.parse_bl_fa( "#=?'&'" ) ) // increasing indirection
+    {
+        if( !in_typespec.flag_addressable ) return source.parse_error_fa( "Incrementing indirection: Expression is not addressable." );
+        source.get_char();
+        :result* result_cloned = result.clone().scope();
+
+        $* typespec_adapted = in_typespec.clone().scope();
+        typespec_adapted.indirection++;
+        typespec_adapted.flag_addressable = false;
+
+        result.clear();
+        result.push_sc( "(&(" );
+        result.push_result_d( result_cloned.fork() );
+        result.push_sc( "))" );
+
+        o.trans_typespec_expression( source, result, typespec_adapted, out_typespec );
+        return 0;
+    }
+    else if( source.parse_bl_fa( "#=?'['" ) || source.parse_bl_fa( "#=?'?['" ) ) // array subscript
     {
         bl_t bounds_check = false;
         if( source.parse_bl_fa( "#=?'?'" ) )
@@ -595,7 +737,7 @@ func (:)
 
         if( o.compiler.get_type_array_element_info( in_typespec.type, info ) )
         {
-            o.trans_typespec_expression( source, result, &info.type_info.typespec, out_typespec );
+            o.trans_typespec_expression( source, result, info.type_info.typespec, out_typespec );
         }
         else
         {
@@ -606,7 +748,7 @@ func (:)
     {
         $* result_local = :result_create_arr().scope();
         tp_t tp_identifier = 0;
-        o.trans_identifier( source, result_local, &tp_identifier );
+        o.trans_identifier( source, result_local, tp_identifier );
         o.trans_whitespace( source, result_local );
 
         // builtin functions ...
@@ -626,7 +768,7 @@ func (:)
                 $* result_arg_obj = result.clone().scope();
                 result.copy_fa( "#<sc_t>", sc_func_name );
                 o.trans_function_args( source, info.signature, result_arg_obj, in_typespec, result );
-                o.trans_typespec_expression( source, result, &info.signature.typespec_ret, out_typespec );
+                o.trans_typespec_expression( source, result, info.signature.typespec_ret, out_typespec );
             }
             else // traced member element
             {
@@ -642,7 +784,7 @@ func (:)
                 result.push_fa( "#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : "." );
                 result.push_result_d( result_local.fork() );
 
-                o.trans_typespec_expression( source, result, &info.type_info.typespec, out_typespec );
+                o.trans_typespec_expression( source, result, info.type_info.typespec, out_typespec );
             }
         }
         else if( source.parse_bl_fa( "#?'('" ) ) // untraced member function
@@ -981,6 +1123,19 @@ func (:) (er_t trans_member( mutable, bcore_source* source, :result* result )) =
     else if( source.parse_bl_fa( "#?'->'" ) ) result.push_sc( "->" );
 
     o.trans_whitespace( source, result );
+
+    char c = source.inspect_char();
+
+    if( c == '*' || c == '&' )
+    {
+        return source.parse_error_fa( "Postfix operators '&' and '*' are deprecated.\n" );
+    }
+
+    if( c >= '0' && c <= '9' )
+    {
+        return source.parse_error_fa( "Setting indirection: Expression not tractable\n" );
+    }
+
     tp_t tp_identifier = o.get_identifier( source, false );
 
     if( o.is_builtin_func( tp_identifier ) )
@@ -994,6 +1149,7 @@ func (:) (er_t trans_member( mutable, bcore_source* source, :result* result )) =
     {
         return source.parse_error_fa( "Untraced member function '#<sc_t>'\n", o.nameof( tp_identifier ) );
     }
+
     return 0;
 } /* try */ };
 
@@ -1014,7 +1170,7 @@ func (:)
     )
 ) =
 { try {
-    if( success ) *success = false;
+    if( success ) success.0 = false;
 
     sz_t index = source.get_index();
 
@@ -1049,7 +1205,7 @@ func (:)
             return 0;
         }
 
-        o.trans_identifier( source, NULL, &tp_identifier );
+        o.trans_identifier( source, NULL, tp_identifier );
         o.trans_whitespace( source, NULL );
     }
 
@@ -1069,7 +1225,7 @@ func (:)
         }
     }
 
-    if( success ) *success = true;
+    if( success ) success.0 = true;
     return 0;
 } /* try */ };
 
@@ -1087,7 +1243,7 @@ func (:)
 ) =
 { try {
     bl_t success = false;
-    o.try_take_typespec( source, typespec, require_tractable_type, &success );
+    o.try_take_typespec( source, typespec, require_tractable_type, success );
 
     if( !success )
     {
@@ -1123,7 +1279,7 @@ func (:) :.push_typespec  =
         ERR_fa( "Type is 0." );
     }
 
-    st_s* st_type = cast( st_s_create_sc( o.nameof( type ) ), st_s* ).scope();
+    st_s* st_type = st_s_create_sc( o.nameof( type ) ).scope();
 
     if( st_type.size == 0 )
     {
@@ -1157,7 +1313,7 @@ func (:)
 { try {
     $* result_type = :result_create_arr().scope();
     tp_t tp_identifier;
-    o.trans_identifier( source, result_type, &tp_identifier );
+    o.trans_identifier( source, result_type, tp_identifier );
     o.trans_whitespace( source, result_type );
     if( source.parse_bl_fa( "#?'!'" ) )
     {
@@ -1193,7 +1349,7 @@ func (:)
 ) =
 { try {
     tp_t tp_identifier = 0;
-    o.trans_identifier( source, result, &tp_identifier );
+    o.trans_identifier( source, result, tp_identifier );
     o.trans_whitespace( source, result );
 
     if( source.parse_bl_fa( "#=?'('" ) ) // actual function call
@@ -1371,6 +1527,10 @@ func (:)
     else if( source.parse_bl_fa( "#=?'->'" )                ) o.trans_member( source, result );
 
     else if( source.parse_bl_fa( "#=?'=<'" )                ) return source.parse_error_fa( "Attach operator: Expression not tractable." );
+
+//    else if( source.parse_bl_fa( "#=?'&'" ) ) return source.parse_error_fa( "Changing indirection: Prefix '&' is disallowed. Use postfix '.&'" );
+//    else if( source.parse_bl_fa( "#=?'*'" ) ) return source.parse_error_fa( "Changing indirection: Prefix '*' is disallowed. Use postfix '.*'" );
+
     else if( o.trans_inert_operator( source, result )       ) {} // inert operators are not interpreted by che and passed to the c-compiler
 
     // ternary branch operator
@@ -1410,6 +1570,12 @@ func (:)
         if( !source.parse_bl_fa( sc_bl_end_of_expression ) )
         {
             if( out_typespec ) out_typespec.reset();
+
+
+            o.trans_whitespace( source, result );
+            o.trans_operator( source, result );
+
+
             o.trans_expression( source, result, NULL );
         }
     }
@@ -1435,7 +1601,7 @@ func (:)
     )
 ) =
 { try {
-    if( success ) *success = false;
+    if( success ) success.0 = false;
 
     xoico_typespec_s* typespec_var = xoico_typespec_s!.scope();
 
@@ -1444,7 +1610,7 @@ func (:)
     $* result_var = :result_create_arr().scope();
 
     bl_t success_take_typespec = false;
-    o.try_take_typespec( source, typespec_var, true, &success_take_typespec );
+    o.try_take_typespec( source, typespec_var, true, success_take_typespec.1 );
 
     if( !success_take_typespec )
     {
@@ -1461,7 +1627,7 @@ func (:)
     )
     {
         tp_t tp_identifier = 0;
-        o.trans_identifier( source, result_var, &tp_identifier );
+        o.trans_identifier( source, result_var, tp_identifier.1 );
         o.trans_whitespace( source, result_var );
 
         if( source.parse_bl_fa( "#?'='" ) )
@@ -1527,7 +1693,7 @@ func (:)
             o.push_typedecl( typespec_var, tp_identifier );
         }
 
-        if( success ) *success = true;
+        if( success ) success.0 = true;
     }
     else
     {
@@ -1535,7 +1701,7 @@ func (:)
         return 0;
     }
 
-    if( success ) *success = true;
+    if( success ) success.0 = true;
 
     return 0;
 } /* try */ };
@@ -1552,7 +1718,7 @@ func(:) (er_t inspect_variable( mutable, bcore_source* source )) =
     try( source.parse_em_fa( " #until';' ", st ) );
     try( source.parse_em_fa( ";" ) );
     bcore_msg_fa( " \?? #<sc_t>;\n", st.sc );
-    if( o.trans_expression( cast( bcore_source_string_s_create_fa( "#<st_s*>;", st ), bcore_source* ).scope(), result_local, typespec ) )
+    if( o.trans_expression( bcore_source_string_s_create_fa( "#<st_s*>;", st ).scope(), result_local, typespec ) )
     {
         bcore_error_pop_to_sink( BCORE_STDOUT );
         bcore_msg_fa( "\n" );
@@ -1687,7 +1853,7 @@ func (:) (er_t trans_statement( mutable, bcore_source* source, :result* result )
         else
         {
             bl_t success_declaration = false;
-            o.try_trans_declaration( source, result, &success_declaration );
+            o.try_trans_declaration( source, result, success_declaration.1 );
             if( !success_declaration ) o.trans_statement_expression( source, result );
         }
     }
@@ -1701,7 +1867,7 @@ func (:) (er_t trans_block_inside( mutable, bcore_source* source, :result* resul
 { try {
     $* result = :result_create_arr().scope();
 
-    while( !source.parse_bl_fa( "#=?'}'" ) && !source.eos() )
+    while( !source.parse_bl( "#=?'}'" ) && !source.eos() )
     {
         o.trans_statement( source, result );
     }
@@ -1783,7 +1949,7 @@ func (:) (er_t trans_statement_as_block( mutable, bcore_source* source, :result*
 func (:) (er_t trans_block_inside_verbatim_c( mutable, bcore_source* source, :result* result )) =
 { try {
     o.trans_whitespace( source, result );
-    while( !source.parse_bl_fa( "#=?'}'" ) && !source.eos() )
+    while( !source.parse_bl( "#=?'}'" ) && !source.eos() )
     {
         switch( source.inspect_char() )
         {
@@ -1825,7 +1991,7 @@ func (:) (er_t setup( mutable, const xoico_body_s* body, const xoico_signature_s
 { try {
     tp_t tp_assoc_obj_type = body.stamp ? body.stamp.tp_name : body.group.tp_name;
 
-    const xoico_args_s* args = &signature.args;
+    const xoico_args_s* args = signature.args;
 
     tp_t tp_member_obj_type  = ( signature.arg_o == 0 ) ? 0 : tp_assoc_obj_type;
     bl_t member_obj_const = ( signature.arg_o == TYPEOF_const );
@@ -1920,7 +2086,7 @@ func (:) (er_t translate_mutable( mutable, const xoico_body_s* body, const xoico
 { try {
     o.setup( body, signature );
 
-    bcore_source* source = cast( bcore_source_point_s_clone_source( &body.code.source_point ), bcore_source* ).scope();
+    bcore_source* source = body.code.source_point.clone_source().scope();
 
     $* result = :result_create_arr().scope();
 
@@ -1932,7 +2098,6 @@ func (:) (er_t translate_mutable( mutable, const xoico_body_s* body, const xoico
 
     $* result_block = :result_create_block( o.level, o.stack_block_get_bottom_unit().use_blm ).scope();
     result_block.cast( :result_block_s* ).is_root = true;
-//    $* result_block = :result_create_block( o.level, true ).scope();
     result_block.push_result_d( result.fork() );
 
     st_s* buf = st_s!.scope();

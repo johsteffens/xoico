@@ -205,7 +205,7 @@ stamp : = aware :
 
     func :.life_a_push =
     {
-        bcore_life_s_push_aware( &o->life, object );
+        bcore_life_s_push_aware( o.life.1, object );
         return 0;
     };
 
@@ -221,8 +221,8 @@ stamp : = aware :
     func :.update_required = { return o.to_be_modified(); };
     func :.get_verbosity = { return o.verbosity; };
 
-    func :.entypeof = { return bcore_hmap_name_s_set_sc( &o->name_map, name ); };
-    func :.nameof   = { return bcore_hmap_name_s_get_sc( &o->name_map, type ); };
+    func :.entypeof = { return o.name_map.set_sc( name ); };
+    func :.nameof   = { return o.name_map.get_sc( type ); };
 
     func bcore_inst_call.init_x =
     {

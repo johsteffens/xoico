@@ -89,11 +89,11 @@ func (:) :.parse =
 
         if( o.stamp )
         {
-            st_type.copy( &o.stamp.st_name );
+            st_type.copy( o.stamp.st_name );
         }
         else
         {
-            st_type.copy( &o.group.st_name );
+            st_type.copy( o.group.st_name );
         }
 
         st_name.copy_sc( compiler.nameof( signature.name ) );
@@ -104,14 +104,14 @@ func (:) :.parse =
         if( source.parse_bl_fa( " #?'^'" ) )
         {
             if( !o->stamp ) return source.parse_error_fa( "'^' is only inside a stamp allowed." );
-            st_type.copy( &o.stamp.st_trait_name );
+            st_type.copy( o.stamp.st_trait_name );
             o.flect_decl.push_sc( "^" );
         }
         else
         {
             o.group.parse_name( st_type, source );
 
-            if( o.stamp && st_type.equal_st( &o.stamp.st_trait_name ) )
+            if( o.stamp && st_type.equal_st( o.stamp.st_trait_name ) )
             {
                 o.flect_decl.push_fa( "^" );
             }

@@ -85,7 +85,7 @@ group :stack_var = :
         {
             uz_t* p_idx = o.hmap_name.get( name );
             if( !p_idx ) return NULL;
-            return o.adl.[ *p_idx ].typespec;
+            return o.adl.[ p_idx.0 ].typespec;
         };
 
         /// returns -1 if not found
@@ -93,7 +93,7 @@ group :stack_var = :
         {
             uz_t* p_idx = o.hmap_name.get( name );
             if( !p_idx ) return -1;
-            return o.adl.[ *p_idx ].level;
+            return o.adl.[ p_idx.0 ].level;
         };
 
         func :.clear =

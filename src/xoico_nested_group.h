@@ -28,9 +28,23 @@ XOILA_DEFINE_GROUP( xoico_nested_group, xoico )
 stamp : = aware :
 {
     hidden xoico_group_s* group; // group object;
-    func xoico.get_hash;
-    func xoico.expand_forward;
-    func xoico.expand_indef_declaration;
+    func xoico.get_hash =
+    {
+        return o.group ? o.group.get_hash() : 0;
+    };
+
+    func xoico.expand_forward =
+    {
+        sink.push_fa( " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o.group.st_name.sc );
+        return 0;
+    };
+
+    func xoico.expand_indef_declaration =
+    {
+        sink.push_fa( " \\\n#rn{ }  BETH_EXPAND_GROUP_#<sc_t>", indent, o.group.st_name.sc );
+        return 0;
+    };
+
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

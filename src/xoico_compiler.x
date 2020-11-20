@@ -23,7 +23,7 @@ func (:) :.register_group =
     {
         return bcore_source_point_s_parse_error_fa
         (
-            &group.source_point,
+            group.source_point,
             "'#<sc_t>' was already registered\n",
             o.nameof( group.tp_name )
         );
@@ -53,7 +53,7 @@ func (:) :.register_func =
     {
         return bcore_source_point_s_parse_error_fa
         (
-            &func.source_point,
+            func.source_point,
             "'#<sc_t>' was already registered\n",
             o.nameof( func.global_name )
         );
@@ -81,7 +81,7 @@ func (bl_t is_signed( sc_t file )) =
     if( data.find_sc( idx, -1, "// XOILA_OUT_SIGNATURE" ) != idx ) return false;
 
     tp_t hash = 0;
-    data.parse_fa( idx, -1, "// XOILA_OUT_SIGNATURE #<tp_t*>", &hash );
+    data.parse_fa( idx, -1, "// XOILA_OUT_SIGNATURE #<tp_t*>", hash.1 );
 
     data.[ idx ] = 0;
 
@@ -125,13 +125,13 @@ func (:) :.parse =
 {
 try
 {
-    st_s* source_folder_path = scope( cast( bcore_file_folder_path( source_path ), st_s* ) );
-    st_s* target_path        = scope( cast( st_s_create_fa( "#<sc_t>/#<sc_t>", source_folder_path->sc, target_name ), st_s* ) );
+    st_s* source_folder_path = bcore_file_folder_path( source_path ).scope();
+    st_s* target_path        = st_s_create_fa( "#<sc_t>/#<sc_t>", source_folder_path->sc, target_name ).scope();
 
     sz_t target_index = -1;
     for( sz_t i = 0; i < o->size; i++ )
     {
-        if( target_path.equal_st( &o.[ i ].path ) )
+        if( target_path.equal_st( o.[ i ].path ) )
         {
             target_index = i;
             break;
@@ -150,7 +150,7 @@ try
 
     xoico_target_s* target = o.[ target_index ];
     target.parse( source_path );
-    if( p_target_index ) *p_target_index = target_index;
+    if( p_target_index ) p_target_index.0 = target_index;
 
     return 0;
 } // try
@@ -179,7 +179,7 @@ func (:) xoico.expand_setup =
          * This is necessary because names of reflection elements are parsed outside
          * this framework and remembered by the global map.
          */
-        bcore_name_push_all( &o->name_map );
+        bcore_name_push_all( o.name_map.1 );
     }
 
     return 0;
@@ -207,10 +207,10 @@ try
     bl_t modified = false;
 
     o.expand_setup();
-    for( sz_t i = 0; i < o->size; i++ ) o.[i].expand_phase1( &modified );
-    for( sz_t i = 0; i < o->size; i++ ) o.[i].expand_phase2( &modified );
+    for( sz_t i = 0; i < o->size; i++ ) o.[i].expand_phase1( modified.1 );
+    for( sz_t i = 0; i < o->size; i++ ) o.[i].expand_phase2( modified.1 );
 
-    if( p_modified ) *p_modified = modified;
+    if( p_modified ) p_modified.0 = modified;
     return 0;
 } // try
 };
@@ -225,7 +225,7 @@ func (:) :.get_self =
     if( item->_ == TYPEOF_xoico_stamp_s )
     {
         const xoico_stamp_s* stamp = item.cast( const xoico_stamp_s* );
-        if( self ) *self = stamp->self;
+        if( self ) self.1 = stamp->self;
         return true;
     }
 
@@ -241,7 +241,7 @@ func (:) :.get_type_info =
     ASSERT( info );
     if( item->_ == TYPEOF_xoico_stamp_s || item->_ == TYPEOF_xoico_group_s )
     {
-        info.item = item.cast( xoico* );
+        info.item = item.cast( $* );
         info.typespec.type = type;
         return true;
     }
@@ -349,10 +349,10 @@ func (:) :.get_type_element_info =
         if( group.hmap_feature.exists( name ) )
         {
             info.type_info.typespec.flag_const = false;
-            xoico_feature_s* feature = *group.hmap_feature.get( name );
+            xoico_feature_s* feature = group.hmap_feature.get( name ).cast( xoico_feature_s** ).1;
             if( feature.flag_a )
             {
-                const xoico_signature_s* signature = &feature.signature;
+                const xoico_signature_s* signature = feature.signature.1;
                 info.type_info.typespec.flag_const = ( signature->arg_o == TYPEOF_const );
                 sc_t  st_func_name = o.nameof( name );
                 ASSERT( st_func_name );
@@ -444,7 +444,7 @@ func (:) :.update_target_files =
     f3_t time = 0;
 
     er_t er = 0;
-    ABS_TIME_OF( er = o.expand( &modified ), time );
+    ABS_TIME_OF( er = o.expand( modified.1 ), time );
     try( er );
 
     if( modified )
@@ -453,7 +453,7 @@ func (:) :.update_target_files =
         if( verbosity > 0 ) bcore_msg_fa( "XOICO: Files were updated. Rebuild is necessary.\n" );
     }
 
-    if( p_modified ) *p_modified = modified;
+    if( p_modified ) p_modified.0 = modified;
 
     return er;
 };

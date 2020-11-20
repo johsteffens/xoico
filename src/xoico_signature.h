@@ -26,8 +26,10 @@
 XOILA_DEFINE_GROUP( xoico_signature, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+include deferred "xoico_stamp.h";
+
 signature er_t relent( mutable, tp_t tp_obj_type );
-signature er_t expand_declaration( const, const xoico_stamp_s* stamp, sc_t sc_func_name, sz_t indent, bcore_sink* sink );
+signature er_t expand_declaration( const, const xoico_stamp_s* stamp, sc_t sc_func_global_name, sz_t indent, bcore_sink* sink );
 
 stamp : = aware :
 {
@@ -44,15 +46,28 @@ stamp : = aware :
 
     func xoico.parse;
     func xoico.get_hash;
-    func xoico.get_global_name_sc;
-    func     :.relent;
-    func     :.expand_declaration;
+
+    func xoico.get_global_name_sc =
+    {
+        return o.group.compiler.nameof( o.global_name );
+    };
+
+    func :.relent =
+    {
+        o.args.relent( tp_obj_type ).try();
+        o.typespec_ret.relent( o.group, tp_obj_type ).try();
+        return 0;
+    };
+
+    func :.expand_declaration;
 
     func xoico_arg.is_variadic = { return o.args.is_variadic(); };
 
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+embed "xoico_signature.x";
 
 #endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

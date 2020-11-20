@@ -98,7 +98,7 @@ func (:) (er_t push_default_feature_from_sc( mutable, sc_t sc )) =
     $* feature = xoico_feature_s!.scope();
     feature.expandable = false;
     feature.group = o;
-    feature.parse( cast( bcore_source_string_s_create_from_sc( sc ), bcore_source* ).scope() );
+    feature.parse( bcore_source_string_s_create_from_sc( sc ).scope() );
 
     if( !compiler.is_item( feature.cast( xoico* ).get_global_name_tp() ) )
     {
@@ -351,13 +351,13 @@ func (:) xoico.parse =
             group.extending_stamp = o.extending_stamp;
             group.expandable  = o.expandable;
 
-            o.parse_name( &group->st_name, source );
+            o.parse_name( group.st_name, source );
             try( source.parse_em_fa( " =" ) );
 
             // flags
             if( source.parse_bl_fa( " #?w'retrievable' " ) ) group.retrievable = true;
 
-            o.parse_name( &group->trait_name, source );
+            o.parse_name( group.trait_name, source );
             if( group.trait_name.size == 0 ) group.trait_name.copy( o->st_name );
             group.parse( source );
             try( source.parse_em_fa( " ; " ) );
@@ -371,19 +371,19 @@ func (:) xoico.parse =
             if(      source.parse_bl_fa( " #?w'retrievable' "      ) ) o.retrievable = true;
             else if( source.parse_bl_fa( " #?w'inexpandable' "     ) ) o.expandable = false;
             else if( source.parse_bl_fa( " #?w'short_spect_name' " ) ) o.short_spect_name = true;
-            else if( source.parse_bl_fa( " #?w'beta' "             ) ) try( source.parse_em_fa( " = #<tp_t*>", &o->beta ) );
+            else if( source.parse_bl_fa( " #?w'beta' "             ) ) try( source.parse_em_fa( " = #<tp_t*>", o.beta.1 ) );
             try( source.parse_em_fa( " ;" ) );
         }
         else if( source.parse_bl_fa( " #?w'embed' " ) )
         {
-            st_s* folder = cast( bcore_file_folder_path( bcore_source_a_get_file( source ) ), st_s* ).scope( scope_local );
+            st_s* folder = bcore_file_folder_path( bcore_source_a_get_file( source ) ).scope( scope_local );
             if( folder.size == 0 ) folder.push_char( '.' );
             st_s* include_file = st_s!.scope( scope_local );
             try( source.parse_em_fa( " #string" , include_file ) );
             try( source.parse_em_fa( " ;" ) );
             o.xoico_source.target.explicit_embeddings.push_st( include_file );
             bcore_source* embed_source = NULL;
-            try( xoico_embed_file_open( source, include_file.sc, &embed_source ) );
+            try( xoico_embed_file_open( source, include_file.sc, embed_source.1 ) );
 
             // check for cyclic inclusions
             foreach( $* e in stack )
@@ -504,7 +504,7 @@ func (:) :.expand_declaration =
     sink.push_fa( "\n" );
     sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o.st_name.sc, btypeof( o.st_name.sc ) );
 
-    st_s* st_spect_name = cast( xoico_group_s_create_spect_name( o ), st_s* ).scope();
+    st_s* st_spect_name = xoico_group_s_create_spect_name( o ).scope();
     sc_t  sc_spect_name = st_spect_name->sc;
 
     sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, sc_spect_name, btypeof( sc_spect_name ) );
