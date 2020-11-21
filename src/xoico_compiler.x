@@ -68,7 +68,7 @@ func (:) :.register_func =
 /// returns true if correct signature could be verified
 func (bl_t is_signed( sc_t file )) =
 {
-    bcore_source* source = BLM_A_PUSH( bcore_file_open_source( file ) );
+    bcore_source* source = bcore_file_open_source( file ).scope();
     st_s* data = st_s!.scope();
     while( !source.eos() ) data.push_char( source.get_u0() );
 

@@ -36,7 +36,7 @@ func (:) xoico.parse =
 
     $* name_buf = st_s!.scope();
 
-    if( source.parse_bl_fa( " #?'extending'" ) )
+    if( source.parse_bl( " #?'extending'" ) )
     {
         o.group.parse_name( name_buf, source );
         tp_t tp_name = compiler.entypeof( name_buf.sc );
@@ -51,13 +51,13 @@ func (:) xoico.parse =
         o.args.copy( signature.args );
         o.arg_o = signature.arg_o;
 
-        source.parse_fa( " #name", name_buf );
+        source.parse_em_fa( " #name", name_buf );
         if( name_buf.size == 0 ) return source.parse_error_fa( "Signature name missing." );
         o.name = compiler.entypeof( name_buf.sc );
 
-        source.parse_fa( " (" );
+        source.parse_em_fa( " (" );
         o.args.append( source );
-        source.parse_fa( " )" );
+        source.parse_em_fa( " )" );
     }
     else
     {
@@ -65,26 +65,26 @@ func (:) xoico.parse =
         o.typespec_ret.flag_addressable = false;
 
         // get name
-        source.parse_fa( " #name", name_buf );
+        source.parse_em_fa( " #name", name_buf );
         o.name = compiler.entypeof( name_buf.sc );
 
         // get args
         ASSERT( o.group );
         o.args.group = o.group;
 
-        source.parse_fa( " (" );
-        if( source.parse_bl_fa(  " #?'plain' " ) ) source.parse_error_fa( "Use of 'plain' is deprecated. Simply omit this argument." );
+        source.parse_em_fa( " (" );
+        if( source.parse_bl(  " #?'plain' " ) ) source.parse_error_fa( "Use of 'plain' is deprecated. Simply omit this argument." );
 
         o.arg_o = 0;
-        if( source.parse_bl_fa( " #?'mutable' " ) )
+        if( source.parse_bl( " #?'mutable' " ) )
         {
             o.arg_o = TYPEOF_mutable;
         }
-        else if( source.parse_bl_fa( " #=?'const'" ) )
+        else if( source.parse_bl( " #=?'const'" ) )
         {
             sz_t index = source.get_index();
-            source.parse_fa( "const " );
-            if( source.parse_bl_fa( "#?([0]==','||[0]==')')" ) )
+            source.parse_em_fa( "const " );
+            if( source.parse_bl( "#?([0]==','||[0]==')')" ) )
             {
                 o.arg_o = TYPEOF_const;
             }
@@ -96,11 +96,11 @@ func (:) xoico.parse =
 
         if( o.arg_o )
         {
-            if( !source.parse_bl_fa( " #=?')'" ) ) source.parse_fa( ", " );
+            if( !source.parse_bl( " #=?')'" ) ) source.parse_em_fa( ", " );
         }
 
         o.args.parse( source );
-        source.parse_fa( " )" );
+        source.parse_em_fa( " )" );
     }
 
     sc_t sc_name = compiler.nameof( o.name );

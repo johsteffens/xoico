@@ -34,7 +34,7 @@ stamp : = aware :
     func xoico.parse =
     { try {
         o.source_point.set( source );
-        if( source.parse_bl_fa( " #?':'" ) )
+        if( source.parse_bl( " #?':'" ) )
         {
             st_s* name = st_s!.scope();
             try( source.parse_em_fa( " #name", name ) );

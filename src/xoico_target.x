@@ -139,7 +139,6 @@ func (:) :.set_dependencies =
 
 func (:) (er_t expand_heading( const, sz_t indent, bcore_sink* sink )) =
 { try {
-    BLM_INIT();
     bcore_cday_utc_s* time = bcore_cday_utc_s!.scope();
     time.from_system();
 
@@ -177,7 +176,6 @@ func (:) (er_t expand_heading( const, sz_t indent, bcore_sink* sink )) =
 
 func (:) (er_t expand_h( const, sz_t indent, bcore_sink* sink )) =
 { try {
-    BLM_INIT();
     o.expand_heading( indent, sink );
 
     tp_t target_hash = o.get_hash();
@@ -304,7 +302,7 @@ func (:) :.to_be_modified =
             char c = source.get_u0();
             if( c == '#' )
             {
-                if( source.parse_bl_fa( key_defined.sc ) )
+                if( source.parse_bl( key_defined.sc ) )
                 {
                     tp_t key_val = 0;
                     source.parse_fa( " #<tp_t*>", &key_val );

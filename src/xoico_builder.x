@@ -72,9 +72,9 @@ func (:target) :.load =
         /// remove trailing spaces
         while( file_path.sc[ 0 ] == ' ' || file_path.sc[ 0 ] == '\t' ) file_path.pop_char();
 
-        if( bcore_source_a_parse_bl_fa( source, "#?':'" ) )
+        if( bcore_source_a_parse_bl( source, "#?':'" ) )
         {
-            if( source.parse_bl_fa( " #?w'readonly'" ) )
+            if( source.parse_bl( " #?w'readonly'" ) )
             {
                 dep_readonly = true;
             }

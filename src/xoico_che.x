@@ -632,7 +632,7 @@ func (:)
     )
 ) =
 { try {
-    if( source.parse_bl_fa( "#?'->'" ) )
+    if( source.parse_bl( "#?'->'" ) )
     {
         if( in_typespec.indirection != 1 )
         {
@@ -671,7 +671,7 @@ func (:)
         return 0;
     }
 
-    if( source.parse_bl_fa( "#=?'*'" ) ) // decreasing indirection
+    if( source.parse_bl( "#=?'*'" ) ) // decreasing indirection
     {
         if( in_typespec.indirection == 0 ) return source.parse_error_fa( "Decrementing indirection: Indirection-level is already zero." );
         source.get_char();
@@ -688,7 +688,7 @@ func (:)
         o.trans_typespec_expression( source, result, typespec_adapted, out_typespec );
         return 0;
     }
-    else if( source.parse_bl_fa( "#=?'&'" ) ) // increasing indirection
+    else if( source.parse_bl( "#=?'&'" ) ) // increasing indirection
     {
         if( !in_typespec.flag_addressable ) return source.parse_error_fa( "Incrementing indirection: Expression is not addressable." );
         source.get_char();
@@ -706,10 +706,10 @@ func (:)
         o.trans_typespec_expression( source, result, typespec_adapted, out_typespec );
         return 0;
     }
-    else if( source.parse_bl_fa( "#=?'['" ) || source.parse_bl_fa( "#=?'?['" ) ) // array subscript
+    else if( source.parse_bl( "#=?'['" ) || source.parse_bl( "#=?'?['" ) ) // array subscript
     {
         bl_t bounds_check = false;
-        if( source.parse_bl_fa( "#=?'?'" ) )
+        if( source.parse_bl( "#=?'?'" ) )
         {
             o.parse( source, "?[" );
             bounds_check = true;
@@ -787,7 +787,7 @@ func (:)
                 o.trans_typespec_expression( source, result, info.type_info.typespec, out_typespec );
             }
         }
-        else if( source.parse_bl_fa( "#?'('" ) ) // untraced member function
+        else if( source.parse_bl( "#?'('" ) ) // untraced member function
         {
             $* result_arg_obj = result.clone().scope();
             result.clear();
@@ -822,7 +822,7 @@ func (:)
             o.trans_whitespace( source, result_local );
             while( !source.eos() )
             {
-                if( source.parse_bl_fa( "#=?')'" ) ) break;
+                if( source.parse_bl( "#=?')'" ) ) break;
 
                 $* result_expr = :result_create_arr().scope();
                 if( !first ) o.parse( source, "," );
@@ -1119,8 +1119,8 @@ func (:)
 
 func (:) (er_t trans_member( mutable, bcore_source* source, :result* result )) =
 { try {
-    if(      source.parse_bl_fa( "#?'.'"  ) ) result.push_sc( "." );
-    else if( source.parse_bl_fa( "#?'->'" ) ) result.push_sc( "->" );
+    if(      source.parse_bl( "#?'.'"  ) ) result.push_sc( "." );
+    else if( source.parse_bl( "#?'->'" ) ) result.push_sc( "->" );
 
     o.trans_whitespace( source, result );
 
@@ -1145,7 +1145,7 @@ func (:) (er_t trans_member( mutable, bcore_source* source, :result* result )) =
 
     o.trans_identifier( source, result, NULL );
     o.trans_whitespace( source, result );
-    if( source.parse_bl_fa( "#?'('") )
+    if( source.parse_bl( "#?'('") )
     {
         return source.parse_error_fa( "Untraced member function '#<sc_t>'\n", o.nameof( tp_identifier ) );
     }
@@ -1199,7 +1199,7 @@ func (:)
         if( tp_identifier == TYPEOF_scope    ) typespec.flag_scope    = true;
 
         // take fails if keyword is actually a function
-        if( source.parse_bl_fa( "#?'('" ) )
+        if( source.parse_bl( "#?'('" ) )
         {
             source.set_index( index );
             return 0;
@@ -1210,7 +1210,7 @@ func (:)
     }
 
     typespec.type = tp_identifier;
-    while( source.parse_bl_fa( "#?'*'" ) )
+    while( source.parse_bl( "#?'*'" ) )
     {
         typespec.indirection++;
         o.trans_whitespace( source, NULL );
@@ -1315,7 +1315,7 @@ func (:)
     tp_t tp_identifier;
     o.trans_identifier( source, result_type, tp_identifier );
     o.trans_whitespace( source, result_type );
-    if( source.parse_bl_fa( "#?'!'" ) )
+    if( source.parse_bl( "#?'!'" ) )
     {
         if( o.is_group( tp_identifier ) )
         {
@@ -1352,7 +1352,7 @@ func (:)
     o.trans_identifier( source, result, tp_identifier );
     o.trans_whitespace( source, result );
 
-    if( source.parse_bl_fa( "#=?'('" ) ) // actual function call
+    if( source.parse_bl( "#=?'('" ) ) // actual function call
     {
         const xoico_func_s* func = o.get_func( tp_identifier );
 
@@ -1409,8 +1409,8 @@ func (:)
     while( !source.eos() )
     {
         o.trans_expression( source, result, out_typespec );
-        if     ( source.parse_bl_fa( "#?')'" ) ) break;
-        else if( source.parse_bl_fa( "#?','" ) ) result.push_char( ',' );
+        if     ( source.parse_bl( "#?')'" ) ) break;
+        else if( source.parse_bl( "#?','" ) ) result.push_char( ',' );
         else return source.parse_error_fa( "Syntax error in bracket expression." );
         if( out_typespec ) out_typespec.type = 0;
     }
@@ -1512,7 +1512,7 @@ func (:)
             o.trans_whitespace( source, result );
 
             // assume untraced function call: bracket evaluation without internal type evaluation
-            if( source.parse_bl_fa( "#=?'('" ) )
+            if( source.parse_bl( "#=?'('" ) )
             {
                 o.trans_bracket( source, result, NULL );
             }
@@ -1520,27 +1520,27 @@ func (:)
     }
 
     // literals and members
-    else if( source.parse_bl_fa( "#?([0]>='0'&&[0]<='9')" ) ) o.trans_number_literal( source, result );
-    else if( source.parse_bl_fa( "#=?'\"'" )                ) o.trans_string_literal( source, result );
-    else if( source.parse_bl_fa( "#=?|'|" )                 ) o.trans_char_literal( source, result );
-    else if( source.parse_bl_fa( "#=?'.'" )                 ) o.trans_member( source, result );
-    else if( source.parse_bl_fa( "#=?'->'" )                ) o.trans_member( source, result );
+    else if( source.parse_bl( "#?([0]>='0'&&[0]<='9')" ) ) o.trans_number_literal( source, result );
+    else if( source.parse_bl( "#=?'\"'" )                ) o.trans_string_literal( source, result );
+    else if( source.parse_bl( "#=?|'|" )                 ) o.trans_char_literal( source, result );
+    else if( source.parse_bl( "#=?'.'" )                 ) o.trans_member( source, result );
+    else if( source.parse_bl( "#=?'->'" )                ) o.trans_member( source, result );
 
-    else if( source.parse_bl_fa( "#=?'=<'" )                ) return source.parse_error_fa( "Attach operator: Expression not tractable." );
+    else if( source.parse_bl( "#=?'=<'" )                ) return source.parse_error_fa( "Attach operator: Expression not tractable." );
 
-//    else if( source.parse_bl_fa( "#=?'&'" ) ) return source.parse_error_fa( "Changing indirection: Prefix '&' is disallowed. Use postfix '.&'" );
-//    else if( source.parse_bl_fa( "#=?'*'" ) ) return source.parse_error_fa( "Changing indirection: Prefix '*' is disallowed. Use postfix '.*'" );
+//    else if( source.parse_bl( "#=?'&'" ) ) return source.parse_error_fa( "Changing indirection: Prefix '&' is disallowed. Use postfix '.&'" );
+//    else if( source.parse_bl( "#=?'*'" ) ) return source.parse_error_fa( "Changing indirection: Prefix '*' is disallowed. Use postfix '.*'" );
 
     else if( o.trans_inert_operator( source, result )       ) {} // inert operators are not interpreted by che and passed to the c-compiler
 
     // ternary branch operator
-    else if( source.parse_bl_fa( "#=?'?'" ) )
+    else if( source.parse_bl( "#=?'?'" ) )
     {
         o.trans_ternary_branch( source, result, out_typespec );
     }
 
     // general bracket
-    else if( source.parse_bl_fa( "#=?'('" ) )
+    else if( source.parse_bl( "#=?'('" ) )
     {
         xoico_typespec_s* typespec_bracket = xoico_typespec_s!.scope();
         o.trans_bracket( source, result, typespec_bracket );
@@ -1548,13 +1548,13 @@ func (:)
     }
 
     // array subscript
-    else if( source.parse_bl_fa( "#=?'['" ) )
+    else if( source.parse_bl( "#=?'['" ) )
     {
         o.trans_array_subscript( source, result, out_typespec );
     }
 
     // end of expression...
-    else if( source.parse_bl_fa( sc_bl_end_of_expression ) )
+    else if( source.parse_bl( sc_bl_end_of_expression ) )
     {
         continuation = false;
     }
@@ -1567,7 +1567,7 @@ func (:)
 
     if( continuation )
     {
-        if( !source.parse_bl_fa( sc_bl_end_of_expression ) )
+        if( !source.parse_bl( sc_bl_end_of_expression ) )
         {
             if( out_typespec ) out_typespec.reset();
 
@@ -1623,14 +1623,14 @@ func (:)
     if
     (
         typespec_var.type &&
-        source.parse_bl_fa( "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]=='_')" )
+        source.parse_bl( "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]=='_')" )
     )
     {
         tp_t tp_identifier = 0;
         o.trans_identifier( source, result_var, tp_identifier.1 );
         o.trans_whitespace( source, result_var );
 
-        if( source.parse_bl_fa( "#?'='" ) )
+        if( source.parse_bl( "#?'='" ) )
         {
             bl_t pushed_typedecl = false;
             if( typespec_var.type != TYPEOF_type_deduce )
@@ -1670,10 +1670,10 @@ func (:)
         {
             return source.parse_error_fa( "Declaration-syntax: Deduce requested without assignment." );
         }
-        else if( source.parse_bl_fa( "#=?'['" ) )
+        else if( source.parse_bl( "#=?'['" ) )
         {
             o.push_typespec( typespec_var, result_out );
-            while( source.parse_bl_fa( "#?'['" ) )
+            while( source.parse_bl( "#?'['" ) )
             {
                 result_var.push_char( '[' );
                 o.trans_expression( source, result_var, NULL );
@@ -1759,7 +1759,7 @@ func (:) (er_t trans_statement_expression( mutable, bcore_source* source, :resul
             ( typespec.flag_addressable == false )
         )
         {
-            if( !source.parse_bl_fa( " #?';'" ) )
+            if( !source.parse_bl( " #?';'" ) )
             {
                 return source.parse_error_fa( "Inside a try-block: Expressions yielding 'er_t' must end with ';'" );
             }
@@ -1780,7 +1780,7 @@ func (:) (er_t trans_statement_expression( mutable, bcore_source* source, :resul
     o.trans_whitespace( source, result );
 
     // ':' between expressions is to be taken literally
-    if( source.parse_bl_fa( "#?':'" ) ) result.push_char( ':' );
+    if( source.parse_bl( "#?':'" ) ) result.push_char( ':' );
     return 0;
 } /* try */ };
 
@@ -1790,7 +1790,7 @@ func (:) (er_t trans_statement( mutable, bcore_source* source, :result* result )
 { try {
     o.trans_whitespace( source, result );
 
-    if( source.parse_bl_fa( "#?([0]=='{'||[0]=='#'||[0]==';'||[0]==','||[0]==')'||[0]=='}'||([0]=='?'&&[1]=='?'))" ) )
+    if( source.parse_bl( "#?([0]=='{'||[0]=='#'||[0]==';'||[0]==','||[0]==')'||[0]=='}'||([0]=='?'&&[1]=='?'))" ) )
     {
         char c = source.inspect_char();
         switch( c )
@@ -1922,7 +1922,7 @@ func (:) (er_t trans_statement_as_block( mutable, bcore_source* source, :result*
 
     o.trans_statement( source, result );
     o.trans_whitespace( source, result );
-    if( source.parse_bl_fa( "#?';'" ) ) result.push_sc( ";" );
+    if( source.parse_bl( "#?';'" ) ) result.push_sc( ";" );
 
     if( o.stack_block_get_top_unit().use_blm )
     {

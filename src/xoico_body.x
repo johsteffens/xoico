@@ -31,7 +31,7 @@ func (:code) :.parse =
     bl_t exit_loop = false;
     o.single_line = true;
 
-    while( source.parse_bl_fa( "#?' '" ) ); // skip leading spaces
+    while( source.parse_bl( "#?' '" ) ); // skip leading spaces
 
     while( !source.eos() && !exit_loop )
     {
@@ -101,7 +101,7 @@ func (:code) :.parse =
                 {
                     while( !source.eos() )
                     {
-                        if( source.parse_bl_fa( "#?'*/'" ) )
+                        if( source.parse_bl( "#?'*/'" ) )
                         {
                             hash = bcore_tp_fold_sc( hash, "*/" );
                             break;
@@ -179,7 +179,7 @@ func (:) xoico.get_hash =
 
 func (:) :.parse_expression =
 { try {
-    if( source.parse_bl_fa( " #=?'{'" ) )
+    if( source.parse_bl( " #=?'{'" ) )
     {
         o.code =< xoico_body_code_s!;
         o.code.group = o.group;
@@ -232,7 +232,7 @@ func (:) :.parse =
     st_s* string = st_s!.scope();
     o.source_point.set( source );
 
-    if( !source.parse_bl_fa( " #=?'='" ) )
+    if( !source.parse_bl( " #=?'='" ) )
     {
         try( source.parse_em_fa( " #name", string ) );
         if( string.size == 0 ) return source.parse_error_fa( "Body name expected." );

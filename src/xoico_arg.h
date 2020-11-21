@@ -56,7 +56,7 @@ try
     }
 
     $* s = st_s!.scope();
-    source.parse_fa( "#name ", s );
+    source.parse_em_fa( "#name ", s );
     if( s.size == 0 )
     {
         return source.parse_error_fa( "Argument: Name expected." );

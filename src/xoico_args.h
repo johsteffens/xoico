@@ -43,7 +43,7 @@ func (:) (er_t append( mutable, bcore_source* source )) =
     try
     {
         bl_t first = true;
-        while( !source.parse_bl_fa( " #=?')' " ) ) // args follow
+        while( !source.parse_bl( " #=?')' " ) ) // args follow
         {
             if( o.is_variadic() ) return source.parse_error_fa( "Cannot append to variadic argument list." );
             if( !first ) xoico_parse_f( source, " , " );

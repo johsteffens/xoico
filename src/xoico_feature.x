@@ -37,9 +37,9 @@ func (:) xoico.parse =
     xoico_compiler_s* compiler = o.group.compiler;
 
     o.source_point.set( source );
-    o.strict = source.parse_bl_fa( " #?w'strict' " );
+    o.strict = source.parse_bl( " #?w'strict' " );
 
-    if( source.parse_bl_fa( " #?|'|" ) )
+    if( source.parse_bl( " #?|'|" ) )
     {
         st_s* flags = st_s!.scope();
         try( source.parse_em_fa( " #until'''", flags ) );
@@ -72,9 +72,9 @@ func (:) xoico.parse =
         return source.parse_error_fa( "Feature: The first argument must be 'mutable' or 'const'." );
     }
 
-    if( source.parse_bl_fa( " #?'=' " ) )
+    if( source.parse_bl( " #?'=' " ) )
     {
-        if( source.parse_bl_fa( " #=?'{' " ) )
+        if( source.parse_bl( " #=?'{' " ) )
         {
             if( o.strict ) return source.parse_error_fa( "Feature is 'strict'. Default function would have no effect." );
             o.default_body = xoico_body_s!;

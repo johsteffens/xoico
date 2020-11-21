@@ -109,22 +109,6 @@ func (er_t embed_file_open( bcore_source* parent, sc_t file_name, bcore_source**
 //----------------------------------------------------------------------------------------------------------------------
 // macros
 
-#define XOICO_BLM_SOURCE_PARSE_ERR_FA( source, ... ) \
-{ \
-    BLM_RETURNV( er_t, bcore_source_a_parse_error_fa( source, __VA_ARGS__ ) ); \
-}
-
-#define XOICO_BLM_SOURCE_PARSE_FA( source, ... ) \
-{ \
-    er_t er = bcore_source_a_parse_em_fa( source, __VA_ARGS__ ); \
-    if( er ) BLM_RETURNV( er_t, er ); \
-}
-
-#define XOICO_BLM_SOURCE_POINT_PARSE_ERR_FA( source_point, ... ) \
-{ \
-    BLM_RETURNV( er_t, bcore_source_point_s_parse_error_fa( source_point, __VA_ARGS__ ) ); \
-}
-
 /**********************************************************************************************************************/
 
 #endif // XOICO_H

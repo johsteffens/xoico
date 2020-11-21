@@ -66,7 +66,7 @@ func (:) :.parse =
 
     st_s* st_name = st_s!.scope();
 
-    if( source.parse_bl_fa( " #?'('" ) )
+    if( source.parse_bl( " #?'('" ) )
     {
         xoico_signature_s* signature = xoico_signature_s!;
         compiler.life_a_push( signature );
@@ -101,7 +101,7 @@ func (:) :.parse =
     }
     else
     {
-        if( source.parse_bl_fa( " #?'^'" ) )
+        if( source.parse_bl( " #?'^'" ) )
         {
             if( !o->stamp ) return source.parse_error_fa( "'^' is only inside a stamp allowed." );
             st_type.copy( o.stamp.st_trait_name );
@@ -137,7 +137,7 @@ func (:) :.parse =
     o.signature_global_name = compiler.entypeof( st_type.sc );
     o.set_global_name();
 
-    if( source.parse_bl_fa( " #=?'='" ) )
+    if( source.parse_bl( " #=?'='" ) )
     {
         o.body = xoico_body_s!;
         o.body.set_group( o.group );

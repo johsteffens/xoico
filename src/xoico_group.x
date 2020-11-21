@@ -51,7 +51,7 @@ func (:) :.create_spect_name =
 
 func (:) :.parse_name_recursive =
 { try {
-    if( source.parse_bl_fa( "#?':'" ) )
+    if( source.parse_bl( "#?':'" ) )
     {
         if( o.parent )
         {
@@ -76,7 +76,7 @@ func (:) :.parse_name_recursive =
 
 func (:) :.parse_name =
 { try {
-    if( source.parse_bl_fa( " #?':'" ) )
+    if( source.parse_bl( " #?':'" ) )
     {
         o.parse_name_recursive( name, source );
     }
@@ -172,7 +172,7 @@ func (:) xoico.parse =
     }
     else // this group is root
     {
-        if( source.parse_bl_fa( " #?'#ifdef XOILA_SECTION'" ) )
+        if( source.parse_bl( " #?'#ifdef XOILA_SECTION'" ) )
         {
             group_termination = " #?'#endif'";
         }
@@ -189,7 +189,7 @@ func (:) xoico.parse =
     while
     (
         stack.size >= 2 ||
-        ( group_termination ? !source.parse_bl_fa( group_termination ) : !source.eos() )
+        ( group_termination ? !source.parse_bl( group_termination ) : !source.eos() )
     )
     {
         if( source.eos() )
@@ -209,7 +209,7 @@ func (:) xoico.parse =
                 break;
             }
         }
-        else if( source.parse_bl_fa( " #?w'stamp' " ) )
+        else if( source.parse_bl( " #?w'stamp' " ) )
         {
             $* stamp = xoico_stamp_s!.scope( scope_local );
             stamp.group = o;
@@ -220,7 +220,7 @@ func (:) xoico.parse =
         }
 
         /// stumps are inexpandable stamps. They can be used as template.
-        else if( source.parse_bl_fa( " #?w'stump' " ) )
+        else if( source.parse_bl( " #?w'stump' " ) )
         {
             $* stump = xoico_stamp_s!.scope( scope_local );
             stump.group = o;
@@ -234,7 +234,7 @@ func (:) xoico.parse =
                 extend_stump = false;
             }
         }
-        else if( source.parse_bl_fa( " #?w'signature' " ) )
+        else if( source.parse_bl( " #?w'signature' " ) )
         {
             $* signature = xoico_signature_s!.scope( scope_local );
             signature.group = o;
@@ -243,7 +243,7 @@ func (:) xoico.parse =
             compiler.register_item( signature, source );
             o.push_item_d( signature.fork() );
         }
-        else if( bcore_source_a_parse_bl_fa( source, " #?w'body' " ) )
+        else if( bcore_source_a_parse_bl( source, " #?w'body' " ) )
         {
             $* body = xoico_body_s!.scope( scope_local );
             body.set_group( o );
@@ -252,7 +252,7 @@ func (:) xoico.parse =
             compiler.register_item( body, source );
             o.push_item_d( body.fork() );
         }
-        else if( source.parse_bl_fa( " #?w'feature' " ) )
+        else if( source.parse_bl( " #?w'feature' " ) )
         {
             $* feature = xoico_feature_s!.scope( scope_local );
             feature.group = o;
@@ -261,16 +261,16 @@ func (:) xoico.parse =
             o.hmap_feature.set( feature.signature.name, ( vd_t )feature );
             o.push_item_d( feature.fork() );
         }
-        else if( source.parse_bl_fa( " #?w'func' " ) )
+        else if( source.parse_bl( " #?w'func' " ) )
         {
             bl_t is_plain_function = true;
-            if( source.parse_bl_fa( " #=?'('" ) )
+            if( source.parse_bl( " #=?'('" ) )
             {
                 sz_t index = source.get_index();
-                source.parse_fa( "(" );
+                source.parse_em_fa( "(" );
                 $* stamp_name = st_s!.scope( scope_local );
                 o.parse_name( stamp_name, source );
-                if( source.parse_bl_fa( " #?')'" ) )
+                if( source.parse_bl( " #?')'" ) )
                 {
                     stamp_name.push_sc( "_s" );
                     tp_t tp_stamp_name = btypeof( stamp_name.sc );
@@ -296,14 +296,14 @@ func (:) xoico.parse =
                 o.parse_func( source );
             }
         }
-        else if( source.parse_bl_fa( " #?w'name' " ) )
+        else if( source.parse_bl( " #?w'name' " ) )
         {
             $* name = xoico_name_s!.scope( scope_local );
             name.group = o;
             name.parse( source );
             o.push_item_d( name.fork() );
         }
-        else if( source.parse_bl_fa( " #?w'type' " ) )
+        else if( source.parse_bl( " #?w'type' " ) )
         {
             $* name = xoico_name_s!.scope( scope_local );
             name.group = o;
@@ -311,21 +311,21 @@ func (:) xoico.parse =
             compiler.register_external_type( name->name );
             o.push_item_d( name.fork() );
         }
-        else if( bcore_source_a_parse_bl_fa( source, " #?w'forward' " ) )
+        else if( bcore_source_a_parse_bl( source, " #?w'forward' " ) )
         {
             $* forward = xoico_forward_s!.scope( scope_local );
             forward.group = o;
             forward.parse( source );
             o.push_item_d( forward.fork() );
         }
-        else if( bcore_source_a_parse_bl_fa( source, " #?w'extending'" ) )
+        else if( bcore_source_a_parse_bl( source, " #?w'extending'" ) )
         {
             o.extending_stamp = NULL;
-            if( source.parse_bl_fa( " #=?';'" ) )
+            if( source.parse_bl( " #=?';'" ) )
             {
                 // just reset o->extending - nothing else
             }
-            else if( source.parse_bl_fa( " #=?w'stump'" ) )
+            else if( source.parse_bl( " #=?w'stump'" ) )
             {
                 extend_stump = true;
             }
@@ -341,7 +341,7 @@ func (:) xoico.parse =
                 try( source.parse_em_fa( " ;" ) );
             }
         }
-        else if( source.parse_bl_fa( " #?w'group' " ) )
+        else if( source.parse_bl( " #?w'group' " ) )
         {
             $* group = xoico_group_s!.scope( scope_local );
             o.xoico_source.push_d( group.fork() );
@@ -355,7 +355,7 @@ func (:) xoico.parse =
             try( source.parse_em_fa( " =" ) );
 
             // flags
-            if( source.parse_bl_fa( " #?w'retrievable' " ) ) group.retrievable = true;
+            if( source.parse_bl( " #?w'retrievable' " ) ) group.retrievable = true;
 
             o.parse_name( group.trait_name, source );
             if( group.trait_name.size == 0 ) group.trait_name.copy( o->st_name );
@@ -366,15 +366,15 @@ func (:) xoico.parse =
             nested_group.group = group;
             o.push_item_d( nested_group.fork() );
         }
-        else if( source.parse_bl_fa( " #?w'set' " ) )
+        else if( source.parse_bl( " #?w'set' " ) )
         {
-            if(      source.parse_bl_fa( " #?w'retrievable' "      ) ) o.retrievable = true;
-            else if( source.parse_bl_fa( " #?w'inexpandable' "     ) ) o.expandable = false;
-            else if( source.parse_bl_fa( " #?w'short_spect_name' " ) ) o.short_spect_name = true;
-            else if( source.parse_bl_fa( " #?w'beta' "             ) ) try( source.parse_em_fa( " = #<tp_t*>", o.beta.1 ) );
+            if(      source.parse_bl( " #?w'retrievable' "      ) ) o.retrievable = true;
+            else if( source.parse_bl( " #?w'inexpandable' "     ) ) o.expandable = false;
+            else if( source.parse_bl( " #?w'short_spect_name' " ) ) o.short_spect_name = true;
+            else if( source.parse_bl( " #?w'beta' "             ) ) try( source.parse_em_fa( " = #<tp_t*>", o.beta.1 ) );
             try( source.parse_em_fa( " ;" ) );
         }
-        else if( source.parse_bl_fa( " #?w'embed' " ) )
+        else if( source.parse_bl( " #?w'embed' " ) )
         {
             st_s* folder = bcore_file_folder_path( bcore_source_a_get_file( source ) ).scope( scope_local );
             if( folder.size == 0 ) folder.push_char( '.' );
@@ -397,9 +397,9 @@ func (:) xoico.parse =
 
             stack.push_d( source = embed_source );
         }
-        else if( source.parse_bl_fa( " #?w'include' " ) )
+        else if( source.parse_bl( " #?w'include' " ) )
         {
-            bl_t deferred = source.parse_bl_fa( " #?w'deferred' " );
+            bl_t deferred = source.parse_bl( " #?w'deferred' " );
             st_s* include_file = st_s!.scope( scope_local );
             try( source.parse_em_fa( " #string" , include_file ) );
             try( source.parse_em_fa( " ;" ) );
