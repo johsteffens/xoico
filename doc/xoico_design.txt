@@ -311,6 +311,7 @@ TODO:
 - (rejected) disallow prefix operator *, & for changing indirection  (causes too many problems with untraced c-code; main objective for this feature (adaptive assignment) was rejected)
 - bug: binary operator not recognized after unregistered member function
 - use numeric value to specify indirection-level.
+- allow block-keywords like try, verbatim_C to be used declarative for a body
 
 
 Keywords (for syntax highlight)

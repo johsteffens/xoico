@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-20T17:18:06Z
+ *  Last File Update: 2020-11-21T15:40:52Z
  *
  *  Copyright and License of this File:
  *
@@ -37,6 +37,7 @@
  *  xoico_func.x
  *  xoico_group.x
  *  xoico_signature.x
+ *  xoico_stamp.x
  *
  */
 
@@ -2482,19 +2483,631 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_stamp_s )
     "func xoico:get_hash;"
     "func xoico:get_global_name_sc;"
     "func xoico:get_global_name_tp;"
-    "func xoico:finalize;"
     "func xoico:expand_setup;"
-    "func xoico:expand_declaration;"
     "func xoico:expand_forward;"
     "func xoico:expand_indef_declaration;"
+    "func xoico:finalize;"
+    "func xoico:expand_declaration;"
     "func xoico:expand_definition;"
     "func xoico:expand_init1;"
 "}";
+
+tp_t xoico_stamp_s_get_hash( const xoico_stamp_s* o )
+{
+    // xoico_stamp.h:50:5
+    
+    tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
+    hash = bcore_tp_fold_sc( hash, o->st_name.sc );
+    hash = bcore_tp_fold_sc( hash, o->self_source->sc );
+    hash = bcore_tp_fold_tp( hash, xoico_funcs_s_get_hash(&(o->funcs)) );
+    return  hash;
+}
+
+er_t xoico_stamp_s_expand_forward( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink )
+{
+    // xoico_stamp.h:65:5
+    
+    bcore_sink_a_push_fa(sink," \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o->st_name.sc );
+    return  0;
+}
+
+er_t xoico_stamp_s_expand_indef_declaration( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink )
+{
+    // xoico_stamp.h:71:5
+    
+    bcore_sink_a_push_fa(sink," \\\n#rn{ }  BETH_EXPAND_ITEM_#<sc_t>", indent, o->st_name.sc );
+    return  0;
+}
+
+er_t xoico_stamp_s_make_funcs_overloadable( xoico_stamp_s* o )
+{
+    // xoico_stamp.h:83:5
+    
+    {const xoico_funcs_s* __a=&(o->funcs );if(__a)for(sz_t __i=0; __i<__a->size; __i++){xoico_func_s* func=__a->data[__i]; func->overloadable = true;}}
+    return  0;
+}
+
+sc_t xoico_stamp_s_get_rel_name_sc( const xoico_stamp_s* o )
+{
+    // xoico_stamp.x:157:1
+    
+    sc_t group_name = o->group->st_name.sc;
+    sc_t stamp_name = o->st_name.sc;
+    
+    sz_t i = 0;
+    while( group_name[ i ] == stamp_name[ i ] && group_name[ i ] != 0 ) i++;
+    if( group_name[ i ] == 0 && stamp_name[ i ] == '_' ) i++;
+    
+    return  stamp_name + i;
+}
+
+er_t xoico_stamp_s_parse_func( xoico_stamp_s* o, bcore_source* source )
+{
+    // xoico_stamp.x:171:1
+    BLM_INIT_LEVEL(0); {
+    xoico_compiler_s* compiler = o->group->compiler;
+    xoico_func_s* func = ((xoico_func_s*)BLM_LEVEL_T_PUSH(0,xoico_func_s,xoico_func_s_create()));
+    func->group = o->group;
+    func->stamp = o;
+    BLM_TRY(xoico_func_s_parse(func,source ))
+    
+    bl_t register_func =  xoico_func_s_registerable(func);
+    sz_t idx = xoico_funcs_s_get_index_from_name(&(o->funcs),func->name );
+    
+    if( idx >= 0 )
+    {
+        xoico_func_s* prex_func = o->funcs.data[ idx ];
+        if( ( prex_func->signature_global_name == func->signature_global_name ) )
+        {
+            if( !func->body )
+            {
+                BLM_RETURNV(er_t, bcore_source_a_parse_error_fa(source,"Function '#<sc_t>' has already been declared.", xoico_compiler_s_nameof(compiler,func->name ) ))
+            }
+            else if( prex_func->body )
+            {
+                BLM_RETURNV(er_t, bcore_source_a_parse_error_fa(source,"Function '#<sc_t>' has already a body.", xoico_compiler_s_nameof(compiler,func->name ) ))
+            }
+            else
+            {
+                BLM_TRY(xoico_funcs_s_replace_fork(&(o->funcs),idx, func ))
+                st_s_replace_sc_sc(o->self_source,prex_func->flect_decl.sc, "" );
+            }
+        }
+        else if( prex_func->overloadable )
+        {
+            BLM_TRY(xoico_funcs_s_replace_fork(&(o->funcs),idx, func ))
+            st_s_replace_sc_sc(o->self_source,prex_func->flect_decl.sc, "" );
+        }
+        else
+        {
+            BLM_RETURNV(er_t, bcore_source_a_parse_error_fa(source,"Function '#<sc_t>' has already been declared and is not overloadable.", xoico_compiler_s_nameof(compiler,func->name ) ))
+        }
+    }
+    else
+    {
+        BLM_TRY(xoico_funcs_s_push_d(&(o->funcs),((xoico_func_s*)bcore_fork(func)) ))
+    }
+    
+    
+    if( register_func )
+    {
+        bl_t push_brace = false;
+        if( o->self_source->size > 0 && o->self_source->sc[ o->self_source->size - 1 ] == '}' )
+        {
+            o->self_source->size--;
+            push_brace = true;
+        }
+        st_s_push_st(o->self_source,&(func->flect_decl ));
+        if( push_brace ) st_s_push_sc(o->self_source,"}" );
+    }
+    
+    BLM_RETURNV(er_t, 0)
+    } /* try */
+}
+
+er_t xoico_stamp_s_parse_extend( xoico_stamp_s* o, bcore_source* source )
+{
+    // xoico_stamp.x:234:1
+     {
+    ASSERT( o->self_source );
+    
+    BLM_TRY(bcore_source_a_parse_em_fa(source," {" ))
+    
+    if( o->self_source->size > 0 && o->self_source->sc[ o->self_source->size - 1 ] == '}' )
+    {
+        o->self_source->size--;
+    }
+    else
+    {
+        st_s_push_fa(o->self_source,"{" );
+    }
+    
+    while( !bcore_source_a_eos(source) && !bcore_source_a_parse_bl(source," #?'}'" ) )
+    {
+        if( bcore_source_a_parse_bl(source," #?w'func'" ) )
+        {
+            BLM_TRY(xoico_stamp_s_parse_func(o,source ))
+        }
+        else
+        {
+            bl_t exit = false;
+            while( !exit && !bcore_source_a_eos(source) )
+            {
+                u0_t c =  bcore_source_a_get_u0(source);
+                switch( c )
+                {
+                    case ':':
+                    {BLM_INIT_LEVEL(7);
+                        st_s* name = ((st_s*)BLM_LEVEL_T_PUSH(7,st_s,st_s_create()));
+                        BLM_TRY(xoico_group_s_parse_name_recursive(o->group,name, source ))
+                        st_s_push_st(o->self_source,name );
+                    BLM_DOWN();}
+                    break;
+    
+                    case ';':
+                    {
+                        st_s_push_char(o->self_source,c );
+                        exit = true;
+                    }
+                    break;
+    
+                    default:
+                    {
+                        st_s_push_char(o->self_source,c );
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    BLM_TRY(bcore_source_a_parse_em_fa(source," ; " ))
+    st_s_push_sc(o->self_source,"}" );
+    
+    return  0;
+    } /* try */
+}
+
+er_t xoico_stamp_s_push_default_func_from_sc( xoico_stamp_s* o, sc_t sc )
+{
+    // xoico_stamp.x:295:1
+    BLM_INIT_LEVEL(0); {
+    xoico_compiler_s* compiler = o->group->compiler;
+    xoico_func_s* func = ((xoico_func_s*)BLM_LEVEL_T_PUSH(0,xoico_func_s,xoico_func_s_create()));
+    func->group = o->group;
+    func->stamp = o;
+    func->overloadable = false;
+    func->expandable = false;
+    
+    BLM_TRY(xoico_func_s_parse(func,((bcore_source*)(((bcore_source_string_s*)BLM_LEVEL_T_PUSH(0,bcore_source_string_s,bcore_source_string_s_create_sc(sc ))) ))))
+    
+    sz_t idx = xoico_funcs_s_get_index_from_signature_global_name(&(o->funcs),func->signature_global_name );
+    
+    if( idx >= 0 )
+    {
+        BLM_RETURNV(er_t, bcore_source_point_s_parse_error_fa(&(o->source_point),"Function '#<sc_t>' is predefined for all stamps and cannot be overloaded.", xoico_compiler_s_nameof(compiler,func->name ) ))
+    }
+    else
+    {
+        BLM_TRY(xoico_funcs_s_push_d(&(o->funcs),((xoico_func_s*)bcore_fork(func)) ))
+    }
+    
+    BLM_RETURNV(er_t, 0)
+    } /* try */
+}
+
+er_t xoico_stamp_s_push_default_funcs( xoico_stamp_s* o )
+{
+    // xoico_stamp.x:322:1
+     {
+    BLM_TRY(xoico_stamp_s_push_default_func_from_sc(o,"bcore_stamp_funcs.init;" ))
+    BLM_TRY(xoico_stamp_s_push_default_func_from_sc(o,"bcore_stamp_funcs.down;" ))
+    BLM_TRY(xoico_stamp_s_push_default_func_from_sc(o,"bcore_stamp_funcs.copy;" ))
+    BLM_TRY(xoico_stamp_s_push_default_func_from_sc(o,"bcore_stamp_funcs.discard;" ))
+    BLM_TRY(xoico_stamp_s_push_default_func_from_sc(o,"bcore_stamp_funcs.clone;" ))
+    return  0;
+    } /* try */
+}
+
+er_t xoico_stamp_s_parse( xoico_stamp_s* o, bcore_source* source )
+{
+    // xoico_stamp.x:334:1
+    BLM_INIT_LEVEL(0); {
+    xoico_compiler_s* compiler = o->group->compiler;
+    bl_t verbatim = bcore_source_a_parse_bl(source," #?w'verbatim'" );
+    st_s_attach( &(o->self_source ),  st_s_create());
+    
+    st_s* stamp_name = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,st_s_create()));
+    st_s* trait_name = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,st_s_create()));
+    
+    bcore_source_point_s_set(&(o->source_point),source );
+    
+    BLM_TRY(xoico_group_s_parse_name(o->group,stamp_name, source ))
+    
+    if( stamp_name->size >= 2 && sc_t_equ( stamp_name->sc + stamp_name->size - 2, "_s" ) )
+    {
+        BLM_RETURNV(er_t, bcore_source_point_s_parse_error_fa(&(o->source_point),"Stamp '#<sc_t>' ends in '_s'."
+            "In beth, this ending identifies a structure."
+            "Using it as stamp name could have side effects.",
+            stamp_name->sc
+        ))
+    }
+    
+    st_s_push_fa( stamp_name,"_s" );
+    
+    BLM_TRY(bcore_source_a_parse_em_fa(source," = " ))
+    
+    if( bcore_source_a_parse_bl(source," #?w'extending'" ) )
+    {
+        st_s* templ_name = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,st_s_create()));
+        BLM_TRY(xoico_group_s_parse_name(o->group,templ_name, source ))
+        st_s_push_fa(templ_name,"_s" );
+        const xoico* item = xoico_compiler_s_get_const_item(compiler,typeof( templ_name->sc ) );
+        if( !item ) BLM_RETURNV(er_t, bcore_source_a_parse_error_fa(source,"Template #<sc_t> not found.", templ_name->sc ))
+        if( item->_ != TYPEOF_xoico_stamp_s ) BLM_RETURNV(er_t, bcore_source_a_parse_error_fa(source,"Template #<sc_t> is no stamp.", templ_name->sc ))
+        xoico_stamp_s_copy(o,((xoico_stamp_s*)(item)) );
+    }
+    else if( !verbatim && o->group->extending_stamp )
+    {
+        xoico_stamp_s_copy(o,o->group->extending_stamp );
+    }
+    else
+    {
+        st_s_push_fa(o->self_source,"@ =" );
+    
+        if( bcore_source_a_parse_bl(source," #?w'aware'" ) )
+        {
+            st_s_push_sc(o->self_source,"aware " );
+            o->is_aware = true;
+        }
+    
+        BLM_TRY(xoico_group_s_parse_name(o->group,trait_name, source ))
+        if( trait_name->size == 0 ) BLM_RETURNV(er_t, bcore_source_a_parse_error_fa(source,"Trait name expected." ))
+    
+        st_s_copy(&(o->st_trait_name),trait_name );
+        st_s_push_st(o->self_source,trait_name );
+    }
+    
+    st_s_copy(&(o->st_name),stamp_name );
+    o->tp_name = xoico_compiler_s_entypeof(compiler,stamp_name->sc );
+    
+    BLM_TRY(xoico_stamp_s_parse_extend(o,source ))
+    
+    BLM_RETURNV(er_t, 0)
+    } /* try */
+}
+
+er_t xoico_stamp_s_finalize( xoico_stamp_s* o )
+{
+    // xoico_stamp.x:403:1
+    BLM_INIT_LEVEL(0); {
+    xoico_compiler_s* compiler = o->group->compiler;
+    
+    // TODO: move functions declaration in self_source to finalize
+    st_s_replace_sc_sc(o->self_source,"@", o->st_name.sc );
+    
+    {const xoico_funcs_s* __a=&(o->funcs );if(__a)for(sz_t __i=0; __i<__a->size; __i++){xoico_func_s* func=__a->data[__i];
+    {
+        func->group = o->group;
+        func->stamp = o;
+        BLM_TRY(xoico_func_s_finalize(func))
+        BLM_TRY(xoico_compiler_s_register_func(compiler,func ))
+    }
+    
+    }}bcore_self_s_attach( &(o->self ),  bcore_self_s_parse_source( ((bcore_source*)(((bcore_source_string_s*)BLM_LEVEL_T_PUSH(0,bcore_source_string_s,bcore_source_string_s_create_from_string(o->self_source ))))), 0, 0, o->group->st_name.sc, false ));
+    
+    bcore_hmap_tp_s* hmap_name = ((bcore_hmap_tp_s*)BLM_LEVEL_T_PUSH(0,bcore_hmap_tp_s,bcore_hmap_tp_s_create()));
+    
+    sz_t self_items = bcore_self_s_items_size( o->self );
+    
+    for( sz_t i = 0; i < self_items; i++ )
+    {
+        const bcore_self_item_s* item = bcore_self_s_get_item( o->self,i );
+        if( item->name )
+        {
+            if( bcore_hmap_tp_s_exists(hmap_name,item->name ) )
+            {
+                BLM_RETURNV(er_t, bcore_source_point_s_parse_error_fa(&(o->source_point),"In stamp '<sc_t>': Repeated use of element name '<sc_t>'.", o->st_name.sc, xoico_compiler_s_nameof(compiler,item->name ) ))
+                bcore_hmap_tp_s_set(hmap_name,item->name );
+            }
+        }
+    }
+    
+    BLM_RETURNV(er_t, 0)
+    } /* try */
+}
+
+er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink )
+{
+    // xoico_stamp.x:442:1
+    BLM_INIT_LEVEL(0); {
+    sc_t sc_name = o->st_name.sc;
+    
+    bcore_sink_a_push_fa(sink,"#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, sc_name, typeof( sc_name ) );
+    
+    bcore_sink_a_push_fa(sink,"#rn{ }##define BETH_EXPAND_ITEM_#<sc_t>", indent, sc_name, sc_name );
+    bcore_sink_a_push_fa(sink," \\\n#rn{ }  BCORE_DECLARE_OBJECT( #<sc_t> )", indent, sc_name );
+    bcore_sink_a_push_fa(sink," \\\n" );
+    
+    bcore_self_s_struct_body_to_sink_newline_escaped( o->self,indent + 2, sink );
+    bcore_sink_a_push_fa(sink,";" );
+    
+    {const xoico_funcs_s* __a=&(o->funcs );if(__a)for(sz_t __i=0; __i<__a->size; __i++){xoico_func_s* func=__a->data[__i]; BLM_TRY(xoico_func_s_expand_forward(func,indent + 2, sink )) // expands all prototypes
+    
+    // expand array
+    }}if( o->self->trait == TYPEOF_bcore_array )
+    {
+        sz_t items = bcore_self_s_items_size( o->self);
+        const bcore_self_item_s* array_item = NULL;
+        for( sz_t i = 0; i < items; i++ )
+        {
+            const bcore_self_item_s* self_item = bcore_self_s_get_item( o->self,i );
+            if( bcore_flect_caps_is_array( self_item->caps ) )
+            {
+                array_item = self_item;
+                break;
+            }
+        }
+    
+        if( !array_item )
+        {
+            BLM_RETURNV(er_t, bcore_source_point_s_parse_error_fa(&(o->source_point),"Expanding object #<sc_t>: Object is of trait array but contains no array.", sc_name ))
+        }
+    
+        bcore_sink_a_push_fa(sink," \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_set_space( #<sc_t>* o, sz_t size ) { bcore_array_t_set_space( TYPEOF_#<sc_t>, ( bcore_array* )o, size ); return o; }", indent, sc_name, sc_name, sc_name, sc_name );
+        bcore_sink_a_push_fa(sink," \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_set_size( #<sc_t>* o, sz_t size ) { bcore_array_t_set_size( TYPEOF_#<sc_t>, ( bcore_array* )o, size ); return o; }",   indent, sc_name, sc_name, sc_name, sc_name );
+        bcore_sink_a_push_fa(sink," \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_clear( #<sc_t>* o ) { bcore_array_t_set_space( TYPEOF_#<sc_t>, ( bcore_array* )o, 0 ); return o; }",                   indent, sc_name, sc_name, sc_name, sc_name );
+    
+        sc_t sc_item_name = ifnameof( array_item->name );
+        st_s* st_last = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,st_s_create_fa("o->#<sc_t>#<sc_t>data[ o->#<sc_t>#<sc_t>size - 1 ]", sc_item_name, sc_item_name[ 0 ] ? "_" : "", sc_item_name, sc_item_name[ 0 ] ? "_" : ""  )));
+        sc_t sc_last = st_last->sc;
+        if( array_item->type != 0 && nameof( array_item->type ) != NULL )
+        {
+            sc_t sc_type = ifnameof( array_item->type );
+            if( array_item->caps == BCORE_CAPS_ARRAY_DYN_LINK_AWARE )
+            {
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_push_c( #<sc_t>* o, const #<sc_t>* v ) { bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_awc( v ) ); return #<sc_t>; }", indent, sc_type, sc_name, sc_name, sc_type, sc_name, sc_last );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_push_d( #<sc_t>* o,       #<sc_t>* v ) { bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_asd( v ) ); return #<sc_t>; }", indent, sc_type, sc_name, sc_name, sc_type, sc_name, sc_last );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_push_t( #<sc_t>* o, tp_t t )", indent, sc_type, sc_name, sc_name );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }  {", indent );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }      bcore_trait_assert_satisfied_type( TYPEOF_#<sc_t>, t );",                    indent, sc_type );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }      bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_t_create( t ) );", indent, sc_name );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }      return #<sc_t>;", indent, sc_last );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }  }", indent );
+            }
+            else if( array_item->caps == BCORE_CAPS_ARRAY_DYN_SOLID_STATIC )
+            {
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_push_c( #<sc_t>* o, const #<sc_t>* v ) { bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_twc( TYPEOF_#<sc_t>, v ) ); return &#<sc_t>; }", indent, sc_type, sc_name, sc_name, sc_type, sc_name, sc_type, sc_last );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_push_d( #<sc_t>* o,       #<sc_t>* v ) { bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_tsd( TYPEOF_#<sc_t>, v ) ); return &#<sc_t>; }", indent, sc_type, sc_name, sc_name, sc_type, sc_name, sc_type, sc_last );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_push( #<sc_t>* o )", indent, sc_type, sc_name, sc_name );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }  {", indent );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }      bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_null() );",   indent, sc_name );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }      return &#<sc_t>;", indent, sc_last );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }  }", indent );
+            }
+            else if( array_item->caps == BCORE_CAPS_ARRAY_DYN_LINK_STATIC )
+            {
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_push_c( #<sc_t>* o, const #<sc_t>* v ) { bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_twc( TYPEOF_#<sc_t>, v ) ); return #<sc_t>; }", indent, sc_type, sc_name, sc_name, sc_type, sc_name, sc_type, sc_last );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_push_d( #<sc_t>* o,       #<sc_t>* v ) { bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_tsd( TYPEOF_#<sc_t>, v ) ); return #<sc_t>; }", indent, sc_type, sc_name, sc_name, sc_type, sc_name, sc_type, sc_last );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_push( #<sc_t>* o )", indent, sc_type, sc_name, sc_name );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }  {", indent );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }      bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_t_create( TYPEOF_#<sc_t> ) );", indent, sc_name, sc_type );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }      return #<sc_t>;", indent, sc_last );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }  }", indent );
+            }
+        }
+        else
+        {
+            if( bcore_flect_caps_is_aware( array_item->caps ) )
+            {
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }  static inline void #<sc_t>_push_c( #<sc_t>* o, vc_t v ) { bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_awc( v ) ); }", indent, sc_name, sc_name, sc_name );
+                bcore_sink_a_push_fa(sink," \\\n#rn{ }  static inline void #<sc_t>_push_d( #<sc_t>* o, vd_t v ) { bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_asd( v ) ); }", indent, sc_name, sc_name, sc_name );
+            }
+        }
+    }
+    
+    {const xoico_funcs_s* __a=&(o->funcs );if(__a)for(sz_t __i=0; __i<__a->size; __i++){xoico_func_s* func=__a->data[__i]; BLM_TRY(xoico_func_s_expand_declaration(func,indent + 2, sink )) // only expands static inline functions
+    
+    }}bcore_sink_a_push_fa(sink,"\n" );
+    BLM_RETURNV(er_t, 0)
+    } /* try */
+}
+
+er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink )
+{
+    // xoico_stamp.x:537:1
+    BLM_INIT_LEVEL(0); {
+    st_s* embedded_string = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,xoico_stamp_create_embedded_string(o->self_source )));
+    
+    // 4095 is the C99-limit for string literals
+    if( embedded_string->size > 4095 )
+    {
+        BLM_RETURNV(er_t, bcore_source_point_s_parse_error_fa(&(o->source_point),"Reflection embedding failed. (Stamp is too large)\n"
+            "The embedded code would require a string literal larger than 4095 characters.\n"
+            "This exceeds the limit defined in C99.\n"
+        ))
+    }
+    
+    sz_t idx = st_s_find_char(embedded_string,0, -1, '=' );
+    sc_t self_def = "";
+    if( idx < embedded_string->size )
+    {
+        self_def = embedded_string->sc + idx + 1;
+    }
+    
+    bcore_sink_a_push_fa(sink,"\n" );
+    bcore_sink_a_push_fa(sink,"#rn{ }BCORE_DEFINE_OBJECT_INST_P( #<sc_t> )\n", indent, o->st_name.sc );
+    
+    st_s* multiline_string = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,xoico_stamp_create_structured_multiline_string(self_def, indent )));
+    bcore_sink_a_push_fa(sink,"#<sc_t>;\n", multiline_string->sc );
+    
+    {const xoico_funcs_s* __a=&(o->funcs );if(__a)for(sz_t __i=0; __i<__a->size; __i++){xoico_func_s* func=__a->data[__i]; BLM_TRY(xoico_func_s_expand_definition(func,indent, sink ))
+    
+    }}BLM_RETURNV(er_t, 0)
+    } /* try */
+}
+
+er_t xoico_stamp_s_expand_init1( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink )
+{
+    // xoico_stamp.x:572:1
+     {
+    xoico_compiler_s* compiler = o->group->compiler;
+    
+    {const xoico_funcs_s* __a=&(o->funcs );if(__a)for(sz_t __i=0; __i<__a->size; __i++){xoico_func_s* func=__a->data[__i];
+    {
+        if( !func->expandable ) continue;
+    
+        if( xoico_func_s_registerable(func) )
+        {
+            const xoico_signature_s* signature = func->signature;
+            bcore_sink_a_push_fa(sink,"#rn{ }BCORE_REGISTER_FFUNC( #<sc_t>, #<sc_t>_#<sc_t> );\n",
+                indent,
+                xoico_compiler_s_nameof(compiler,signature->global_name ),
+                o->st_name.sc,
+                xoico_compiler_s_nameof(compiler,func->name )
+            );
+        }
+    }
+    }}bcore_sink_a_push_fa(sink,"#rn{ }BCORE_REGISTER_OBJECT( #<sc_t> );\n", indent, o->st_name.sc );
+    return  0;
+    } /* try */
+}
 
 XOILA_DEFINE_SPECT( xoico, xoico_stamp )
 "{"
     "bcore_spect_header_s header;"
 "}";
+
+st_s* xoico_stamp_create_embedded_string( const st_s* s )
+{
+    // xoico_stamp.x:22:1
+    
+    st_s* out = st_s_create();
+    for( sz_t i = 0; i < s->size; i++ )
+    {
+        if( s->data[ i ] == '/' && s->data[ i + 1 ] == '/' )
+        {
+            while( i < s->size && s->data[ i ] != '\n' ) i++;
+        }
+        else if( s->data[ i ] == '/' && s->data[ i + 1 ] == '*' )
+        {
+            while( i < s->size )
+            {
+                if( s->data[ i ] == '*' && s->data[ i + 1 ] == '/' )
+                {
+                    if( out->data[ out->size - 1 ] != ' ' ) st_s_push_char(out,' ' );
+                    i += 2;
+                    break;
+                }
+                i++;
+            }
+        }
+        else if( s->data[ i ] == '"' )
+        {
+            st_s_push_char(out,'\\' );
+            st_s_push_char(out,'"' );
+            i++;
+            while( i < s->size && s->data[ i ] != '"' ) st_s_push_char(out,s->data[ i++ ] );
+            if( s->data[ i ] == '"' )
+            {
+                st_s_push_char(out,'\\' );
+                st_s_push_char(out,'"' );
+            }
+        }
+        else if( s->data[ i ] == '\n' )
+        {
+            if( out->data[ out->size - 1 ] != ' ' ) st_s_push_char(out,' ' );
+        }
+        else if( s->data[ i ] == '\t' )
+        {
+            if( out->data[ out->size - 1 ] != ' ' ) st_s_push_char(out,' ' );
+        }
+        else if( s->data[ i ] == ' ' )
+        {
+            if( out->data[ out->size - 1 ] != ' ' ) st_s_push_char(out,' ' );
+        }
+        else
+        {
+            st_s_push_char(out,s->data[ i ] );
+        }
+    }
+    if( out->size > 0 && out->data[ out->size - 1 ] == ' ' )
+    {
+        out->data[ out->size - 1 ] = 0;
+        out->size--;
+    }
+    return  out;
+}
+
+st_s* xoico_stamp_create_structured_multiline_string( const sc_t s, sz_t indent )
+{
+    // xoico_stamp.x:86:1
+    
+    st_s* out = st_s_create();
+    sz_t ind = indent;
+    bl_t newline = true;
+    for( sz_t i = 0; s[ i ] != 0; i++ )
+    {
+        char c = s[ i ];
+        if( c == ';' )
+        {
+            if( newline ) st_s_push_fa(out,"#rn{ }\"", ind );
+            st_s_push_char(out,c );
+            st_s_push_fa(out,"\"\n" );
+            newline = true;
+        }
+        else if( c == '{' )
+        {
+            if( newline )
+            {
+                st_s_push_fa(out,"#rn{ }\"{\"", ind );
+            }
+            else
+            {
+                st_s_push_fa(out,"\"\n#rn{ }\"{\"", ind );
+            }
+            if( s[ i + 1 ] != 0 ) st_s_push_char(out,'\n' );
+            ind += 4;
+            newline = true;
+    
+        }
+        else if( c == '}' )
+        {
+            ind -= 4;
+            if( newline )
+            {
+                st_s_push_fa(out,"#rn{ }\"}\"", ind );
+            }
+            else
+            {
+                st_s_push_fa(out,"\"\n#rn{ }\"}\"", ind );
+            }
+            if( s[ i + 1 ] != 0 ) st_s_push_char(out,'\n' );
+            newline = true;
+        }
+        else if( c == ' ' )
+        {
+            if( !newline )
+            {
+                if( s[ i + 1 ] != ';' && s[ i + 1 ] != '{' && s[ i + 1 ] != '}' && s[ i + 1 ] != 0 )
+                {
+                    st_s_push_char(out,c );
+                }
+            }
+        }
+        else
+        {
+            if( newline )
+            {
+                st_s_push_fa(out,"#rn{ }\"", ind );
+                newline = false;
+            }
+            st_s_push_char(out,c );
+        }
+    }
+    
+    if( !newline ) st_s_push_char(out,'"' );
+    return  out;
+}
 
 /**********************************************************************************************************************/
 // source: xoico_nested_group.h
@@ -6905,11 +7518,11 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
             BCORE_REGISTER_FFUNC( xoico_get_hash, xoico_stamp_s_get_hash );
             BCORE_REGISTER_FFUNC( xoico_get_global_name_sc, xoico_stamp_s_get_global_name_sc );
             BCORE_REGISTER_FFUNC( xoico_get_global_name_tp, xoico_stamp_s_get_global_name_tp );
-            BCORE_REGISTER_FFUNC( xoico_finalize, xoico_stamp_s_finalize );
             BCORE_REGISTER_FFUNC( xoico_expand_setup, xoico_stamp_s_expand_setup );
-            BCORE_REGISTER_FFUNC( xoico_expand_declaration, xoico_stamp_s_expand_declaration );
             BCORE_REGISTER_FFUNC( xoico_expand_forward, xoico_stamp_s_expand_forward );
             BCORE_REGISTER_FFUNC( xoico_expand_indef_declaration, xoico_stamp_s_expand_indef_declaration );
+            BCORE_REGISTER_FFUNC( xoico_finalize, xoico_stamp_s_finalize );
+            BCORE_REGISTER_FFUNC( xoico_expand_declaration, xoico_stamp_s_expand_declaration );
             BCORE_REGISTER_FFUNC( xoico_expand_definition, xoico_stamp_s_expand_definition );
             BCORE_REGISTER_FFUNC( xoico_expand_init1, xoico_stamp_s_expand_init1 );
             BCORE_REGISTER_OBJECT( xoico_stamp_s );
@@ -7088,4 +7701,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0x3B10D0D6F68D5660ull
+// XOILA_OUT_SIGNATURE 0xF81D202019CC86E9ull

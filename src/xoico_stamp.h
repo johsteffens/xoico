@@ -24,7 +24,9 @@
 /**********************************************************************************************************************/
 
 XOILA_DEFINE_GROUP( xoico_stamp, xoico )
-#ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#ifdef XOILA_SECTION
+
+//----------------------------------------------------------------------------------------------------------------------
 
 signature er_t parse( mutable, bcore_source* source );
 signature er_t parse_func( mutable, bcore_source* source );
@@ -44,27 +46,53 @@ stamp : = aware :
     private aware xoico_group_s* group;
     bcore_source_point_s source_point;
 
-    func xoico.get_hash;
-    func xoico.get_global_name_sc;
-    func xoico.get_global_name_tp = { return o->tp_name; };
+    func xoico.get_hash =
+    {
+        tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
+        hash = bcore_tp_fold_sc( hash, o.st_name.sc );
+        hash = bcore_tp_fold_sc( hash, o.self_source->sc );
+        hash = bcore_tp_fold_tp( hash, o.funcs.get_hash() );
+        return hash;
+    };
+
+    func xoico.get_global_name_sc = { return o.st_name.sc; };
+    func xoico.get_global_name_tp = { return o.tp_name; };
     func xoico.finalize;
 
-    func xoico.expand_setup;
+    func xoico.expand_setup = { return 0; };
     func xoico.expand_declaration;
-    func xoico.expand_forward;
-    func xoico.expand_indef_declaration;
+    func xoico.expand_forward =
+    {
+        sink.push_fa( " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o.st_name.sc );
+        return 0;
+    };
+
+    func xoico.expand_indef_declaration =
+    {
+        sink.push_fa( " \\\n#rn{ }  BETH_EXPAND_ITEM_#<sc_t>", indent, o.st_name.sc );
+        return 0;
+    };
+
     func xoico.expand_definition;
     func xoico.expand_init1;
 
-    func :. parse;
-    func :. parse_func;
-    func :. make_funcs_overloadable;
-    func :. push_default_funcs;
+    func :.parse;
+    func :.parse_func;
+
+    func :.make_funcs_overloadable =
+    {
+        foreach( $* func in o->funcs ) func->overloadable = true;
+        return 0;
+    };
+
+    func :.push_default_funcs;
 };
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//----------------------------------------------------------------------------------------------------------------------
 
-#endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+embed "xoico_stamp.x";
+
+#endif // XOILA_SECTION
 
 /**********************************************************************************************************************/
 

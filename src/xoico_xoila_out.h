@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-20T17:18:06Z
+ *  Last File Update: 2020-11-21T15:40:51Z
  *
  *  Copyright and License of this File:
  *
@@ -37,6 +37,7 @@
  *  xoico_func.x
  *  xoico_group.x
  *  xoico_signature.x
+ *  xoico_stamp.x
  *
  */
 
@@ -46,7 +47,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x557859237E58DFEBull
+#define HKEYOF_xoico_xoila_out 0xCA33CC5C91D88A6Full
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -713,23 +714,30 @@
       bcore_source_point_s source_point; \
   }; \
   tp_t xoico_stamp_s_get_hash( const xoico_stamp_s* o ); \
-  sc_t xoico_stamp_s_get_global_name_sc( const xoico_stamp_s* o ); \
+  static inline sc_t xoico_stamp_s_get_global_name_sc( const xoico_stamp_s* o ); \
   static inline tp_t xoico_stamp_s_get_global_name_tp( const xoico_stamp_s* o ); \
-  er_t xoico_stamp_s_finalize( xoico_stamp_s* o ); \
-  er_t xoico_stamp_s_expand_setup( xoico_stamp_s* o ); \
-  er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink ); \
+  static inline er_t xoico_stamp_s_expand_setup( xoico_stamp_s* o ); \
   er_t xoico_stamp_s_expand_forward( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_stamp_s_expand_indef_declaration( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink ); \
+  er_t xoico_stamp_s_make_funcs_overloadable( xoico_stamp_s* o ); \
+  sc_t xoico_stamp_s_get_rel_name_sc( const xoico_stamp_s* o ); \
+  er_t xoico_stamp_s_parse_func( xoico_stamp_s* o, bcore_source* source ); \
+  er_t xoico_stamp_s_parse_extend( xoico_stamp_s* o, bcore_source* source ); \
+  er_t xoico_stamp_s_push_default_func_from_sc( xoico_stamp_s* o, sc_t sc ); \
+  er_t xoico_stamp_s_push_default_funcs( xoico_stamp_s* o ); \
+  er_t xoico_stamp_s_parse( xoico_stamp_s* o, bcore_source* source ); \
+  er_t xoico_stamp_s_finalize( xoico_stamp_s* o ); \
+  er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_stamp_s_expand_init1( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink ); \
-  er_t xoico_stamp_s_parse( xoico_stamp_s* o, bcore_source* source ); \
-  er_t xoico_stamp_s_parse_func( xoico_stamp_s* o, bcore_source* source ); \
-  er_t xoico_stamp_s_make_funcs_overloadable( xoico_stamp_s* o ); \
-  er_t xoico_stamp_s_push_default_funcs( xoico_stamp_s* o ); \
-  static inline tp_t xoico_stamp_s_get_global_name_tp( const xoico_stamp_s* o ){ return  o->tp_name;}
+  static inline sc_t xoico_stamp_s_get_global_name_sc( const xoico_stamp_s* o ){ return  o->st_name.sc;} \
+  static inline tp_t xoico_stamp_s_get_global_name_tp( const xoico_stamp_s* o ){ return  o->tp_name;} \
+  static inline er_t xoico_stamp_s_expand_setup( xoico_stamp_s* o ){ return  0;}
 #define BETH_EXPAND_GROUP_xoico_stamp \
   BCORE_FORWARD_OBJECT( xoico_stamp ); \
   BCORE_FORWARD_OBJECT( xoico_stamp_s ); \
+  st_s* xoico_stamp_create_embedded_string( const st_s* s ); \
+  st_s* xoico_stamp_create_structured_multiline_string( const sc_t s, sz_t indent ); \
   XOILA_DECLARE_SPECT( xoico_stamp ) \
   { \
       bcore_spect_header_s header; \
@@ -1567,4 +1575,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // XOICO_XOILA_OUT_H
-// XOILA_OUT_SIGNATURE 0x0D0CFEBA00C49DBEull
+// XOILA_OUT_SIGNATURE 0x9AC8ACFF1F38E2F1ull
