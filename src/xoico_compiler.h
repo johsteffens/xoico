@@ -237,6 +237,9 @@ stamp : = aware :
     {
         o.cast( bcore_array* ).push( sr_asd( target ) );
     };
+
+    /// clears flags in targets
+    func (void clear_flags( mutable )) = { foreach( $* e in o ) e.flag = false; };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

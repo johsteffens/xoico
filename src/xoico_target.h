@@ -24,7 +24,9 @@
 /**********************************************************************************************************************/
 
 XOILA_DEFINE_GROUP( xoico_target, xoico )
-#ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#ifdef XOILA_SECTION
+
+//----------------------------------------------------------------------------------------------------------------------
 
 signature er_t parse( mutable, sc_t source_path );
 signature bl_t to_be_modified( const );
@@ -60,8 +62,19 @@ stamp : = aware :
 
     func :.parse;
     func :.to_be_modified;
-    func xoico.finalize;
-    func xoico.expand_setup;
+
+    func xoico.finalize =
+    {
+        foreach( $* e in o ) e.finalize().try();
+        return 0;
+    };
+
+    func xoico.expand_setup =
+    {
+        foreach( $* e in o ) e.expand_setup().try();
+        return 0;
+    };
+
     func :.expand_phase1;
     func :.expand_phase2;
     func :.is_cyclic;
@@ -73,7 +86,9 @@ stamp : = aware :
     };
 };
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//----------------------------------------------------------------------------------------------------------------------
+
+embed "xoico_target.x";
 
 #endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
