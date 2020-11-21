@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-21T17:43:08Z
+ *  Last File Update: 2020-11-21T18:05:44Z
  *
  *  Copyright and License of this File:
  *
@@ -39,6 +39,7 @@
  *  xoico_signature.x
  *  xoico_stamp.x
  *  xoico_target.x
+ *  xoico_typespec.x
  *
  */
 
@@ -48,7 +49,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0xF9DF4ED5E8865B75ull
+#define HKEYOF_xoico_xoila_out 0x73FEA76E34C521CFull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -292,15 +293,16 @@
       bl_t flag_addressable; \
       bl_t flag_variadic; \
   }; \
-  tp_t xoico_typespec_s_get_hash( const xoico_typespec_s* o ); \
-  er_t xoico_typespec_s_parse( xoico_typespec_s* o, xoico_group_s* group, bcore_source* source ); \
   er_t xoico_typespec_s_relent( xoico_typespec_s* o, xoico_group_s* group, tp_t tp_obj_type ); \
+  void xoico_typespec_s_reset( xoico_typespec_s* o ); \
+  er_t xoico_typespec_s_parse( xoico_typespec_s* o, xoico_group_s* group, bcore_source* source ); \
+  tp_t xoico_typespec_s_get_hash( const xoico_typespec_s* o ); \
   er_t xoico_typespec_s_expand( const xoico_typespec_s* o, xoico_group_s* group, sc_t sc_obj_type, bcore_sink* sink ); \
-  bl_t xoico_typespec_s_converts_to( const xoico_typespec_s* o, const xoico_typespec_s* b ); \
-  void xoico_typespec_s_reset( xoico_typespec_s* o );
+  bl_t xoico_typespec_s_converts_to( const xoico_typespec_s* o, const xoico_typespec_s* b );
 #define BETH_EXPAND_GROUP_xoico_typespec \
   BCORE_FORWARD_OBJECT( xoico_typespec ); \
   BCORE_FORWARD_OBJECT( xoico_typespec_s ); \
+  bl_t xoico_typespec_is_numeric( tp_t type ); \
   XOILA_DECLARE_SPECT( xoico_typespec ) \
   { \
       bcore_spect_header_s header; \
@@ -1585,4 +1587,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // __xoico_xoila_out_H
-// XOILA_OUT_SIGNATURE 0xBAD5A013EC8CF919ull
+// XOILA_OUT_SIGNATURE 0xAA33477A332AF4B5ull

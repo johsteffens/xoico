@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-21T17:43:08Z
+ *  Last File Update: 2020-11-21T18:05:44Z
  *
  *  Copyright and License of this File:
  *
@@ -39,6 +39,7 @@
  *  xoico_signature.x
  *  xoico_stamp.x
  *  xoico_target.x
+ *  xoico_typespec.x
  *
  */
 
@@ -277,9 +278,17 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_typespec_s )
     "func xoico:get_hash;"
 "}";
 
+er_t xoico_typespec_s_relent( xoico_typespec_s* o, xoico_group_s* group, tp_t tp_obj_type )
+{
+    // xoico_typespec.h:56:5
+    
+    if( o->type == TYPEOF_type_object ) o->type = tp_obj_type;
+    return  0;
+}
+
 void xoico_typespec_s_reset( xoico_typespec_s* o )
 {
-    // xoico_typespec.h:58:5
+    // xoico_typespec.h:65:5
     
     o->type = 0;
     o->indirection = 0;
@@ -291,10 +300,213 @@ void xoico_typespec_s_reset( xoico_typespec_s* o )
     o->flag_addressable = true;  // object can have a pointer ('false' for objects returned by a function)
 }
 
+er_t xoico_typespec_s_parse( xoico_typespec_s* o, xoico_group_s* group, bcore_source* source )
+{
+    // xoico_typespec.x:21:1
+    BLM_INIT_LEVEL(0); {
+    xoico_typespec_s_reset(o);
+    
+    if( bcore_source_a_parse_bl(source,"#?'...' " ) )
+    {
+        o->flag_variadic = true;
+        BLM_RETURNV(er_t, 0)
+    }
+    
+    while( !bcore_source_a_eos(source) )
+    {
+        if     ( bcore_source_a_parse_bl(source," #?'const'"    ) ) o->flag_const = true;
+        else if( bcore_source_a_parse_bl(source," #?'static'"   ) ) o->flag_static = true;
+        else if( bcore_source_a_parse_bl(source," #?'volatile'" ) ) o->flag_volatile = true;
+        else if( bcore_source_a_parse_bl(source," #?'scope'"    ) ) o->flag_scope = true;
+        else break;
+    }
+    
+    BLM_TRY(bcore_source_a_parse_em_fa(source," " ))
+    
+    xoico_compiler_s* compiler = group->compiler;
+    
+    st_s* s = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,st_s_create()));
+    if( bcore_source_a_parse_bl(source,"#?':' " ) )
+    {
+        BLM_TRY(xoico_group_s_parse_name_recursive(group,s, source ))
+        o->type = xoico_compiler_s_entypeof(compiler,s->sc );
+    }
+    else if( bcore_source_a_parse_bl(source,"#?'@' " ) )
+    {
+        o->type = TYPEOF_type_object;
+    }
+    else if( bcore_source_a_parse_bl(source,"#?'$' " ) )
+    {
+        o->type = TYPEOF_type_deduce;
+    }
+    else
+    {
+        BLM_TRY(bcore_source_a_parse_em_fa(source,"#name ", s ))
+        if( s->size == 0 ) BLM_TRY(bcore_source_a_parse_error_fa(source,"Argument: Type expected." ))
+        o->type = xoico_compiler_s_entypeof( compiler,s->sc );
+    }
+    
+    while( bcore_source_a_parse_bl(source,"#?'*' " ) ) o->indirection++;
+    
+    if( bcore_source_a_parse_bl(source," #?'restrict' " ) ) o->flag_restrict = true;
+    
+    BLM_RETURNV(er_t, 0)
+    } /* try */
+}
+
+tp_t xoico_typespec_s_get_hash( const xoico_typespec_s* o )
+{
+    // xoico_typespec.x:74:1
+    
+    tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
+    hash = bcore_tp_fold_bl( hash, o->flag_const );
+    hash = bcore_tp_fold_bl( hash, o->flag_static );
+    hash = bcore_tp_fold_bl( hash, o->flag_volatile );
+    hash = bcore_tp_fold_bl( hash, o->flag_restrict );
+    hash = bcore_tp_fold_bl( hash, o->flag_scope );
+    hash = bcore_tp_fold_tp( hash, o->type );
+    hash = bcore_tp_fold_u3( hash, o->indirection );
+    return  hash;
+}
+
+er_t xoico_typespec_s_expand( const xoico_typespec_s* o, xoico_group_s* group, sc_t sc_obj_type, bcore_sink* sink )
+{
+    // xoico_typespec.x:89:1
+    BLM_INIT_LEVEL(0); {
+    if( o->flag_variadic )
+    {
+        bcore_sink_a_push_fa(sink,"..." );
+        BLM_RETURNV(er_t, 0)
+    }
+    
+    xoico_compiler_s* compiler = group->compiler;
+    
+    tp_t type = o->type;
+    
+    if( type == TYPEOF_type_object )
+    {
+        if( !sc_obj_type ) ERR_fa( "Cannot resolve 'type_object' at this point." );
+        type = xoico_compiler_s_entypeof(compiler,sc_obj_type );
+    }
+    else if( type == TYPEOF_type_deduce )
+    {
+        ERR_fa( "Cannot resolve 'type_deduce' at this point." );
+    }
+    
+    st_s* st_type = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,st_s_create_sc(xoico_compiler_s_nameof(compiler,type ) )));
+    
+    sc_t sc_type = st_type->sc;
+    if( o->flag_static   ) bcore_sink_a_push_fa(sink,"static " );
+    if( o->flag_const    ) bcore_sink_a_push_fa(sink,"const " );
+    if( o->flag_volatile ) bcore_sink_a_push_fa(sink,"volatile " );
+    bcore_sink_a_push_fa(sink,"#<sc_t>", sc_type );
+    
+    for( sz_t i = 0; i < o->indirection; i++ ) bcore_sink_a_push_fa(sink,"*" );
+    if( o->flag_restrict ) bcore_sink_a_push_fa(sink,"restrict " );
+    
+    BLM_RETURNV(er_t, 0)
+    } /* try */
+}
+
+bl_t xoico_typespec_s_converts_to( const xoico_typespec_s* o, const xoico_typespec_s* b )
+{
+    // xoico_typespec.x:154:1
+    
+    if( o->type == b->type )
+    {
+        if( o->indirection == b->indirection )
+        {
+            if( o->flag_const )
+            {
+                return  b->flag_const;
+            }
+            else
+            {
+                return  true;
+            }
+        }
+        else
+        {
+            return  false;
+        }
+    }
+    else
+    {
+        if( o->indirection == 0 && b->indirection == 0 )
+        {
+            if( xoico_typespec_is_numeric(o->type ) && xoico_typespec_is_numeric(b->type ) )
+            {
+                return  true;
+            }
+            else if( b->type == TYPEOF_vd_t && b->type == TYPEOF_vc_t )
+            {
+                return  true;
+            }
+            else
+            {
+                return  false;
+            }
+        }
+        else if( b->type == TYPEOF_vc_t && b->indirection == 0 )
+        {
+            if( o->indirection == 1 )
+            {
+                return  true;
+            }
+            else
+            {
+                return  false;
+            }
+        }
+        else if( b->type == TYPEOF_vd_t && b->indirection == 0 )
+        {
+            if( o->indirection == 1 && !o->flag_const )
+            {
+                return  true;
+            }
+            else
+            {
+                return  false;
+            }
+        }
+        else
+        {
+            return  false;
+        }
+    }
+}
+
 XOILA_DEFINE_SPECT( xoico, xoico_typespec )
 "{"
     "bcore_spect_header_s header;"
 "}";
+
+bl_t xoico_typespec_is_numeric( tp_t type )
+{
+    // xoico_typespec.x:127:1
+    
+    switch( type )
+    {
+        case TYPEOF_u0_t: return  true;
+        case TYPEOF_u1_t: return  true;
+        case TYPEOF_u2_t: return  true;
+        case TYPEOF_u3_t: return  true;
+        case TYPEOF_s0_t: return  true;
+        case TYPEOF_s1_t: return  true;
+        case TYPEOF_s2_t: return  true;
+        case TYPEOF_s3_t: return  true;
+        case TYPEOF_f2_t: return  true;
+        case TYPEOF_f3_t: return  true;
+        case TYPEOF_sz_t: return  true;
+        case TYPEOF_uz_t: return  true;
+        case TYPEOF_tp_t: return  true;
+        case TYPEOF_er_t: return  true;
+        case TYPEOF_bl_t: return  true;
+        case TYPEOF_char: return  true;
+        default: break;
+    }
+    return  false;
+}
 
 /**********************************************************************************************************************/
 // source: xoico_arg.h
@@ -8104,4 +8316,4 @@ vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0xEEEF40164D204278ull
+// XOILA_OUT_SIGNATURE 0x5FC1519F44A798F8ull
