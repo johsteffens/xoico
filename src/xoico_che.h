@@ -457,14 +457,9 @@ stamp : = aware :
         return ( !( ( o.typespec_ret.type == 0 ) || ( o.typespec_ret.type == TYPEOF_void ) ) ) || ( o.typespec_ret.indirection > 0 );
     };
 
-    func (er_t parse( const, bcore_source* source, sc_t format )) =
-    {
-        return source.parse_em_fa( format );
-    };
-
     func (er_t trans( const, bcore_source* source, sc_t format, :result* result )) =
     {
-        try( o.parse( source, format ));
+        try( source.parse_em_fa( format ));
         result.push_sc( format );
         return 0;
     };

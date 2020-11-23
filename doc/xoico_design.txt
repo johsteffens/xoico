@@ -272,7 +272,7 @@ TODO:
 - (speculative) allow (prepended) declaration after opening a bracket
 - (speculative) auto-scpect function return values marked 'scpect'
 
-- (speculative) non declarative assignment: allow type adaptation.
+- (speculative) non declarative assignment: allow adaptation.
     Problems:
       - Use of prefix '*', '&' requires priority handling.
       - When the target indirection is changed the actual desired functionality might change drastically in an unpredictable manner.
@@ -310,11 +310,11 @@ TODO:
 - scope instances on stack: e.g. scope st_s st;
 - is term 'indirection' proper?
 - bug: binary operator not recognized after unregistered member function
-
+- introduce operator 'pure' indicating that enclosed code in purely native to the c-engine (e.g. fully traced)
+- add extended checks for 'pure' code.
 
 Keywords (for syntax highlight)
 
 group stamp stump hidden private func name signature body aware feature extending verbatim
-mutable plain retrievable forward include deferred embed cast foreach in verbatim_C keep fork try deduce
-scope scope_local scope_func
-
+mutable plain retrievable forward include deferred embed cast foreach in verbatim_C keep fork
+try deduce scope scope_local scope_func extern

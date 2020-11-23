@@ -31,8 +31,8 @@ stamp : = aware :
     hidden aware xoico_group_s* group;
     bcore_source_point_s source_point;
 
-    func xoico.parse =
-    { try {
+    func xoico.parse = (try)
+    {
         o.source_point.set( source );
         if( source.parse_bl( " #?':'" ) )
         {
@@ -47,7 +47,7 @@ stamp : = aware :
         if( o.name.size == 0 ) return source.parse_error_fa( "Feature: Name missing." );
         source.parse_em_fa( " ; " );
         return 0;
-    } /* try */ };
+    };
 
     func xoico.get_hash =
     {

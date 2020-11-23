@@ -32,8 +32,8 @@ stamp : = aware :
     hidden aware xoico_group_s* group;
     bcore_source_point_s source_point;
 
-    func xoico.parse =
-    { try {
+    func xoico.parse = (try)
+    {
         $* compiler = o.group.compiler;
         o.source_point.set( source );
         $* st_name = st_s!.scope();
@@ -42,8 +42,7 @@ stamp : = aware :
         o.name = compiler.entypeof( st_name.sc );
         source.parse_em_fa( " ; " );
         return 0;
-    } /* try */ };
-
+    };
 
     func xoico.get_hash =
     {

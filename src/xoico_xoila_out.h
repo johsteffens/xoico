@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-23T12:40:11Z
+ *  Last File Update: 2020-11-23T13:04:47Z
  *
  *  Copyright and License of this File:
  *
@@ -49,7 +49,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x32D35F3E17E69E60ull
+#define HKEYOF_xoico_xoila_out 0x2FC5D79484B47987ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -1158,7 +1158,6 @@
   static inline xoico_stamp_s* xoico_che_s_get_stamp( xoico_che_s* o, tp_t name ); \
   static inline xoico_func_s* xoico_che_s_get_func( xoico_che_s* o, tp_t name ); \
   bl_t xoico_che_s_returns_a_value( const xoico_che_s* o ); \
-  er_t xoico_che_s_parse( const xoico_che_s* o, bcore_source* source, sc_t format ); \
   er_t xoico_che_s_trans( const xoico_che_s* o, bcore_source* source, sc_t format, xoico_che_result* result ); \
   tp_t xoico_che_s_get_identifier( xoico_che_s* o, bcore_source* source, bl_t take_from_source ); \
   er_t xoico_che_s_trans_identifier( xoico_che_s* o, bcore_source* source, xoico_che_result* result, tp_t* tp_identifier ); \
@@ -1591,4 +1590,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // __xoico_xoila_out_H
-// XOILA_OUT_SIGNATURE 0xE7175DD8BD6B278Eull
+// XOILA_OUT_SIGNATURE 0x68D78291DFB68163ull

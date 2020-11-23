@@ -108,7 +108,7 @@ func (:)( er_t trans_control_foreach( mutable, bcore_source* source, :result* re
 {
     o.inc_block();
     o.stack_block_get_top_unit().break_ledge = true;
-    o.parse( source, "foreach ( " );
+    source.parse_em_fa( "foreach ( " );
 
     xoico_typespec_s* typespec_var = scope( xoico_typespec_s! );
     o.take_typespec( source, typespec_var, true );
@@ -124,7 +124,7 @@ func (:)( er_t trans_control_foreach( mutable, bcore_source* source, :result* re
         return source.parse_error_fa( "Variable name expected." );
     }
 
-    o.parse( source, " in " );
+    source.parse_em_fa( " in " );
 
     xoico_typespec_s* typespec_arr_expr = scope( xoico_typespec_s! );
     $* result_arr_expr = :result_create_arr().scope();
@@ -146,7 +146,7 @@ func (:)( er_t trans_control_foreach( mutable, bcore_source* source, :result* re
 
     if( typespec_var.type == TYPEOF_type_deduce ) typespec_var.type = typespec_element.type;
 
-    o.parse( source, " )" );
+    source.parse_em_fa( " )" );
 
     xoico_typespec_s* typespec_arr = scope( typespec_arr_expr.clone() );
     typespec_arr.indirection = 1;
@@ -342,7 +342,7 @@ stamp :result_break = aware :result
 
 func (:)( er_t trans_control_break( mutable, bcore_source* source, :result* result ) ) = (try)
 {
-    o.parse( source, "break ;" );
+    source.parse_em_fa( "break ;" );
 
     sz_t ledge_level = -1;
     bl_t use_blm = false;
@@ -394,7 +394,7 @@ stamp :result_return = aware :result
 
 func (:)( er_t trans_control_return( mutable, bcore_source* source, :result* result ) ) = (try)
 {
-    o.parse( source, "return" );
+    source.parse_em_fa( "return" );
 
     $* result_expr = :result_create_arr().scope();
 
@@ -403,7 +403,7 @@ func (:)( er_t trans_control_return( mutable, bcore_source* source, :result* res
 
     o.trans_expression( source, result_expr, typespec_expr );
     o.trans_whitespace( source, result_expr );
-    o.parse( source, ";" );
+    source.parse_em_fa( ";" );
 
     if( typespec_expr.type )
     {

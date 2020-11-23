@@ -269,7 +269,7 @@ func (:) (er_t trans_whitespace( mutable, bcore_source* source, :result* result 
 
 func (:) (er_t trans_preprocessor( mutable, bcore_source* source, :result* result )) = (try)
 {
-    o.parse( source, "##" );
+    source.parse_em_fa( "##" );
     result.push_sc( "#" );
     while( !source.eos() )
     {
@@ -561,7 +561,7 @@ func (:)
             o.trans_expression( source, result_expr, typespec_expr );
             result_obj_expr = result_expr;
             typespec_obj_expr = typespec_expr;
-            if( signature.args.size > 0 ) o.parse( source, " ," );
+            if( signature.args.size > 0 ) source.parse_em_fa( " ," );
         }
 
         xoico_typespec_s* typespec_obj_out = typespec_obj_expr.clone().scope();
@@ -584,11 +584,11 @@ func (:)
 
         $* result_expr = :result_create_arr().scope();
         $* typespec_expr = xoico_typespec_s!.scope( scope_local );
-        o.parse( source, " " );
+        source.parse_em_fa( " " );
 
         if( __i > 0 )
         {
-            o.parse( source, " ," );
+            source.parse_em_fa( " ," );
             result_out.push_sc( "," );
         }
 
@@ -607,13 +607,13 @@ func (:)
     {
         while( !source.eos() && !source.parse_bl( " #=?')'" ) )
         {
-            o.parse( source, " ," );
+            source.parse_em_fa( " ," );
             result_out.push_sc( "," );
             o.trans_expression( source, result_out, NULL );
         }
     }
 
-    o.parse( source, " " );
+    source.parse_em_fa( " " );
     o.trans( source, ")", result_out );
     return 0;
 };
@@ -641,9 +641,9 @@ func (:)
     }
     else
     {
-        o.parse( source, "." );
+        source.parse_em_fa( "." );
     }
-    o.parse( source, " " );
+    source.parse_em_fa( " " );
     xoico_compiler_element_info_s* info = xoico_compiler_element_info_s!.scope();
 
     char c = source.inspect_char();
@@ -711,12 +711,12 @@ func (:)
         bl_t bounds_check = false;
         if( source.parse_bl( "#=?'?'" ) )
         {
-            o.parse( source, "?[" );
+            source.parse_em_fa( "?[" );
             bounds_check = true;
         }
         else
         {
-            o.parse( source, "[" );
+            source.parse_em_fa( "[" );
         }
 
         if( bounds_check ) return source.parse_error_fa( "Bounds check not yet available." );
@@ -732,7 +732,7 @@ func (:)
 
         result.push_fa( "#<sc_t>data[", ( in_typespec.indirection == 1 ) ? "->" : "." );
         o.trans_expression( source, result, NULL );
-        o.parse( source, "]" );
+        source.parse_em_fa( "]" );
         result.push_sc( "]" );
 
         if( o.compiler.get_type_array_element_info( in_typespec.type, info ) )
@@ -825,7 +825,7 @@ func (:)
                 if( source.parse_bl( "#=?')'" ) ) break;
 
                 $* result_expr = :result_create_arr().scope();
-                if( !first ) o.parse( source, "," );
+                if( !first ) source.parse_em_fa( "," );
                 o.trans_expression( source, result_expr, NULL );
                 o.trans_whitespace( source, result_expr );
                 result.push_fa( "," );
@@ -833,7 +833,7 @@ func (:)
                 first = false;
             }
 
-            o.parse( source, ")" );
+            source.parse_em_fa( ")" );
             result.push_sc( ")" );
 
             o.trans_expression( source, result, NULL );
@@ -862,11 +862,11 @@ func (:)
     )
 ) = (try)
 {
-    o.parse( source, "[" );
+    source.parse_em_fa( "[" );
 
     result.push_sc( "[" );
     o.trans_expression( source, result, NULL );
-    o.parse( source, "]" );
+    source.parse_em_fa( "]" );
     result.push_sc( "]" );
 
     xoico_typespec_s* typespec = in_typespec.clone().scope();
@@ -906,7 +906,7 @@ func (:)
     )
 ) = (try)
 {
-    o.parse( source, "!" );
+    source.parse_em_fa( "!" );
 
     //ignore in case indirection is 0;
     if( in_typespec.indirection > 0 )
@@ -948,7 +948,7 @@ func (:)
     )
 ) = (try)
 {
-    o.parse( source, "?" );
+    source.parse_em_fa( "?" );
 
     //ignore in case indirection is 0;
     if( in_typespec.indirection > 0 )
@@ -990,7 +990,7 @@ func (:)
         return source.parse_error_fa( "Attach-Operator requires lvalue with addressable indirection of 1" );
     }
 
-    o.parse( source, "=<" );
+    source.parse_em_fa( "=<" );
 
     $* result_arg_obj = result.clone().scope();
     result.clear();
@@ -1042,12 +1042,12 @@ func (:)
     )
 ) = (try)
 {
-    o.parse( source, "?" );
+    source.parse_em_fa( "?" );
     result.push_sc( "?" );
     xoico_typespec_s* typespec_true  = xoico_typespec_s!.scope();
 
     o.trans_expression( source, result, typespec_true );
-    o.parse( source, ": " );
+    source.parse_em_fa( ": " );
     result.push_sc( ": " );
     o.trans_expression( source, result, NULL );
 
@@ -1383,7 +1383,7 @@ func (:)
     )
 ) = (try)
 {
-    o.parse( source, "?" );
+    source.parse_em_fa( "?" );
     result.push_sc( "?" );
     o.trans_expression( source, result, NULL );
     o.trans( source, ": ", result );
@@ -1404,7 +1404,7 @@ func (:)
     )
 ) = (try)
 {
-    o.parse( source, "(" );
+    source.parse_em_fa( "(" );
     result.push_char( '(' );
     while( !source.eos() )
     {
@@ -1431,10 +1431,10 @@ func (:)
     )
 ) = (try)
 {
-    o.parse( source, "[" );
+    source.parse_em_fa( "[" );
     result.push_sc( "[" );
     o.trans_expression( source, result, NULL );
-    o.parse( source, "]" );
+    source.parse_em_fa( "]" );
     result.push_sc( "]" );
     return 0;
 };
@@ -1475,9 +1475,9 @@ func (:)
 
         else if( tp_identifier == TYPEOF_verbatim_C )
         {
-            o.parse( source, "verbatim_C {" );
+            source.parse_em_fa( "verbatim_C {" );
             o.trans_block_inside_verbatim_c( source, result );
-            o.parse( source, " }" );
+            source.parse_em_fa( " }" );
         }
 
         // a control name marks end of expression...
@@ -1677,7 +1677,7 @@ func (:)
             {
                 result_var.push_char( '[' );
                 o.trans_expression( source, result_var, NULL );
-                o.parse( source, "]" );
+                source.parse_em_fa( "]" );
                 result_var.push_char( ']' );
                 typespec_var.indirection++;
             }
@@ -1710,7 +1710,7 @@ func (:)
 
 func(:) (er_t inspect_variable( mutable, bcore_source* source )) = (try)
 {
-    o.parse( source, "\?\?" );
+    source.parse_em_fa( "\?\?" );
 
     $* st = st_s!.scope();
     $* result_local = :result_create_arr().scope();
@@ -1969,7 +1969,7 @@ func (:) (er_t trans_block_inside_verbatim_c( mutable, bcore_source* source, :re
             {
                 result.push_char( source.get_char() );
                 o.trans_block_inside_verbatim_c( source, result );
-                o.parse( source, "}" );
+                source.parse_em_fa( "}" );
                 result.push_char( '}' );
             }
             break;
@@ -2116,7 +2116,7 @@ func (:) (er_t translate_mutable( mutable, const xoico_body_s* body, const xoico
         }
     }
 
-    o.parse( source, " {" );
+    source.parse_em_fa( " {" );
     sz_t indentation = 0;
     if( !body.go_inline ) indentation = o.assess_indentation( source );
 
@@ -2130,7 +2130,7 @@ func (:) (er_t translate_mutable( mutable, const xoico_body_s* body, const xoico
         o.trans_block_inside( source, result );
         o.try_block_level -= flag_try;
     }
-    o.parse( source, " }" );
+    source.parse_em_fa( " }" );
 
     $* result_block = :result_create_block( o.level, o.stack_block_get_bottom_unit().use_blm ).scope();
     result_block.cast( :result_block_s* ).is_root = true;

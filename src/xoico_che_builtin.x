@@ -75,16 +75,16 @@ func (:)
 {
     if( result_expr ) // member call
     {
-        o.parse( source, " ( " );
+        source.parse_em_fa( " ( " );
         result_out.clear();
     }
     else // direct call
     {
-        o.parse( source, "cast ( " );
+        source.parse_em_fa( "cast ( " );
         $* result = :result_create_arr().scope();
         $* typespec = xoico_typespec_s!.scope();
         o.trans_expression( source, result, typespec );
-        o.parse( source, " , " );
+        source.parse_em_fa( " , " );
         typespec_expr = typespec;
         result_expr = result;
     }
@@ -123,7 +123,7 @@ func (:)
         result_out.push_result_c( result_expr );
     }
 
-    o.parse( source, " )" );
+    source.parse_em_fa( " )" );
     result_out.push_sc( "))" );
 
     if( typespec_out ) typespec_out.copy( typespec_cast );
@@ -155,13 +155,13 @@ func (:)
 
     if( result_expr ) // member call
     {
-        o.parse( source, " ( " );
+        source.parse_em_fa( " ( " );
         result_out.clear();
         has_arg = !source.parse_bl( "#=?')'" );
     }
     else // direct call
     {
-        o.parse( source, "scope ( " );
+        source.parse_em_fa( "scope ( " );
         $* result = :result_create_arr().scope();
         $* typespec = xoico_typespec_s!.scope();
         o.trans_expression( source, result, typespec );
@@ -178,7 +178,7 @@ func (:)
 
     if( has_arg )
     {
-        o.parse( source, " " );
+        source.parse_em_fa( " " );
         tp_t tp_identifier = o.get_identifier( source, true );
 
         if( o.is_var( tp_identifier ) )
@@ -199,7 +199,7 @@ func (:)
         }
     }
 
-    o.parse( source, " )" );
+    source.parse_em_fa( " )" );
 
     if( typespec_scope.type        == 0 ) return source.parse_error_fa( "Operator 'scope': Expression not tractable." );
     if( typespec_scope.indirection != 1 ) return source.parse_error_fa( "Operator 'scope': Expression's indirection != 1." );
@@ -248,12 +248,12 @@ func (:)
 {
     if( result_expr ) // member call
     {
-        o.parse( source, " ( " );
+        source.parse_em_fa( " ( " );
         result_out.clear();
     }
     else // direct call
     {
-        o.parse( source, "fork ( " );
+        source.parse_em_fa( "fork ( " );
         $* result = :result_create_arr().scope();
         $* typespec = xoico_typespec_s!.scope();
         o.trans_expression( source, result, typespec );
@@ -265,7 +265,7 @@ func (:)
 
     result_out.push_sc( "((" );
 
-    o.parse( source, " )" );
+    source.parse_em_fa( " )" );
 
     if( typespec_fork.type        == 0 ) return source.parse_error_fa( "Operator 'fork': Expression not tractable." );
     if( typespec_fork.indirection != 1 ) return source.parse_error_fa( "Operator 'fork': Expression's indirection != 1." );
@@ -304,12 +304,12 @@ func (:)
 
     if( result_expr ) // member call
     {
-        o.parse( source, " ( " );
+        source.parse_em_fa( " ( " );
         result_out.clear();
     }
     else // direct call
     {
-        o.parse( source, "try " );
+        source.parse_em_fa( "try " );
 
         if( source.parse_bl( "#=?'{'" ) ) // try block
         {
@@ -319,7 +319,7 @@ func (:)
             return 0;
         }
 
-        o.parse( source, "( " );
+        source.parse_em_fa( "( " );
         $* result = :result_create_arr().scope();
         $* typespec = xoico_typespec_s!.scope();
         o.trans_expression( source, result, typespec );
@@ -329,7 +329,7 @@ func (:)
 
     const xoico_typespec_s* typespec_try = typespec_expr;
 
-    o.parse( source, " ) ;" );
+    source.parse_em_fa( " ) ;" );
 
     if( typespec_try.type != 0 )
     {
