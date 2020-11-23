@@ -29,8 +29,8 @@ func (:) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.parse =
-{ try {
+func (:) xoico.parse = (try)
+{
     o.source_point.set( source );
     $* compiler = o.group.compiler;
 
@@ -116,12 +116,12 @@ func (:) xoico.parse =
 
     o.global_name = compiler.entypeof( name_buf.sc );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.expand_declaration =
-{ try {
+func (:) :.expand_declaration = (try)
+{
     sc_t sc_name = stamp ? stamp.st_name.sc : o.group.st_name.sc;
     o.typespec_ret.expand( o.group, sc_name, sink );
     sink.push_fa( " #<sc_t>( ", sc_func_global_name );
@@ -146,7 +146,7 @@ func (:) :.expand_declaration =
         sink.push_fa( " )" );
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 

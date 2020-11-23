@@ -121,9 +121,7 @@ func (:) :.check_overwrite =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.parse =
-{
-try
+func (:) :.parse = (try)
 {
     st_s* source_folder_path = bcore_file_folder_path( source_path ).scope();
     st_s* target_path        = st_s_create_fa( "#<sc_t>/#<sc_t>", source_folder_path->sc, target_name ).scope();
@@ -153,34 +151,27 @@ try
     if( p_target_index ) p_target_index.0 = target_index;
 
     return 0;
-} // try
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.finalize =
+func (:) xoico.finalize = (try)
 {
-    try
-    {
-        for( sz_t i = 0; i < o->size; i++ ) o.[ i ].finalize();
-    }
+    foreach( $* e in o ) e.finalize();
     return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_setup =
+func (:) xoico.expand_setup = (try)
 {
-    try
-    {
-        for( sz_t i = 0; i < o->size; i++ ) o.[ i ].expand_setup();
+    for( sz_t i = 0; i < o->size; i++ ) o.[ i ].expand_setup();
 
-        /* We obtain all names from the global map.
-         * This is necessary because names of reflection elements are parsed outside
-         * this framework and remembered by the global map.
-         */
-        bcore_name_push_all( o.name_map.1 );
-    }
+    /* We obtain all names from the global map.
+     * This is necessary because names of reflection elements are parsed outside
+     * this framework and remembered by the global map.
+     */
+    bcore_name_push_all( o.name_map.1 );
 
     return 0;
 };
@@ -200,9 +191,7 @@ func (:) (bl_t to_be_modified( const )) =
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if a file was modified
-func (:) (er_t expand( mutable, bl_t* p_modified )) =
-{
-try
+func (:) (er_t expand( mutable, bl_t* p_modified )) = (try)
 {
     bl_t modified = false;
 
@@ -212,7 +201,6 @@ try
 
     if( p_modified ) p_modified.0 = modified;
     return 0;
-} // try
 };
 
 //----------------------------------------------------------------------------------------------------------------------

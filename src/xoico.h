@@ -80,8 +80,8 @@ func (er_t parse_f( bcore_source* source, sc_t format )) =
 //----------------------------------------------------------------------------------------------------------------------
 
 /// opens an include file from an include directive in parent
-func (er_t embed_file_open( bcore_source* parent, sc_t file_name, bcore_source** include_source )) =
-{ try {
+func (er_t embed_file_open( bcore_source* parent, sc_t file_name, bcore_source** include_source )) = (try)
+{
     st_s* folder = bcore_file_folder_path( parent.get_file() ).scope();
     if( folder.size == 0 ) folder.push_char( '.' );
 
@@ -102,7 +102,7 @@ func (er_t embed_file_open( bcore_source* parent, sc_t file_name, bcore_source**
 
     include_source.1 = bcore_file_open_source( path.sc );
     return 0;
-} /* try */ };
+};
 
 #endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

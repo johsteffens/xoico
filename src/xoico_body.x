@@ -17,15 +17,21 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:code) :.parse =
-{ try {
+func (:code) :.parse = (try)
+{
     if( !o.group ) return source.parse_error_fa( "xoico_body_code_s: Code has no group assigned." );
 
     tp_t hash = bcore_tp_init();
 
     o.source_point.set( source );
 
-    try( source.parse_em_fa( " {" ) );
+    if( source.parse_bl( " #?'('" ) )
+    {
+        while( !source.eos() && source.inspect_char() != ')' ) source.get_char();
+        source.parse_em_fa( ")" );
+    }
+
+    source.parse_em_fa( " {" );
 
     sz_t nest_count = 1;
     bl_t exit_loop = false;
@@ -131,7 +137,7 @@ func (:code) :.parse =
 
     o.hash_source = hash;
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -177,9 +183,9 @@ func (:) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.parse_expression =
-{ try {
-    if( source.parse_bl( " #=?'{'" ) )
+func (:) :.parse_expression = (try)
+{
+    if( source.parse_bl( " #=?'{'" ) || source.parse_bl( " #=?'('" ) )
     {
         o.code =< xoico_body_code_s!;
         o.code.group = o.group;
@@ -189,7 +195,7 @@ func (:) :.parse_expression =
     }
     else
     {
-        xoico_compiler_s* compiler = o.group.compiler;
+        $* compiler = o.group.compiler;
         $* st_name = st_s!.scope();
         o.group.parse_name( st_name, source );
 
@@ -200,20 +206,16 @@ func (:) :.parse_expression =
         tp_t tp_name = compiler.entypeof( st_name.sc );
 
         // if name_buf refers to another body
-        if( compiler.is_item( tp_name ) )
+        if( compiler.is_body( tp_name ) )
         {
-            const xoico* item = compiler.get_const_item( tp_name );
-            if( item._ == TYPEOF_xoico_body_s )
+            const $* body = compiler.get_body( tp_name );
+            o.code =< body.code.clone();
+            if( o.code )
             {
-                const $* body = item.cast( xoico_body_s* );
-                o.code =< body.code.clone();
-                if( o.code )
-                {
-                    o.code.group = body.code.group;
-                    o.code.stamp = body.code.stamp;
-                }
-                o.go_inline = body.go_inline;
+                o.code.group = body.code.group;
+                o.code.stamp = body.code.stamp;
             }
+            o.go_inline = body.go_inline;
         }
         else
         {
@@ -221,34 +223,34 @@ func (:) :.parse_expression =
         }
     }
     return 0;
-
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.parse =
-{ try {
+func (:) :.parse = (try)
+{
     if( !o.group ) return source.parse_error_fa( "Body has no group assigned." );
     st_s* string = st_s!.scope();
     o.source_point.set( source );
 
     if( !source.parse_bl( " #=?'='" ) )
     {
-        try( source.parse_em_fa( " #name", string ) );
+        source.parse_em_fa( " #name", string );
         if( string.size == 0 ) return source.parse_error_fa( "Body name expected." );
         o.name.push_fa( "#<sc_t>", string.sc );
     }
 
-    try( source.parse_em_fa( " =" ) );
+    source.parse_em_fa( " =" );
+
     o.parse_expression( source );
     o.global_name.copy_fa( "#<sc_t>_#<sc_t>", o.group.st_name.sc, o.name.sc );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.expand =
-{ try {
+func (:) :.expand = (try)
+{
     const st_s* final_code = NULL;
     st_s* st_out = st_s!.scope();
 
@@ -278,7 +280,7 @@ func (:) :.expand =
         sink.push_fa( "\n#rn{ }}", indent );
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 

@@ -32,8 +32,8 @@ func (:) :.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t set_global_name( mutable )) =
-{ try {
+func (:) (er_t set_global_name( mutable )) = (try)
+{
     st_s* st_global_name = st_s!.scope();
 
     xoico_compiler_s* compiler = o.group.compiler;
@@ -50,12 +50,12 @@ func (:) (er_t set_global_name( mutable )) =
 
     o.global_name = compiler.entypeof( st_global_name.sc );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.parse =
-{ try {
+func (:) :.parse = (try)
+{
     xoico_compiler_s* compiler = o.group.compiler;
 
     // global name signature
@@ -81,7 +81,7 @@ func (:) :.parse =
             if( !o.stamp ) return source.parse_error_fa( "Signature specifies a member-function. A plain function was expected at this point." );
         }
 
-        try( source.parse_em_fa( " ) " ) );
+        source.parse_em_fa( " ) " );
 
         compiler.register_item( signature, source );
 
@@ -121,10 +121,10 @@ func (:) :.parse =
             }
         }
 
-        try( source.parse_em_fa( " ." ) );
+        source.parse_em_fa( " ." );
         o.flect_decl.push_sc( ":" );
 
-        try( source.parse_em_fa( " #name", st_name ) );
+        source.parse_em_fa( " #name", st_name );
     }
 
     if( st_name->size == 0 ) return source.parse_error_fa( "Function name expected." );
@@ -145,10 +145,10 @@ func (:) :.parse =
         o.body.parse( source );
     }
 
-    try( source.parse_em_fa( " ; " ) );
+    source.parse_em_fa( " ; " );
     o.flect_decl.push_sc( ";" );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -177,8 +177,8 @@ func (:) :.registerable =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.finalize =
-{ try {
+func (:) :.finalize = (try)
+{
     xoico_compiler_s* compiler = o.group.compiler;
     o.set_global_name();
 
@@ -203,12 +203,12 @@ func (:) :.finalize =
     }
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_forward =
-{ try {
+func (:) xoico.expand_forward = (try)
+{
     if( !o->expandable ) return 0;
 
     $* compiler = o.group.compiler;
@@ -228,12 +228,12 @@ func (:) xoico.expand_forward =
     sink.push_fa( ";" );
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_declaration =
-{ try {
+func (:) xoico.expand_declaration = (try)
+{
     if( !o.expandable ) return 0;
 
     bl_t go_inline = o.body && o.body.go_inline;
@@ -251,12 +251,12 @@ func (:) xoico.expand_declaration =
     // non-inline functions are already declared in expand_forward
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_definition =
-{ try {
+func (:) xoico.expand_definition = (try)
+{
     if( !o.expandable ) return 0;
     $* compiler = o.group.compiler;
 
@@ -273,7 +273,7 @@ func (:) xoico.expand_definition =
     }
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 

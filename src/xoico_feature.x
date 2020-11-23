@@ -32,8 +32,8 @@ func (:) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.parse =
-{ try {
+func (:) xoico.parse = (try)
+{
     xoico_compiler_s* compiler = o.group.compiler;
 
     o.source_point.set( source );
@@ -42,7 +42,7 @@ func (:) xoico.parse =
     if( source.parse_bl( " #?|'|" ) )
     {
         st_s* flags = st_s!.scope();
-        try( source.parse_em_fa( " #until'''", flags ) );
+        source.parse_em_fa( " #until'''", flags );
         for( sz_t i = 0; i < flags.size; i++ )
         {
             switch( flags.data[ i ] )
@@ -54,7 +54,7 @@ func (:) xoico.parse =
                 default: return source.parse_error_fa( "Feature: Flag '#<char>' not handled. Choose from 'ptar'.", flags.[ i ] );
             }
         }
-        try( source.parse_em_fa( "' " ) );
+        source.parse_em_fa( "' " );
     }
     else
     {
@@ -72,30 +72,23 @@ func (:) xoico.parse =
         return source.parse_error_fa( "Feature: The first argument must be 'mutable' or 'const'." );
     }
 
-    if( source.parse_bl( " #?'=' " ) )
+    if( source.parse_bl( " #=?'=' " ) )
     {
-        if( source.parse_bl( " #=?'{' " ) )
-        {
-            if( o.strict ) return source.parse_error_fa( "Feature is 'strict'. Default function would have no effect." );
-            o.default_body = xoico_body_s!;
-            o.default_body.set_group( o.group );
-            o.default_body.source_point.set( source );
-            o.default_body.parse_expression( source );
-            o.st_default_func_name.copy_fa( "#<sc_t>_default", compiler.nameof( o.signature.name ) );
-        }
-        else
-        {
-            if( o.strict )  return source.parse_error_fa( "Feature is 'strict'. Default function would have no effect." );
-            try( source.parse_em_fa( " #name ", o.st_default_func_name.1 ) );
-            if( o.st_default_func_name.size == 0 ) return source.parse_error_fa( "Feature: Default function name expected." );
-            if( o.st_default_func_name.equal_sc( compiler.nameof( o.signature.name ) ) )
-            {
-                return source.parse_error_fa( "Feature: Default function name must differ from feature name." );
-            }
-        }
+        if( o.strict ) return source.parse_error_fa( "Feature is 'strict'. Default function would have no effect." );
+        o.default_body = xoico_body_s!;
+        o.default_body.set_group( o.group );
+        o.default_body.parse( source );
+        o.st_default_func_name.copy_fa( "#<sc_t>__default", compiler.nameof( o.signature.name ) );
+    }
+    else if( source.parse_bl( " #?w'extern' " ) )
+    {
+        st_s* st_name = st_s!.scope();
+        source.parse_em_fa( " #name ", st_name );
+        if( st_name.size == 0 ) return source.parse_error_fa( "Feature: Default function name expected." );
+        o.st_default_func_name.copy_fa( "#<sc_t>_#<sc_t>", compiler.nameof( o.signature.name ), st_name.sc );
     }
 
-    try( source.parse_em_fa( " ; " ) );
+    source.parse_em_fa( " ; " );
 
     sc_t sc_name = compiler.nameof( o.signature.name );
     sc_t sc_group_name = o.group.st_name.sc;
@@ -116,12 +109,12 @@ func (:) xoico.parse =
     }
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_indef_typedef =
-{ try {
+func (:) xoico.expand_indef_typedef = (try)
+{
     if( !o.expandable ) return 0;
     xoico_compiler_s* compiler = o.group.compiler;
     sink.push_fa( " \\\n#rn{ }  typedef ", indent );
@@ -132,22 +125,22 @@ func (:) xoico.expand_indef_typedef =
     o.signature.args.expand( false, o.group.st_name.sc, sink );
     sink.push_fa( " );" );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_spect_declaration =
-{ try {
+func (:) xoico.expand_spect_declaration = (try)
+{
     if( !o.expandable ) return 0;
     xoico_compiler_s* compiler = o.group.compiler;
     sink.push_fa( " \\\n#rn{ }#<sc_t> #<sc_t>;", indent, compiler.nameof( o.signature.global_name ), compiler.nameof( o.signature.name ) );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_spect_definition =
-{ try {
+func (:) xoico.expand_spect_definition = (try)
+{
     if( !o.expandable ) return 0;
     xoico_compiler_s* compiler = o.group.compiler;
     sink.push_fa( "#rn{ }\"feature ", indent );
@@ -161,12 +154,12 @@ func (:) xoico.expand_spect_definition =
     }
     sink.push_fa( ";\"\n" );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_indef_declaration =
-{ try {
+func (:) xoico.expand_indef_declaration = (try)
+{
     if( !o.expandable ) return 0;
     xoico_compiler_s* compiler = o.group.compiler;
 
@@ -395,12 +388,12 @@ func (:) xoico.expand_indef_declaration =
         }
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_definition =
-{ try {
+func (:) xoico.expand_definition = (try)
+{
     if( !o.expandable ) return 0;
     if( o.default_body && !o.default_body.go_inline )
     {
@@ -417,12 +410,12 @@ func (:) xoico.expand_definition =
         o.default_body.expand( o.signature.1, indent, sink );
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_init1 =
-{ try {
+func (:) xoico.expand_init1 = (try)
+{
     if( !o.expandable ) return 0;
     xoico_compiler_s* compiler = o.group.compiler;
     sc_t sc_global_name = compiler.nameof( o.signature.global_name );
@@ -440,7 +433,7 @@ func (:) xoico.expand_init1 =
         );
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 

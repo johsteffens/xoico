@@ -46,8 +46,8 @@ func (:)
         :result* result_out,
         xoico_typespec_s* typespec_out
     )
-) =
-{ try {
+) = (try)
+{
     switch( tp_builtin )
     {
         case TYPEOF_cast : return o.trans_builtin_cast(  source, result_expr, typespec_expr, result_out, typespec_out );
@@ -56,7 +56,7 @@ func (:)
         case TYPEOF_try:   return o.trans_builtin_try(   source, result_expr, typespec_expr, result_out, typespec_out );
         default: return source.parse_error_fa( "Internal error: Invalid builtin type '#<sc_t>'", ifnameof( tp_builtin ) );
     }
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -71,8 +71,8 @@ func (:)
         :result* result_out,
         xoico_typespec_s* typespec_out
     )
-) =
-{ try {
+) = (try)
+{
     if( result_expr ) // member call
     {
         o.parse( source, " ( " );
@@ -134,7 +134,7 @@ func (:)
     }
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -149,8 +149,8 @@ func (:)
         :result* result_out,
         xoico_typespec_s* typespec_out
     )
-) =
-{ try {
+) = (try)
+{
     bl_t has_arg = false;
 
     if( result_expr ) // member call
@@ -229,7 +229,7 @@ func (:)
     }
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -244,8 +244,8 @@ func (:)
         :result* result_out,
         xoico_typespec_s* typespec_out
     )
-) =
-{ try {
+) = (try)
+{
     if( result_expr ) // member call
     {
         o.parse( source, " ( " );
@@ -278,7 +278,7 @@ func (:)
     if( typespec_out ) typespec_out.copy( typespec_fork );
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -293,8 +293,8 @@ func (:)
         :result* result_out,
         xoico_typespec_s* typespec_out
     )
-) =
-{ try {
+) = (try)
+{
     if( o.typespec_ret.type != TYPEOF_er_t || o.typespec_ret.indirection != 0 )
     {
         return source.parse_error_fa( "Operator 'try': This operator can only be used in functions returning 'er_t'." );
@@ -346,8 +346,7 @@ func (:)
     result_out.push_sc( ")" );
 
     return 0;
-} /* try */ };
-
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 

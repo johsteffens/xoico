@@ -37,15 +37,15 @@ stamp : = aware :
         if( source.parse_bl( " #?':'" ) )
         {
             st_s* name = st_s!.scope();
-            try( source.parse_em_fa( " #name", name ) );
+            source.parse_em_fa( " #name", name );
             o.name.push_fa( "#<sc_t>#<sc_t>#<sc_t>", o.group.st_name.sc, name.sc[ 0 ] ? "_" : "", name.sc );
         }
         else
         {
-            try( source.parse_em_fa( " #name", o.name.1 ) );
+            source.parse_em_fa( " #name", o.name.1 );
         }
         if( o.name.size == 0 ) return source.parse_error_fa( "Feature: Name missing." );
-        try( source.parse_em_fa( " ; " ) );
+        source.parse_em_fa( " ; " );
         return 0;
     } /* try */ };
 
@@ -58,17 +58,17 @@ stamp : = aware :
 
     func xoico.get_global_name_sc = { return o->name.sc; };
 
-    func xoico.expand_declaration =
-    { try {
+    func xoico.expand_declaration = (try)
+    {
         sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o.name.sc, btypeof( o.name.sc ) );
         return 0;
-    } /* try */ };
+    };
 
-    func xoico.expand_forward =
-    { try {
+    func xoico.expand_forward = (try)
+    {
         sink.push_fa( " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o.name.sc );
         return 0;
-    } /* try */ };
+    };
 
     func xoico.expand_init1 = { return 0; };
 

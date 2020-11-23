@@ -17,8 +17,8 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.parse =
-{ try {
+func (:) :.parse = (try)
+{
     st_s* source_name        = bcore_file_strip_extension( bcore_file_name( source_path ) ).scope();
     st_s* source_folder_path = bcore_file_folder_path( source_path ).scope();
     st_s* source_path_n      = st_s_create_fa( "#<sc_t>/#<sc_t>", source_folder_path->sc, source_name->sc ).scope();
@@ -52,7 +52,7 @@ func (:) :.parse =
     }
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -109,8 +109,8 @@ func (:) :.is_cyclic =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.set_dependencies =
-{ try {
+func (:) :.set_dependencies = (try)
+{
     sz_t targets = o.compiler.size;
 
     /// sort, remove duplicates, copy
@@ -133,12 +133,12 @@ func (:) :.set_dependencies =
     }
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t expand_heading( const, sz_t indent, bcore_sink* sink )) =
-{ try {
+func (:) (er_t expand_heading( const, sz_t indent, bcore_sink* sink )) = (try)
+{
     bcore_cday_utc_s* time = bcore_cday_utc_s!.scope();
     time.from_system();
 
@@ -170,12 +170,12 @@ func (:) (er_t expand_heading( const, sz_t indent, bcore_sink* sink )) =
     sink.push_fa( " *\n" );
     sink.push_fa( " */\n" );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t expand_h( const, sz_t indent, bcore_sink* sink )) =
-{ try {
+func (:) (er_t expand_h( const, sz_t indent, bcore_sink* sink )) = (try)
+{
     o.expand_heading( indent, sink );
 
     tp_t target_hash = o.get_hash();
@@ -207,7 +207,7 @@ func (:) (er_t expand_h( const, sz_t indent, bcore_sink* sink )) =
     sink.push_fa( "#rn{ }##endif // __#<sc_t>_H\n", indent, o.name.sc );
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -218,8 +218,8 @@ func (:) (er_t expand_init1( const, sz_t indent, bcore_sink* sink )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t expand_c( const, sz_t indent, bcore_sink* sink )) =
-{ try {
+func (:) (er_t expand_c( const, sz_t indent, bcore_sink* sink )) = (try)
+{
     o.expand_heading( indent, sink );
 
     sink.push_fa( "\n" );
@@ -242,8 +242,10 @@ func (:) (er_t expand_c( const, sz_t indent, bcore_sink* sink )) =
     foreach( sz_t target_idx in o->dependencies )
     {
         const xoico_target_s* target = o.compiler.data[ target_idx ];
-        if( target.signal_handler_name.size == 0 ) continue;
-        sink.push_fa( "#rn{ }vd_t #<sc_t>( const bcore_signal_s* o );\n", indent, target.signal_handler_name.sc );
+        if( target.signal_handler_name.size > 0 )
+        {
+            sink.push_fa( "#rn{ }vd_t #<sc_t>( const bcore_signal_s* o );\n", indent, target.signal_handler_name.sc );
+        }
     }
 
     sink.push_fa( "\n" );
@@ -268,8 +270,10 @@ func (:) (er_t expand_c( const, sz_t indent, bcore_sink* sink )) =
         foreach( sz_t target_idx in o.dependencies )
         {
             const xoico_target_s* target = o.compiler.[ target_idx ];
-            if( target.signal_handler_name.size == 0 ) continue;
-            sink.push_fa( "#rn{ }            bcore_arr_fp_s_push( arr_fp, ( fp_t )#<sc_t> );\n", indent, target.signal_handler_name.sc );
+            if( target.signal_handler_name.size > 0 )
+            {
+                sink.push_fa( "#rn{ }            bcore_arr_fp_s_push( arr_fp, ( fp_t )#<sc_t> );\n", indent, target.signal_handler_name.sc );
+            }
         }
         sink.push_fa( "#rn{ }        }\n", indent );
         sink.push_fa( "#rn{ }        break;\n", indent );
@@ -280,7 +284,7 @@ func (:) (er_t expand_c( const, sz_t indent, bcore_sink* sink )) =
     sink.push_fa( "#rn{ }    return NULL;\n", indent );
     sink.push_fa( "#rn{ }}\n", indent );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -319,8 +323,8 @@ func (:) :.to_be_modified =
 //----------------------------------------------------------------------------------------------------------------------
 
 /// expands all text files in memory
-func (:) :.expand_phase1 =
-{ try {
+func (:) :.expand_phase1 = (try)
+{
     o.target_h =< NULL;
     o.target_c =< NULL;
     o.modified = false;
@@ -346,12 +350,12 @@ func (:) :.expand_phase1 =
     if( p_modified ) p_modified.0 = o.modified;
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if a file was modified
-func (er_t write_with_signature( sc_t file, const st_s* data )) =
+func (er_t write_with_signature( sc_t file, const st_s* data )) = (try)
 {
     tp_t hash = bcore_tp_fold_sc( bcore_tp_init(), data.sc );
     bcore_sink* sink = bcore_file_open_sink( file ).scope();
@@ -363,8 +367,8 @@ func (er_t write_with_signature( sc_t file, const st_s* data )) =
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if a file was modified
-func (:) :.expand_phase2 =
-{ try {
+func (:) :.expand_phase2 = (try)
+{
     if( !o.modified )
     {
         if( p_modified.1 ) p_modified.0 = false;
@@ -394,7 +398,7 @@ func (:) :.expand_phase2 =
         if( p_modified.1 ) p_modified.0 = true;
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 

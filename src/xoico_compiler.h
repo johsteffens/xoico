@@ -36,6 +36,7 @@ signature bl_t is_item(  const, tp_t name );
 signature bl_t is_group( const, tp_t name ); // checks if name represents a registered group
 signature bl_t is_func(  const, tp_t name ); // checks if name represents the global name of a function (==name of implementation)
 signature bl_t is_stamp( const, tp_t name ); // checks if name represents a registered stamp
+signature bl_t is_body(  const, tp_t name ); // checks if name represents a registered body
 signature bl_t is_type(  const, tp_t name ); // checks if name represents a registered type (either group, stamp, or external type)
 signature bl_t is_signature( const, tp_t name ); // checks if name represents a registered signature
 signature bl_t is_feature( const, tp_t name ); // checks if name represents a registered feature
@@ -45,6 +46,7 @@ signature bl_t is_signature_or_feature( const, tp_t name ); // checks if name re
 signature xoico* get_item( mutable, tp_t name );
 signature const xoico* get_const_item( const,  tp_t name );
 signature xoico_stamp_s* get_stamp( mutable, tp_t name );
+signature xoico_body_s*  get_body(  mutable, tp_t name );
 signature xoico_func_s*  get_func(  mutable, tp_t name );
 signature xoico_group_s* get_group( mutable, tp_t name );
 signature const xoico_feature_s* get_feature( const, tp_t name );
@@ -136,6 +138,13 @@ stamp : = aware :
         return false;
     };
 
+    func :.is_body =
+    {
+        const xoico* item = o.get_const_item( name );
+        if( item && ( item->_ == TYPEOF_xoico_body_s ) ) return true;
+        return false;
+    };
+
     func :.is_signature =
     {
         const xoico* item = o.get_const_item( name );
@@ -174,6 +183,12 @@ stamp : = aware :
     {
         const xoico* item = o.get_const_item( name );
         return ( item ) ? ( item._ == TYPEOF_xoico_stamp_s ) ? item.cast( xoico_stamp_s* ) : NULL : NULL;
+    };
+
+    func :.get_body =
+    {
+        const xoico* item = o.get_const_item( name );
+        return ( item ) ? ( item._ == TYPEOF_xoico_body_s ) ? item.cast( xoico_body_s* ) : NULL : NULL;
     };
 
     func :.get_feature =

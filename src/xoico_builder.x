@@ -17,8 +17,8 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:target) :.load =
-{ try {
+func (:target) :.load = (try)
+{
     st_s* st_path = st_s!.scope();
     st_path.copy_sc( path );
 
@@ -67,7 +67,7 @@ func (:target) :.load =
         bl_t dep_readonly = o.readonly;
 
         bcore_source* source = bcore_source_string_s_create_sc( e.sc ).scope( scope_local );
-        try( source.parse_em_fa( " #:until':'", file_path ) );
+        source.parse_em_fa( " #:until':'", file_path );
 
         /// remove trailing spaces
         while( file_path.sc[ 0 ] == ' ' || file_path.sc[ 0 ] == '\t' ) file_path.pop_char();
@@ -91,13 +91,12 @@ func (:target) :.load =
     }
 
     return 0;
-
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:target) :.build =
-{ try {
+func (:target) :.build = (try)
+{
     if( !o.root_    ) o.root_    = ( o.parent_ ) ? o.parent_.root_    : o;
     if( !o.compiler ) o.compiler = ( o.parent_ ) ? o.parent_.compiler : NULL;
 
@@ -175,7 +174,7 @@ func (:target) :.build =
     }
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -183,15 +182,15 @@ func (:target) :.build =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:main) :.build_from_file =
-{ try {
+func (:main) :.build_from_file = (try)
+{
     o.target =< xoico_builder_target_s!;
     o.target.load( false, path );
     o.target.compiler = o.compiler;
     o.target.build();
     o.compiler.finalize();
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 

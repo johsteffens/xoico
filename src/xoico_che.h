@@ -337,6 +337,8 @@ name case;
 name default;
 name break;
 name return;
+name continue;
+name goto;
 
 stamp : = aware :
 {

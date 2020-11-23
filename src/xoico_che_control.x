@@ -32,6 +32,8 @@ func (:)( bl_t is_control_name( const, tp_t tp_identifier ) ) =
         case TYPEOF_case:
         case TYPEOF_default:
         case TYPEOF_return:
+        case TYPEOF_continue:
+        case TYPEOF_goto:
             return true;
 
         default:
@@ -41,8 +43,8 @@ func (:)( bl_t is_control_name( const, tp_t tp_identifier ) ) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)( er_t trans_control( mutable, tp_t tp_control, bcore_source* source, :result* result ) ) =
-{ try {
+func (:)( er_t trans_control( mutable, tp_t tp_control, bcore_source* source, :result* result ) ) = (try)
+{
     switch( tp_control )
     {
         case TYPEOF_for:     return o.trans_control_for(     source, result );
@@ -56,14 +58,21 @@ func (:)( er_t trans_control( mutable, tp_t tp_control, bcore_source* source, :r
         case TYPEOF_case:    return o.trans_control_case(    source, result );
         case TYPEOF_default: return o.trans_control_default( source, result );
         case TYPEOF_return:  return o.trans_control_return(  source, result );
-        default: return source.parse_error_fa( "Internal error: Invalid control name '#<sc_t>'", ifnameof( tp_control ) );
+
+        // unsupported controls
+        case TYPEOF_goto:
+        case TYPEOF_continue:
+            return source.parse_error_fa( "Control statement '#<sc_t>' is not supported.", ifnameof( tp_control ) );
+
+        default:
+            return source.parse_error_fa( "Internal error: Invalid control name '#<sc_t>'", ifnameof( tp_control ) );
     }
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)( er_t trans_control_for( mutable, bcore_source* source, :result* result ) ) =
-{ try {
+func (:)( er_t trans_control_for( mutable, bcore_source* source, :result* result ) ) = (try)
+{
     o.inc_block();
     o.stack_block_get_top_unit().break_ledge = true;
     o.trans( source, "for", result );
@@ -87,7 +96,7 @@ func (:)( er_t trans_control_for( mutable, bcore_source* source, :result* result
     }
     o.dec_block();
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -95,8 +104,8 @@ func (:)( er_t trans_control_for( mutable, bcore_source* source, :result* result
  *  -->
  * { <typespec> __a = (match)<arr_expr>; for( sz_t __i = 0; __i < __a->size; __i++ ) { <typespec> var = (match)__a->data[ __i ]; <foreach-statement> }  }
  */
-func (:)( er_t trans_control_foreach( mutable, bcore_source* source, :result* result ) ) =
-{ try {
+func (:)( er_t trans_control_foreach( mutable, bcore_source* source, :result* result ) ) = (try)
+{
     o.inc_block();
     o.stack_block_get_top_unit().break_ledge = true;
     o.parse( source, "foreach ( " );
@@ -181,12 +190,12 @@ func (:)( er_t trans_control_foreach( mutable, bcore_source* source, :result* re
     result.push_fa( "}}" );
     o.dec_block();
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)( er_t trans_control_if( mutable, bcore_source* source, :result* result ) ) =
-{ try {
+func (:)( er_t trans_control_if( mutable, bcore_source* source, :result* result ) ) = (try)
+{
     o.trans( source, "if", result );
     o.trans_whitespace( source, result );
     o.trans( source, "(", result );
@@ -202,12 +211,12 @@ func (:)( er_t trans_control_if( mutable, bcore_source* source, :result* result 
         o.trans_statement_as_block( source, result, false );
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)( er_t trans_control_while( mutable, bcore_source* source, :result* result ) ) =
-{ try {
+func (:)( er_t trans_control_while( mutable, bcore_source* source, :result* result ) ) = (try)
+{
     o.trans( source, "while", result );
     o.trans_whitespace( source, result );
     o.trans( source, "(", result );
@@ -223,12 +232,12 @@ func (:)( er_t trans_control_while( mutable, bcore_source* source, :result* resu
         o.trans_statement_as_block( source, result, true );
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)( er_t trans_control_do( mutable, bcore_source* source, :result* result ) ) =
-{ try {
+func (:)( er_t trans_control_do( mutable, bcore_source* source, :result* result ) ) = (try)
+{
     o.trans( source, "do", result );
     o.trans_whitespace( source, result );
     if( source.parse_bl( "#=?'{'" ) )
@@ -247,12 +256,12 @@ func (:)( er_t trans_control_do( mutable, bcore_source* source, :result* result 
     o.trans_whitespace( source, result );
     o.trans( source, ";", result );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)( er_t trans_control_else( mutable, bcore_source* source, :result* result ) ) =
-{ try {
+func (:)( er_t trans_control_else( mutable, bcore_source* source, :result* result ) ) = (try)
+{
     o.trans( source, "else", result );
     o.trans_whitespace( source, result );
     if( source.parse_bl( "#=?'{'" ) )
@@ -264,12 +273,12 @@ func (:)( er_t trans_control_else( mutable, bcore_source* source, :result* resul
         o.trans_statement_as_block( source, result, false );
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)( er_t trans_control_switch( mutable, bcore_source* source, :result* result ) ) =
-{ try {
+func (:)( er_t trans_control_switch( mutable, bcore_source* source, :result* result ) ) = (try)
+{
     o.trans( source, "switch", result );
     o.trans_whitespace( source, result );
     o.trans( source, "(", result );
@@ -278,12 +287,12 @@ func (:)( er_t trans_control_switch( mutable, bcore_source* source, :result* res
     o.trans_whitespace( source, result );
     o.trans_block( source, result, true );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)( er_t trans_control_case( mutable, bcore_source* source, :result* result ) ) =
-{ try {
+func (:)( er_t trans_control_case( mutable, bcore_source* source, :result* result ) ) = (try)
+{
     o.trans( source, "case", result );
     o.trans_expression( source, result, NULL );
     o.trans_whitespace( source, result );
@@ -291,19 +300,19 @@ func (:)( er_t trans_control_case( mutable, bcore_source* source, :result* resul
     o.trans_whitespace( source, result );
     o.trans_statement_as_block( source, result, false );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)( er_t trans_control_default( mutable, bcore_source* source, :result* result ) ) =
-{ try {
+func (:)( er_t trans_control_default( mutable, bcore_source* source, :result* result ) ) = (try)
+{
     o.trans( source, "default", result );
     o.trans_whitespace( source, result );
     o.trans( source, ":", result );
     o.trans_whitespace( source, result );
     o.trans_statement_as_block( source, result, false );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -331,8 +340,8 @@ stamp :result_break = aware :result
     func (@* create_setup( sz_t ledge_level )) = { $* o = @!; o.ledge_level = ledge_level; return o; };
 };
 
-func (:)( er_t trans_control_break( mutable, bcore_source* source, :result* result ) ) =
-{ try {
+func (:)( er_t trans_control_break( mutable, bcore_source* source, :result* result ) ) = (try)
+{
     o.parse( source, "break ;" );
 
     sz_t ledge_level = -1;
@@ -354,7 +363,7 @@ func (:)( er_t trans_control_break( mutable, bcore_source* source, :result* resu
     result.push_result_d( :result_break_s_create_setup( ledge_level ) );
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -383,8 +392,8 @@ stamp :result_return = aware :result
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)( er_t trans_control_return( mutable, bcore_source* source, :result* result ) ) =
-{ try {
+func (:)( er_t trans_control_return( mutable, bcore_source* source, :result* result ) ) = (try)
+{
     o.parse( source, "return" );
 
     $* result_expr = :result_create_arr().scope();
@@ -443,7 +452,7 @@ func (:)( er_t trans_control_return( mutable, bcore_source* source, :result* res
     result.push_result_d( result_return.fork() );
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 

@@ -76,8 +76,8 @@ func (:) (tp_t get_identifier( mutable, bcore_source* source, bl_t take_from_sou
 //----------------------------------------------------------------------------------------------------------------------
 
 /** transfers identifier, enrolls it and sets 'tp_identifier' */
-func(:) (er_t trans_identifier( mutable, bcore_source* source, :result* result /* can be NULL */, tp_t* tp_identifier/* can be NULL */ )) =
-{ try {
+func(:) (er_t trans_identifier( mutable, bcore_source* source, :result* result /* can be NULL */, tp_t* tp_identifier/* can be NULL */ )) = (try)
+{
     tp_t identifier = o.get_identifier( source, true );
     if( !identifier )
     {
@@ -86,13 +86,13 @@ func(:) (er_t trans_identifier( mutable, bcore_source* source, :result* result /
     if( tp_identifier ) tp_identifier.0 = identifier;
     if( result ) result.push_sc( o.nameof( identifier ) );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
 /** parses number: (all integer, hex and float encodings)*/
-func(:) (er_t trans_number_literal( mutable, bcore_source* source, :result* result )) =
-{ try {
+func(:) (er_t trans_number_literal( mutable, bcore_source* source, :result* result )) = (try)
+{
     bl_t hex = false;
     if( source.parse_bl( "#?'0x'" ) )
     {
@@ -164,13 +164,13 @@ func(:) (er_t trans_number_literal( mutable, bcore_source* source, :result* resu
     }
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
 /// parses string
-func (:) (er_t trans_string_literal( mutable, bcore_source* source, :result* result )) =
-{ try {
+func (:) (er_t trans_string_literal( mutable, bcore_source* source, :result* result )) = (try)
+{
     o.trans( source, "\"", result );
 
     while( !source.eos() && !source.parse_bl( "#=?'\"'" ) )
@@ -181,7 +181,7 @@ func (:) (er_t trans_string_literal( mutable, bcore_source* source, :result* res
 
     o.trans( source, "\"", result );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -205,8 +205,8 @@ try
 //----------------------------------------------------------------------------------------------------------------------
 
 /// parses whitespaces including comments
-func (:) (er_t trans_whitespace( mutable, bcore_source* source, :result* result /* can be NULL */ )) =
-{ try {
+func (:) (er_t trans_whitespace( mutable, bcore_source* source, :result* result /* can be NULL */ )) = (try)
+{
     bl_t exit_loop = false;
     while( !exit_loop && !source.eos() )
     {
@@ -263,12 +263,12 @@ func (:) (er_t trans_whitespace( mutable, bcore_source* source, :result* result 
         }
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t trans_preprocessor( mutable, bcore_source* source, :result* result )) =
-{ try {
+func (:) (er_t trans_preprocessor( mutable, bcore_source* source, :result* result )) = (try)
+{
     o.parse( source, "##" );
     result.push_sc( "#" );
     while( !source.eos() )
@@ -279,7 +279,7 @@ func (:) (er_t trans_preprocessor( mutable, bcore_source* source, :result* resul
         if( c == '\n' ) break;
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -406,8 +406,8 @@ func (:)
         const :result* result_expr,
         :result* result
     )
-) =
-{ try {
+) = (try)
+{
     if( target_indirection == typespec_expr.indirection )
     {
         result.push_result_c( result_expr );
@@ -442,7 +442,7 @@ func (:)
         );
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -457,8 +457,8 @@ func (:)
         const :result* result_expr,
         :result* result
     )
-) =
-{ try {
+) = (try)
+{
     if( !typespec_expr.type )
     {
         return source.parse_error_fa
@@ -532,7 +532,7 @@ func (:)
         if( implicit_cast ) result.push_sc( "))" );
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -548,8 +548,8 @@ func (:)
         const xoico_typespec_s* typespec_obj_expr,
         :result* result_out
     )
-) =
-{ try {
+) = (try)
+{
     o.trans( source, "(", result_out );
 
     if( signature.arg_o )
@@ -616,7 +616,7 @@ func (:)
     o.parse( source, " " );
     o.trans( source, ")", result_out );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -630,8 +630,8 @@ func (:)
         const xoico_typespec_s*  in_typespec, // required
               xoico_typespec_s* out_typespec  // optional
     )
-) =
-{ try {
+) = (try)
+{
     if( source.parse_bl( "#?'->'" ) )
     {
         if( in_typespec.indirection != 1 )
@@ -846,7 +846,7 @@ func (:)
         }
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -860,8 +860,8 @@ func (:)
         const xoico_typespec_s*  in_typespec, // required
               xoico_typespec_s* out_typespec  // optional
     )
-) =
-{ try {
+) = (try)
+{
     o.parse( source, "[" );
 
     result.push_sc( "[" );
@@ -890,7 +890,7 @@ func (:)
     o.trans_typespec_expression( source, result, typespec, out_typespec );
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -904,8 +904,8 @@ func (:)
         const xoico_typespec_s*  in_typespec, // required
               xoico_typespec_s* out_typespec  // optional
     )
-) =
-{ try {
+) = (try)
+{
     o.parse( source, "!" );
 
     //ignore in case indirection is 0;
@@ -932,7 +932,7 @@ func (:)
 
     o.trans_typespec_expression( source, result, in_typespec, out_typespec );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -946,8 +946,8 @@ func (:)
         const xoico_typespec_s*  in_typespec, // required
               xoico_typespec_s* out_typespec  // optional
     )
-) =
-{ try {
+) = (try)
+{
     o.parse( source, "?" );
 
     //ignore in case indirection is 0;
@@ -969,7 +969,7 @@ func (:)
 
     o.trans_typespec_expression( source, result, in_typespec, out_typespec );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -983,8 +983,8 @@ func (:)
         const xoico_typespec_s*  in_typespec, // required
               xoico_typespec_s* out_typespec  // optional
     )
-) =
-{ try {
+) = (try)
+{
     if( !( in_typespec.indirection == 1 && in_typespec.flag_addressable ) )
     {
         return source.parse_error_fa( "Attach-Operator requires lvalue with addressable indirection of 1" );
@@ -1026,7 +1026,7 @@ func (:)
 
     if( out_typespec ) out_typespec.copy( in_typespec );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -1040,8 +1040,8 @@ func (:)
         const xoico_typespec_s*  in_typespec, // required
               xoico_typespec_s* out_typespec  // optional
     )
-) =
-{ try {
+) = (try)
+{
     o.parse( source, "?" );
     result.push_sc( "?" );
     xoico_typespec_s* typespec_true  = xoico_typespec_s!.scope();
@@ -1057,7 +1057,7 @@ func (:)
         out_typespec.flag_addressable = false;
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -1071,8 +1071,8 @@ func (:)
         const xoico_typespec_s*  in_typespec, // required
               xoico_typespec_s* out_typespec  // optional
     )
-) =
-{ try {
+) = (try)
+{
     if( out_typespec ) out_typespec.type = 0;
     o.trans_whitespace( source, result );
 
@@ -1113,12 +1113,12 @@ func (:)
     }
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t trans_member( mutable, bcore_source* source, :result* result )) =
-{ try {
+func (:) (er_t trans_member( mutable, bcore_source* source, :result* result )) = (try)
+{
     if(      source.parse_bl( "#?'.'"  ) ) result.push_sc( "." );
     else if( source.parse_bl( "#?'->'" ) ) result.push_sc( "->" );
 
@@ -1151,7 +1151,7 @@ func (:) (er_t trans_member( mutable, bcore_source* source, :result* result )) =
     }
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -1168,8 +1168,8 @@ func (:)
         bl_t require_tractable_type,
         bl_t* success
     )
-) =
-{ try {
+) = (try)
+{
     if( success ) success.0 = false;
 
     sz_t index = source.get_index();
@@ -1227,7 +1227,7 @@ func (:)
 
     if( success ) success.0 = true;
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -1240,8 +1240,8 @@ func (:)
         xoico_typespec_s* typespec,
         bl_t require_tractable_type
     )
-) =
-{ try {
+) = (try)
+{
     bl_t success = false;
     o.try_take_typespec( source, typespec, require_tractable_type, success );
 
@@ -1258,12 +1258,12 @@ func (:)
     }
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.push_typespec  =
-{ try {
+func (:) :.push_typespec  = (try)
+{
     tp_t type = typespec.type;
 
     if( type == TYPEOF_type_object )
@@ -1296,7 +1296,7 @@ func (:) :.push_typespec  =
     if( typespec.flag_restrict ) result.push_fa( "restrict " );
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -1309,8 +1309,8 @@ func (:)
         :result* result, // can be NULL
         xoico_typespec_s* out_typespec // optional
     )
-) =
-{ try {
+) = (try)
+{
     $* result_type = :result_create_arr().scope();
     tp_t tp_identifier;
     o.trans_identifier( source, result_type, tp_identifier );
@@ -1333,7 +1333,7 @@ func (:)
         result.push_result_d( result_type.fork() );
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -1346,8 +1346,8 @@ func (:)
         :result* result, // can be NULL
         xoico_typespec_s* out_typespec // optional
     )
-) =
-{ try {
+) = (try)
+{
     tp_t tp_identifier = 0;
     o.trans_identifier( source, result, tp_identifier );
     o.trans_whitespace( source, result );
@@ -1368,7 +1368,7 @@ func (:)
         o.trans_typespec_expression( source, result, signature.typespec_ret, out_typespec );
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -1381,15 +1381,15 @@ func (:)
         :result* result, // can be NULL
         xoico_typespec_s* out_typespec // optional
     )
-) =
-{ try {
+) = (try)
+{
     o.parse( source, "?" );
     result.push_sc( "?" );
     o.trans_expression( source, result, NULL );
     o.trans( source, ": ", result );
     o.trans_expression( source, result, NULL );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -1402,8 +1402,8 @@ func (:)
         :result* result, // can be NULL
         xoico_typespec_s* out_typespec // optional
     )
-) =
-{ try {
+) = (try)
+{
     o.parse( source, "(" );
     result.push_char( '(' );
     while( !source.eos() )
@@ -1416,7 +1416,7 @@ func (:)
     }
     result.push_char( ')' );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -1429,15 +1429,15 @@ func (:)
         :result* result, // can be NULL
         xoico_typespec_s* out_typespec // optional
     )
-) =
-{ try {
+) = (try)
+{
     o.parse( source, "[" );
     result.push_sc( "[" );
     o.trans_expression( source, result, NULL );
     o.parse( source, "]" );
     result.push_sc( "]" );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -1450,8 +1450,8 @@ func (:)
         :result* result_out, // can be NULL
         xoico_typespec_s* out_typespec // optional
     )
-) =
-{ try {
+) = (try)
+{
     sc_t sc_bl_end_of_expression = "#?([0]==';'||[0]=='{'||[0]=='}'||[0]==')'||[0]==']'||[0]==','||([0]==':'&&([1]==' '||[1]=='\t'||[1]=='\n'||[1]=='/')))";
 
     o.trans_whitespace( source, result_out );
@@ -1583,7 +1583,7 @@ func (:)
     if( result_out ) result_out.push_result_d( result.fork() );
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -1599,8 +1599,8 @@ func (:)
         :result* result_out,
         bl_t* success
     )
-) =
-{ try {
+) = (try)
+{
     if( success ) success.0 = false;
 
     xoico_typespec_s* typespec_var = xoico_typespec_s!.scope();
@@ -1704,19 +1704,19 @@ func (:)
     if( success ) success.0 = true;
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func(:) (er_t inspect_variable( mutable, bcore_source* source )) =
-{ try {
+func(:) (er_t inspect_variable( mutable, bcore_source* source )) = (try)
+{
     o.parse( source, "\?\?" );
 
     $* st = st_s!.scope();
     $* result_local = :result_create_arr().scope();
     xoico_typespec_s* typespec = xoico_typespec_s!.scope();
-    try( source.parse_em_fa( " #until';' ", st ) );
-    try( source.parse_em_fa( ";" ) );
+    source.parse_em_fa( " #until';' ", st );
+    source.parse_em_fa( ";" );
     bcore_msg_fa( " \?? #<sc_t>;\n", st.sc );
     if( o.trans_expression( bcore_source_string_s_create_fa( "#<st_s*>;", st ).scope(), result_local, typespec ) )
     {
@@ -1741,12 +1741,12 @@ func(:) (er_t inspect_variable( mutable, bcore_source* source )) =
         }
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t trans_statement_expression( mutable, bcore_source* source, :result* result )) =
-{ try {
+func (:) (er_t trans_statement_expression( mutable, bcore_source* source, :result* result )) = (try)
+{
     if( o.try_block_level > 0 )
     {
         xoico_typespec_s* typespec = xoico_typespec_s!.scope();
@@ -1782,12 +1782,12 @@ func (:) (er_t trans_statement_expression( mutable, bcore_source* source, :resul
     // ':' between expressions is to be taken literally
     if( source.parse_bl( "#?':'" ) ) result.push_char( ':' );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t trans_statement( mutable, bcore_source* source, :result* result )) =
-{ try {
+func (:) (er_t trans_statement( mutable, bcore_source* source, :result* result )) = (try)
+{
     o.trans_whitespace( source, result );
 
     if( source.parse_bl( "#?([0]=='{'||[0]=='#'||[0]==';'||[0]==','||[0]==')'||[0]=='}'||([0]=='?'&&[1]=='?'))" ) )
@@ -1859,12 +1859,12 @@ func (:) (er_t trans_statement( mutable, bcore_source* source, :result* result )
     }
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t trans_block_inside( mutable, bcore_source* source, :result* result_out )) =
-{ try {
+func (:) (er_t trans_block_inside( mutable, bcore_source* source, :result* result_out )) = (try)
+{
     $* result = :result_create_arr().scope();
 
     while( !source.parse_bl( "#=?'}'" ) && !source.eos() )
@@ -1892,12 +1892,12 @@ func (:) (er_t trans_block_inside( mutable, bcore_source* source, :result* resul
     }
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t trans_block( mutable, bcore_source* source, :result* result_out, bl_t is_break_ledge )) =
-{ try {
+func (:) (er_t trans_block( mutable, bcore_source* source, :result* result_out, bl_t is_break_ledge )) = (try)
+{
     o.inc_block();
     $* result = :result_create_arr().scope();
     o.stack_block_get_top_unit().break_ledge = is_break_ledge;
@@ -1909,12 +1909,12 @@ func (:) (er_t trans_block( mutable, bcore_source* source, :result* result_out, 
     result_out.push_result_d( result.fork() );
     o.dec_block();
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t trans_statement_as_block( mutable, bcore_source* source, :result* result_out, bl_t is_break_ledge )) =
-{ try {
+func (:) (er_t trans_statement_as_block( mutable, bcore_source* source, :result* result_out, bl_t is_break_ledge )) = (try)
+{
     $* result = :result_create_arr().scope();
 
     o.inc_block();
@@ -1942,12 +1942,12 @@ func (:) (er_t trans_statement_as_block( mutable, bcore_source* source, :result*
 
     o.dec_block();
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t trans_block_inside_verbatim_c( mutable, bcore_source* source, :result* result )) =
-{ try {
+func (:) (er_t trans_block_inside_verbatim_c( mutable, bcore_source* source, :result* result )) = (try)
+{
     o.trans_whitespace( source, result );
     while( !source.parse_bl( "#=?'}'" ) && !source.eos() )
     {
@@ -1983,12 +1983,12 @@ func (:) (er_t trans_block_inside_verbatim_c( mutable, bcore_source* source, :re
         o.trans_whitespace( source, result );
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t setup( mutable, const xoico_body_s* body, const xoico_signature_s* signature )) =
-{ try {
+func (:) (er_t setup( mutable, const xoico_body_s* body, const xoico_signature_s* signature )) = (try)
+{
     tp_t tp_assoc_obj_type = body.stamp ? body.stamp.tp_name : body.group.tp_name;
 
     const xoico_args_s* args = signature.args;
@@ -2037,7 +2037,7 @@ func (:) (er_t setup( mutable, const xoico_body_s* body, const xoico_signature_s
         }
     }
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -2082,18 +2082,54 @@ func (:) (void remove_indentation( st_s* string, sz_t indentation )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t translate_mutable( mutable, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink )) =
-{ try {
+func (:) (er_t translate_mutable( mutable, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink )) = (try)
+{
     o.setup( body, signature );
 
     bcore_source* source = body.code.source_point.clone_source().scope();
 
     $* result = :result_create_arr().scope();
 
+    bl_t flag_verbatim_c = false;
+    bl_t flag_try = false;
+
+    if( source.parse_bl( " #?'('" ) )
+    {
+        while( !source.parse_bl( " #?')'" ) )
+        {
+            if( source.parse_bl( " #?'try'" ) )
+            {
+                if( o.typespec_ret.type != TYPEOF_er_t || o.typespec_ret.indirection != 0 )
+                {
+                    return source.parse_error_fa( "Operator 'try': This operator can only be used in functions returning 'er_t'." );
+                }
+                flag_try = true;
+            }
+            else if( source.parse_bl( " #?'verbatim_C'" ) )
+            {
+                flag_verbatim_c = true;
+            }
+            else
+            {
+                return source.parse_error_fa( "Invalid c-engine expression." );
+            }
+        }
+    }
+
     o.parse( source, " {" );
     sz_t indentation = 0;
     if( !body.go_inline ) indentation = o.assess_indentation( source );
-    o.trans_block_inside( source, result );
+
+    if( flag_verbatim_c )
+    {
+        o.trans_block_inside_verbatim_c( source, result );
+    }
+    else
+    {
+        o.try_block_level += flag_try;
+        o.trans_block_inside( source, result );
+        o.try_block_level -= flag_try;
+    }
     o.parse( source, " }" );
 
     $* result_block = :result_create_block( o.level, o.stack_block_get_bottom_unit().use_blm ).scope();
@@ -2129,7 +2165,7 @@ func (:) (er_t translate_mutable( mutable, const xoico_body_s* body, const xoico
     sink.push_sc( buf.sc );
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 

@@ -30,6 +30,7 @@ XOILA_DEFINE_GROUP( <group_name>, <trait_name> )
     signature extending <signature> <func_name>[( <additional-args> )];
 
     feature [strict] ['<flags>'] <syntax-of-signature> [ = <body> ];
+    feature [strict] ['<flags>'] <syntax-of-signature> extern <name>;
 
     func feature : name [= { <body> }];
 
@@ -107,14 +108,9 @@ feature:
       Any object referenced by the perspective must define the function.
 
   default_name:
-      Optional default function used when the object does not define the feature.
-      Requires implementing <ret> <group_name>_<default_name>( [const] <group_name>* o, <args> );
-
-----------------------------------------------------------------------------------------------
-func:
-  Generic default function definition that is automatically applied to all stamps in this group.
-  A stamp can overload this definition by defining func of the same name.
-  In a group a function can be redefined under the same name.
+      If the feature has an assigned body, the underlying c-function is <group_name>_<feature_name>__default.
+      If the feature has an externally implemented body, it must be declared by appending 'extern <name>',
+      which resolves to the c-function name <group_name>_<feature_name>_<name>.
 
 ----------------------------------------------------------------------------------------------
 name:
@@ -303,16 +299,17 @@ TODO:
 - (fixed: bl_t was not registered as type) bug: bl_t modified = false; // modified seems not registered as variable
 - (done) allow adaptation across indirection difference >1 if possible.
 - (done) introduce postfix operators to set indirection
+- (rejected) disallow prefix operator *, & for changing indirection  (causes too many problems with untraced c-code; main objective for this feature (adaptive assignment) was rejected)
+- (done) use numeric value to specify indirection-level.
+- (done) disallow 'continue'
+- (done) disallow 'goto'
+- (done) allow block-keywords like try, verbatim_C to be used declarative for a body
 
 - fully handle default functions for arrays  (add them as 'func' and let cengine generate the code)
 - introduce simple way to call the default implementation of a feature
 - scope instances on stack: e.g. scope st_s st;
-- is term 'indirection' used according to common consent?
-- (rejected) disallow prefix operator *, & for changing indirection  (causes too many problems with untraced c-code; main objective for this feature (adaptive assignment) was rejected)
+- is term 'indirection' proper?
 - bug: binary operator not recognized after unregistered member function
-- use numeric value to specify indirection-level.
-- allow block-keywords like try, verbatim_C to be used declarative for a body
-- flow control 'continue' is not part of life management: disallow continue or manage it.
 
 
 Keywords (for syntax highlight)

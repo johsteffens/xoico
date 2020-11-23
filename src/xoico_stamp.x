@@ -167,8 +167,8 @@ func (:) (sc_t get_rel_name_sc( const )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.parse_func =
-{ try {
+func (:) :.parse_func = (try)
+{
     $* compiler = o.group.compiler;
     $* func = xoico_func_s!.scope();
     func.group = o.group;
@@ -226,12 +226,12 @@ func (:) :.parse_func =
     }
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t parse_extend( mutable, bcore_source* source )) =
-{ try {
+func (:) (er_t parse_extend( mutable, bcore_source* source )) = (try)
+{
     ASSERT( o.self_source );
 
     source.parse_em_fa( " {" );
@@ -287,12 +287,12 @@ func (:) (er_t parse_extend( mutable, bcore_source* source )) =
     o.self_source.push_sc( "}" );
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t push_default_func_from_sc( mutable, sc_t sc )) =
-{ try {
+func (:) (er_t push_default_func_from_sc( mutable, sc_t sc )) = (try)
+{
     $* compiler = o.group.compiler;
     $* func = xoico_func_s!.scope();
     func.group = o.group;
@@ -314,24 +314,24 @@ func (:) (er_t push_default_func_from_sc( mutable, sc_t sc )) =
     }
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.push_default_funcs =
-{ try {
+func (:) :.push_default_funcs = (try)
+{
     o.push_default_func_from_sc( "bcore_stamp_funcs.init;" );
     o.push_default_func_from_sc( "bcore_stamp_funcs.down;" );
     o.push_default_func_from_sc( "bcore_stamp_funcs.copy;" );
     o.push_default_func_from_sc( "bcore_stamp_funcs.discard;" );
     o.push_default_func_from_sc( "bcore_stamp_funcs.clone;" );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.parse =
-{ try {
+func (:) :.parse = (try)
+{
     $* compiler = o.group.compiler;
     bl_t verbatim = source.parse_bl( " #?w'verbatim'" );
     o.self_source =< st_s!;
@@ -395,12 +395,12 @@ func (:) :.parse =
     o.parse_extend( source );
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.finalize =
-{ try {
+func (:) xoico.finalize = (try)
+{
     $* compiler = o.group.compiler;
 
     // TODO: move functions declaration in self_source to finalize
@@ -434,12 +434,12 @@ func (:) xoico.finalize =
     }
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_declaration =
-{ try {
+func (:) xoico.expand_declaration = (try)
+{
     sc_t sc_name = o.st_name.sc;
 
     sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, sc_name, typeof( sc_name ) );
@@ -529,12 +529,12 @@ func (:) xoico.expand_declaration =
 
     sink.push_fa( "\n" );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_definition =
-{ try {
+func (:) xoico.expand_definition = (try)
+{
     st_s* embedded_string = xoico_stamp_create_embedded_string( o.self_source ).scope();
 
     // 4095 is the C99-limit for string literals
@@ -564,19 +564,17 @@ func (:) xoico.expand_definition =
     foreach( $* func in o.funcs ) func.expand_definition( indent, sink );
 
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_init1 =
-{ try {
+func (:) xoico.expand_init1 = (try)
+{
     $* compiler = o.group.compiler;
 
     foreach( $* func in o.funcs )
     {
-        if( !func.expandable ) continue;
-
-        if( func.registerable() )
+        if( func.expandable && func.registerable() )
         {
             const xoico_signature_s* signature = func.signature;
             sink.push_fa
@@ -591,7 +589,7 @@ func (:) xoico.expand_init1 =
     }
     sink.push_fa( "#rn{ }BCORE_REGISTER_OBJECT( #<sc_t> );\n", indent, o.st_name.sc );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
