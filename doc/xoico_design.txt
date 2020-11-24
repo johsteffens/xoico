@@ -312,6 +312,8 @@ TODO:
 - bug: binary operator not recognized after unregistered member function
 - introduce operator 'pure' indicating that enclosed code in purely native to the c-engine (e.g. fully traced)
 - add extended checks for 'pure' code.
+- syntax: accessing a feature as non-function-member yields (non-addressable) bl_t indicating if function is defined for the object
+    e.g.:  if( source.get_index ) --> if( bcore_source_a_defines_get_index( source ) )
 
 Keywords (for syntax highlight)
 

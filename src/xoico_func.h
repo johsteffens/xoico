@@ -28,6 +28,8 @@ XOILA_DEFINE_GROUP( xoico_func, xoico )
 
 signature tp_t get_hash( const );
 signature er_t parse( mutable, bcore_source* source );
+signature er_t parse_sc( mutable, sc_t sc );
+signature er_t parse_fa( mutable, sc_t format, ... );
 signature er_t finalize(   mutable );
 signature bl_t registerable( const );
 
@@ -54,6 +56,21 @@ stamp : = aware :
 
     func :.get_hash;
     func :.parse;
+
+    func :.parse_sc =
+    {
+        return o.parse( bcore_source_string_s_create_sc( sc ).scope() );
+    };
+
+    func :.parse_fa =
+    {
+        va_list args;
+        va_start( args, format );
+        er_t ret = o.parse( bcore_source_string_s_create_fv( format, args ).scope() );
+        va_end( args );
+        return ret;
+    };
+
     func :.finalize;
     func :.registerable;
     func xoico.expand_forward;

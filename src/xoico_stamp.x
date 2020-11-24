@@ -300,7 +300,7 @@ func (:) (er_t push_default_func_from_sc( mutable, sc_t sc )) = (try)
     func.overloadable = false;
     func.expandable = false;
 
-    func.parse( bcore_source_string_s_create_sc( sc ).scope() );
+    func.parse_sc( sc );
 
     sz_t idx = o.funcs.get_index_from_signature_global_name( func.signature_global_name );
 

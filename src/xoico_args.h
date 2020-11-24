@@ -28,7 +28,7 @@ XOILA_DEFINE_GROUP( xoico_args, xoico )
 
 stamp : = aware bcore_array
 {
-    xoico_arg_s [];
+    xoico_arg_s => [];
     hidden aware xoico_group_s* group;
 
     func xoico_arg.is_variadic = { return ( o.size > 0 && o.[ o.size - 1 ].is_variadic() ); };

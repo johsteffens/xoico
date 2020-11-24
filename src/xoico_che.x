@@ -671,42 +671,7 @@ func (:)
         return 0;
     }
 
-    if( source.parse_bl( "#=?'*'" ) ) // decreasing indirection
-    {
-        if( in_typespec.indirection == 0 ) return source.parse_error_fa( "Decrementing indirection: Indirection-level is already zero." );
-        source.get_char();
-        $* result_cloned = result.clone().scope();
-
-        $* typespec_adapted = in_typespec.clone().scope();
-        typespec_adapted.indirection--;
-
-        result.clear();
-        result.push_sc( "(*(" );
-        result.push_result_d( result_cloned.fork() );
-        result.push_sc( "))" );
-
-        o.trans_typespec_expression( source, result, typespec_adapted, out_typespec );
-        return 0;
-    }
-    else if( source.parse_bl( "#=?'&'" ) ) // increasing indirection
-    {
-        if( !in_typespec.flag_addressable ) return source.parse_error_fa( "Incrementing indirection: Expression is not addressable." );
-        source.get_char();
-        :result* result_cloned = result.clone().scope();
-
-        $* typespec_adapted = in_typespec.clone().scope();
-        typespec_adapted.indirection++;
-        typespec_adapted.flag_addressable = false;
-
-        result.clear();
-        result.push_sc( "(&(" );
-        result.push_result_d( result_cloned.fork() );
-        result.push_sc( "))" );
-
-        o.trans_typespec_expression( source, result, typespec_adapted, out_typespec );
-        return 0;
-    }
-    else if( source.parse_bl( "#=?'['" ) || source.parse_bl( "#=?'?['" ) ) // array subscript
+    if( source.parse_bl( "#=?'['" ) || source.parse_bl( "#=?'?['" ) ) // array subscript
     {
         bl_t bounds_check = false;
         if( source.parse_bl( "#=?'?'" ) )
