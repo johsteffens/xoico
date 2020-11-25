@@ -210,6 +210,7 @@ func (:) :.finalize = (try)
 func (:) xoico.expand_forward = (try)
 {
     if( !o->expandable ) return 0;
+    if( !o->declare_in_expand_forward ) return 0;
 
     $* compiler = o.group.compiler;
     sink.push_fa( " \\\n#rn{ }", indent );
@@ -239,16 +240,21 @@ func (:) xoico.expand_declaration = (try)
     bl_t go_inline = o.body && o.body.go_inline;
     const $* signature = o.signature;
     ASSERT( signature );
+    $* compiler = o.group.compiler;
 
     if( go_inline )
     {
-        $* compiler = o.group.compiler;
         sink.push_fa( " \\\n#rn{ }", indent );
         sink.push_fa( "static inline " );
         signature.expand_declaration( o->stamp, xoico_compiler_s_nameof( compiler, o->global_name ), indent, sink );
         o.body.expand( signature, indent, sink );
     }
-    // non-inline functions are already declared in expand_forward
+    else if( !o->declare_in_expand_forward )
+    {
+        sink.push_fa( " \\\n#rn{ }", indent );
+        signature.expand_declaration( o->stamp, xoico_compiler_s_nameof( compiler, o->global_name ), indent, sink );
+        sink.push_fa( ";" );
+    }
 
     return 0;
 };

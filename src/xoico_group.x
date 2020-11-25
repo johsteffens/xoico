@@ -114,13 +114,21 @@ func (:) (er_t push_default_feature_from_sc( mutable, sc_t sc )) = (try)
 
 func (:) (er_t parse_func( mutable, bcore_source* source )) = (try)
 {
-    $* compiler = o.compiler;
     $* func = xoico_func_s!.scope();
     func.group = o;
     func.stamp = NULL;
-
     func.parse( source );
+    o.push_func_d( func.fork() );
+    return 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:) (er_t push_func_d( mutable, xoico_func_s* func )) = (try)
+{
     sz_t idx = o.funcs.get_index_from_name( func.name );
+
+    $* compiler = o.compiler;
 
     if( idx >= 0 )
     {
@@ -129,11 +137,11 @@ func (:) (er_t parse_func( mutable, bcore_source* source )) = (try)
         {
             if( !func.body )
             {
-                return source.parse_error_fa( "Function '#<sc_t>' has already been declared.", compiler.nameof( func.name ) );
+                return func.source_point.parse_error_fa( "Function '#<sc_t>' has already been declared.", compiler.nameof( func.name ) );
             }
             else if( prex_func.body )
             {
-                return source.parse_error_fa( "Function '#<sc_t>' has already a body.", compiler.nameof( func.name ) );
+                return func.source_point.parse_error_fa( "Function '#<sc_t>' has already a body.", compiler.nameof( func.name ) );
             }
             else
             {
@@ -142,12 +150,12 @@ func (:) (er_t parse_func( mutable, bcore_source* source )) = (try)
         }
         else
         {
-            return source.parse_error_fa( "Function '#<sc_t>' has already been declared.", compiler.nameof( func.name ) );
+            return func.source_point.parse_error_fa( "Function '#<sc_t>' has already been declared.", compiler.nameof( func.name ) );
         }
     }
     else
     {
-        o.funcs.push_d( func.fork() );
+        o.funcs.push_d( func );
     }
 
     return 0;

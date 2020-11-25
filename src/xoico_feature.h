@@ -63,6 +63,7 @@ stamp : = aware :
     };
 
     func xoico.finalize;
+    func xoico.expand_forward;
     func xoico.expand_indef_typedef;
     func xoico.expand_spect_declaration;
     func xoico.expand_spect_definition;

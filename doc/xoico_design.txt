@@ -315,6 +315,8 @@ TODO:
 - syntax: accessing a feature as non-function-member yields (non-addressable) bl_t indicating if function is defined for the object
     e.g.:  if( source.get_index ) --> if( bcore_source_a_defines_get_index( source ) )
 
+- allow member functions in groups
+
 Keywords (for syntax highlight)
 
 group stamp stump hidden private func name signature body aware feature extending verbatim

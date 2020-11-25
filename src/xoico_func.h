@@ -43,6 +43,8 @@ stamp : = aware :
 
     bl_t expandable = true;
     bl_t overloadable = false;
+    bl_t declare_in_expand_forward = true;
+
     xoico_body_s => body;
 
     tp_t pre_hash = 0;

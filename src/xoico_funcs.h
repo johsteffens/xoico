@@ -89,6 +89,8 @@ stamp : = aware :
         return func;
     };
 
+    func (void clear( mutable )) = { o.cast( bcore_array* ).set_space( 0 ); };
+
     func :.get_hash =
     {
         tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
