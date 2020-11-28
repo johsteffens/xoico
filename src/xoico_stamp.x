@@ -306,7 +306,7 @@ func (:) (er_t push_default_func_from_sc( mutable, sc_t sc )) = (try)
 
     if( idx >= 0 )
     {
-        return o.source_point.parse_error_fa( "Function '#<sc_t>' is predefined for all stamps and cannot be overloaded.", compiler.nameof( func.name ) );
+        return o.source_point.parse_error_fa( "Function '#<sc_t>' conflicts with a default function for this stamp.", compiler.nameof( func.name ) );
     }
     else
     {
@@ -405,6 +405,7 @@ func (:) xoico.finalize = (try)
 
     // TODO: move functions declaration in self_source to finalize
     o.self_source.replace_sc_sc( "@", o.st_name.sc );
+    o.self =< bcore_self_s_parse_source( bcore_source_string_s_create_from_string( o.self_source ).scope().cast( bcore_source* ), 0, 0, o.group.st_name.sc, false );
 
     foreach( $* func in o.funcs )
     {
@@ -414,22 +415,20 @@ func (:) xoico.finalize = (try)
         compiler.register_func( func );
     }
 
-    o.self =< bcore_self_s_parse_source( bcore_source_string_s_create_from_string( o.self_source ).scope().cast( bcore_source* ), 0, 0, o.group.st_name.sc, false );
-
+    // checking for repetitions in o.self (non-functions)
     $* hmap_name = bcore_hmap_tp_s!.scope();
-
     sz_t self_items = bcore_self_s_items_size( o.self );
-
     for( sz_t i = 0; i < self_items; i++ )
     {
         const bcore_self_item_s* item = o.self.get_item( i );
-        if( item.name )
+        if( item.name && ( item.caps != BCORE_CAPS_EXTERNAL_FUNC ) )
         {
             if( hmap_name.exists( item.name ) )
             {
-                return o.source_point.parse_error_fa( "In stamp '<sc_t>': Repeated use of element name '<sc_t>'.", o.st_name.sc, compiler.nameof( item.name ) );
-                hmap_name.set( item.name );
+                return o.source_point.parse_error_fa( "In stamp '#<sc_t>': Repeated use of element name '#<sc_t>'.", o.st_name.sc, compiler.nameof( item.name ) );
             }
+
+            hmap_name.set( item.name );
         }
     }
 

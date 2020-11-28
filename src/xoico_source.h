@@ -104,6 +104,7 @@ stamp : = aware :
 
 func (:) :.parse = (try)
 {
+    $* compiler = o.target.compiler;
     while( !source.eos() )
     {
         xoico_group_s* group = NULL;
@@ -113,8 +114,12 @@ func (:) :.parse = (try)
             group = xoico_group_s!.scope();
             o.push_d( group.fork() );
             group.xoico_source = o;
-            group.compiler = o.target.compiler;
-            source.parse_em_fa( " ( #name, #name", group.st_name.1, group.trait_name.1 );
+            group.compiler = compiler;
+
+            st_s* st_trait_name = st_s!.scope();
+            source.parse_em_fa( " ( #name, #name", group.st_name.1, st_trait_name.1 );
+            group.trait_name = compiler.entypeof( st_trait_name.sc );
+
             if( source.parse_bl( "#?','" ) )
             {
                 st_s* include_file = st_s!.scope();

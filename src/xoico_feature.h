@@ -35,11 +35,6 @@ stamp : = aware :
 
     xoico_funcs_s funcs;
 
-    xoico_func_s => func_a;
-//    xoico_func_s => func_a_defines;
-//    xoico_func_s => func_t;
-//    xoico_func_s => func_t_defines;
-
     tp_t function_pointer_name; /// name of function pointer as registered in c-code
 
     st_s st_default_func_name;

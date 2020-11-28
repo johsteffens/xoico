@@ -23,6 +23,7 @@ func (:) xoico.get_hash =
     hash = bcore_tp_fold_tp( hash, o.global_name );
     hash = bcore_tp_fold_tp( hash, o.typespec_ret.get_hash() );
     hash = bcore_tp_fold_tp( hash, o.args.get_hash() );
+    hash = bcore_tp_fold_bl( hash, o.typed );
     hash = bcore_tp_fold_tp( hash, o.arg_o );
     return hash;
 };
@@ -50,6 +51,7 @@ func (:) xoico.parse = (try)
         o.typespec_ret.copy( signature.typespec_ret );
         o.args.copy( signature.args );
         o.arg_o = signature.arg_o;
+        o.typed = signature.typed;
 
         source.parse_em_fa( " #name", name_buf );
         if( name_buf.size == 0 ) return source.parse_error_fa( "Signature name missing." );
@@ -75,6 +77,11 @@ func (:) xoico.parse = (try)
         source.parse_em_fa( " (" );
         if( source.parse_bl(  " #?'plain' " ) ) source.parse_error_fa( "Use of 'plain' is deprecated. Simply omit this argument." );
 
+        if( source.parse_bl( " #?'typed' " ) )
+        {
+            o.typed = true;
+        }
+
         o.arg_o = 0;
         if( source.parse_bl( " #?'mutable' " ) )
         {
@@ -97,6 +104,10 @@ func (:) xoico.parse = (try)
         if( o.arg_o )
         {
             if( !source.parse_bl( " #=?')'" ) ) source.parse_em_fa( ", " );
+        }
+        else if( o.typed )
+        {
+            source.parse_error_fa( "'typed' can not be used on plain functions." );
         }
 
         o.args.parse( source );
@@ -128,6 +139,7 @@ func (:) :.expand_declaration = (try)
 
     if( o.arg_o )
     {
+        if( o.typed ) sink.push_sc( "tp_t t, " );
         sink.push_fa( "#<sc_t>", ( o.arg_o == TYPEOF_mutable ) ? "" : "const " );
         sink.push_fa( "#<sc_t>* o", sc_name );
         o.args.expand( false, sc_name, sink );

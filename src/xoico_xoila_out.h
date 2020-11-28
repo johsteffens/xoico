@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-25T12:05:58Z
+ *  Last File Update: 2020-11-27T13:03:45Z
  *
  *  Copyright and License of this File:
  *
@@ -49,7 +49,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x3AA03E3B2BAEBE77ull
+#define HKEYOF_xoico_xoila_out 0x61A1CC50FAB319DDull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -408,6 +408,7 @@
       xoico_typespec_s typespec_ret; \
       xoico_args_s args; \
       tp_t arg_o; \
+      bl_t typed; \
       xoico_group_s* group; \
       xoico_stamp_s* stamp; \
       bcore_source_point_s source_point; \
@@ -500,7 +501,6 @@
       aware_t _; \
       xoico_signature_s signature; \
       xoico_funcs_s funcs; \
-      xoico_func_s* func_a; \
       tp_t function_pointer_name; \
       st_s st_default_func_name; \
       xoico_body_s* default_body; \
@@ -656,7 +656,7 @@
       bcore_arr_st_s includes_in_definition; \
       st_s st_name; \
       tp_t tp_name; \
-      st_s trait_name; \
+      tp_t trait_name; \
       tp_t pre_hash; \
       tp_t beta; \
       bl_t expandable; \
@@ -668,11 +668,14 @@
       xoico_compiler_s* compiler; \
       bcore_source_point_s source_point; \
       bcore_hmap_tpvd_s hmap_feature; \
+      bcore_hmap_tpvd_s hmap_func; \
   }; \
   static inline sc_t xoico_group_s_get_global_name_sc( const xoico_group_s* o ); \
   static inline tp_t xoico_group_s_get_global_name_tp( const xoico_group_s* o ); \
   er_t xoico_group_s_expand_setup( xoico_group_s* o ); \
   er_t xoico_group_s_push_item_d( xoico_group_s* o, xoico* item ); \
+  const xoico_group_s* xoico_group_s_get_trait_group( const xoico_group_s* o ); \
+  const xoico_func_s* xoico_group_s_get_inhertited_group_func( const xoico_group_s* o, tp_t func_name ); \
   tp_t xoico_group_s_get_hash( const xoico_group_s* o ); \
   st_s* xoico_group_s_create_spect_name( const xoico_group_s* o ); \
   er_t xoico_group_s_parse_name_recursive( xoico_group_s* o, st_s* name, bcore_source* source ); \
@@ -897,6 +900,7 @@
       aware_t _; \
       xoico_compiler_type_info_s type_info; \
       xoico_signature_s* signature; \
+      tp_t from_inherited_group; \
   };
 #define TYPEOF_xoico_compiler_s 0xA7C0906C33CBFB69ull
 #define BETH_EXPAND_ITEM_xoico_compiler_s \
@@ -1599,4 +1603,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // __xoico_xoila_out_H
-// XOILA_OUT_SIGNATURE 0x3AECA758E724D744ull
+// XOILA_OUT_SIGNATURE 0x0AAD18B822B47CB9ull

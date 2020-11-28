@@ -304,7 +304,14 @@ func (:) :.get_type_element_info =
 
         info.type_info.typespec.flag_const = false;
 
-        if( !found )
+        if( found )
+        {
+            info.type_info.typespec.type = self_item.type;
+            info.type_info.typespec.indirection = indirection;
+            info.signature = NULL;
+            success = true;
+        }
+        else
         {
             // try function
             xoico_func_s* func = stamp.funcs.get_func_from_name( name );
@@ -318,17 +325,10 @@ func (:) :.get_type_element_info =
                 info.signature.relent( self.type );
                 success = true;
             }
-            else // try generic types
+            else
             {
                 success = false;
             }
-        }
-        else
-        {
-            info.type_info.typespec.type = self_item.type;
-            info.type_info.typespec.indirection = indirection;
-            info.signature = NULL;
-            success = true;
         }
     }
     else if( xoico_item._ == TYPEOF_xoico_group_s )

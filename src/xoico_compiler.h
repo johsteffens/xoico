@@ -69,6 +69,7 @@ stamp :element_info = aware :
 {
     :type_info_s type_info;
     xoico_signature_s => signature;
+    tp_t from_inherited_group; // signature is from an inherited group (cast required)
 };
 
 signature bl_t get_type_info(               const, tp_t type,            :type_info_s*    info );

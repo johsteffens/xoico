@@ -55,7 +55,7 @@ stamp : = aware :
     st_s st_name; // global name
     tp_t tp_name; // global name
 
-    st_s trait_name = "bcore_inst"; // trait name
+    tp_t trait_name = bcore_inst; // trait name
     tp_t pre_hash;
 
     /** Beta values > 0 represent experimental or transitional states in development
@@ -87,6 +87,7 @@ stamp : = aware :
     bcore_source_point_s source_point;
 
     hidden bcore_hmap_tpvd_s hmap_feature;
+    hidden bcore_hmap_tpvd_s hmap_func;
 
     func xoico.parse;
     func xoico.get_hash;
@@ -110,6 +111,18 @@ stamp : = aware :
     {
         o.cast( bcore_array* ).push( sr_asd( item ) );
         return 0;
+    };
+
+    func (const @* get_trait_group( const )) =
+    {
+        return o.compiler.get_group( o.trait_name );
+    };
+
+    func (const xoico_func_s* get_inhertited_group_func( const, tp_t func_name )) =
+    {
+        if( !o ) return NULL;
+        const xoico_func_s** p_func = ( const xoico_func_s** )o.hmap_func.get( func_name );
+        return p_func ? *p_func : o.get_trait_group().get_inhertited_group_func( func_name );
     };
 };
 

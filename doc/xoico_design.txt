@@ -315,7 +315,16 @@ TODO:
 - syntax: accessing a feature as non-function-member yields (non-addressable) bl_t indicating if function is defined for the object
     e.g.:  if( source.get_index ) --> if( bcore_source_a_defines_get_index( source ) )
 
+- introduce typed signatures
+
 - allow member functions in groups
+
+- make functions in a trait-line transparent:
+    - function can be called as stamp or group member without explicitly changing perspective
+    - a stamp or group can overload the function.
+
+- move standard array functions to explicit implementations in the corresponding group
+
 
 Keywords (for syntax highlight)
 

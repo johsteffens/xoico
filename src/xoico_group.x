@@ -21,7 +21,7 @@ func (:) xoico.get_hash =
 {
     tp_t hash = o.pre_hash;
     hash = bcore_tp_fold_sc( hash, o.st_name.sc );
-    hash = bcore_tp_fold_sc( hash, o.trait_name.sc );
+    hash = bcore_tp_fold_tp( hash, o.trait_name );
     hash = bcore_tp_fold_bl( hash, o.retrievable );
     hash = bcore_tp_fold_bl( hash, o.expandable );
     hash = bcore_tp_fold_bl( hash, o.short_spect_name );
@@ -365,8 +365,12 @@ func (:) xoico.parse = (try)
             // flags
             if( source.parse_bl( " #?w'retrievable' " ) ) group.retrievable = true;
 
-            o.parse_name( group.trait_name, source );
-            if( group.trait_name.size == 0 ) group.trait_name.copy( o->st_name );
+            st_s* st_trait_name = st_s!.scope();
+
+            o.parse_name( st_trait_name, source );
+            if( st_trait_name.size == 0 ) st_trait_name.copy( o->st_name );
+            group.trait_name = compiler.entypeof( st_trait_name.sc );
+
             group.parse( source );
             source.parse_em_fa( " ; " );
             compiler.register_group( group );
@@ -452,6 +456,7 @@ func (:) xoico.finalize = (try)
     {
         func.finalize();
         o.compiler.register_func( func );
+        o.hmap_func.set( func.name, ( vd_t )func );
     }
     return 0;
 };
@@ -536,15 +541,16 @@ func (:) :.expand_declaration = (try)
 
 func (:) (er_t expand_spect_definition( const, sz_t indent, bcore_sink* sink )) = (try)
 {
+    $* compiler = o.compiler;
     if( !o.expandable ) return 0;
     sink.push_fa( "\n" );
     if( o.short_spect_name )
     {
-        sink.push_fa( "#rn{ }BCORE_DEFINE_SPECT( #<sc_t>, #<sc_t> )\n", indent, o.trait_name.sc, o.st_name.sc );
+        sink.push_fa( "#rn{ }BCORE_DEFINE_SPECT( #<sc_t>, #<sc_t> )\n", indent, compiler.nameof( o.trait_name ), o.st_name.sc );
     }
     else
     {
-        sink.push_fa( "#rn{ }XOILA_DEFINE_SPECT( #<sc_t>, #<sc_t> )\n", indent, o.trait_name.sc, o.st_name.sc );
+        sink.push_fa( "#rn{ }XOILA_DEFINE_SPECT( #<sc_t>, #<sc_t> )\n", indent, compiler.nameof( o.trait_name ), o.st_name.sc );
     }
 
     sink.push_fa( "#rn{ }\"{\"\n", indent );

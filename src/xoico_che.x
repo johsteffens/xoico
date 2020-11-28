@@ -1960,7 +1960,6 @@ func (:) (er_t setup( mutable, const xoico_body_s* body, const xoico_signature_s
 
     tp_t tp_member_obj_type  = ( signature.arg_o == 0 ) ? 0 : tp_assoc_obj_type;
     bl_t member_obj_const = ( signature.arg_o == TYPEOF_const );
-    tp_t tp_member_obj_name  = o.entypeof( "o" );
 
     o.typespec_ret.copy( signature.typespec_ret );
     o.typespec_ret.relent( body.code.group, tp_assoc_obj_type );
@@ -1974,10 +1973,23 @@ func (:) (er_t setup( mutable, const xoico_body_s* body, const xoico_signature_s
     o.stack_var.clear();
     o.init_level0();
 
-    xoico_che_stack_var_unit_s* unit = xoico_che_stack_var_unit_s!.scope();
+    if( signature.typed )
+    {
+        $* unit = xoico_che_stack_var_unit_s!.scope();
+        unit.typespec.type = TYPEOF_tp_t;
+        unit.typespec.flag_const = false;
+        unit.typespec.indirection = 1;
+        unit.name = o.entypeof( "t" );
+        unit.level = o.level;
+        o.stack_var.push_unit( unit );
+        o.hmap_name.set_sc( "tp_t" );
+        o.hmap_name.set_sc( "t" );
+    }
 
     if( tp_member_obj_type )
     {
+        $* unit = xoico_che_stack_var_unit_s!.scope();
+        tp_t tp_member_obj_name  = o.entypeof( "o" );
         unit.typespec.flag_const = member_obj_const;
         unit.typespec.type = tp_member_obj_type;
         unit.typespec.indirection = 1;
@@ -1992,6 +2004,7 @@ func (:) (er_t setup( mutable, const xoico_body_s* body, const xoico_signature_s
     {
         if( arg.typespec.type && arg.name )
         {
+            $* unit = xoico_che_stack_var_unit_s!.scope();
             unit.typespec.copy( arg.typespec );
             unit.typespec.relent( o.group, tp_assoc_obj_type );
             unit.name = arg.name;
