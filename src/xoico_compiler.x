@@ -314,10 +314,11 @@ func (:) :.get_type_element_info =
         else
         {
             // try function
-            xoico_func_s* func = stamp.funcs.get_func_from_name( name );
+//            xoico_func_s* func = stamp.funcs.get_func_from_name( name );
+            const xoico_func_s* func = stamp.get_trait_line_func_from_name( name );
             if( func )
             {
-                info.type_info.typespec.type = func->global_name;
+                info.type_info.typespec.type = func.global_name;
                 info.type_info.typespec.indirection = 0;
                 const xoico_signature_s* signature = func.signature;
                 info.type_info.typespec.flag_const = ( signature->arg_o == TYPEOF_const );

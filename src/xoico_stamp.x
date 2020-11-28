@@ -336,25 +336,25 @@ func (:) :.parse = (try)
     bl_t verbatim = source.parse_bl( " #?w'verbatim'" );
     o.self_source =< st_s!;
 
-    $* stamp_name = st_s!.scope();
-    $* trait_name = st_s!.scope();
+    $* st_stamp_name = st_s!.scope();
+    $* st_trait_name = st_s!.scope();
 
     o.source_point.set( source );
 
-    o.group.parse_name( stamp_name, source );
+    o.group.parse_name( st_stamp_name, source );
 
-    if( stamp_name.size >= 2 && sc_t_equ( stamp_name.sc + stamp_name.size - 2, "_s" ) )
+    if( st_stamp_name.size >= 2 && sc_t_equ( st_stamp_name.sc + st_stamp_name.size - 2, "_s" ) )
     {
         return o.source_point.parse_error_fa
         (
             "Stamp '#<sc_t>' ends in '_s'."
             "In beth, this ending identifies a structure."
             "Using it as stamp name could have side effects.",
-            stamp_name->sc
+            st_stamp_name->sc
         );
     }
 
-    st_s_push_fa( stamp_name, "_s" );
+    st_s_push_fa( st_stamp_name, "_s" );
 
     source.parse_em_fa( " = " );
 
@@ -382,15 +382,15 @@ func (:) :.parse = (try)
             o.is_aware = true;
         }
 
-        o.group.parse_name( trait_name, source );
-        if( trait_name.size == 0 ) return source.parse_error_fa( "Trait name expected." );
+        o.group.parse_name( st_trait_name, source );
+        if( st_trait_name.size == 0 ) return source.parse_error_fa( "Trait name expected." );
 
-        o.st_trait_name.copy( trait_name );
-        o.self_source.push_st( trait_name );
+        o.trait_name = compiler.entypeof( st_trait_name.sc );
+        o.self_source.push_st( st_trait_name );
     }
 
-    o.st_name.copy( stamp_name );
-    o.tp_name = compiler.entypeof( stamp_name.sc );
+    o.st_name.copy( st_stamp_name );
+    o.tp_name = compiler.entypeof( st_stamp_name.sc );
 
     o.parse_extend( source );
 

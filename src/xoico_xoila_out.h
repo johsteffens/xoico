@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-27T13:03:45Z
+ *  Last File Update: 2020-11-28T14:47:08Z
  *
  *  Copyright and License of this File:
  *
@@ -49,7 +49,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x61A1CC50FAB319DDull
+#define HKEYOF_xoico_xoila_out 0xFF02F9BEE6D5EF07ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -675,7 +675,7 @@
   er_t xoico_group_s_expand_setup( xoico_group_s* o ); \
   er_t xoico_group_s_push_item_d( xoico_group_s* o, xoico* item ); \
   const xoico_group_s* xoico_group_s_get_trait_group( const xoico_group_s* o ); \
-  const xoico_func_s* xoico_group_s_get_inhertited_group_func( const xoico_group_s* o, tp_t func_name ); \
+  const xoico_func_s* xoico_group_s_get_trait_line_func_from_name( const xoico_group_s* o, tp_t name ); \
   tp_t xoico_group_s_get_hash( const xoico_group_s* o ); \
   st_s* xoico_group_s_create_spect_name( const xoico_group_s* o ); \
   er_t xoico_group_s_parse_name_recursive( xoico_group_s* o, st_s* name, bcore_source* source ); \
@@ -720,7 +720,7 @@
       aware_t _; \
       st_s st_name; \
       tp_t tp_name; \
-      st_s st_trait_name; \
+      tp_t trait_name; \
       bl_t is_aware; \
       st_s* self_source; \
       bcore_self_s* self; \
@@ -735,6 +735,7 @@
   er_t xoico_stamp_s_expand_forward( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_stamp_s_expand_indef_declaration( const xoico_stamp_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_stamp_s_make_funcs_overloadable( xoico_stamp_s* o ); \
+  const xoico_func_s* xoico_stamp_s_get_trait_line_func_from_name( const xoico_stamp_s* o, tp_t name ); \
   sc_t xoico_stamp_s_get_rel_name_sc( const xoico_stamp_s* o ); \
   er_t xoico_stamp_s_parse_func( xoico_stamp_s* o, bcore_source* source ); \
   er_t xoico_stamp_s_parse_extend( xoico_stamp_s* o, bcore_source* source ); \
@@ -1603,4 +1604,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // __xoico_xoila_out_H
-// XOILA_OUT_SIGNATURE 0x0AAD18B822B47CB9ull
+// XOILA_OUT_SIGNATURE 0x9C2E2EE67994561Cull

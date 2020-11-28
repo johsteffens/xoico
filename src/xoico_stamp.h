@@ -32,12 +32,14 @@ signature er_t parse( mutable, bcore_source* source );
 signature er_t parse_func( mutable, bcore_source* source );
 signature er_t make_funcs_overloadable( mutable );
 signature er_t push_default_funcs( mutable );
+signature const xoico_func_s* get_trait_line_func_from_name( const, tp_t name ); // returns NULL if not found
+
 
 stamp : = aware :
 {
     st_s    st_name;
     tp_t    tp_name; // typeof( st_name )
-    st_s    st_trait_name;
+    tp_t    trait_name;
     bl_t    is_aware;
     st_s => self_source;
     bcore_self_s => self; // created in expand_setup
@@ -81,8 +83,18 @@ stamp : = aware :
 
     func :.make_funcs_overloadable =
     {
-        foreach( $* func in o->funcs ) func->overloadable = true;
+        foreach( $* func in o.funcs ) func->overloadable = true;
         return 0;
+    };
+
+    func :.get_trait_line_func_from_name =
+    {
+        const $* func = o.funcs.get_func_from_name( name );
+        if( !func )
+        {
+            func = o.group.compiler.get_group( o.trait_name ).get_trait_line_func_from_name( name );
+        }
+        return func;
     };
 
     func :.push_default_funcs;

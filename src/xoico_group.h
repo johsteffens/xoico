@@ -40,6 +40,9 @@ signature xoico_source_s*   get_source( const );
 signature xoico_target_s*   get_target( const );
 signature xoico_compiler_s* get_compiler( const );
 
+signature const xoico_func_s* get_trait_line_func_from_name( const, tp_t name );
+
+
 /// source stack to handle includes
 stamp :source_stack = aware bcore_array { aware bcore_source -> []; };
 
@@ -115,14 +118,14 @@ stamp : = aware :
 
     func (const @* get_trait_group( const )) =
     {
-        return o.compiler.get_group( o.trait_name );
+        return ( o.trait_name != o.tp_name ) ? o.compiler.get_group( o.trait_name ) : NULL;
     };
 
-    func (const xoico_func_s* get_inhertited_group_func( const, tp_t func_name )) =
+    func :.get_trait_line_func_from_name =
     {
         if( !o ) return NULL;
-        const xoico_func_s** p_func = ( const xoico_func_s** )o.hmap_func.get( func_name );
-        return p_func ? *p_func : o.get_trait_group().get_inhertited_group_func( func_name );
+        const xoico_func_s** p_func = ( const xoico_func_s** )o.hmap_func.get( name );
+        return p_func ? *p_func : o.get_trait_group().get_trait_line_func_from_name( name );
     };
 };
 
