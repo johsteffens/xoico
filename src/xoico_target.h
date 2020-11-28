@@ -52,12 +52,6 @@ stamp : = aware :
     /// Optional cengine that is to be used in all bodies of this target
     aware xoico_cengine -> cengine;
 
-    /** List of files explicitly included by include directive.
-     *  Used to list all sources contributing to this target in
-     *  copyright and license info.
-     */
-    bcore_arr_st_s explicit_embeddings;
-
     hidden aware xoico_compiler_s* compiler;
 
     func :.parse;
@@ -83,6 +77,11 @@ stamp : = aware :
     func (void push_d( mutable, xoico_source_s* source )) =
     {
         o.cast( bcore_array* ).push( sr_asd( source ) );
+    };
+
+    func xoico_group.explicit_embeddings_push =
+    {
+        foreach( $* source in o ) source.explicit_embeddings_push( arr );
     };
 };
 

@@ -30,6 +30,7 @@ func (:) xoico.get_hash =
     foreach( $* e in o ) hash = bcore_tp_fold_tp( hash, e.get_hash() );
     foreach( $* e in o.includes_in_declaration ) hash = bcore_tp_fold_sc( hash, e.sc );
     foreach( $* e in o.includes_in_definition  ) hash = bcore_tp_fold_sc( hash, e.sc );
+    foreach( $* e in o.explicit_embeddings     ) hash = bcore_tp_fold_sc( hash, e.sc );
     return hash;
 };
 
@@ -390,12 +391,12 @@ func (:) xoico.parse = (try)
         {
             st_s* folder = bcore_file_folder_path( bcore_source_a_get_file( source ) ).scope( scope_local );
             if( folder.size == 0 ) folder.push_char( '.' );
-            st_s* include_file = st_s!.scope( scope_local );
-            source.parse_em_fa( " #string" , include_file );
+            st_s* embed_file = st_s!.scope( scope_local );
+            source.parse_em_fa( " #string" , embed_file );
             source.parse_em_fa( " ;" );
-            o.xoico_source.target.explicit_embeddings.push_st( include_file );
+            o.explicit_embeddings.push_st( embed_file );
             bcore_source* embed_source = NULL;
-            try( xoico_embed_file_open( source, include_file.sc, embed_source.1 ) );
+            try( xoico_embed_file_open( source, embed_file.sc, embed_source.1 ) );
 
             // check for cyclic inclusions
             foreach( $* e in stack )
@@ -510,7 +511,13 @@ func (:) :.expand_declaration = (try)
 
     sink.push_fa( "\n" );
     sink.push_fa( "#rn{ }//#rn{-}\n", indent, sz_max( 0, 118 - indent ) );
-    sink.push_fa("#rn{ }// group: #<sc_t>\n", indent, o->st_name.sc );
+    sink.push_fa("#rn{ }// group: #<sc_t>", indent, o->st_name.sc );
+    if( o.explicit_embeddings.size > 0 )
+    {
+        sink.push_fa("; embeds:" );
+        foreach( st_s* st in o.explicit_embeddings ) sink.push_fa(" #<st_s*>", st );
+    }
+    sink.push_fa("\n" );
 
     foreach( $* e in o->includes_in_declaration ) sink.push_fa( "##include \"#<sc_t>\"\n", e.sc );
 
@@ -567,7 +574,13 @@ func (:) :.expand_definition = (try)
     if( !o.expandable ) return 0;
     sink.push_fa( "\n" );
     sink.push_fa( "#rn{ }//#rn{-}\n", indent, sz_max( 0, 118 - indent ) );
-    sink.push_fa( "#rn{ }// group: #<sc_t>\n", indent, o.st_name.sc );
+    sink.push_fa( "#rn{ }// group: #<sc_t>", indent, o.st_name.sc );
+    if( o.explicit_embeddings.size > 0 )
+    {
+        sink.push_fa("; embeds:" );
+        foreach( st_s* st in o.explicit_embeddings ) sink.push_fa(" #<st_s*>", st );
+    }
+    sink.push_fa("\n" );
 
     foreach( $* e in o.includes_in_definition ) sink.push_fa( "##include \"#<sc_t>\"\n", e.sc );
 

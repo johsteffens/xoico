@@ -80,8 +80,6 @@ func (:) (tp_t get_hash( const )) =
         foreach( $ tp in arr_tp ) hash = bcore_tp_fold_tp( hash, tp );
     }
 
-    foreach( $* e in o.explicit_embeddings ) hash = bcore_tp_fold_sc( hash, e.sc );
-
     return hash;
 };
 
@@ -156,16 +154,21 @@ func (:) (er_t expand_heading( const, sz_t indent, bcore_sink* sink )) = (try)
 
     foreach( $* e in o ) sink.push_fa( " *  #<sc_t>.h\n", e.name.sc );
 
-    if( o.explicit_embeddings.size > 0 )
     {
-        bcore_arr_st_s* arr = o.explicit_embeddings.clone().scope().sort( 1 );
-        st_s* prev_file = NULL;
-        foreach( st_s* file in arr )
+        $* arr = bcore_arr_st_s!.scope();
+        o.explicit_embeddings_push( arr );
+        arr.sort( 1 );
+        if( arr.size > 0 )
         {
-            if( !file.equal_st( prev_file ) ) sink.push_fa( " *  #<sc_t>\n", file.sc );
-            prev_file = file;
+            st_s* prev_file = NULL;
+            foreach( st_s* file in arr )
+            {
+                if( !file.equal_st( prev_file ) ) sink.push_fa( " *  #<sc_t>\n", file.sc );
+                prev_file = file;
+            }
         }
     }
+
 
     sink.push_fa( " *\n" );
     sink.push_fa( " */\n" );

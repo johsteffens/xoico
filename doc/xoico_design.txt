@@ -310,8 +310,7 @@ TODO:
 - scope instances on stack: e.g. scope st_s st;
 - is term 'indirection' proper?
 - bug: binary operator not recognized after unregistered member function
-- introduce operator 'pure' indicating that enclosed code in purely native to the c-engine (e.g. fully traced)
-- add extended checks for 'pure' code.
+- c-he: add purity level; higher purity raises errors on untraced conditions
 - syntax: accessing a feature as non-function-member yields (non-addressable) bl_t indicating if function is defined for the object
     e.g.:  if( source.get_index ) --> if( bcore_source_a_defines_get_index( source ) )
 
@@ -324,7 +323,6 @@ TODO:
     - a stamp or group can overload the function.
 
 - move standard array functions to explicit implementations in the corresponding group
-
 
 Keywords (for syntax highlight)
 

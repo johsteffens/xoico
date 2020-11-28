@@ -35,6 +35,7 @@ signature er_t expand_declaration(   const, sz_t indent, bcore_sink* sink );
 signature er_t expand_definition(    const, sz_t indent, bcore_sink* sink );
 signature er_t expand_init1(         const, sz_t indent, bcore_sink* sink );
 signature st_s* create_spect_name( const );
+signature void explicit_embeddings_push( const, bcore_arr_st_s* arr );
 
 signature xoico_source_s*   get_source( const );
 signature xoico_target_s*   get_target( const );
@@ -54,6 +55,12 @@ stamp : = aware :
 
     bcore_arr_st_s includes_in_declaration;
     bcore_arr_st_s includes_in_definition;
+
+    /** List of files explicitly included by embed directive.
+     *  Used to list all sources contributing to this target in
+     *  copyright and license info.
+     */
+    bcore_arr_st_s explicit_embeddings;
 
     st_s st_name; // global name
     tp_t tp_name; // global name
@@ -127,6 +134,8 @@ stamp : = aware :
         const xoico_func_s** p_func = ( const xoico_func_s** )o.hmap_func.get( name );
         return p_func ? *p_func : o.get_trait_group().get_trait_line_func_from_name( name );
     };
+
+    func :.explicit_embeddings_push = { foreach( st_s* st in o.explicit_embeddings ) arr.push_st( st ); };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

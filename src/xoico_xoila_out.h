@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-28T14:47:08Z
+ *  Last File Update: 2020-11-28T15:51:15Z
  *
  *  Copyright and License of this File:
  *
@@ -49,7 +49,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0xFF02F9BEE6D5EF07ull
+#define HKEYOF_xoico_xoila_out 0x90B022FF23D21761ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -654,6 +654,7 @@
       xoico_group_s* parent; \
       bcore_arr_st_s includes_in_declaration; \
       bcore_arr_st_s includes_in_definition; \
+      bcore_arr_st_s explicit_embeddings; \
       st_s st_name; \
       tp_t tp_name; \
       tp_t trait_name; \
@@ -676,6 +677,7 @@
   er_t xoico_group_s_push_item_d( xoico_group_s* o, xoico* item ); \
   const xoico_group_s* xoico_group_s_get_trait_group( const xoico_group_s* o ); \
   const xoico_func_s* xoico_group_s_get_trait_line_func_from_name( const xoico_group_s* o, tp_t name ); \
+  static inline void xoico_group_s_explicit_embeddings_push( const xoico_group_s* o, bcore_arr_st_s* arr ); \
   tp_t xoico_group_s_get_hash( const xoico_group_s* o ); \
   st_s* xoico_group_s_create_spect_name( const xoico_group_s* o ); \
   er_t xoico_group_s_parse_name_recursive( xoico_group_s* o, st_s* name, bcore_source* source ); \
@@ -692,7 +694,8 @@
   er_t xoico_group_s_expand_definition( const xoico_group_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_group_s_expand_init1( const xoico_group_s* o, sz_t indent, bcore_sink* sink ); \
   static inline sc_t xoico_group_s_get_global_name_sc( const xoico_group_s* o ){ return  o->st_name.sc;} \
-  static inline tp_t xoico_group_s_get_global_name_tp( const xoico_group_s* o ){ return  o->tp_name;}
+  static inline tp_t xoico_group_s_get_global_name_tp( const xoico_group_s* o ){ return  o->tp_name;} \
+  static inline void xoico_group_s_explicit_embeddings_push( const xoico_group_s* o, bcore_arr_st_s* arr ){ {const bcore_arr_st_s* __a=&(o->explicit_embeddings );if(__a)for(sz_t __i=0; __i<__a->size; __i++){st_s* st=__a->data[__i]; bcore_arr_st_s_push_st(arr,st );}}}
 #define BETH_EXPAND_GROUP_xoico_group \
   BCORE_FORWARD_OBJECT( xoico_group ); \
   BCORE_FORWARD_OBJECT( xoico_group_source_stack_s ); \
@@ -814,6 +817,7 @@
   er_t xoico_source_s_expand_declaration( const xoico_source_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_source_s_expand_definition( const xoico_source_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_source_s_expand_init1( const xoico_source_s* o, sz_t indent, bcore_sink* sink ); \
+  void xoico_source_s_explicit_embeddings_push( const xoico_source_s* o, bcore_arr_st_s* arr ); \
   er_t xoico_source_s_parse( xoico_source_s* o, bcore_source* source );
 #define BETH_EXPAND_GROUP_xoico_source \
   BCORE_FORWARD_OBJECT( xoico_source ); \
@@ -849,12 +853,12 @@
       st_s* target_h; \
       st_s* target_c; \
       xoico_cengine* cengine; \
-      bcore_arr_st_s explicit_embeddings; \
       xoico_compiler_s* compiler; \
   }; \
   er_t xoico_target_s_finalize( xoico_target_s* o ); \
   er_t xoico_target_s_expand_setup( xoico_target_s* o ); \
   void xoico_target_s_push_d( xoico_target_s* o, xoico_source_s* source ); \
+  void xoico_target_s_explicit_embeddings_push( const xoico_target_s* o, bcore_arr_st_s* arr ); \
   er_t xoico_target_s_parse( xoico_target_s* o, sc_t source_path ); \
   tp_t xoico_target_s_get_hash( const xoico_target_s* o ); \
   bl_t xoico_target_s_is_cyclic_recursive( xoico_target_s* o ); \
@@ -1604,4 +1608,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // __xoico_xoila_out_H
-// XOILA_OUT_SIGNATURE 0x9C2E2EE67994561Cull
+// XOILA_OUT_SIGNATURE 0xF73F0C232ED7098Eull

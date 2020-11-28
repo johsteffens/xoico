@@ -98,6 +98,10 @@ stamp : = aware :
         return 0;
     };
 
+    func xoico_group.explicit_embeddings_push =
+    {
+        foreach( $* group in o ) group.explicit_embeddings_push( arr );
+    };
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -122,12 +126,12 @@ func (:) :.parse = (try)
 
             if( source.parse_bl( "#?','" ) )
             {
-                st_s* include_file = st_s!.scope();
-                source.parse_em_fa( " #string )", include_file );
-                o.target.explicit_embeddings.push_st( include_file );
+                st_s* embed_file = st_s!.scope();
+                source.parse_em_fa( " #string )", embed_file );
                 bcore_source* include_source = NULL;
-                xoico_embed_file_open( source, include_file.sc, include_source.2 );
+                xoico_embed_file_open( source, embed_file.sc, include_source.2 );
                 include_source.scope();
+                group.explicit_embeddings.push_st( embed_file );
                 group.parse( include_source );
             }
             else
