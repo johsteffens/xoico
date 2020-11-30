@@ -51,12 +51,29 @@ func (:) :.register_func =
 {
     if( o.hmap_func.exists( func.global_name ) )
     {
-        return bcore_source_point_s_parse_error_fa
-        (
-            func.source_point,
-            "'#<sc_t>' was already registered\n",
-            o.nameof( func.global_name )
-        );
+        xoico_func_s* func_registered = o.hmap_func.get( func.global_name ).cast( xoico_func_s** );
+
+        if( func_registered == func )
+        {
+            return bcore_source_point_s_parse_error_fa
+            (
+                func.source_point,
+                "Global func name '#<sc_t>' was already registered from same instance.\n",
+                o.nameof( func.global_name )
+            );
+        }
+        else
+        {
+            return bcore_source_point_s_parse_error_fa
+            (
+                func.source_point,
+                "Global func name '#<sc_t>' was already registered from different instance.\n"
+                "'#<sc_t>' vs '#<sc_t>'\n",
+                o.nameof( func.global_name ),
+                o.nameof( func.name ),
+                o.nameof( func_registered.name )
+            );
+        }
     }
 
     o.hmap_func.set( func.global_name, ( vd_t )func );
@@ -250,7 +267,7 @@ func (:) :.get_type_element_info =
 
     bl_t success = false;
     ASSERT( info );
-    info->type_info.item = xoico_item.cast( $* );
+    info.type_info.item = xoico_item.cast( $* );
 
     if( xoico_item->_ == TYPEOF_xoico_stamp_s )
     {
@@ -284,12 +301,6 @@ func (:) :.get_type_element_info =
                 }
                 break;
 
-                case BCORE_CAPS_EXTERNAL_FUNC:
-                {
-                    found = false;
-                }
-                break;
-
                 default:
                 {
                     found = false;
@@ -308,52 +319,18 @@ func (:) :.get_type_element_info =
         {
             info.type_info.typespec.type = self_item.type;
             info.type_info.typespec.indirection = indirection;
-            info.signature = NULL;
             success = true;
         }
         else
         {
-            // try function
-//            xoico_func_s* func = stamp.funcs.get_func_from_name( name );
-            const xoico_func_s* func = stamp.get_trait_line_func_from_name( name );
-            if( func )
-            {
-                info.type_info.typespec.type = func.global_name;
-                info.type_info.typespec.indirection = 0;
-                const xoico_signature_s* signature = func.signature;
-                info.type_info.typespec.flag_const = ( signature->arg_o == TYPEOF_const );
-                info.signature =< signature.clone();
-                info.signature.relent( self.type );
-                success = true;
-            }
-            else
-            {
-                success = false;
-            }
+            info.func = stamp.get_trait_line_func_from_name( name ).cast( $* );
+            if( info.func ) success = true;
         }
     }
     else if( xoico_item._ == TYPEOF_xoico_group_s )
     {
-        xoico_group_s* group = xoico_item.cast( xoico_group_s* );
-        if( group.hmap_feature.exists( name ) )
-        {
-            info.type_info.typespec.flag_const = false;
-            xoico_feature_s* feature = group.hmap_feature.get( name ).cast( xoico_feature_s** ).1;
-            if( feature.flag_a )
-            {
-                const xoico_signature_s* signature = feature.signature.1;
-                info.type_info.typespec.flag_const = ( signature->arg_o == TYPEOF_const );
-                sc_t  st_func_name = o.nameof( name );
-                ASSERT( st_func_name );
-                st_s* st_full_func_name = st_s!.scope( scope_local );
-                st_full_func_name.copy_fa( "#<sc_t>_a_#<sc_t>", group.st_name.sc, st_func_name );
-                info.type_info.typespec.type = o.cast( $* ).entypeof( st_full_func_name->sc );
-                info.type_info.typespec.indirection = 0;
-                info.signature =< signature.clone();
-                info.signature.relent( group.tp_name );
-                success = true;
-            }
-        }
+        info.func = xoico_item.cast( xoico_group_s* ).get_trait_line_func_from_name( name ).cast( $* );
+        if( info.func ) success = true;
     }
 
     return success;
@@ -411,7 +388,6 @@ func (:) :.get_type_array_element_info =
 
             info.type_info.typespec.type = self_item.type;
             info.type_info.typespec.indirection = indirection;
-            info.signature = NULL;
             success = true;
         }
     }

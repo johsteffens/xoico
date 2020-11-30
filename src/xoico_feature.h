@@ -35,6 +35,8 @@ stamp : = aware :
 
     xoico_funcs_s funcs;
 
+    xoico_funcs_s funcs_return_to_group; // these functions are passed to the group in which the feature is registered
+
     tp_t function_pointer_name; /// name of function pointer as registered in c-code
 
     st_s st_default_func_name;

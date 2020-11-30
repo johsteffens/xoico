@@ -41,7 +41,10 @@ stamp : = aware :
     tp_t    tp_name; // typeof( st_name )
     tp_t    trait_name;
     bl_t    is_aware;
+
+    st_s => self_buf;
     st_s => self_source;
+
     bcore_self_s => self; // created in expand_setup
     xoico_funcs_s funcs;
 
@@ -52,7 +55,7 @@ stamp : = aware :
     {
         tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
         hash = bcore_tp_fold_sc( hash, o.st_name.sc );
-        hash = bcore_tp_fold_sc( hash, o.self_source->sc );
+        hash = bcore_tp_fold_sc( hash, o.self_source ? o.self_source.sc : o.self_buf ? o.self_buf.sc : "" );
         hash = bcore_tp_fold_tp( hash, o.funcs.get_hash() );
         return hash;
     };

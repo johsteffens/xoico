@@ -31,15 +31,14 @@ signature er_t parse( mutable, bcore_source* source );
 signature er_t parse_sc( mutable, sc_t sc );
 signature er_t parse_fa( mutable, sc_t format, ... );
 signature er_t finalize(   mutable );
-signature bl_t registerable( const );
+signature bl_t reflectable( const );
 
 stamp : = aware :
 {
-    tp_t name; // declarative name (not global name)
-    tp_t global_name; // full implementation name
+    tp_t name;                   // declarative name (not global name)
+    tp_t global_name;            // function name in c-implementation
+    tp_t signature_base_name;
     tp_t signature_global_name;
-
-    st_s flect_decl; // reflection declaration
 
     bl_t expandable = true;
     bl_t overloadable = false;
@@ -50,7 +49,6 @@ stamp : = aware :
     tp_t pre_hash = 0;
 
     hidden aware xoico_signature_s* signature;
-
     hidden aware xoico_group_s* group;
     hidden aware xoico_stamp_s* stamp;
 
@@ -74,7 +72,12 @@ stamp : = aware :
     };
 
     func :.finalize;
-    func :.registerable;
+
+    func :.reflectable =
+    {
+        return o.expandable && o.group.compiler.is_feature( o.signature_global_name );
+    };
+
     func xoico.expand_forward;
     func xoico.expand_declaration;
     func xoico.expand_definition;

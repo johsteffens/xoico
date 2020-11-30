@@ -22,18 +22,22 @@ func (:) :.get_hash =
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
     hash = bcore_tp_fold_tp( hash, o.pre_hash );
     hash = bcore_tp_fold_tp( hash, o.name );
-    hash = bcore_tp_fold_sc( hash, o.flect_decl.sc );
+    hash = bcore_tp_fold_tp( hash, o.global_name );
+    hash = bcore_tp_fold_tp( hash, o.signature_base_name );
     hash = bcore_tp_fold_tp( hash, o.signature_global_name );
-    hash = bcore_tp_fold_bl( hash, o.overloadable );
     hash = bcore_tp_fold_bl( hash, o.expandable );
+    hash = bcore_tp_fold_bl( hash, o.overloadable );
+    hash = bcore_tp_fold_bl( hash, o.declare_in_expand_forward );
     if( o.body ) hash = bcore_tp_fold_tp( hash, xoico_body_s_get_hash( o.body ) );
     return hash;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t set_global_name( mutable )) = (try)
+func (:) (er_t freeze_global_name( mutable )) = (try)
 {
+    if( o.global_name ) return 0;
+
     st_s* st_global_name = st_s!.scope();
 
     xoico_compiler_s* compiler = o.group.compiler;
@@ -56,13 +60,11 @@ func (:) (er_t set_global_name( mutable )) = (try)
 
 func (:) :.parse = (try)
 {
-    xoico_compiler_s* compiler = o.group.compiler;
+    $* compiler = o.group.compiler;
 
     // global name signature
-    st_s* st_type = st_s!.scope();
+    tp_t tp_signature_base_name;
     o.source_point.set( source );
-
-    o.flect_decl.push_sc( "func " );
 
     st_s* st_name = st_s!.scope();
 
@@ -70,72 +72,41 @@ func (:) :.parse = (try)
     {
         xoico_signature_s* signature = xoico_signature_s!;
         compiler.life_a_push( signature );
-
         signature.group = o.group;
         signature.stamp = o.stamp;
-
         signature.parse( source );
-
-        if( signature.arg_o )
-        {
-            if( !o.stamp ) return source.parse_error_fa( "Signature specifies a member-function. A plain function was expected at this point." );
-        }
-
         source.parse_em_fa( " ) " );
 
         compiler.register_item( signature, source );
 
         o.pre_hash = bcore_tp_fold_tp( o.pre_hash, signature.get_hash() );
-
-        if( o.stamp )
-        {
-            st_type.copy( o.stamp.st_name );
-        }
-        else
-        {
-            st_type.copy( o.group.st_name );
-        }
-
+        tp_signature_base_name = o.stamp ? o.stamp.tp_name : o.group.tp_name;
         st_name.copy_sc( compiler.nameof( signature.name ) );
-        o.flect_decl.push_fa( "#<sc_t>:#<sc_t>", st_type.sc, st_name.sc );
     }
     else
     {
         if( source.parse_bl( " #?'^'" ) )
         {
-            if( !o->stamp ) return source.parse_error_fa( "'^' is only inside a stamp allowed." );
-            st_type.copy_sc( compiler.nameof( o.stamp.trait_name ) );
-            o.flect_decl.push_sc( "^" );
+            if( !o->stamp ) return source.parse_error_fa( "'^' can only be used inside a stamp." );
+            tp_signature_base_name = o.stamp.trait_name;
         }
         else
         {
-            o.group.parse_name( st_type, source );
-
-            if( o.stamp && st_type.equal_sc( compiler.nameof( o.stamp.trait_name ) ) )
-            {
-                o.flect_decl.push_fa( "^" );
-            }
-            else
-            {
-                o.flect_decl.push_fa( "#<sc_t>", st_type.sc );
-            }
+            $* st = st_s!.scope();
+            o.group.parse_name( st, source );
+            tp_signature_base_name = compiler.entypeof( st.sc );
         }
 
         source.parse_em_fa( " ." );
-        o.flect_decl.push_sc( ":" );
-
         source.parse_em_fa( " #name", st_name );
     }
+
 
     if( st_name->size == 0 ) return source.parse_error_fa( "Function name expected." );
     o.name = compiler.entypeof( st_name.sc );
 
-    o.flect_decl.push_sc( st_name.sc );
-
-    st_type.push_fa( "_#<sc_t>", st_name.sc );
-
-    o.signature_global_name = compiler.entypeof( st_type.sc );
-    o.set_global_name();
+    o.signature_base_name = tp_signature_base_name;
+    o.signature_global_name = compiler.entypeof( st_s_create_fa( "#<sc_t>_#<sc_t>", compiler.nameof( tp_signature_base_name ), st_name.sc ).scope().sc );
 
     if( source.parse_bl( " #=?'='" ) )
     {
@@ -146,33 +117,25 @@ func (:) :.parse = (try)
     }
 
     source.parse_em_fa( " ; " );
-    o.flect_decl.push_sc( ";" );
     return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.registerable =
+func (:) (er_t push_flect_decl_to_sink( const, bcore_sink* sink )) =
 {
-    if( !o.expandable ) return false;
-    if( o.group.compiler.is_item( o.signature_global_name ) )
+    $* compiler = o.group.compiler;
+    sink.push_sc( "func " );
+    if( o.stamp && o.signature_base_name == o.stamp.trait_name )
     {
-        const xoico* item = o.group.compiler.get_const_item( o.signature_global_name );
-        if( item._ == TYPEOF_xoico_signature_s )
-        {
-            if( !o.group.compiler.register_signatures ) return false;
-            const xoico_signature_s* signature = item.cast( xoico_signature_s* );
-            return ( signature.arg_o != 0 || o.group.compiler.register_non_feature_functions );
-        }
-        else
-        {
-            return true;
-        }
+        sink.push_fa( "^:#<sc_t>", compiler.nameof( o.name ) );
     }
     else
     {
-        return true;
+        sink.push_fa( "#<sc_t>:#<sc_t>", compiler.nameof( o.signature_base_name ), compiler.nameof( o.name ) );
     }
+    sink.push_sc( ";" );
+    return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -180,7 +143,7 @@ func (:) :.registerable =
 func (:) :.finalize = (try)
 {
     xoico_compiler_s* compiler = o.group.compiler;
-    o.set_global_name();
+    o.freeze_global_name();
 
     xoico_signature_s* signature = compiler.get_signature( o.signature_global_name ).cast( $* );
     if( !signature )

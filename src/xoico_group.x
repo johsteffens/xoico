@@ -103,6 +103,8 @@ func (:) (er_t push_default_feature_from_sc( mutable, sc_t sc )) = (try)
 
     if( !compiler.is_item( feature.cast( xoico* ).get_global_name_tp() ) )
     {
+        foreach( $* func in feature.funcs_return_to_group ) o.funcs.push_d( func.fork() );
+        feature.funcs_return_to_group.clear();
         compiler.register_item( feature, o.source_point.source );
         o.hmap_feature.set( feature.signature.name, ( vd_t )feature );
         o.push_item_d( feature.fork() );
@@ -166,6 +168,7 @@ func (:) (er_t push_func_d( mutable, xoico_func_s* func )) = (try)
 
 func (:) xoico.parse = (try)
 {
+    $* compiler = o.compiler;
     $* stack = xoico_group_source_stack_s!.scope();
     stack.push_d( source.fork() );
 
@@ -173,6 +176,7 @@ func (:) xoico.parse = (try)
 
     o.source_point.set( source );
     o.pre_hash = bcore_tp_init();
+    o.tp_name = compiler.entypeof( o.st_name.sc );
 
     if( o.parent ) // this group is nested in another group, the group body is enclosed in { ... }
     {
@@ -192,8 +196,6 @@ func (:) xoico.parse = (try)
     }
 
     bl_t extend_stump = false;
-
-    $* compiler = o.compiler;
 
     while
     (
@@ -268,11 +270,13 @@ func (:) xoico.parse = (try)
             feature.parse( source );
             compiler.register_item( feature, source );
             o.hmap_feature.set( feature.signature.name, ( vd_t )feature );
+            foreach( $* func in feature.funcs_return_to_group ) o.funcs.push_d( func.fork() );
+            feature.funcs_return_to_group.clear();
             o.push_item_d( feature.fork() );
         }
         else if( source.parse_bl( " #?w'func' " ) )
         {
-            bl_t is_plain_function = true;
+            bl_t is_group_function = true;
             if( source.parse_bl( " #=?'('" ) )
             {
                 sz_t index = source.get_index();
@@ -291,16 +295,16 @@ func (:) xoico.parse = (try)
                     xoico_stamp_s* stamp = compiler.get_stamp( tp_stamp_name );
                     stamp.parse_func( source );
                     o.pre_hash = bcore_tp_fold_tp( o.pre_hash, stamp.get_hash() );
-                    is_plain_function = false;
+                    is_group_function = false;
                 }
                 else
                 {
                     source.set_index( index );
-                    is_plain_function = true;
+                    is_group_function = true;
                 }
             }
 
-            if( is_plain_function )
+            if( is_group_function )
             {
                 o.parse_func( source );
             }
@@ -442,8 +446,6 @@ func (:) xoico.parse = (try)
     {
         return source.parse_error_fa( "Xoico: Unexpected end of group reached." );
     }
-
-    o.tp_name = compiler.entypeof( o.st_name.sc );
 
     return 0;
 };

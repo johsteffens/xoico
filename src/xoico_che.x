@@ -543,6 +543,7 @@ func (:)
     (
         mutable,
         bcore_source* source,
+        tp_t object_type,
         const xoico_signature_s* signature,
         const :result* result_obj_expr,
         const xoico_typespec_s* typespec_obj_expr,
@@ -564,8 +565,22 @@ func (:)
             if( signature.args.size > 0 ) source.parse_em_fa( " ," );
         }
 
-        xoico_typespec_s* typespec_obj_out = typespec_obj_expr.clone().scope();
-        typespec_obj_out.indirection = 1; // first argument of member functions has always indirection 1
+        xoico_typespec_s* typespec_obj_out = xoico_typespec_s!.scope();
+        typespec_obj_out.type = object_type ? object_type : typespec_obj_expr.type;
+        typespec_obj_out.flag_const = signature.arg_o == TYPEOF_const;
+        typespec_obj_out.indirection = 1; // first argument of a member function has always indirection 1
+
+        if( signature.typed )
+        {
+            if( typespec_obj_expr.type )
+            {
+                result_out.push_fa( "TYPEOF_#<sc_t>,", o.nameof( typespec_obj_expr.type ) );
+            }
+            else
+            {
+                return source.parse_error_fa( "Function requires a typed object reference but object expression is not tractable." );
+            }
+        }
 
         if( typespec_obj_expr.type )
         {
@@ -726,14 +741,18 @@ func (:)
         }
         else if( o.compiler.get_type_element_info( in_typespec.type, tp_identifier, info ) )
         {
-            if( info.signature ) // member function
+            if( info.func ) // member function
             {
-                sc_t sc_func_name = o.nameof( info.type_info.typespec.type );
+                $* func = info.func;
+                $* signature = func.signature.clone().scope( scope_local );
+                tp_t object_type = func.stamp ? func.stamp.tp_name : func.group.tp_name;
+                signature.relent( object_type );
+                sc_t sc_func_name = o.nameof( func.global_name );
                 ASSERT( sc_func_name );
                 $* result_arg_obj = result.clone().scope();
                 result.copy_fa( "#<sc_t>", sc_func_name );
-                o.trans_function_args( source, info.signature, result_arg_obj, in_typespec, result );
-                o.trans_typespec_expression( source, result, info.signature.typespec_ret, out_typespec );
+                o.trans_function_args( source, object_type, signature, result_arg_obj, in_typespec, result );
+                o.trans_typespec_expression( source, result, signature.typespec_ret, out_typespec );
             }
             else // traced member element
             {
@@ -1327,9 +1346,10 @@ func (:)
         }
 
         $* signature = func.signature.clone().scope();
-        signature.relent( func.stamp ? func.stamp.tp_name : func.group.tp_name );
+        tp_t object_type = func.stamp ? func.stamp.tp_name : func.group.tp_name;
+        signature.relent( object_type );
 
-        o.trans_function_args( source, signature, NULL, NULL, result );
+        o.trans_function_args( source, object_type, signature, NULL, NULL, result );
         o.trans_typespec_expression( source, result, signature.typespec_ret, out_typespec );
     }
     return 0;

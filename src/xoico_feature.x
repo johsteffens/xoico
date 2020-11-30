@@ -98,6 +98,24 @@ func (:) xoico.parse = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
+func (:) (xoico_func_s* create_func_from_sc( const, sc_t sc )) =
+{
+    xoico_func_s* func = xoico_func_s!;
+    func.group = o.group;
+    func.parse_sc( sc );
+    func.source_point.copy( o.source_point.1 );
+    return func;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:) (xoico_func_s* push_func_from_sc( mutable, sc_t sc )) =
+{
+    return o.funcs.push_d( o.create_func_from_sc( sc ) );
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
 func (:) (er_t setup_functions( mutable )) = (try)
 {
     $* compiler = o.group.compiler;
@@ -118,8 +136,7 @@ func (:) (er_t setup_functions( mutable )) = (try)
     {
         st_s* st = st_s!.scope();
         st.push_fa( "(#<sc_t> a_#<sc_t>(", sc_ret_typespec, sc_name );
-        if( flag_const ) st.push_fa( " const" );
-        st.push_fa( " #<sc_t>* o", sc_group_name );
+        st.push_fa( flag_const ? " const" : " mutable" );
         o.signature.args.expand( false, sc_group_name, st );
         st.push_fa( " )) = (verbatim_C) { " );
         st.push_fa( "const #<sc_t>* p = #<sc_t>_get_aware( o ); ", sc_spect_name, sc_spect_name );
@@ -131,12 +148,19 @@ func (:) (er_t setup_functions( mutable )) = (try)
 
         xoico_func_s* func = o.push_func_from_sc( st.sc );
         func.declare_in_expand_forward = false;
+
+        xoico_func_s* func_to_group = func.clone();
+        func_to_group.body =< NULL;
+        func_to_group.freeze_global_name(); // set global name before local name is changed
+        func_to_group.name = o.signature.name;
+        func_to_group.expandable = false;
+        o.funcs_return_to_group.push_d( func_to_group );
     }
 
     if( o.flag_a )
     {
         st_s* st = st_s!.scope();
-        st.push_fa( "(bl_t a_defines_#<sc_t>( const @* o )) = ", sc_name );
+        st.push_fa( "(bl_t a_defines_#<sc_t>( const )) = ", sc_name );
         if( always_defined )
         {
             st.push_fa( "{ return true; };", sc_name );
@@ -153,13 +177,11 @@ func (:) (er_t setup_functions( mutable )) = (try)
     if( o.flag_t )
     {
         st_s* st = st_s!.scope();
-        st.push_fa( "(#<sc_t> t_#<sc_t>( tp_t type,", sc_ret_typespec, sc_name );
-
-        if( flag_const ) st.push_fa( " const" );
-        st.push_fa( " #<sc_t>* o", sc_group_name );
+        st.push_fa( "(#<sc_t> t_#<sc_t>( typed", sc_ret_typespec, sc_name );
+        st.push_fa( flag_const ? " const" : " mutable" );
         o->signature.args.expand( false, sc_group_name, st );
         st.push_fa( " )) = (verbatim_C) { " );
-        st.push_fa( "const #<sc_t>* p = #<sc_t>_get_typed( type ); ", sc_spect_name, sc_spect_name );
+        st.push_fa( "const #<sc_t>* p = #<sc_t>_get_typed( t ); ", sc_spect_name, sc_spect_name );
         st.push_fa( "assert( p->#<sc_t> ); ", sc_name );
         if( has_ret ) st.push_fa( "return " );
         st.push_fa( "p->#<sc_t>( o", sc_name );
@@ -173,14 +195,14 @@ func (:) (er_t setup_functions( mutable )) = (try)
     if( o->flag_t )
     {
         st_s* st = st_s!.scope();
-        st.push_fa( "(bl_t t_defines_#<sc_t>( tp_t type )) = ", sc_name );
+        st.push_fa( "(bl_t t_defines_#<sc_t>( tp_t t )) = ", sc_name );
         if( always_defined )
         {
             st.push_fa( "{ return true; };", sc_name );
         }
         else
         {
-            st.push_fa( "{ return #<sc_t>_get_typed( type )->#<sc_t> != NULL; };", sc_spect_name, sc_name );
+            st.push_fa( "{ return #<sc_t>_get_typed( t )->#<sc_t> != NULL; };", sc_spect_name, sc_name );
         }
 
         xoico_func_s* func = o.push_func_from_sc( st.sc );
@@ -286,25 +308,9 @@ func (:) (er_t setup_functions( mutable )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (xoico_func_s* push_func_from_sc( mutable, sc_t sc )) =
-{
-    xoico_func_s* func = o.funcs.push_d( xoico_func_s! );
-    func.group = o.group;
-    func.parse_sc( sc );
-    func.source_point.copy( o.source_point.1 );
-    return func;
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
 func (:) xoico.finalize = (try)
 {
-    $* compiler = o.group.compiler;
-    foreach( $* func in o.funcs )
-    {
-        func.finalize();
-        compiler.register_func( func );
-    }
+    foreach( $* func in o.funcs ) func.finalize();
     return 0;
 };
 

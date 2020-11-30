@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-11-28T15:51:15Z
+ *  Last File Update: 2020-11-30T17:37:51Z
  *
  *  Copyright and License of this File:
  *
@@ -49,7 +49,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xoila_out 0x90B022FF23D21761ull
+#define HKEYOF_xoico_xoila_out 0xDF1AAA24566C8A57ull
 
 #define TYPEOF_xoico_xoila_out 0xD4054BD559134D0Eull
 
@@ -149,7 +149,7 @@
   static inline bl_t xoico_a_defines_get_global_name_tp( const xoico* o ){ return  true;} \
   static inline tp_t xoico_p_get_global_name_tp( const xoico_spect_s* p, const xoico* o ){ assert( p->get_global_name_tp ); return p->get_global_name_tp( o );} \
   static inline bl_t xoico_p_defines_get_global_name_tp( const xoico_spect_s* p ){ return  true;} \
-  static inline tp_t xoico_get_global_name_tp_default( const xoico* o ){ return  btypeof( xoico_a_get_global_name_sc(o ) );} \
+  static inline tp_t xoico_get_global_name_tp_default( const xoico* o ){ return  btypeof( xoico_a_get_global_name_sc( o ) );} \
   static inline er_t xoico_a_finalize( xoico* o ){ const xoico_spect_s* p = xoico_spect_s_get_aware( o ); assert( p->finalize ); return p->finalize( o );} \
   static inline bl_t xoico_a_defines_finalize( const xoico* o ){ return  true;} \
   static inline er_t xoico_p_finalize( const xoico_spect_s* p, xoico* o ){ assert( p->finalize ); return p->finalize( o );} \
@@ -272,7 +272,7 @@
 // source: xoico_typespec.h
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoico_typespec
+// group: xoico_typespec; embeds: xoico_typespec.x
 
 #define TYPEOF_xoico_typespec 0x4DA483D36BB5ED71ull
 #define TYPEOF_xoico_typespec_spect_s 0xE434F73B98EB762Dull
@@ -394,7 +394,7 @@
 // source: xoico_signature.h
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoico_signature
+// group: xoico_signature; embeds: xoico_signature.x
 
 #define TYPEOF_xoico_signature 0x53D29DD556C884CCull
 #define TYPEOF_xoico_signature_spect_s 0x53999B11F7357C04ull
@@ -434,7 +434,7 @@
 // source: xoico_body.h
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoico_body
+// group: xoico_body; embeds: xoico_body.x
 
 #define TYPEOF_xoico_body 0x3F9760E55C8626DAull
 #define TYPEOF_xoico_body_spect_s 0x5B466E06B6B28186ull
@@ -490,7 +490,7 @@
 // source: xoico_feature.h
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoico_feature
+// group: xoico_feature; embeds: xoico_feature.x
 
 #define TYPEOF_xoico_feature 0xBA3331D07ECB3518ull
 #define TYPEOF_xoico_feature_spect_s 0xA54B211C161855E0ull
@@ -501,6 +501,7 @@
       aware_t _; \
       xoico_signature_s signature; \
       xoico_funcs_s funcs; \
+      xoico_funcs_s funcs_return_to_group; \
       tp_t function_pointer_name; \
       st_s st_default_func_name; \
       xoico_body_s* default_body; \
@@ -516,8 +517,9 @@
   sc_t xoico_feature_s_get_global_name_sc( const xoico_feature_s* o ); \
   tp_t xoico_feature_s_get_hash( const xoico_feature_s* o ); \
   er_t xoico_feature_s_parse( xoico_feature_s* o, bcore_source* source ); \
-  er_t xoico_feature_s_setup_functions( xoico_feature_s* o ); \
+  xoico_func_s* xoico_feature_s_create_func_from_sc( const xoico_feature_s* o, sc_t sc ); \
   xoico_func_s* xoico_feature_s_push_func_from_sc( xoico_feature_s* o, sc_t sc ); \
+  er_t xoico_feature_s_setup_functions( xoico_feature_s* o ); \
   er_t xoico_feature_s_finalize( xoico_feature_s* o ); \
   er_t xoico_feature_s_expand_forward( const xoico_feature_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_feature_s_expand_indef_typedef( const xoico_feature_s* o, sz_t indent, bcore_sink* sink ); \
@@ -540,7 +542,7 @@
 // source: xoico_func.h
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoico_func
+// group: xoico_func; embeds: xoico_func.x
 
 #define TYPEOF_xoico_func 0x18E354C70B63E0D0ull
 #define TYPEOF_xoico_func_spect_s 0xE66C0E41140B9DF8ull
@@ -551,8 +553,8 @@
       aware_t _; \
       tp_t name; \
       tp_t global_name; \
+      tp_t signature_base_name; \
       tp_t signature_global_name; \
-      st_s flect_decl; \
       bl_t expandable; \
       bl_t overloadable; \
       bl_t declare_in_expand_forward; \
@@ -565,10 +567,11 @@
   }; \
   er_t xoico_func_s_parse_sc( xoico_func_s* o, sc_t sc ); \
   er_t xoico_func_s_parse_fa( xoico_func_s* o, sc_t format, ... ); \
+  bl_t xoico_func_s_reflectable( const xoico_func_s* o ); \
   tp_t xoico_func_s_get_hash( const xoico_func_s* o ); \
-  er_t xoico_func_s_set_global_name( xoico_func_s* o ); \
+  er_t xoico_func_s_freeze_global_name( xoico_func_s* o ); \
   er_t xoico_func_s_parse( xoico_func_s* o, bcore_source* source ); \
-  bl_t xoico_func_s_registerable( const xoico_func_s* o ); \
+  er_t xoico_func_s_push_flect_decl_to_sink( const xoico_func_s* o, bcore_sink* sink ); \
   er_t xoico_func_s_finalize( xoico_func_s* o ); \
   er_t xoico_func_s_expand_forward( const xoico_func_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_func_s_expand_declaration( const xoico_func_s* o, sz_t indent, bcore_sink* sink ); \
@@ -623,7 +626,7 @@
 // source: xoico_group.h
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoico_group
+// group: xoico_group; embeds: xoico_group.x
 
 #define TYPEOF_xoico_group 0xF9A247075F113FF9ull
 #define TYPEOF_xoico_group_spect_s 0x3DE6C1C7D3A336F5ull
@@ -712,7 +715,7 @@
 // source: xoico_stamp.h
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoico_stamp
+// group: xoico_stamp; embeds: xoico_stamp.x
 
 #define TYPEOF_xoico_stamp 0xB3846155856B6F65ull
 #define TYPEOF_xoico_stamp_spect_s 0x032C3E7F429F6881ull
@@ -725,6 +728,7 @@
       tp_t tp_name; \
       tp_t trait_name; \
       bl_t is_aware; \
+      st_s* self_buf; \
       st_s* self_source; \
       bcore_self_s* self; \
       xoico_funcs_s funcs; \
@@ -833,7 +837,7 @@
 // source: xoico_target.h
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoico_target
+// group: xoico_target; embeds: xoico_target.x
 
 #define TYPEOF_xoico_target 0x01BDFA196985FBF7ull
 #define TYPEOF_xoico_target_spect_s 0x2829234C11A6B927ull
@@ -886,7 +890,7 @@
 // source: xoico_compiler.h
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoico_compiler
+// group: xoico_compiler; embeds: xoico_compiler.x
 
 #define TYPEOF_xoico_compiler 0x4C5D845108D0785Full
 #define TYPEOF_xoico_compiler_spect_s 0xF1BE54EC910CD90Full
@@ -904,8 +908,7 @@
   { \
       aware_t _; \
       xoico_compiler_type_info_s type_info; \
-      xoico_signature_s* signature; \
-      tp_t from_inherited_group; \
+      xoico_func_s* func; \
   };
 #define TYPEOF_xoico_compiler_s 0xA7C0906C33CBFB69ull
 #define BETH_EXPAND_ITEM_xoico_compiler_s \
@@ -921,7 +924,6 @@
       bcore_hmap_name_s name_map; \
       tp_t target_pre_hash; \
       bl_t work_build_time_into_pre_hash; \
-      bl_t register_non_feature_functions; \
       bl_t register_signatures; \
       bl_t overwrite_unsigned_target_files; \
       bl_t always_expand; \
@@ -996,7 +998,7 @@
 // source: xoico_builder.h
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoico_builder
+// group: xoico_builder; embeds: xoico_builder.x
 
 #define TYPEOF_xoico_builder 0x2BA8E9CE5EBF4289ull
 #define TYPEOF_xoico_builder_spect_s 0x2AFB714AC45A87C5ull
@@ -1109,7 +1111,7 @@
 // source: xoico_che.h
 
 //----------------------------------------------------------------------------------------------------------------------
-// group: xoico_che
+// group: xoico_che; embeds: xoico_che.x xoico_che_builtin.x xoico_che_control.x
 
 #define TYPEOF_xoico_che 0x2513169BE8C0DB50ull
 #define TYPEOF_xoico_che_spect_s 0x3CFA2CC55AF0E878ull
@@ -1188,7 +1190,7 @@
   bl_t xoico_che_s_trans_operator( xoico_che_s* o, bcore_source* source, xoico_che_result* result ); \
   er_t xoico_che_s_adapt_expression_indirection( xoico_che_s* o, bcore_source* source, const xoico_typespec_s* typespec_expr, sz_t target_indirection, const xoico_che_result* result_expr, xoico_che_result* result ); \
   er_t xoico_che_s_adapt_expression( xoico_che_s* o, bcore_source* source, const xoico_typespec_s* typespec_expr, const xoico_typespec_s* typespec_target, const xoico_che_result* result_expr, xoico_che_result* result ); \
-  er_t xoico_che_s_trans_function_args( xoico_che_s* o, bcore_source* source, const xoico_signature_s* signature, const xoico_che_result* result_obj_expr, const xoico_typespec_s* typespec_obj_expr, xoico_che_result* result_out ); \
+  er_t xoico_che_s_trans_function_args( xoico_che_s* o, bcore_source* source, tp_t object_type, const xoico_signature_s* signature, const xoico_che_result* result_obj_expr, const xoico_typespec_s* typespec_obj_expr, xoico_che_result* result_out ); \
   er_t xoico_che_s_trans_typespec_member( xoico_che_s* o, bcore_source* source, xoico_che_result* result, const xoico_typespec_s* in_typespec, xoico_typespec_s* out_typespec ); \
   er_t xoico_che_s_trans_typespec_array_subscript( xoico_che_s* o, bcore_source* source, xoico_che_result* result, const xoico_typespec_s* in_typespec, xoico_typespec_s* out_typespec ); \
   er_t xoico_che_s_trans_typespec_create( xoico_che_s* o, bcore_source* source, xoico_che_result* result, const xoico_typespec_s* in_typespec, xoico_typespec_s* out_typespec ); \
@@ -1608,4 +1610,4 @@
 vd_t xoico_xoila_out_signal_handler( const bcore_signal_s* o );
 
 #endif // __xoico_xoila_out_H
-// XOILA_OUT_SIGNATURE 0xF73F0C232ED7098Eull
+// XOILA_OUT_SIGNATURE 0x95A43DDADE9D9ED5ull

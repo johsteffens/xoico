@@ -175,7 +175,6 @@ func (:) :.parse_func = (try)
     func.stamp = o;
     func.parse( source );
 
-    bl_t register_func =  func.registerable();
     sz_t idx = o.funcs.get_index_from_name( func->name );
 
     if( idx >= 0 )
@@ -194,13 +193,11 @@ func (:) :.parse_func = (try)
             else
             {
                 o.funcs.replace_fork( idx, func );
-                o->self_source.replace_sc_sc( prex_func.flect_decl.sc, "" );
             }
         }
         else if( prex_func.overloadable )
         {
             o.funcs.replace_fork( idx, func );
-            o.self_source.replace_sc_sc( prex_func.flect_decl.sc, "" );
         }
         else
         {
@@ -212,19 +209,6 @@ func (:) :.parse_func = (try)
         o.funcs.push_d( func.fork() );
     }
 
-
-    if( register_func )
-    {
-        bl_t push_brace = false;
-        if( o.self_source.size > 0 && o.self_source.sc[ o.self_source.size - 1 ] == '}' )
-        {
-            o.self_source.size--;
-            push_brace = true;
-        }
-        o.self_source.push_st( func.flect_decl );
-        if( push_brace ) o.self_source.push_sc( "}" );
-    }
-
     return 0;
 };
 
@@ -232,18 +216,9 @@ func (:) :.parse_func = (try)
 
 func (:) (er_t parse_extend( mutable, bcore_source* source )) = (try)
 {
-    ASSERT( o.self_source );
+    ASSERT( o.self_buf );
 
     source.parse_em_fa( " {" );
-
-    if( o.self_source.size > 0 && o.self_source.sc[ o.self_source->size - 1 ] == '}' )
-    {
-        o.self_source->size--;
-    }
-    else
-    {
-        o.self_source.push_fa( "{" );
-    }
 
     while( !source.eos() && !source.parse_bl( " #?'}'" ) )
     {
@@ -263,20 +238,20 @@ func (:) (er_t parse_extend( mutable, bcore_source* source )) = (try)
                     {
                         st_s* name = st_s!.scope( scope_local );
                         o.group.parse_name_recursive( name, source );
-                        o.self_source.push_st( name );
+                        o.self_buf.push_st( name );
                     }
                     break;
 
                     case ';':
                     {
-                        o.self_source.push_char( c );
+                        o.self_buf.push_char( c );
                         exit = true;
                     }
                     break;
 
                     default:
                     {
-                        o.self_source.push_char( c );
+                        o.self_buf.push_char( c );
                     }
                     break;
                 }
@@ -284,7 +259,6 @@ func (:) (er_t parse_extend( mutable, bcore_source* source )) = (try)
         }
     }
     source.parse_em_fa( " ; " );
-    o.self_source.push_sc( "}" );
 
     return 0;
 };
@@ -334,7 +308,7 @@ func (:) :.parse = (try)
 {
     $* compiler = o.group.compiler;
     bl_t verbatim = source.parse_bl( " #?w'verbatim'" );
-    o.self_source =< st_s!;
+    o.self_buf =< st_s!;
 
     $* st_stamp_name = st_s!.scope();
     $* st_trait_name = st_s!.scope();
@@ -374,19 +348,10 @@ func (:) :.parse = (try)
     }
     else
     {
-        o.self_source.push_fa( "@ =" );
-
-        if( source.parse_bl( " #?w'aware'" ) )
-        {
-            o.self_source.push_sc( "aware " );
-            o.is_aware = true;
-        }
-
+        if( source.parse_bl( " #?w'aware'" ) ) o.is_aware = true;
         o.group.parse_name( st_trait_name, source );
         if( st_trait_name.size == 0 ) return source.parse_error_fa( "Trait name expected." );
-
         o.trait_name = compiler.entypeof( st_trait_name.sc );
-        o.self_source.push_st( st_trait_name );
     }
 
     o.st_name.copy( st_stamp_name );
@@ -403,17 +368,25 @@ func (:) xoico.finalize = (try)
 {
     $* compiler = o.group.compiler;
 
-    // TODO: move functions declaration in self_source to finalize
-    o.self_source.replace_sc_sc( "@", o.st_name.sc );
-    o.self =< bcore_self_s_parse_source( bcore_source_string_s_create_from_string( o.self_source ).scope().cast( bcore_source* ), 0, 0, o.group.st_name.sc, false );
-
     foreach( $* func in o.funcs )
     {
         func.group = o.group;
         func.stamp = o;
         func.finalize();
+        if( func.reflectable() ) func.push_flect_decl_to_sink( o.self_buf );
         compiler.register_func( func );
     }
+
+    o.self_buf.replace_sc_sc( "@", o.st_name.sc );
+
+    o.self_source =< st_s!;
+    o.self_source.push_fa( "#<sc_t> =", o.st_name.sc );
+    if( o.is_aware ) o.self_source.push_sc( "aware " );
+    o.self_source.push_sc( compiler.nameof( o.trait_name ) );
+    o.self_source.push_fa( "{#<st_s*>}", o.self_buf );
+    o.self_buf =< NULL;
+
+    o.self =< bcore_self_s_parse_source( bcore_source_string_s_create_from_string( o.self_source ).scope().cast( bcore_source* ), 0, 0, o.group.st_name.sc, false );
 
     // checking for repetitions in o.self (non-functions)
     $* hmap_name = bcore_hmap_tp_s!.scope();
@@ -534,7 +507,7 @@ func (:) xoico.expand_declaration = (try)
 
 func (:) xoico.expand_definition = (try)
 {
-    st_s* embedded_string = xoico_stamp_create_embedded_string( o.self_source ).scope();
+    st_s* embedded_string = o.create_embedded_string( o.self_source ).scope();
 
     // 4095 is the C99-limit for string literals
     if( embedded_string.size > 4095 )
@@ -573,7 +546,7 @@ func (:) xoico.expand_init1 = (try)
 
     foreach( $* func in o.funcs )
     {
-        if( func.expandable && func.registerable() )
+        if( func.reflectable() )
         {
             const xoico_signature_s* signature = func.signature;
             sink.push_fa

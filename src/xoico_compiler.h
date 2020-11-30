@@ -68,8 +68,7 @@ stamp :type_info = aware :
 stamp :element_info = aware :
 {
     :type_info_s type_info;
-    xoico_signature_s => signature;
-    tp_t from_inherited_group; // signature is from an inherited group (cast required)
+    hidden xoico_func_s* func; // NULL in case element is no function
 };
 
 signature bl_t get_type_info(               const, tp_t type,            :type_info_s*    info );
@@ -104,7 +103,6 @@ stamp : = aware :
      */
     tp_t target_pre_hash                 = 71;
     bl_t work_build_time_into_pre_hash   = true;
-    bl_t register_non_feature_functions  = true;
     bl_t register_signatures             = false;
     bl_t overwrite_unsigned_target_files = false;
     bl_t always_expand                   = false; // true: always expands targets even when the hash has not changed;
