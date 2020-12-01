@@ -76,7 +76,7 @@ signature bl_t get_type_element_info(       const, tp_t type, tp_t name, :elemen
 signature bl_t get_type_array_element_info( const, tp_t type,            :element_info_s* info );
 
 // external interface ...
-signature er_t parse              ( mutable, sc_t target_name, sc_t source_path, sz_t* p_target_index );
+signature er_t parse              ( mutable, sc_t target_name, sc_t target_ext, sc_t source_path, sz_t* p_target_index );
 signature er_t update_target_files( mutable, bl_t* p_modified );
 signature bl_t update_required    ( mutable );
 signature sz_t get_verbosity      ( const );

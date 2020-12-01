@@ -136,11 +136,9 @@ func (:target) :.build = (try)
 
         ASSERT( o.name );
         ASSERT( o.extension );
-        st_s* xoi_target_name = st_s_create_fa( "#<sc_t>_#<sc_t>", o->name->sc, o->extension->sc ).scope( scope_local );
-
         sz_t index = -1;
 
-        o.compiler.parse( xoi_target_name.sc, file_path.sc, index );
+        o.compiler.parse( o->name->sc, o->extension->sc, file_path.sc, index );
 
         if( o.target_index_ == -1 ) o.target_index_ = index;
         if( index != o.target_index_ )

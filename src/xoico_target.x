@@ -226,7 +226,7 @@ func (:) (er_t expand_c( const, sz_t indent, bcore_sink* sink )) = (try)
     o.expand_heading( indent, sink );
 
     sink.push_fa( "\n" );
-    sink.push_fa( "#rn{ }##include \"#<sc_t>.h\"\n", indent, o->name.sc );
+    sink.push_fa( "#rn{ }##include \"#<sc_t>.h\"\n", indent, o->include_path.sc );
     sink.push_fa( "#rn{ }##include \"bcore_spect.h\"\n", indent );
     sink.push_fa( "#rn{ }##include \"bcore_spect_inst.h\"\n", indent );
     sink.push_fa( "#rn{ }##include \"bcore_sr.h\"\n", indent );

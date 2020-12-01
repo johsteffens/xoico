@@ -39,9 +39,9 @@ stamp :arr_target = aware bcore_array { :target_s => []; };
 
 stamp :target = aware :
 {
-    st_s => name;                    // unique target name
-    st_s => extension = "xoila_out"; // extension used for xoila output files
-    st_s => root_folder;             // root folder of subsequent file paths (used if they are relative)
+    st_s => name;             // unique target name
+    st_s => extension = "xo"; // extension used for xoila output files
+    st_s => root_folder;      // root folder of subsequent file paths (used if they are relative)
     bl_t readonly;
 
     bcore_arr_st_s dependencies; // dependent target definitions

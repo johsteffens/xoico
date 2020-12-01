@@ -38,7 +38,8 @@ signature er_t set_dependencies( mutable, const bcore_arr_sz_s* dependencies );
 stamp : = aware :
 {
     st_s name; // target name (e.g. "bcore")
-    st_s path; // path excluding extension
+    st_s include_path; // (local) path used in generated '#include' directives
+    st_s path; // full path excluding extension *.h or *.c
     xoico_source_s => [];
 
     st_s signal_handler_name;    // name of governing signal handler

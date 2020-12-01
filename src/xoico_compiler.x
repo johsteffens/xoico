@@ -141,7 +141,7 @@ func (:) :.check_overwrite =
 func (:) :.parse = (try)
 {
     st_s* source_folder_path = bcore_file_folder_path( source_path ).scope();
-    st_s* target_path        = st_s_create_fa( "#<sc_t>/#<sc_t>", source_folder_path->sc, target_name ).scope();
+    st_s* target_path        = st_s_create_fa( "#<sc_t>/#<sc_t>.#<sc_t>", source_folder_path->sc, target_name, target_ext ).scope();
 
     sz_t target_index = -1;
     for( sz_t i = 0; i < o->size; i++ )
@@ -157,7 +157,8 @@ func (:) :.parse = (try)
     {
         xoico_target_s* target = xoico_target_s!;
         target.compiler = o;
-        target.name.copy_sc( target_name );
+        target.name        .copy_fa( "#<sc_t>_#<sc_t>", target_name, target_ext );
+        target.include_path.copy_fa( "#<sc_t>.#<sc_t>", target_name, target_ext );
         target.path.copy( target_path );
         o.push_d( target );
         target_index = o->size - 1;
