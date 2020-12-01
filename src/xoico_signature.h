@@ -40,6 +40,7 @@ stamp : = aware :
     xoico_args_s args; // e.g.: sz_t a, sz_t b
     tp_t arg_o;        // object argument: mutable | const | 0
     bl_t typed;        // true: object argument is preceded by 'tp_t t' indicating the type of the object (for non-aware objects); no effect in case arg_o == 0
+    tp_t arg_o_transient_class;
 
     hidden aware xoico_group_s* group;
     hidden aware xoico_stamp_s* stamp;

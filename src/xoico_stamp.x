@@ -405,6 +405,12 @@ func (:) xoico.finalize = (try)
         }
     }
 
+    // check validity of trait name
+    if( !compiler.is_group( o.trait_name ) )
+    {
+        return o.source_point.parse_error_fa( "In stamp '#<sc_t>': Trait name '#<sc_t>' is not a group.", o.st_name.sc, compiler.nameof( o.trait_name ) );
+    }
+
     return 0;
 };
 

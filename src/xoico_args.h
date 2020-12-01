@@ -26,7 +26,7 @@
 XOILA_DEFINE_GROUP( xoico_args, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-stamp : = aware bcore_array
+stamp : = aware x_array
 {
     xoico_arg_s => [];
     hidden aware xoico_group_s* group;
@@ -38,21 +38,18 @@ stamp : = aware bcore_array
 
 func (:) xoico.parse = { o.clear(); return o.append( source ); };
 
-func (:) (er_t append( mutable, bcore_source* source )) =
+func (:) (er_t append( mutable, bcore_source* source )) = (try)
 {
-    try
+    bl_t first = true;
+    while( !source.parse_bl( " #=?')' " ) ) // args follow
     {
-        bl_t first = true;
-        while( !source.parse_bl( " #=?')' " ) ) // args follow
-        {
-            if( o.is_variadic() ) return source.parse_error_fa( "Cannot append to variadic argument list." );
-            if( !first ) xoico_parse_f( source, " , " );
-            $* arg = xoico_arg_s!.scope();
-            arg.group = o.group;
-            arg.parse( source );
-            o.push_d( arg.fork() );
-            first = false;
-        }
+        if( o.is_variadic() ) return source.parse_error_fa( "Cannot append to variadic argument list." );
+        if( !first ) xoico_parse_f( source, " , " );
+        $* arg = xoico_arg_s!.scope();
+        arg.group = o.group;
+        arg.parse( source );
+        o.push_d( arg.fork() );
+        first = false;
     }
     return 0;
 };

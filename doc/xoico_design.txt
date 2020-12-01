@@ -307,18 +307,23 @@ TODO:
 
 - fully handle default functions for arrays  (add them as 'func' and let cengine generate the code)
 - introduce simple way to call the default implementation of a feature
+- introduce simple way to test if a feature is implemented
 - scope instances on stack: e.g. scope st_s st;
 - is term 'indirection' proper?
 - bug: binary operator not recognized after unregistered member function
 - c-he: add purity level; higher purity raises errors on untraced conditions
-- syntax: accessing a feature as non-function-member yields (non-addressable) bl_t indicating if function is defined for the object
+- (speculative) syntax: accessing a feature as non-function-member yields (non-addressable) bl_t indicating if function is defined for the object
     e.g.:  if( source.get_index ) --> if( bcore_source_a_defines_get_index( source ) )
+
+- typespec: add transient_class
+   - used in function arguments indicating that the function's return type can be safely casted into the input type of the transient-argument.
+   - used as a generic typelock (the stamp associates a type with the transient_class )
 
 - introduce typed signatures
 
-- allow member functions in groups
+- (done) allow member functions in groups
 
-- make functions in a trait-line transparent:
+- (done) make functions in a trait-line transparent:
     - function can be called as stamp or group member without explicitly changing perspective
     - a stamp or group can overload the function.
 

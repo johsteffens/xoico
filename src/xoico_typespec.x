@@ -20,11 +20,21 @@
 func (:) :.parse = (try)
 {
     o.reset();
+    $* compiler = group.compiler;
 
     if( source.parse_bl( "#?'...' " ) )
     {
         o.flag_variadic = true;
         return 0;
+    }
+
+    if( source.parse_bl( "#?'(' " ) )
+    {
+        st_s* s = st_s!.scope();
+        source.parse_em_fa( "#name ", s );
+        if( s->size == 0 ) source.parse_error_fa( "Transient class: Identifier expected." );
+        o->transient_class = xoico_compiler_s_entypeof( compiler, s->sc );
+        source.parse_em_fa( " ) " );
     }
 
     while( !source.eos() )
@@ -37,8 +47,6 @@ func (:) :.parse = (try)
     }
 
     source.parse_em_fa( " " );
-
-    xoico_compiler_s* compiler = group.compiler;
 
     st_s* s = st_s!.scope();
     if( source.parse_bl( "#?':' " ) )

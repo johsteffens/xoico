@@ -518,7 +518,7 @@ func (:)
                 $* st_typespec_target = st_s!.scope();
                 o.typespec_to_sink( typespec_expr, st_typespec_expr );
                 o.typespec_to_sink( typespec_target, st_typespec_target );
-                return source.parse_error_fa( "Implicit cast from '#<sc_t>' to '#<sc_t>' is not possible.", st_typespec_expr.sc, st_typespec_target.sc );
+                return source.parse_error_fa( "Implicit cast from '#<sc_t>' to '#<sc_t>' is not allowed. A cast-operator might be needed here.", st_typespec_expr.sc, st_typespec_target.sc );
             }
         }
 
@@ -547,11 +547,14 @@ func (:)
         const xoico_signature_s* signature,
         const :result* result_obj_expr,
         const xoico_typespec_s* typespec_obj_expr,
-        :result* result_out
+        :result* result_out,
+        tp_t* transient_type
     )
 ) = (try)
 {
     o.trans( source, "(", result_out );
+
+    tp_t transient_class = signature.typespec_ret.transient_class;
 
     if( signature.arg_o )
     {
@@ -584,6 +587,10 @@ func (:)
 
         if( typespec_obj_expr.type )
         {
+            if( transient_class && transient_type && ( transient_type.0 == 0 ) && ( signature.arg_o_transient_class == transient_class ) )
+            {
+                transient_type.0 = typespec_obj_expr.type;
+            }
             o.adapt_expression( source, typespec_obj_expr, typespec_obj_out, result_obj_expr, result_out );
         }
         else
@@ -610,6 +617,10 @@ func (:)
         o.trans_expression( source, result_expr, typespec_expr );
         if( typespec_expr.type )
         {
+            if( transient_class && transient_type && ( transient_type.0 == 0 ) && ( arg.typespec.transient_class == transient_class ) )
+            {
+                transient_type.0 = typespec_expr.type;
+            }
             o.adapt_expression( source, typespec_expr, arg.typespec, result_expr, result_out );
         }
         else
@@ -749,10 +760,33 @@ func (:)
                 signature.relent( object_type );
                 sc_t sc_func_name = o.nameof( func.global_name );
                 ASSERT( sc_func_name );
+
+                $* typespec_ret = signature.typespec_ret.clone().scope( scope_local );
+                tp_t transient_type = 0;
+
                 $* result_arg_obj = result.clone().scope();
-                result.copy_fa( "#<sc_t>", sc_func_name );
-                o.trans_function_args( source, object_type, signature, result_arg_obj, in_typespec, result );
-                o.trans_typespec_expression( source, result, signature.typespec_ret, out_typespec );
+                result.clear();
+                $* result_args = :result_arr_s!;
+
+                o.trans_function_args( source, object_type, signature, result_arg_obj, in_typespec, result_args, &transient_type );
+
+                if( transient_type != 0 )
+                {
+                    typespec_ret.type = transient_type;
+                    result.push_sc( "((" );
+                    o.push_typespec( typespec_ret, result );
+                    result.push_sc( ")(" );
+                }
+
+                result.push_fa( "#<sc_t>", sc_func_name );
+                result.push_result_d( result_args );
+
+                if( transient_type != 0 )
+                {
+                    result.push_sc( "))" );
+                }
+
+                o.trans_typespec_expression( source, result, typespec_ret, out_typespec );
             }
             else // traced member element
             {
@@ -1333,8 +1367,10 @@ func (:)
 ) = (try)
 {
     tp_t tp_identifier = 0;
-    o.trans_identifier( source, result, tp_identifier );
-    o.trans_whitespace( source, result );
+
+    $* result_func = :result_arr_s!;
+    o.trans_identifier( source, result_func, tp_identifier );
+    o.trans_whitespace( source, result_func );
 
     if( source.parse_bl( "#=?'('" ) ) // actual function call
     {
@@ -1349,9 +1385,33 @@ func (:)
         tp_t object_type = func.stamp ? func.stamp.tp_name : func.group.tp_name;
         signature.relent( object_type );
 
-        o.trans_function_args( source, object_type, signature, NULL, NULL, result );
-        o.trans_typespec_expression( source, result, signature.typespec_ret, out_typespec );
+        $* typespec_ret = signature.typespec_ret.clone().scope( scope_local );
+        tp_t transient_type = 0;
+
+        o.trans_function_args( source, object_type, signature, NULL, NULL, result_func, &transient_type );
+
+        if( transient_type != 0 )
+        {
+            typespec_ret.type = transient_type;
+            result.push_sc( "((" );
+            o.push_typespec( typespec_ret, result );
+            result.push_sc( ")(" );
+        }
+
+        result.push_result_d( result_func );
+
+        if( transient_type != 0 )
+        {
+            result.push_sc( "))" );
+        }
+
+        o.trans_typespec_expression( source, result, typespec_ret, out_typespec );
     }
+    else
+    {
+        result.push_result_d( result_func );
+    }
+
     return 0;
 };
 

@@ -40,6 +40,7 @@ name type_object;
 stamp : = aware :
 {
     tp_t type; // possible variable types are TYPEOF_type_deduce and TYPEOF_type_object
+    tp_t transient_class;
     sz_t indirection;
 
     bl_t flag_const;

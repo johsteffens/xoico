@@ -40,9 +40,7 @@ stamp : = aware :
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.parse =
-{
-try
+func (:) xoico.parse = (try)
 {
     xoico_compiler_s* compiler = o.group.compiler;
     o.source_point.set( source );
@@ -64,7 +62,6 @@ try
     o.name = compiler.entypeof( s.sc );
 
     return 0;
-} // try
 };
 
 func (:) xoico.get_hash =

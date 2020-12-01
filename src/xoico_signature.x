@@ -77,6 +77,19 @@ func (:) xoico.parse = (try)
         source.parse_em_fa( " (" );
         if( source.parse_bl(  " #?'plain' " ) ) source.parse_error_fa( "Use of 'plain' is deprecated. Simply omit this argument." );
 
+        sz_t index = source.get_index();
+
+        tp_t transient_class = 0;
+        if( source.parse_bl( "#?'(' " ) )
+        {
+            st_s* s = st_s!.scope();
+            source.parse_em_fa( "#name ", s );
+            if( s->size == 0 ) source.parse_error_fa( "Transient class: Identifier expected." );
+            transient_class = compiler.entypeof( s->sc );
+            source.parse_em_fa( " ) " );
+        }
+
+
         if( source.parse_bl( " #?'typed' " ) )
         {
             o.typed = true;
@@ -89,7 +102,6 @@ func (:) xoico.parse = (try)
         }
         else if( source.parse_bl( " #=?'const'" ) )
         {
-            sz_t index = source.get_index();
             source.parse_em_fa( "const " );
             if( source.parse_bl( "#?([0]==','||[0]==')')" ) )
             {
@@ -97,6 +109,7 @@ func (:) xoico.parse = (try)
             }
             else
             {
+                // reset index (non-member functions)
                 source.set_index( index );
             }
         }
@@ -104,6 +117,7 @@ func (:) xoico.parse = (try)
         if( o.arg_o )
         {
             if( !source.parse_bl( " #=?')'" ) ) source.parse_em_fa( ", " );
+            o.arg_o_transient_class = transient_class;
         }
         else if( o.typed )
         {
@@ -126,6 +140,15 @@ func (:) xoico.parse = (try)
     }
 
     o.global_name = compiler.entypeof( name_buf.sc );
+
+    if( o.typespec_ret.transient_class )
+    {
+        if( o.typespec_ret.type == TYPEOF_void && o.typespec_ret.indirection == 0 )
+        {
+            source.parse_error_fa( "'void' can not be a transient type." );
+        }
+    }
+
     return 0;
 };
 
