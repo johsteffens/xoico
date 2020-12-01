@@ -412,7 +412,8 @@ func (:) xoico.parse = (try)
                 }
             }
 
-            stack.push_d( source = embed_source );
+            source = embed_source;
+            stack.push_d( source );
         }
         else if( source.parse_bl( " #?w'include' " ) )
         {

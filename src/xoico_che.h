@@ -72,7 +72,7 @@ group :result = :
     func (:* create_from_st( const st_s* st ) ) = { $* o = :arr_s!; o.push_st( st ); return o; };
     func (:* create_from_sc(       sc_t  sc ) ) = { $* o = :arr_s!; o.push_sc( sc ); return o; };
 
-    stamp :adl = aware bcore_array { aware : -> []; }; // !! weak links !!  (if this causes problems revert to strong links)
+    stamp :adl = aware x_array { aware : -> []; }; // !! weak links !!  (if this causes problems revert to strong links)
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -196,7 +196,7 @@ group :stack_var = :
         xoico_typespec_s typespec;
     };
 
-    stamp :unit_adl = aware bcore_array { :unit_s => []; };
+    stamp :unit_adl = aware x_array { :unit_s => []; };
 
     signature @* push_unit( mutable, const :unit_s* unit );
     signature @* pop_level( mutable, sz_t level ); // pop all units of or above level
@@ -271,7 +271,7 @@ group :stack_block = :
         bl_t break_ledge = false; // this block represents a break-ledge for a break-command inside this block or higher-level blocks up to the next break-level
     };
 
-    stamp :unit_adl = aware bcore_array { :unit_s => []; };
+    stamp :unit_adl = aware x_array { :unit_s => []; };
 
     signature @* push( mutable );
     signature @* push_unit( mutable, const :unit_s* unit );

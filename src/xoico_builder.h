@@ -35,7 +35,7 @@ signature const @* name_match( const, sc_t name );
 
 signature void push_target_index_to_arr( const, bcore_arr_sz_s* arr );
 
-stamp :arr_target = aware bcore_array { :target_s => []; };
+stamp :arr_target = aware x_array { :target_s => []; };
 
 stamp :target = aware :
 {
