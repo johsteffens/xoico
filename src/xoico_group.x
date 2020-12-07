@@ -36,7 +36,7 @@ func (:) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.create_spect_name =
+func (:) xoico_host.create_spect_name =
 {
     if( o.short_spect_name )
     {
@@ -75,7 +75,7 @@ func (:) :.parse_name_recursive = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.parse_name = (try)
+func (:) xoico_host.parse_name = (try)
 {
     if( source.parse_bl( " #?':'" ) )
     {
@@ -98,7 +98,6 @@ func (:) (er_t push_default_feature_from_sc( mutable, sc_t sc )) = (try)
     $* compiler = o.compiler;
     $* feature = xoico_feature_s!.scope();
     feature.expandable = false;
-    feature.group = o;
     feature.parse( o, bcore_source_string_s_create_from_sc( sc ).scope() );
 
     if( !compiler.is_item( feature.cast( xoico* ).get_global_name_tp() ) )
@@ -118,8 +117,6 @@ func (:) (er_t push_default_feature_from_sc( mutable, sc_t sc )) = (try)
 func (:) (er_t parse_func( mutable, bcore_source* source )) = (try)
 {
     $* func = xoico_func_s!.scope();
-    func.group = o;
-    func.stamp = NULL;
     func.parse( o, source );
     o.push_func_d( func.fork() );
     return 0;
@@ -248,7 +245,6 @@ func (:) xoico.parse = (try)
         else if( source.parse_bl( " #?w'signature' " ) )
         {
             $* signature = xoico_signature_s!.scope( scope_local );
-            signature.group = o;
             signature.parse( o, source );
             source.parse_em_fa( " ; " );
             compiler.register_item( signature, source );
@@ -257,7 +253,6 @@ func (:) xoico.parse = (try)
         else if( bcore_source_a_parse_bl( source, " #?w'body' " ) )
         {
             $* body = xoico_body_s!.scope( scope_local );
-            body.set_group( o );
             body.parse( o, source );
             source.parse_em_fa( " ; " );
             compiler.register_item( body, source );
@@ -266,7 +261,6 @@ func (:) xoico.parse = (try)
         else if( source.parse_bl( " #?w'feature' " ) )
         {
             $* feature = xoico_feature_s!.scope( scope_local );
-            feature.group = o;
             feature.parse( o, source );
             compiler.register_item( feature, source );
             o.hmap_feature.set( feature.signature.name, ( vd_t )feature );
@@ -312,14 +306,12 @@ func (:) xoico.parse = (try)
         else if( source.parse_bl( " #?w'name' " ) )
         {
             $* name = xoico_name_s!.scope( scope_local );
-            name.group = o;
             name.parse( o, source );
             o.push_item_d( name.fork() );
         }
         else if( source.parse_bl( " #?w'type' " ) )
         {
             $* name = xoico_name_s!.scope( scope_local );
-            name.group = o;
             name.parse( o, source );
             compiler.register_external_type( name->name );
             o.push_item_d( name.fork() );

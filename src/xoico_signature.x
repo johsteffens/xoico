@@ -33,13 +33,13 @@ func (:) xoico.get_hash =
 func (:) xoico.parse = (try)
 {
     o.source_point.set( source );
-    $* compiler = o.group.compiler;
+    $* compiler = host.compiler();
 
     $* name_buf = st_s!.scope();
 
     if( source.parse_bl( " #?'extending'" ) )
     {
-        o.group.parse_name( source, name_buf );
+        host.parse_name( source, name_buf );
         tp_t tp_name = compiler.entypeof( name_buf.sc );
 
         const $* signature = compiler.get_signature( tp_name );
@@ -63,16 +63,12 @@ func (:) xoico.parse = (try)
     }
     else
     {
-        o.typespec_ret.parse( host, o.group, source );
+        o.typespec_ret.parse( host, source );
         o.typespec_ret.flag_addressable = false;
 
         // get name
         source.parse_em_fa( " #name", name_buf );
         o.name = compiler.entypeof( name_buf.sc );
-
-        // get args
-        ASSERT( o.group );
-        o.args.group = o.group;
 
         source.parse_em_fa( " (" );
         if( source.parse_bl(  " #?'plain' " ) ) source.parse_error_fa( "Use of 'plain' is deprecated. Simply omit this argument." );
@@ -129,15 +125,7 @@ func (:) xoico.parse = (try)
     }
 
     sc_t sc_name = compiler.nameof( o.name );
-
-    if( o.stamp )
-    {
-        name_buf.copy_fa( "#<sc_t>_#<sc_t>", o.stamp.st_name.sc, sc_name );
-    }
-    else
-    {
-        name_buf.copy_fa( "#<sc_t>_#<sc_t>", o.group.st_name.sc, sc_name );
-    }
+    name_buf.copy_fa( "#<sc_t>_#<sc_t>", compiler.nameof( host.obj_type() ), sc_name );
 
     o.global_name = compiler.entypeof( name_buf.sc );
 
@@ -156,8 +144,8 @@ func (:) xoico.parse = (try)
 
 func (:) :.expand_declaration = (try)
 {
-    sc_t sc_name = stamp ? stamp.st_name.sc : o.group.st_name.sc;
-    o.typespec_ret.expand( host, o.group, sc_name, sink );
+    sc_t sc_name = host.compiler().nameof( host.obj_type() );
+    o.typespec_ret.expand( host, sink );
     sink.push_fa( " #<sc_t>( ", sc_func_global_name );
 
     if( o.arg_o )
@@ -165,14 +153,14 @@ func (:) :.expand_declaration = (try)
         if( o.typed ) sink.push_sc( "tp_t t, " );
         sink.push_fa( "#<sc_t>", ( o.arg_o == TYPEOF_mutable ) ? "" : "const " );
         sink.push_fa( "#<sc_t>* o", sc_name );
-        o.args.expand( host, false, sc_name, sink );
+        o.args.expand( host, false, sink );
         sink.push_fa( " )" );
     }
     else
     {
         if( o.args.size > 0 )
         {
-            o.args.expand( host, true, sc_name, sink );
+            o.args.expand( host, true, sink );
         }
         else
         {

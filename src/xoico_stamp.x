@@ -171,8 +171,6 @@ func (:) :.parse_func = (try)
 {
     $* compiler = o.group.compiler;
     $* func = xoico_func_s!.scope();
-    func.group = o.group;
-    func.stamp = o;
     func.parse( o, source );
 
     sz_t idx = o.funcs.get_index_from_name( func->name );
@@ -269,8 +267,6 @@ func (:) (er_t push_default_func_from_sc( mutable, sc_t sc )) = (try)
 {
     $* compiler = o.group.compiler;
     $* func = xoico_func_s!.scope();
-    func.group = o.group;
-    func.stamp = o;
     func.overloadable = false;
     func.expandable = false;
 
@@ -306,7 +302,6 @@ func (:) :.push_default_funcs = (try)
 
 func (:) xoico.parse = (try)
 {
-    o.transient_map.group = o.group;
     $* compiler = o.group.compiler;
     bl_t verbatim = source.parse_bl( " #?w'verbatim'" );
     o.self_buf =< st_s!;
@@ -361,7 +356,6 @@ func (:) xoico.parse = (try)
 
     o.st_name.copy( st_stamp_name );
     o.tp_name = compiler.entypeof( st_stamp_name.sc );
-
     o.parse_extend( source );
 
     return 0;
@@ -375,10 +369,8 @@ func (:) xoico.finalize = (try)
 
     foreach( $* func in o.funcs )
     {
-        func.group = o.group;
-        func.stamp = o;
         func.finalize( o );
-        if( func.reflectable() ) func.push_flect_decl_to_sink( o.self_buf );
+        if( func.reflectable( host ) ) func.push_flect_decl_to_sink( host, o.self_buf );
         compiler.register_func( func );
     }
 
@@ -586,7 +578,7 @@ func (:) xoico.expand_init1 = (try)
 
     foreach( $* func in o.funcs )
     {
-        if( func.reflectable() )
+        if( func.reflectable( host ) )
         {
             const xoico_signature_s* signature = func.signature;
             sink.push_fa

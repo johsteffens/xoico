@@ -328,6 +328,8 @@ TODO:
 - add 'unaware' type modifier. Indicates that a typespec might be used to reference unaware objects (e.g. primitive objects).
        Used in functions designed to handle unaware types.
 
+- func .... = <target-func>: wraps target func
+
 Keywords (for syntax highlight)
 
 group stamp stump hidden private func name signature body aware feature extending verbatim

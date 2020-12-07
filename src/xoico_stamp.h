@@ -103,6 +103,11 @@ stamp : = aware :
     };
 
     func :.push_default_funcs;
+
+    func xoico_host.parse_name = { return o.group.parse_name( source, name ); };
+    func xoico_host.compiler = { return o.group.compiler; };
+    func xoico_host.cengine = { return o.group.cengine(); };
+    func xoico_host.obj_type = { return o.tp_name; };
 };
 
 //----------------------------------------------------------------------------------------------------------------------

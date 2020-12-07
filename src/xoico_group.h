@@ -29,12 +29,10 @@ XOILA_DEFINE_GROUP( xoico_group, xoico )
 include deferred "xoico_nested_group.h";
 
 signature er_t push_item_d( mutable, xoico* item );
-signature er_t parse_name(           mutable, bcore_source* source, st_s* name );
-signature er_t parse_name_recursive( mutable, bcore_source* source, st_s* name );
+signature er_t parse_name_recursive( const, bcore_source* source, st_s* name );
 signature er_t expand_declaration(   const, sz_t indent, bcore_sink* sink );
 signature er_t expand_definition(    const, sz_t indent, bcore_sink* sink );
 signature er_t expand_init1(         const, sz_t indent, bcore_sink* sink );
-signature st_s* create_spect_name( const );
 signature void explicit_embeddings_push( const, bcore_arr_st_s* arr );
 
 signature xoico_source_s*   get_source( const );
@@ -110,8 +108,6 @@ stamp : = aware :
         return 0;
     };
 
-    func :.create_spect_name;
-    func :.parse_name;
     func :.parse_name_recursive;
     func :.expand_declaration;
     func :.expand_definition;
@@ -136,6 +132,17 @@ stamp : = aware :
     };
 
     func :.explicit_embeddings_push = { foreach( st_s* st in o.explicit_embeddings ) arr.push_st( st ); };
+
+
+    func xoico_host.parse_name;
+    func xoico_host.compiler = { return o.compiler; };
+    func xoico_host.cengine =
+    {
+        return o.xoico_source.target.cengine;
+    };
+    func xoico_host.obj_type = { return o.tp_name; };
+    func xoico_host.create_spect_name;
+
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

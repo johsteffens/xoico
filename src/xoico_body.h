@@ -31,8 +31,6 @@ include deferred "xoico_cengine.h";
 signature er_t parse_expression( mutable, const xoico_host* host, bcore_source* source );
 signature er_t finalize( mutable, const xoico_host* host );
 signature er_t expand( const, const xoico_host* host, const xoico_signature_s* signature, sz_t indent, bcore_sink* sink );
-signature er_t set_group( mutable, xoico_group_s* group );
-signature er_t set_stamp( mutable, xoico_stamp_s* stamp );
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -45,9 +43,6 @@ stamp :code = aware :
 
     func xoico.parse;
     func xoico.get_hash;
-
-    hidden aware xoico_group_s* group;
-    hidden aware xoico_stamp_s* stamp;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -63,17 +58,12 @@ stamp : = aware :
 
     bcore_source_point_s source_point;
 
-    hidden aware xoico_group_s* group; // group refers to the place of original definition
-    hidden aware xoico_stamp_s* stamp;
-
     func xoico.get_hash;
     func xoico.get_global_name_sc = { return o.global_name.sc; };
     func     :.parse_expression;
     func     xoico.parse;
     func     :.finalize = { return 0; };
     func     :.expand;
-    func     :.set_group;
-    func     :.set_stamp;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

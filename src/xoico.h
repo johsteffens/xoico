@@ -59,11 +59,11 @@ signature er_t parse_sc( mutable, const :host* host, sc_t sc );
 signature er_t parse_fa( mutable, const :host* host, sc_t format, ... );
 
 feature 'ap' tp_t get_hash                  ( const );
-feature 'ap' sc_t get_global_name_sc        ( const );
+feature 'ap' sc_t get_global_name_sc        ( const ); /// TODO: function should be phased out; overload get_global_name_tp instead
 feature 'ap' tp_t get_global_name_tp        ( const ) = { return btypeof( :a_get_global_name_sc( o ) ); };
 
 feature 'ap' er_t parse                     ( mutable, const :host* host, bcore_source* source );
-feature 'ap' er_t finalize(                   mutable, const :host* host ) = { return 0; };  // final stage in the compilation phase
+feature 'ap' er_t finalize                  ( mutable, const :host* host ) = { return 0; };  // final stage in the compilation phase
 feature 'ap' er_t expand_setup              ( mutable, const :host* host ) = { return 0; };  // first stage in the expansion phase
 feature 'ap' er_t expand_forward            ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
 feature 'ap' er_t expand_indef_typedef      ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
@@ -76,6 +76,12 @@ feature 'ap' er_t expand_init1              ( const, const :host* host, sz_t ind
 
 group :host = :
 {
+    // parses an identifier with namespace-syntax
+    feature 'a' er_t parse_name( const, bcore_source* source, st_s* name ) = { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o._ ) ); return 0; };
+    feature 'a' xoico_compiler_s* compiler( const ) = { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o._ ) ); return NULL; };
+    feature 'a' xoico_cengine* cengine( const )     = { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o._ ) ); return NULL; };
+    feature 'a' tp_t obj_type( const )              = { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o._ ) ); return 0; };
+    feature 'a' st_s* create_spect_name( const )    = { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o._ ) ); return NULL; };
 
 };
 

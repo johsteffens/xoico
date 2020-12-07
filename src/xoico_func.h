@@ -27,7 +27,7 @@ XOILA_DEFINE_GROUP( xoico_func, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 signature tp_t get_hash( const );
-signature bl_t reflectable( const );
+signature bl_t reflectable( const, const xoico_host* host );
 
 stamp : = aware :
 {
@@ -35,6 +35,7 @@ stamp : = aware :
     tp_t global_name;            // function name in c-implementation
     tp_t signature_base_name;
     tp_t signature_global_name;
+    tp_t obj_type;
 
     bl_t expandable = true;
     bl_t overloadable = false;
@@ -45,8 +46,6 @@ stamp : = aware :
     tp_t pre_hash = 0;
 
     hidden aware xoico_signature_s* signature;
-    hidden aware xoico_group_s* group;
-    hidden aware xoico_stamp_s* stamp;
 
     bcore_source_point_s source_point;
 
@@ -54,7 +53,7 @@ stamp : = aware :
 
     func :.reflectable =
     {
-        return o.expandable && o.group.compiler.is_feature( o.signature_global_name );
+        return o.expandable && host.compiler().is_feature( o.signature_global_name );
     };
 
     func xoico.parse;

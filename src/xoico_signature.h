@@ -29,7 +29,7 @@ XOILA_DEFINE_GROUP( xoico_signature, xoico )
 include deferred "xoico_stamp.h";
 
 signature er_t relent( mutable, const xoico_host* host, tp_t tp_obj_type );
-signature er_t expand_declaration( const, const xoico_host* host, const xoico_stamp_s* stamp, sc_t sc_func_global_name, sz_t indent, bcore_sink* sink );
+signature er_t expand_declaration( const, const xoico_host* host, sc_t sc_func_global_name, sz_t indent, bcore_sink* sink );
 
 stamp : = aware :
 {
@@ -42,23 +42,17 @@ stamp : = aware :
     bl_t typed;        // true: object argument is preceded by 'tp_t t' indicating the type of the object (for non-aware objects); no effect in case arg_o == 0
     tp_t arg_o_transient_class;
 
-    hidden aware xoico_group_s* group;
-    hidden aware xoico_stamp_s* stamp;
-
     bcore_source_point_s source_point;
 
     func xoico.parse;
     func xoico.get_hash;
 
-    func xoico.get_global_name_sc =
-    {
-        return o.group.compiler.nameof( o.global_name );
-    };
+    func xoico.get_global_name_tp = { return o.global_name; };
 
     func :.relent =
     {
         o.args.relent( host, tp_obj_type ).try();
-        o.typespec_ret.relent( host, o.group, tp_obj_type ).try();
+        o.typespec_ret.relent( host, tp_obj_type ).try();
         return 0;
     };
 

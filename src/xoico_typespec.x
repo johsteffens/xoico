@@ -20,7 +20,7 @@
 func (:) :.parse = (try)
 {
     o.reset();
-    $* compiler = group.compiler;
+    $* compiler = host.compiler();
 
     if( source.parse_bl( "#?'...' " ) )
     {
@@ -50,10 +50,11 @@ func (:) :.parse = (try)
     }
 
     st_s* s = st_s!.scope();
-    if( source.parse_bl( "#?':' " ) )
+    if( source.parse_bl( "#=?':'" ) )
     {
-        group.parse_name_recursive( source, s );
+        host.parse_name( source, s );
         o.type = compiler.entypeof( s.sc );
+        source.parse_fa( " " );
     }
     else if( source.parse_bl( "#?'@' " ) )
     {
@@ -112,14 +113,14 @@ func (:) :.expand = (try)
         return 0;
     }
 
-    xoico_compiler_s* compiler = group.compiler;
+    $* compiler = host.compiler();
 
     tp_t type = o.type;
 
     if( type == TYPEOF_type_object )
     {
-        if( !sc_obj_type ) ERR_fa( "Cannot resolve 'type_object' at this point." );
-        type = compiler.entypeof( sc_obj_type );
+        //if( !sc_obj_type ) ERR_fa( "Cannot resolve 'type_object' at this point." );
+        type = host.obj_type(); //compiler.entypeof( sc_obj_type );
     }
     else if( type == TYPEOF_type_deduce )
     {

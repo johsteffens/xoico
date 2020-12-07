@@ -30,7 +30,6 @@ signature bl_t is_variadic( const );
 
 stamp : = aware :
 {
-    hidden aware xoico_group_s* group;
     bcore_source_point_s source_point;
     xoico_typespec_s typespec;
     tp_t name;
@@ -42,9 +41,9 @@ stamp : = aware :
 
 func (:) xoico.parse = (try)
 {
-    xoico_compiler_s* compiler = o.group.compiler;
+    $* compiler = host.compiler();
     o.source_point.set( source );
-    o.typespec.parse( host, o.group, source );
+    o.typespec.parse( host, source );
 
     if( o.typespec.flag_variadic ) return 0;
 
@@ -78,28 +77,28 @@ func (:) xoico.get_hash =
 
 func (:) (er_t relent( mutable, const xoico_host* host, tp_t tp_obj_type )) =
 {
-    return o.typespec.relent( host, o.group, tp_obj_type );
+    return o.typespec.relent( host, tp_obj_type );
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t expand( const, const xoico_host* host, sc_t sc_obj_type, bcore_sink* sink )) =
+func (:) (er_t expand( const, const xoico_host* host, bcore_sink* sink )) =
 {
-    try( o.typespec.expand( host, o.group, sc_obj_type, sink ) );
+    try( o.typespec.expand( host, sink ) );
     if( o.name )
     {
         sink.push_fa( " " );
-        o.expand_name( sink );
+        o.expand_name( host, sink );
     }
     return 0;
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t expand_name( const, bcore_sink* sink )) =
+func (:) (er_t expand_name( const, const xoico_host* host, bcore_sink* sink )) =
 {
     if( !o.name ) return 0;
-    sink.push_fa( "#<sc_t>", o.group.compiler.nameof( o.name ) );
+    sink.push_fa( "#<sc_t>", host.compiler().nameof( o.name ) );
     return 0;
 };
 

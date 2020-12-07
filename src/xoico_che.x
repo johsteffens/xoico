@@ -34,7 +34,7 @@ func (:) (tp_t get_identifier( mutable, bcore_source* source, bl_t take_from_sou
             {
                 source.get_char();
                 st_s* st_name = st_s!.scope();
-                st_name.copy( o.stamp ? o.stamp.st_name.1 : o.group.st_name.1 );
+                st_name.copy_sc( o.nameof( o.host.obj_type() ) );
                 if( source.parse_bl( "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]=='_'||([0]>='0'&&[0]<='9'))" ) )
                 {
                     source.parse_fa( "#:name", st_name );
@@ -53,7 +53,7 @@ func (:) (tp_t get_identifier( mutable, bcore_source* source, bl_t take_from_sou
             case ':':
             {
                 st_s* st_name = st_s!.scope();
-                o.group.parse_name( source, st_name );
+                o.host.parse_name( source, st_name );
                 tp_identifier = o.entypeof( st_name.sc );
             }
             break;
@@ -791,7 +791,7 @@ func (:)
             {
                 $* func = info.func;
                 $* signature = func.signature.clone().scope();
-                tp_t object_type = func.stamp ? func.stamp.tp_name : func.group.tp_name;
+                tp_t object_type = func.obj_type;
                 signature.relent( o.host, object_type );
                 sc_t sc_func_name = o.nameof( func.global_name );
                 ASSERT( sc_func_name );
@@ -1436,7 +1436,7 @@ func (:)
         }
 
         $* signature = func.signature.clone().scope();
-        tp_t object_type = func.stamp ? func.stamp.tp_name : func.group.tp_name;
+        tp_t object_type = func.obj_type;
         signature.relent( o.host, object_type );
 
         $* typespec_ret = signature.typespec_ret.clone().scope( scope_local );
@@ -2096,22 +2096,20 @@ func (:) (er_t trans_block_inside_verbatim_c( mutable, bcore_source* source, :re
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t setup( mutable, const xoico_host* host, const xoico_body_s* body, const xoico_signature_s* signature )) = (try)
+func (:) (er_t setup( mutable, const xoico_host* host, const xoico_signature_s* signature )) = (try)
 {
-    tp_t tp_assoc_obj_type = body.stamp ? body.stamp.tp_name : body.group.tp_name;
+    tp_t host_obj_type = host.obj_type();
 
     const xoico_args_s* args = signature.args;
 
-    tp_t tp_member_obj_type  = ( signature.arg_o == 0 ) ? 0 : tp_assoc_obj_type;
+    tp_t tp_member_obj_type  = ( signature.arg_o == 0 ) ? 0 : host_obj_type;
     bl_t member_obj_const = ( signature.arg_o == TYPEOF_const );
 
     o.typespec_ret.copy( signature.typespec_ret );
-    o.typespec_ret.relent( host, body.code.group, tp_assoc_obj_type );
+    o.typespec_ret.relent( host, host_obj_type );
 
     o.host     = host.cast( $* );
-    o.group    = body.code.group;
-    o.stamp    = body.code.stamp;
-    o.compiler = body.group.compiler;
+    o.compiler = host.compiler();
     o.member_obj_type = tp_member_obj_type;
     o.level    = 0;
     o.try_block_level = 0;
@@ -2151,7 +2149,7 @@ func (:) (er_t setup( mutable, const xoico_host* host, const xoico_body_s* body,
         {
             $* unit = xoico_che_stack_var_unit_s!.scope();
             unit.typespec.copy( arg.typespec );
-            unit.typespec.relent( host, o.group, tp_assoc_obj_type );
+            unit.typespec.relent( host, host_obj_type );
             unit.name = arg.name;
             unit.level = o.level;
             o.stack_var.push_unit( unit );
@@ -2207,7 +2205,7 @@ func (:) (void remove_indentation( st_s* string, sz_t indentation )) =
 
 func (:) (er_t translate_mutable( mutable, const xoico_host* host, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink )) = (try)
 {
-    o.setup( host, body, signature );
+    o.setup( host, signature );
 
     bcore_source* source = body.code.source_point.clone_source().scope();
 

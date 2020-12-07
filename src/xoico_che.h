@@ -352,10 +352,8 @@ stamp : = aware :
 
     /// runtime data
 
-    hidden xoico_compiler_s* compiler;
-    hidden xoico_group_s*    group;
-    hidden xoico_stamp_s*    stamp;
     hidden xoico_host*       host;
+    hidden xoico_compiler_s* compiler;
 
     xoico_typespec_s typespec_ret;
 

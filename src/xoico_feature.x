@@ -34,7 +34,7 @@ func (:) xoico.get_hash =
 
 func (:) xoico.parse = (try)
 {
-    $* compiler = o.group.compiler;
+    $* compiler = host.compiler();
 
     o.source_point.set( source );
     o.strict = source.parse_bl( " #?w'strict' " );
@@ -63,8 +63,6 @@ func (:) xoico.parse = (try)
     }
 
     xoico_signature_s* signature = o.signature;
-
-    signature.group = o.group;
     signature.parse( host, source );
 
     if( !signature.arg_o )
@@ -76,7 +74,6 @@ func (:) xoico.parse = (try)
     {
         if( o.strict ) return source.parse_error_fa( "Feature is 'strict'. Default function would have no effect." );
         o.default_body = xoico_body_s!;
-        o.default_body.set_group( o.group );
         o.default_body.parse( host, source );
         o.st_default_func_name.copy_fa( "#<sc_t>_default", compiler.nameof( o.signature.name ) );
     }
@@ -101,7 +98,6 @@ func (:) xoico.parse = (try)
 func (:) (xoico_func_s* create_func_from_sc( const, const xoico_host* host, sc_t sc )) =
 {
     xoico_func_s* func = xoico_func_s!;
-    func.group = o.group;
     func.parse_sc( host, sc );
     func.source_point.copy( o.source_point.1 );
     return func;
@@ -118,14 +114,13 @@ func (:) (xoico_func_s* push_func_from_sc( mutable, const xoico_host* host, sc_t
 
 func (:) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
 {
-    $* compiler = o.group.compiler;
+    $* compiler = host.compiler();
     sc_t sc_name = compiler.nameof( o.signature.name );
-    sc_t sc_group_name = o.group.st_name.sc;
-    st_s* st_spect_name = o.group.create_spect_name().scope();
-    sc_t sc_spect_name = st_spect_name.sc;
+    sc_t sc_obj_type = compiler.nameof( host.obj_type() );
+    sc_t sc_spect_name = host.create_spect_name().scope().sc;
 
     st_s* st_ret_typespec = st_s!.scope();
-    o.signature.typespec_ret.expand( host, o.group, sc_group_name, st_ret_typespec );
+    o.signature.typespec_ret.expand( host, st_ret_typespec );
     bl_t has_ret = ( o.signature.typespec_ret.type != TYPEOF_void );
     sc_t sc_ret_typespec = st_ret_typespec.sc;
     bl_t flag_const = o->signature.arg_o == TYPEOF_const;
@@ -137,13 +132,13 @@ func (:) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
         st_s* st = st_s!.scope();
         st.push_fa( "(#<sc_t> a_#<sc_t>(", sc_ret_typespec, sc_name );
         st.push_fa( flag_const ? " const" : " mutable" );
-        o.signature.args.expand( host, false, sc_group_name, st );
+        o.signature.args.expand( host, false, st );
         st.push_fa( " )) = (verbatim_C) { " );
         st.push_fa( "const #<sc_t>* p = #<sc_t>_get_aware( o ); ", sc_spect_name, sc_spect_name );
         st.push_fa( "assert( p->#<sc_t> ); ", sc_name );
         if( has_ret ) st.push_fa( "return " );
         st.push_fa( "p->#<sc_t>( o", sc_name );
-        o->signature.args.expand_name( false, st );
+        o->signature.args.expand_name( host, false, st );
         st.push_fa( " ); };" );
 
         xoico_func_s* func = o.push_func_from_sc( host, st.sc );
@@ -151,7 +146,7 @@ func (:) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
 
         xoico_func_s* func_to_group = func.clone();
         func_to_group.body =< NULL;
-        func_to_group.freeze_global_name(); // set global name before local name is changed
+        func_to_group.freeze_global_name( host ); // set global name before local name is changed
         func_to_group.name = o.signature.name;
         func_to_group.expandable = false;
         o.funcs_return_to_group.push_d( func_to_group );
@@ -179,13 +174,13 @@ func (:) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
         st_s* st = st_s!.scope();
         st.push_fa( "(#<sc_t> t_#<sc_t>( typed", sc_ret_typespec, sc_name );
         st.push_fa( flag_const ? " const" : " mutable" );
-        o->signature.args.expand( host, false, sc_group_name, st );
+        o->signature.args.expand( host, false, st );
         st.push_fa( " )) = (verbatim_C) { " );
         st.push_fa( "const #<sc_t>* p = #<sc_t>_get_typed( t ); ", sc_spect_name, sc_spect_name );
         st.push_fa( "assert( p->#<sc_t> ); ", sc_name );
         if( has_ret ) st.push_fa( "return " );
         st.push_fa( "p->#<sc_t>( o", sc_name );
-        o->signature.args.expand_name( false, st );
+        o->signature.args.expand_name( host, false, st );
         st.push_fa( " ); };" );
 
         xoico_func_s* func = o.push_func_from_sc( host, st.sc );
@@ -215,13 +210,13 @@ func (:) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
         st.push_fa( "(#<sc_t> p_#<sc_t>( const #<sc_t>* p,", sc_ret_typespec, sc_name, sc_spect_name );
 
         if( flag_const ) st.push_fa( " const" );
-        st.push_fa( " #<sc_t>* o", sc_group_name );
-        o->signature.args.expand( host, false, sc_group_name, st );
+        st.push_fa( " #<sc_t>* o", sc_obj_type );
+        o->signature.args.expand( host, false, st );
         st.push_fa( " )) = (verbatim_C) { " );
         st.push_fa( "assert( p->#<sc_t> ); ", sc_name );
         if( has_ret ) st.push_fa( "return " );
         st.push_fa( "p->#<sc_t>( o", sc_name );
-        o.signature.args.expand_name( false, st );
+        o.signature.args.expand_name( host, false, st );
         st.push_fa( " ); };" );
 
         xoico_func_s* func = o.push_func_from_sc( host, st.sc );
@@ -250,7 +245,7 @@ func (:) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
         st_s* st = st_s!.scope();
         st.push_fa( "( #<sc_t> r_#<sc_t>(", sc_ret_typespec, sc_name );
         st.push_fa( " const sr_s* o" );
-        o.signature.args.expand( host, false, sc_group_name, st );
+        o.signature.args.expand( host, false, st );
         st.push_fa( " )) = (verbatim_C) { " );
         if( !flag_const ) st.push_fa( "ASSERT( !sr_s_is_const( o ) ); " );
         st.push_fa
@@ -264,7 +259,7 @@ func (:) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
         st.push_fa( "assert( p->#<sc_t> ); ", sc_name );
         if( has_ret ) st.push_fa( "return " );
         st.push_fa( "p->#<sc_t>( o->o", sc_name );
-        o->signature.args.expand_name( false, st );
+        o->signature.args.expand_name( host, false, st );
         st.push_fa( " ); };" );
 
         xoico_func_s* func = o.push_func_from_sc( host, st.sc );
@@ -294,8 +289,8 @@ func (:) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
         st_s* st = st_s!.scope();
         st.push_fa( "(#<sc_t> #<sc_t>(", sc_ret_typespec, o.st_default_func_name.sc );
         if( flag_const ) st.push_fa( " const" );
-        st.push_fa( " #<sc_t>* o", sc_group_name );
-        o.signature.args.expand( host, false, sc_group_name, st );
+        st.push_fa( " #<sc_t>* o", sc_obj_type );
+        o.signature.args.expand( host, false, st );
         st.push_fa( " ));" );
 
         xoico_func_s* func = o.push_func_from_sc( host, st.sc );
@@ -327,13 +322,13 @@ func (:) xoico.expand_forward = (try)
 func (:) xoico.expand_indef_typedef = (try)
 {
     if( !o.expandable ) return 0;
-    xoico_compiler_s* compiler = o.group.compiler;
+    xoico_compiler_s* compiler = host.compiler();
     sink.push_fa( " \\\n#rn{ }  typedef ", indent );
-    o.signature.typespec_ret.expand( host, o.group, o.group.st_name.sc, sink );
+    o.signature.typespec_ret.expand( host, sink );
     sink.push_fa( " (*#<sc_t>)(", compiler.nameof( o.function_pointer_name ) );
     if( o.signature.arg_o == TYPEOF_const ) sink.push_fa( " const" );
-    sink.push_fa( " #<sc_t>* o", o.group.st_name.sc );
-    o.signature.args.expand( host, false, o.group.st_name.sc, sink );
+    sink.push_fa( " #<sc_t>* o", compiler.nameof( host.obj_type() ) );
+    o.signature.args.expand( host, false, sink );
     sink.push_fa( " );" );
     return 0;
 };
@@ -343,7 +338,7 @@ func (:) xoico.expand_indef_typedef = (try)
 func (:) xoico.expand_spect_declaration = (try)
 {
     if( !o.expandable ) return 0;
-    xoico_compiler_s* compiler = o.group.compiler;
+    xoico_compiler_s* compiler = host.compiler();
     sink.push_fa( " \\\n#rn{ }#<sc_t> #<sc_t>;", indent, compiler.nameof( o.function_pointer_name ), compiler.nameof( o.signature.name ) );
     return 0;
 };
@@ -353,15 +348,15 @@ func (:) xoico.expand_spect_declaration = (try)
 func (:) xoico.expand_spect_definition = (try)
 {
     if( !o.expandable ) return 0;
-    xoico_compiler_s* compiler = o.group.compiler;
+    xoico_compiler_s* compiler = host.compiler();
     sink.push_fa( "#rn{ }\"feature ", indent );
     if( o.strict ) sink.push_fa( "strict " );
     if( o.flag_a ) sink.push_fa( "aware " );
 
-    sink.push_fa( "#<sc_t> : #<sc_t>", o.group.st_name.sc, compiler.nameof( o.signature.name ) );
+    sink.push_fa( "#<sc_t> : #<sc_t>", compiler.nameof( host.obj_type() ), compiler.nameof( o.signature.name ) );
     if( o.st_default_func_name.size > 0 )
     {
-        sink.push_fa( " = #<sc_t>_#<sc_t>", o.group.st_name.sc, o.st_default_func_name.sc );
+        sink.push_fa( " = #<sc_t>_#<sc_t>", compiler.nameof( host.obj_type() ), o.st_default_func_name.sc );
     }
     sink.push_fa( ";\"\n" );
     return 0;
@@ -390,7 +385,7 @@ func (:) xoico.expand_definition = (try)
 func (:) xoico.expand_init1 = (try)
 {
     if( !o.expandable ) return 0;
-    xoico_compiler_s* compiler = o.group.compiler;
+    xoico_compiler_s* compiler = host.compiler();
     sc_t sc_global_name = compiler.nameof( o.signature.global_name );
 
     sink.push_fa( "#rn{ }BCORE_REGISTER_FEATURE( #<sc_t> );\n", indent, sc_global_name );
@@ -401,7 +396,7 @@ func (:) xoico.expand_init1 = (try)
             "#rn{ }BCORE_REGISTER_FFUNC( #<sc_t>, #<sc_t>_#<sc_t> );\n",
             indent,
             sc_global_name,
-            o->group->st_name.sc,
+            compiler.nameof( host.obj_type() ),
             o->st_default_func_name.sc
         );
     }

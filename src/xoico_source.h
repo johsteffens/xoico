@@ -96,6 +96,11 @@ stamp : = aware :
     {
         foreach( $* group in o ) group.explicit_embeddings_push( arr );
     };
+
+    func xoico_host.compiler =
+    {
+        return o.target.compiler;
+    };
 };
 
 //----------------------------------------------------------------------------------------------------------------------

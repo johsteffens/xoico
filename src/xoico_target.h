@@ -84,6 +84,9 @@ stamp : = aware :
     {
         foreach( $* source in o ) source.explicit_embeddings_push( arr );
     };
+
+    func xoico_host.compiler = { return o.compiler; };
+    func xoico_host.cengine = { return o.cengine; };
 };
 
 //----------------------------------------------------------------------------------------------------------------------

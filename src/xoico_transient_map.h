@@ -31,7 +31,6 @@ XOILA_DEFINE_GROUP( xoico_transient_map, xoico )
 
 stamp : = aware :
 {
-    hidden aware xoico_group_s* group;
     bcore_hmap_tptp_s map;
     func xoico.parse;
 
@@ -46,7 +45,7 @@ stamp : = aware :
 func (:) xoico.parse = (try)
 {
     o.map.clear();
-    xoico_compiler_s* compiler = o.group.compiler;
+    xoico_compiler_s* compiler = host.compiler();
     source.parse_em_fa( "( " );
     $* s = st_s!.scope();
 

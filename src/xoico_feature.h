@@ -49,16 +49,11 @@ stamp : = aware :
     bl_t flag_r;
     bl_t expandable = true;
 
-    hidden aware xoico_group_s* group;
     bcore_source_point_s source_point;
 
     func xoico.parse;
     func xoico.get_hash;
-    func xoico.get_global_name_sc =
-    {
-        return o.group.compiler.nameof( o.signature.global_name );
-    };
-
+    func xoico.get_global_name_tp = { return o.signature.global_name; };
     func xoico.finalize;
     func xoico.expand_forward;
     func xoico.expand_indef_typedef;

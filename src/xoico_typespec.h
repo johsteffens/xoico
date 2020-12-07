@@ -27,9 +27,9 @@ XOILA_DEFINE_GROUP( xoico_typespec, xoico )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-signature er_t parse(  mutable, const xoico_host* host, xoico_group_s* group, bcore_source* source );
-signature er_t relent( mutable, const xoico_host* host, xoico_group_s* group, tp_t tp_obj_type );
-signature er_t expand( const,   const xoico_host* host, xoico_group_s* group, sc_t sc_obj_type, bcore_sink* sink );
+signature er_t parse(  mutable, const xoico_host* host, bcore_source* source );
+signature er_t relent( mutable, const xoico_host* host, tp_t tp_obj_type );
+signature er_t expand( const,   const xoico_host* host, bcore_sink* sink );
 signature bl_t converts_to( const, const @* b ); // converts to b without a cast
 
 signature void reset( mutable );

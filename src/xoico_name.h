@@ -29,15 +29,14 @@ XOILA_DEFINE_GROUP( xoico_name, xoico )
 stamp : = aware :
 {
     tp_t name; // deemed global
-    hidden aware xoico_group_s* group;
     bcore_source_point_s source_point;
 
     func xoico.parse = (try)
     {
-        $* compiler = o.group.compiler;
+        $* compiler = host.compiler();
         o.source_point.set( source );
         $* st_name = st_s!.scope();
-        o.group.parse_name( source, st_name );
+        host.parse_name( source, st_name );
         if( st_name.size == 0 ) return source.parse_error_fa( "Name missing." );
         o.name = compiler.entypeof( st_name.sc );
         source.parse_em_fa( " ; " );
@@ -51,20 +50,17 @@ stamp : = aware :
         return hash;
     };
 
-    func xoico.get_global_name_sc =
-    {
-        return o.group.compiler.nameof( o.name );
-    };
+    func xoico.get_global_name_tp = { return o.name; };
 
     func xoico.expand_declaration =
     {
-        sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o.group.compiler.nameof( o.name ), o.name );
+        sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, host.compiler().nameof( o.name ), o.name );
         return 0;
     };
 
     func xoico.expand_init1 =
     {
-        sink.push_fa( "#rn{ }BCORE_REGISTER_NAME( #<sc_t> );\n", indent, o.group.compiler.nameof( o.name ) );
+        sink.push_fa( "#rn{ }BCORE_REGISTER_NAME( #<sc_t> );\n", indent, host.compiler().nameof( o.name ) );
         return 0;
     };
 };

@@ -29,8 +29,6 @@ XOILA_DEFINE_GROUP( xoico_args, xoico )
 stamp : = aware x_array
 {
     xoico_arg_s => [];
-    hidden aware xoico_group_s* group;
-
     func xoico_arg.is_variadic = { return ( o.size > 0 && o.[ o.size - 1 ].is_variadic() ); };
 };
 
@@ -46,7 +44,6 @@ func (:) (er_t append( mutable, const xoico_host* host, bcore_source* source )) 
         if( o.is_variadic() ) return source.parse_error_fa( "Cannot append to variadic argument list." );
         if( !first ) xoico_parse_f( source, " , " );
         $* arg = xoico_arg_s!.scope();
-        arg.group = o.group;
         arg.parse( host, source );
         o.push_d( arg.fork() );
         first = false;
@@ -60,24 +57,24 @@ func (:) (er_t relent( mutable, const xoico_host* host, tp_t tp_obj_type )) =
     return 0;
 };
 
-func (:) (er_t expand( const, const xoico_host* host, bl_t first, sc_t sc_obj_type, bcore_sink* sink )) =
+func (:) (er_t expand( const, const xoico_host* host, bl_t first, bcore_sink* sink )) =
 {
     foreach( $* arg in o )
     {
         if( !first ) sink.push_fa( ", " );
         first = false;
-        arg.expand( host, sc_obj_type, sink ).try();
+        arg.expand( host, sink ).try();
     }
     return 0;
 };
 
-func (:) (er_t expand_name( const, bl_t first, bcore_sink* sink )) =
+func (:) (er_t expand_name( const, const xoico_host* host, bl_t first, bcore_sink* sink )) =
 {
     foreach( $* arg in o )
     {
         if( !first ) sink.push_fa( ", " );
         first = false;
-        arg.expand_name( sink ).try();
+        arg.expand_name( host, sink ).try();
     }
     return 0;
 };

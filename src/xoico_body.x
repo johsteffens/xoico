@@ -19,8 +19,6 @@
 
 func (:code) xoico.parse = (try)
 {
-    if( !o.group ) return source.parse_error_fa( "xoico_body_code_s: Code has no group assigned." );
-
     tp_t hash = bcore_tp_init();
 
     o.source_point.set( source );
@@ -154,24 +152,6 @@ func (:code) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.set_group =
-{
-    if( !o.group ) o.group = group;
-    if( o.code && !o.code.group ) o.code.group = group;
-    return 0;
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
-func (:) :.set_stamp =
-{
-    o.stamp = stamp;
-    if( o.code ) o.code.stamp = stamp;
-    return 0;
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
 func (:) xoico.get_hash =
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
@@ -188,20 +168,16 @@ func (:) :.parse_expression = (try)
     if( source.parse_bl( " #=?'{'" ) || source.parse_bl( " #=?'('" ) )
     {
         o.code =< xoico_body_code_s!;
-        o.code.group = o.group;
-        o.code.stamp = o.stamp;
         o.code.parse( host, source );
         o.go_inline = o.code.single_line;
     }
     else
     {
-        $* compiler = o.group.compiler;
+        $* compiler = host.compiler();
         $* st_name = st_s!.scope();
-        o.group.parse_name( source, st_name );
+        host.parse_name( source, st_name );
 
         if( st_name.size == 0 ) return source.parse_error_fa( "Body name expected." );
-
-        if( o.stamp ) st_name.replace_sc_sc( "@", o.stamp.st_name.sc );
 
         tp_t tp_name = compiler.entypeof( st_name.sc );
 
@@ -210,11 +186,6 @@ func (:) :.parse_expression = (try)
         {
             const $* body = compiler.get_body( tp_name );
             o.code =< body.code.clone();
-            if( o.code )
-            {
-                o.code.group = body.code.group;
-                o.code.stamp = body.code.stamp;
-            }
             o.go_inline = body.go_inline;
         }
         else
@@ -229,7 +200,7 @@ func (:) :.parse_expression = (try)
 
 func (:) xoico.parse = (try)
 {
-    if( !o.group ) return source.parse_error_fa( "Body has no group assigned." );
+    $* compiler = host.compiler();
     st_s* string = st_s!.scope();
     o.source_point.set( source );
 
@@ -243,7 +214,7 @@ func (:) xoico.parse = (try)
     source.parse_em_fa( " =" );
 
     o.parse_expression( host, source );
-    o.global_name.copy_fa( "#<sc_t>_#<sc_t>", o.group.st_name.sc, o.name.sc );
+    o.global_name.copy_fa( "#<sc_t>_#<sc_t>", compiler.nameof( host.obj_type() ), o.name.sc );
     return 0;
 };
 
@@ -254,12 +225,11 @@ func (:) :.expand = (try)
     const st_s* final_code = NULL;
     st_s* st_out = st_s!.scope();
 
-    xoico_cengine* cengine = o.group.xoico_source.target.cengine;
+    xoico_cengine* cengine = host.cengine();
     ASSERT( cengine );
 
     if( o.code )
     {
-        if( !o.group ) return o.source_point.parse_error_fa( "Body has no group assigned." );
         cengine.translate( host, o, signature, ( bcore_sink* )st_out );
         final_code = st_out;
     }
