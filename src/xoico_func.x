@@ -17,7 +17,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.get_hash =
+func (:s) :.get_hash =
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
     hash = bcore_tp_fold_tp( hash, o.pre_hash );
@@ -34,7 +34,7 @@ func (:) :.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t freeze_global_name( mutable, const xoico_host* host )) = (try)
+func (:s) (er_t freeze_global_name( mutable, const xoico_host* host )) = (try)
 {
     if( o.global_name ) return 0;
     $* compiler = host.compiler();
@@ -44,7 +44,7 @@ func (:) (er_t freeze_global_name( mutable, const xoico_host* host )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.parse = (try)
+func (:s) xoico.parse = (try)
 {
     $* compiler = host.compiler();
 
@@ -106,7 +106,7 @@ func (:) xoico.parse = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t push_flect_decl_to_sink( const, const xoico_host* host, bcore_sink* sink )) =
+func (:s) (er_t push_flect_decl_to_sink( const, const xoico_host* host, bcore_sink* sink )) =
 {
     $* compiler = host.compiler();
     sink.push_sc( "func " );
@@ -124,7 +124,7 @@ func (:) (er_t push_flect_decl_to_sink( const, const xoico_host* host, bcore_sin
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.finalize = (try)
+func (:s) xoico.finalize = (try)
 {
     $* compiler = host.compiler();
     o.freeze_global_name( host );
@@ -150,7 +150,7 @@ func (:) xoico.finalize = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_forward = (try)
+func (:s) xoico.expand_forward = (try)
 {
     if( !o->expandable ) return 0;
     if( !o->declare_in_expand_forward ) return 0;
@@ -176,7 +176,7 @@ func (:) xoico.expand_forward = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_declaration = (try)
+func (:s) xoico.expand_declaration = (try)
 {
     if( !o.expandable ) return 0;
 
@@ -204,7 +204,7 @@ func (:) xoico.expand_declaration = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_definition = (try)
+func (:s) xoico.expand_definition = (try)
 {
     if( !o.expandable ) return 0;
     $* compiler = host.compiler();

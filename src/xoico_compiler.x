@@ -17,7 +17,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.register_group =
+func (:s) :.register_group =
 {
     if( o.hmap_group.exists( group.tp_name ) )
     {
@@ -34,7 +34,7 @@ func (:) :.register_group =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.register_item =
+func (:s) :.register_item =
 {
     tp_t global_id = item.get_global_name_tp();
     if( o.hmap_item.exists( global_id ) )
@@ -47,7 +47,7 @@ func (:) :.register_item =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.register_func =
+func (:s) :.register_func =
 {
     if( o.hmap_func.exists( func.global_name ) )
     {
@@ -109,7 +109,7 @@ func (bl_t is_signed( sc_t file )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.check_overwrite =
+func (:s) :.check_overwrite =
 {
     if( !bcore_file_exists( file ) ) return 0;
 
@@ -138,7 +138,7 @@ func (:) :.check_overwrite =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.parse = (try)
+func (:s) :.parse = (try)
 {
     st_s* source_folder_path = bcore_file_folder_path( source_path ).scope();
     st_s* target_path        = st_s_create_fa( "#<sc_t>/#<sc_t>.#<sc_t>", source_folder_path->sc, target_name, target_ext ).scope();
@@ -173,7 +173,7 @@ func (:) :.parse = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.finalize = (try)
+func (:s) xoico.finalize = (try)
 {
     foreach( $* e in o ) e.finalize( o );
     return 0;
@@ -181,7 +181,7 @@ func (:) xoico.finalize = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_setup = (try)
+func (:s) xoico.expand_setup = (try)
 {
     for( sz_t i = 0; i < o->size; i++ ) o.[ i ].expand_setup( o );
 
@@ -197,7 +197,7 @@ func (:) xoico.expand_setup = (try)
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if a file will be modified in function xoico_compiler_s_expand
-func (:) (bl_t to_be_modified( const )) =
+func (:s) (bl_t to_be_modified( const )) =
 {
     for( sz_t i = 0; i < o->size; i++ )
     {
@@ -209,7 +209,7 @@ func (:) (bl_t to_be_modified( const )) =
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if a file was modified
-func (:) (er_t expand( mutable, bl_t* p_modified )) = (try)
+func (:s) (er_t expand( mutable, bl_t* p_modified )) = (try)
 {
     bl_t modified = false;
 
@@ -223,7 +223,7 @@ func (:) (er_t expand( mutable, bl_t* p_modified )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.get_self =
+func (:s) :.get_self =
 {
     const xoico* item = o.get_const_item( type );
     if( !item ) return false;
@@ -240,7 +240,7 @@ func (:) :.get_self =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.get_type_info =
+func (:s) :.get_type_info =
 {
     const xoico* item = o.get_const_item( type );
     if( !item ) return false;
@@ -257,7 +257,7 @@ func (:) :.get_type_info =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.get_type_element_info =
+func (:s) :.get_type_element_info =
 {
     const xoico* xoico_item = o.get_const_item( type );
     if( !xoico_item )
@@ -339,7 +339,7 @@ func (:) :.get_type_element_info =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.get_type_array_element_info =
+func (:s) :.get_type_array_element_info =
 {
     ASSERT( info );
 
@@ -403,7 +403,7 @@ func (:) :.get_type_array_element_info =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.update_target_files =
+func (:s) :.update_target_files =
 {
     bl_t modified = false;
     bl_t verbosity = o.verbosity;

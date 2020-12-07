@@ -105,7 +105,7 @@ stamp :s = aware :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.parse = (try)
+func (:s) xoico.parse = (try)
 {
     $* compiler = o.target.compiler;
     while( !source.eos() )

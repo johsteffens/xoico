@@ -17,7 +17,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.get_hash =
+func (:s) xoico.get_hash =
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
     hash = bcore_tp_fold_tp( hash, o.global_name );
@@ -30,7 +30,7 @@ func (:) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.parse = (try)
+func (:s) xoico.parse = (try)
 {
     o.source_point.set( source );
     $* compiler = host.compiler();
@@ -142,7 +142,7 @@ func (:) xoico.parse = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.expand_declaration = (try)
+func (:s) :.expand_declaration = (try)
 {
     sc_t sc_name = host.compiler().nameof( host.obj_type() );
     o.typespec_ret.expand( host, sink );

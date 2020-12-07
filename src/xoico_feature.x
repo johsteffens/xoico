@@ -17,7 +17,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.get_hash =
+func (:s) xoico.get_hash =
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
     hash = bcore_tp_fold_tp( hash, o.signature.get_hash() );
@@ -32,7 +32,7 @@ func (:) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.parse = (try)
+func (:s) xoico.parse = (try)
 {
     $* compiler = host.compiler();
 
@@ -95,7 +95,7 @@ func (:) xoico.parse = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (xoico_func_s* create_func_from_sc( const, const xoico_host* host, sc_t sc )) =
+func (:s) (xoico_func_s* create_func_from_sc( const, const xoico_host* host, sc_t sc )) =
 {
     xoico_func_s* func = xoico_func_s!;
     func.parse_sc( host, sc );
@@ -105,14 +105,14 @@ func (:) (xoico_func_s* create_func_from_sc( const, const xoico_host* host, sc_t
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (xoico_func_s* push_func_from_sc( mutable, const xoico_host* host, sc_t sc )) =
+func (:s) (xoico_func_s* push_func_from_sc( mutable, const xoico_host* host, sc_t sc )) =
 {
     return o.funcs.push_d( o.create_func_from_sc( host, sc ) );
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
+func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
 {
     $* compiler = host.compiler();
     sc_t sc_name = compiler.nameof( o.signature.name );
@@ -303,7 +303,7 @@ func (:) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.finalize = (try)
+func (:s) xoico.finalize = (try)
 {
     foreach( $* func in o.funcs ) func.finalize( host );
     return 0;
@@ -311,7 +311,7 @@ func (:) xoico.finalize = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_forward = (try)
+func (:s) xoico.expand_forward = (try)
 {
     foreach( $* func in o.funcs ) func.expand_forward( host, indent, sink );
     return 0;
@@ -319,7 +319,7 @@ func (:) xoico.expand_forward = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_indef_typedef = (try)
+func (:s) xoico.expand_indef_typedef = (try)
 {
     if( !o.expandable ) return 0;
     xoico_compiler_s* compiler = host.compiler();
@@ -335,7 +335,7 @@ func (:) xoico.expand_indef_typedef = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_spect_declaration = (try)
+func (:s) xoico.expand_spect_declaration = (try)
 {
     if( !o.expandable ) return 0;
     xoico_compiler_s* compiler = host.compiler();
@@ -345,7 +345,7 @@ func (:) xoico.expand_spect_declaration = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_spect_definition = (try)
+func (:s) xoico.expand_spect_definition = (try)
 {
     if( !o.expandable ) return 0;
     xoico_compiler_s* compiler = host.compiler();
@@ -364,7 +364,7 @@ func (:) xoico.expand_spect_definition = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_indef_declaration = (try)
+func (:s) xoico.expand_indef_declaration = (try)
 {
     if( !o.expandable ) return 0;
     foreach( $* func in o->funcs ) func.expand_declaration( host, indent + 2, sink );
@@ -373,7 +373,7 @@ func (:) xoico.expand_indef_declaration = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_definition = (try)
+func (:s) xoico.expand_definition = (try)
 {
     if( !o.expandable ) return 0;
     foreach( $* func in o.funcs ) func.expand_definition( host, indent, sink );
@@ -382,7 +382,7 @@ func (:) xoico.expand_definition = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_init1 = (try)
+func (:s) xoico.expand_init1 = (try)
 {
     if( !o.expandable ) return 0;
     xoico_compiler_s* compiler = host.compiler();

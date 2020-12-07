@@ -17,7 +17,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:code) xoico.parse = (try)
+func (:code_s) xoico.parse = (try)
 {
     tp_t hash = bcore_tp_init();
 
@@ -139,7 +139,7 @@ func (:code) xoico.parse = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:code) xoico.get_hash =
+func (:code_s) xoico.get_hash =
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
     hash = bcore_tp_fold_tp( hash, o.hash_source );
@@ -152,7 +152,7 @@ func (:code) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.get_hash =
+func (:s) xoico.get_hash =
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
     hash = bcore_tp_fold_sc( hash, o.name.sc );
@@ -163,7 +163,7 @@ func (:) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.parse_expression = (try)
+func (:s) :.parse_expression = (try)
 {
     if( source.parse_bl( " #=?'{'" ) || source.parse_bl( " #=?'('" ) )
     {
@@ -198,7 +198,7 @@ func (:) :.parse_expression = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.parse = (try)
+func (:s) xoico.parse = (try)
 {
     $* compiler = host.compiler();
     st_s* string = st_s!.scope();
@@ -220,7 +220,7 @@ func (:) xoico.parse = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.expand = (try)
+func (:s) :.expand = (try)
 {
     const st_s* final_code = NULL;
     st_s* st_out = st_s!.scope();

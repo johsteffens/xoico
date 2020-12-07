@@ -34,9 +34,9 @@ stamp :s = aware x_array
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.parse = { o.clear(); return o.append( host, source ); };
+func (:s) xoico.parse = { o.clear(); return o.append( host, source ); };
 
-func (:) (er_t append( mutable, const xoico_host* host, bcore_source* source )) = (try)
+func (:s) (er_t append( mutable, const xoico_host* host, bcore_source* source )) = (try)
 {
     bl_t first = true;
     while( !source.parse_bl( " #=?')' " ) ) // args follow
@@ -51,13 +51,13 @@ func (:) (er_t append( mutable, const xoico_host* host, bcore_source* source )) 
     return 0;
 };
 
-func (:) (er_t relent( mutable, const xoico_host* host, tp_t tp_obj_type )) =
+func (:s) (er_t relent( mutable, const xoico_host* host, tp_t tp_obj_type )) =
 {
     foreach( $* arg in o ) arg.relent( host, tp_obj_type ).try();
     return 0;
 };
 
-func (:) (er_t expand( const, const xoico_host* host, bl_t first, bcore_sink* sink )) =
+func (:s) (er_t expand( const, const xoico_host* host, bl_t first, bcore_sink* sink )) =
 {
     foreach( $* arg in o )
     {
@@ -68,7 +68,7 @@ func (:) (er_t expand( const, const xoico_host* host, bl_t first, bcore_sink* si
     return 0;
 };
 
-func (:) (er_t expand_name( const, const xoico_host* host, bl_t first, bcore_sink* sink )) =
+func (:s) (er_t expand_name( const, const xoico_host* host, bl_t first, bcore_sink* sink )) =
 {
     foreach( $* arg in o )
     {
@@ -79,7 +79,7 @@ func (:) (er_t expand_name( const, const xoico_host* host, bl_t first, bcore_sin
     return 0;
 };
 
-func (:) xoico.get_hash =
+func (:s) xoico.get_hash =
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
     foreach( $* arg in o ) hash = bcore_tp_fold_tp( hash, arg.get_hash() );

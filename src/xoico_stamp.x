@@ -153,7 +153,7 @@ func (st_s* create_structured_multiline_string( const sc_t s, sz_t indent )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (sc_t get_rel_name_sc( const )) =
+func (:s) (sc_t get_rel_name_sc( const )) =
 {
     sc_t group_name = o.group.st_name.sc;
     sc_t stamp_name = o.st_name.sc;
@@ -167,7 +167,7 @@ func (:) (sc_t get_rel_name_sc( const )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.parse_func = (try)
+func (:s) :.parse_func = (try)
 {
     $* compiler = o.group.compiler;
     $* func = xoico_func_s!.scope();
@@ -212,7 +212,7 @@ func (:) :.parse_func = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t parse_extend( mutable, bcore_source* source )) = (try)
+func (:s) (er_t parse_extend( mutable, bcore_source* source )) = (try)
 {
     ASSERT( o.self_buf );
 
@@ -263,7 +263,7 @@ func (:) (er_t parse_extend( mutable, bcore_source* source )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t push_default_func_from_sc( mutable, sc_t sc )) = (try)
+func (:s) (er_t push_default_func_from_sc( mutable, sc_t sc )) = (try)
 {
     $* compiler = o.group.compiler;
     $* func = xoico_func_s!.scope();
@@ -288,7 +288,7 @@ func (:) (er_t push_default_func_from_sc( mutable, sc_t sc )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.push_default_funcs = (try)
+func (:s) :.push_default_funcs = (try)
 {
     o.push_default_func_from_sc( "bcore_stamp_funcs.init;" );
     o.push_default_func_from_sc( "bcore_stamp_funcs.down;" );
@@ -300,7 +300,7 @@ func (:) :.push_default_funcs = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.parse = (try)
+func (:s) xoico.parse = (try)
 {
     $* compiler = o.group.compiler;
     bl_t verbatim = source.parse_bl( " #?w'verbatim'" );
@@ -313,23 +313,7 @@ func (:) xoico.parse = (try)
 
     o.group.parse_name( source, st_stamp_name );
 
-    if( st_stamp_name.size < 2 || !sc_t_equ( st_stamp_name.sc + st_stamp_name.size - 2, "_s" ) )
-    {
-        return source.parse_error_fa( "Stamp name '#<sc_t>' must end in '_s'.", st_stamp_name->sc );
-    }
-
-//    if( st_stamp_name.size >= 2 && sc_t_equ( st_stamp_name.sc + st_stamp_name.size - 2, "_s" ) )
-//    {
-//        return o.source_point.parse_error_fa
-//        (
-//            "Stamp '#<sc_t>' ends in '_s'."
-//            "In beth, this ending identifies a structure."
-//            "Using it as stamp name could have side effects.",
-//            st_stamp_name->sc
-//        );
-//    }
-//
-//    st_s_push_fa( st_stamp_name, "_s" );
+    if( !st_stamp_name.ends_in_sc( "_s" ) ) return source.parse_error_fa( "Stamp name '#<sc_t>' must end in '_s'.", st_stamp_name->sc );
 
     source.parse_em_fa( " = " );
 
@@ -337,7 +321,14 @@ func (:) xoico.parse = (try)
     {
         st_s* templ_name = st_s!.scope();
         o.group.parse_name( source, templ_name );
-        templ_name.push_fa( "_s" );
+
+        if( !templ_name.ends_in_sc( "_s" ) )
+        {
+            return source.parse_error_fa( "Extending: Stamp name '#<sc_t>' must end in '_s'.", templ_name->sc );
+        }
+
+        //templ_name.push_fa( "_s" );
+
         const xoico* item = compiler.get_const_item( typeof( templ_name.sc ) );
         if( !item ) return source.parse_error_fa( "Template #<sc_t> not found.", templ_name.sc );
         if( item._ != TYPEOF_xoico_stamp_s ) return source.parse_error_fa( "Template #<sc_t> is no stamp.", templ_name.sc );
@@ -368,7 +359,7 @@ func (:) xoico.parse = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.finalize = (try)
+func (:s) xoico.finalize = (try)
 {
     $* compiler = o.group.compiler;
 
@@ -445,7 +436,7 @@ func (:) xoico.finalize = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_declaration = (try)
+func (:s) xoico.expand_declaration = (try)
 {
     sc_t sc_name = o.st_name.sc;
 
@@ -542,7 +533,7 @@ func (:) xoico.expand_declaration = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_definition = (try)
+func (:s) xoico.expand_definition = (try)
 {
     st_s* embedded_string = o.create_embedded_string( o.self_source ).scope();
 
@@ -577,7 +568,7 @@ func (:) xoico.expand_definition = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.expand_init1 = (try)
+func (:s) xoico.expand_init1 = (try)
 {
     $* compiler = o.group.compiler;
 

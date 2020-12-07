@@ -17,7 +17,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.get_hash =
+func (:s) xoico.get_hash =
 {
     tp_t hash = o.pre_hash;
     hash = bcore_tp_fold_sc( hash, o.st_name.sc );
@@ -36,7 +36,7 @@ func (:) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico_host.create_spect_name =
+func (:s) xoico_host.create_spect_name =
 {
     if( o.short_spect_name )
     {
@@ -50,7 +50,7 @@ func (:) xoico_host.create_spect_name =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.parse_name_recursive = (try)
+func (:s) :.parse_name_recursive = (try)
 {
     if( source.parse_bl( "#?':'" ) )
     {
@@ -75,7 +75,7 @@ func (:) :.parse_name_recursive = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico_host.parse_name = (try)
+func (:s) xoico_host.parse_name = (try)
 {
     if( source.parse_bl( " #?':'" ) )
     {
@@ -93,7 +93,7 @@ func (:) xoico_host.parse_name = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t push_default_feature_from_sc( mutable, sc_t sc )) = (try)
+func (:s) (er_t push_default_feature_from_sc( mutable, sc_t sc )) = (try)
 {
     $* compiler = o.compiler;
     $* feature = xoico_feature_s!.scope();
@@ -114,7 +114,7 @@ func (:) (er_t push_default_feature_from_sc( mutable, sc_t sc )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t parse_func( mutable, bcore_source* source )) = (try)
+func (:s) (er_t parse_func( mutable, bcore_source* source )) = (try)
 {
     $* func = xoico_func_s!.scope();
     func.parse( o, source );
@@ -124,7 +124,7 @@ func (:) (er_t parse_func( mutable, bcore_source* source )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t push_func_d( mutable, xoico_func_s* func )) = (try)
+func (:s) (er_t push_func_d( mutable, xoico_func_s* func )) = (try)
 {
     sz_t idx = o.funcs.get_index_from_name( func.name );
 
@@ -163,7 +163,7 @@ func (:) (er_t push_func_d( mutable, xoico_func_s* func )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.parse = (try)
+func (:s) xoico.parse = (try)
 {
     $* compiler = o.compiler;
     $* stack = xoico_group_source_stack_s!.scope();
@@ -279,7 +279,7 @@ func (:) xoico.parse = (try)
                 o.parse_name( source, stamp_name );
                 if( source.parse_bl( " #?')'" ) )
                 {
-                    stamp_name.push_sc( "_s" );
+                    if( !stamp_name.ends_in_sc( "_s" ) ) return source.parse_error_fa( "Stamp name '#<sc_t>' must end in '_s'.", stamp_name.sc );
                     tp_t tp_stamp_name = btypeof( stamp_name.sc );
                     if( !compiler.is_stamp( tp_stamp_name ) )
                     {
@@ -338,7 +338,7 @@ func (:) xoico.parse = (try)
             {
                 $* templ_name = st_s!.scope( scope_local );
                 o.parse_name( source, templ_name );
-                templ_name.push_fa( "_s" );
+                if( !templ_name.ends_in_sc( "_s" ) ) return source.parse_error_fa( "Stamp name '#<sc_t>' must end in '_s'.", templ_name.sc );
                 const xoico* item = compiler.get_const_item( typeof( templ_name.sc ) );
                 if( !item ) return source.parse_error_fa( "Template #<sc_t> not found.", templ_name.sc );
                 if( item._ != TYPEOF_xoico_stamp_s ) return source.parse_error_fa( "Template #<sc_t> is no stamp.", templ_name.sc );
@@ -445,7 +445,7 @@ func (:) xoico.parse = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.finalize = (try)
+func (:s) xoico.finalize = (try)
 {
     foreach( $* e in o ) e.finalize( o );
     foreach( $* func in o.funcs )
@@ -459,7 +459,7 @@ func (:) xoico.finalize = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t expand_forward( const, sz_t indent, bcore_sink* sink )) = (try)
+func (:s) (er_t expand_forward( const, sz_t indent, bcore_sink* sink )) = (try)
 {
     if( !o.expandable ) return 0;
     sink.push_fa( " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o.st_name.sc );
@@ -470,7 +470,7 @@ func (:) (er_t expand_forward( const, sz_t indent, bcore_sink* sink )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t expand_spect_declaration( const, sz_t indent, bcore_sink* sink )) = (try)
+func (:s) (er_t expand_spect_declaration( const, sz_t indent, bcore_sink* sink )) = (try)
 {
     if( !o.expandable ) return 0;
     if( o.short_spect_name )
@@ -500,7 +500,7 @@ func (:) (er_t expand_spect_declaration( const, sz_t indent, bcore_sink* sink ))
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.expand_declaration = (try)
+func (:s) :.expand_declaration = (try)
 {
     if( !o.expandable ) return 0;
 
@@ -541,7 +541,7 @@ func (:) :.expand_declaration = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t expand_spect_definition( const, sz_t indent, bcore_sink* sink )) = (try)
+func (:s) (er_t expand_spect_definition( const, sz_t indent, bcore_sink* sink )) = (try)
 {
     $* compiler = o.compiler;
     if( !o.expandable ) return 0;
@@ -564,7 +564,7 @@ func (:) (er_t expand_spect_definition( const, sz_t indent, bcore_sink* sink )) 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.expand_definition = (try)
+func (:s) :.expand_definition = (try)
 {
     if( !o.expandable ) return 0;
     sink.push_fa( "\n" );
@@ -594,7 +594,7 @@ func (:) :.expand_definition = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.expand_init1 = (try)
+func (:s) :.expand_init1 = (try)
 {
     if( !o.expandable ) return 0;
     sink.push_fa( "\n" );

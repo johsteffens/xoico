@@ -22,7 +22,7 @@
  *  Detects '@' as type of class or group
  *  If no identifier could be detected: Returns 0 and leave source unchanged.
  */
-func (:) (tp_t get_identifier( mutable, bcore_source* source, bl_t take_from_source )) =
+func (:s) (tp_t get_identifier( mutable, bcore_source* source, bl_t take_from_source )) =
 {
     tp_t tp_identifier = 0;
     if( source.parse_bl( "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]=='_'||[0]=='@'||[0]=='$'||([0]==':'&&([1]!=' '&&[1]!='\t'&&[1]!='\n'&&[1]!='/')))" ) )
@@ -76,7 +76,7 @@ func (:) (tp_t get_identifier( mutable, bcore_source* source, bl_t take_from_sou
 //----------------------------------------------------------------------------------------------------------------------
 
 /** transfers identifier, enrolls it and sets 'tp_identifier' */
-func(:) (er_t trans_identifier( mutable, bcore_source* source, :result* result /* can be NULL */, tp_t* tp_identifier/* can be NULL */ )) = (try)
+func(:s) (er_t trans_identifier( mutable, bcore_source* source, :result* result /* can be NULL */, tp_t* tp_identifier/* can be NULL */ )) = (try)
 {
     tp_t identifier = o.get_identifier( source, true );
     if( !identifier )
@@ -91,7 +91,7 @@ func(:) (er_t trans_identifier( mutable, bcore_source* source, :result* result /
 //----------------------------------------------------------------------------------------------------------------------
 
 /** parses number: (all integer, hex and float encodings)*/
-func(:) (er_t trans_number_literal( mutable, bcore_source* source, :result* result )) = (try)
+func(:s) (er_t trans_number_literal( mutable, bcore_source* source, :result* result )) = (try)
 {
     bl_t hex = false;
     if( source.parse_bl( "#?'0x'" ) )
@@ -169,7 +169,7 @@ func(:) (er_t trans_number_literal( mutable, bcore_source* source, :result* resu
 //----------------------------------------------------------------------------------------------------------------------
 
 /// parses string
-func (:) (er_t trans_string_literal( mutable, bcore_source* source, :result* result )) = (try)
+func (:s) (er_t trans_string_literal( mutable, bcore_source* source, :result* result )) = (try)
 {
     o.trans( source, "\"", result );
 
@@ -186,7 +186,7 @@ func (:) (er_t trans_string_literal( mutable, bcore_source* source, :result* res
 //----------------------------------------------------------------------------------------------------------------------
 
 /// character literal
-func (:) (er_t trans_char_literal( mutable, bcore_source* source, :result* result )) =
+func (:s) (er_t trans_char_literal( mutable, bcore_source* source, :result* result )) =
 {
 try
 {
@@ -205,7 +205,7 @@ try
 //----------------------------------------------------------------------------------------------------------------------
 
 /// parses whitespaces including comments
-func (:) (er_t trans_whitespace( mutable, bcore_source* source, :result* result /* can be NULL */ )) = (try)
+func (:s) (er_t trans_whitespace( mutable, bcore_source* source, :result* result /* can be NULL */ )) = (try)
 {
     bl_t exit_loop = false;
     while( !exit_loop && !source.eos() )
@@ -267,7 +267,7 @@ func (:) (er_t trans_whitespace( mutable, bcore_source* source, :result* result 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t trans_preprocessor( mutable, bcore_source* source, :result* result )) = (try)
+func (:s) (er_t trans_preprocessor( mutable, bcore_source* source, :result* result )) = (try)
 {
     source.parse_em_fa( "##" );
     result.push_sc( "#" );
@@ -284,7 +284,7 @@ func (:) (er_t trans_preprocessor( mutable, bcore_source* source, :result* resul
 //----------------------------------------------------------------------------------------------------------------------
 
 // any state; returns !=0 in case an operator was consumed
-func (:) (tp_t trans_inert_operator( mutable, bcore_source* source, :result* result )) =
+func (:s) (tp_t trans_inert_operator( mutable, bcore_source* source, :result* result )) =
 {
     switch( source.inspect_char() )
     {
@@ -315,7 +315,7 @@ func (:) (tp_t trans_inert_operator( mutable, bcore_source* source, :result* res
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (bl_t trans_operator( mutable, bcore_source* source, :result* result )) =
+func (:s) (bl_t trans_operator( mutable, bcore_source* source, :result* result )) =
 {
     switch( source.inspect_char() )
     {
@@ -395,7 +395,7 @@ func (:) (bl_t trans_operator( mutable, bcore_source* source, :result* result ))
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)
+func (:s)
 (
     er_t adapt_expression_indirection
     (
@@ -446,7 +446,7 @@ func (:)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)
+func (:s)
 (
     er_t adapt_expression
     (
@@ -537,7 +537,7 @@ func (:)
 //----------------------------------------------------------------------------------------------------------------------
 
 /// Processes the argument section '(....)' of a function
-func (:)
+func (:s)
 (
     er_t trans_function_args
     (
@@ -681,7 +681,7 @@ func (:)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)
+func (:s)
 (
     er_t trans_typespec_member
     (
@@ -915,7 +915,7 @@ func (:)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)
+func (:s)
 (
     er_t trans_typespec_array_subscript
     (
@@ -959,7 +959,7 @@ func (:)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)
+func (:s)
 (
     er_t trans_typespec_create
     (
@@ -1001,7 +1001,7 @@ func (:)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)
+func (:s)
 (
     er_t trans_typespec_test_presence
     (
@@ -1038,7 +1038,7 @@ func (:)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)
+func (:s)
 (
     er_t trans_typespec_attach
     (
@@ -1095,7 +1095,7 @@ func (:)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)
+func (:s)
 (
     er_t trans_typespec_ternary_branch
     (
@@ -1126,7 +1126,7 @@ func (:)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)
+func (:s)
 (
     er_t trans_typespec_expression
     (
@@ -1182,7 +1182,7 @@ func (:)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t trans_member( mutable, bcore_source* source, :result* result )) = (try)
+func (:s) (er_t trans_member( mutable, bcore_source* source, :result* result )) = (try)
 {
     if(      source.parse_bl( "#?'.'"  ) ) result.push_sc( "." );
     else if( source.parse_bl( "#?'->'" ) ) result.push_sc( "->" );
@@ -1223,7 +1223,7 @@ func (:) (er_t trans_member( mutable, bcore_source* source, :result* result )) =
 /** Tests for typespec
  *  If possible, takes typespec from source, otherwise leaves source unchanged
  */
-func (:)
+func (:s)
 (
     er_t try_take_typespec
     (
@@ -1303,7 +1303,7 @@ func (:)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)
+func (:s)
 (
     er_t take_typespec
     (
@@ -1334,7 +1334,7 @@ func (:)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.push_typespec  = (try)
+func (:s) :.push_typespec  = (try)
 {
     tp_t type = typespec.type;
 
@@ -1372,7 +1372,7 @@ func (:) :.push_typespec  = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)
+func (:s)
 (
     er_t trans_type
     (
@@ -1409,7 +1409,7 @@ func (:)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)
+func (:s)
 (
     er_t trans_func
     (
@@ -1481,7 +1481,7 @@ func (:)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)
+func (:s)
 (
     er_t trans_ternary_branch
     (
@@ -1502,7 +1502,7 @@ func (:)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)
+func (:s)
 (
     er_t trans_bracket
     (
@@ -1529,7 +1529,7 @@ func (:)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)
+func (:s)
 (
     er_t trans_array_subscript
     (
@@ -1550,7 +1550,7 @@ func (:)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:)
+func (:s)
 (
     er_t trans_expression
     (
@@ -1699,7 +1699,7 @@ func (:)
 /** Translates declaration including optional subsequent assignment.
  *  If no declaration was detected, source and result_out are not modified.
  */
-func (:)
+func (:s)
 (
     er_t try_trans_declaration
     (
@@ -1817,7 +1817,7 @@ func (:)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func(:) (er_t inspect_variable( mutable, bcore_source* source )) = (try)
+func(:s) (er_t inspect_variable( mutable, bcore_source* source )) = (try)
 {
     source.parse_em_fa( "\?\?" );
 
@@ -1854,7 +1854,7 @@ func(:) (er_t inspect_variable( mutable, bcore_source* source )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t trans_statement_expression( mutable, bcore_source* source, :result* result )) = (try)
+func (:s) (er_t trans_statement_expression( mutable, bcore_source* source, :result* result )) = (try)
 {
     if( o.try_block_level > 0 )
     {
@@ -1895,7 +1895,7 @@ func (:) (er_t trans_statement_expression( mutable, bcore_source* source, :resul
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t trans_statement( mutable, bcore_source* source, :result* result )) = (try)
+func (:s) (er_t trans_statement( mutable, bcore_source* source, :result* result )) = (try)
 {
     o.trans_whitespace( source, result );
 
@@ -1972,7 +1972,7 @@ func (:) (er_t trans_statement( mutable, bcore_source* source, :result* result )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t trans_block_inside( mutable, bcore_source* source, :result* result_out )) = (try)
+func (:s) (er_t trans_block_inside( mutable, bcore_source* source, :result* result_out )) = (try)
 {
     $* result = :result_create_arr().scope();
 
@@ -2005,7 +2005,7 @@ func (:) (er_t trans_block_inside( mutable, bcore_source* source, :result* resul
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t trans_block( mutable, bcore_source* source, :result* result_out, bl_t is_break_ledge )) = (try)
+func (:s) (er_t trans_block( mutable, bcore_source* source, :result* result_out, bl_t is_break_ledge )) = (try)
 {
     o.inc_block();
     $* result = :result_create_arr().scope();
@@ -2022,7 +2022,7 @@ func (:) (er_t trans_block( mutable, bcore_source* source, :result* result_out, 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t trans_statement_as_block( mutable, bcore_source* source, :result* result_out, bl_t is_break_ledge )) = (try)
+func (:s) (er_t trans_statement_as_block( mutable, bcore_source* source, :result* result_out, bl_t is_break_ledge )) = (try)
 {
     $* result = :result_create_arr().scope();
 
@@ -2055,7 +2055,7 @@ func (:) (er_t trans_statement_as_block( mutable, bcore_source* source, :result*
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t trans_block_inside_verbatim_c( mutable, bcore_source* source, :result* result )) = (try)
+func (:s) (er_t trans_block_inside_verbatim_c( mutable, bcore_source* source, :result* result )) = (try)
 {
     o.trans_whitespace( source, result );
     while( !source.parse_bl( "#=?'}'" ) && !source.eos() )
@@ -2096,7 +2096,7 @@ func (:) (er_t trans_block_inside_verbatim_c( mutable, bcore_source* source, :re
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t setup( mutable, const xoico_host* host, const xoico_signature_s* signature )) = (try)
+func (:s) (er_t setup( mutable, const xoico_host* host, const xoico_signature_s* signature )) = (try)
 {
     tp_t host_obj_type = host.obj_type();
 
@@ -2162,7 +2162,7 @@ func (:) (er_t setup( mutable, const xoico_host* host, const xoico_signature_s* 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (sz_t assess_indentation( bcore_source* source )) =
+func (:s) (sz_t assess_indentation( bcore_source* source )) =
 {
     sz_t index = source.get_index();
     while( !source.eos() ) if( source.get_char() == '\n' ) break;
@@ -2178,7 +2178,7 @@ func (:) (sz_t assess_indentation( bcore_source* source )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (void remove_indentation( st_s* string, sz_t indentation )) =
+func (:s) (void remove_indentation( st_s* string, sz_t indentation )) =
 {
     ASSERT( string.space >= string.size );
 
@@ -2203,7 +2203,7 @@ func (:) (void remove_indentation( st_s* string, sz_t indentation )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t translate_mutable( mutable, const xoico_host* host, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink )) = (try)
+func (:s) (er_t translate_mutable( mutable, const xoico_host* host, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink )) = (try)
 {
     o.setup( host, signature );
 
@@ -2290,7 +2290,7 @@ func (:) (er_t translate_mutable( mutable, const xoico_host* host, const xoico_b
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico_cengine.translate =
+func (:s) xoico_cengine.translate =
 {
     er_t er = o.clone().scope().translate_mutable( host, body, signature, sink );
     return er;

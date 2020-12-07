@@ -17,7 +17,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.parse_from_path = (try)
+func (:s) :.parse_from_path = (try)
 {
     st_s* source_name        = bcore_file_strip_extension( bcore_file_name( source_path ) ).scope();
     st_s* source_folder_path = bcore_file_folder_path( source_path ).scope();
@@ -56,7 +56,7 @@ func (:) :.parse_from_path = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (tp_t get_hash( const )) =
+func (:s) (tp_t get_hash( const )) =
 {
     tp_t hash = bcore_tp_init();
 
@@ -86,7 +86,7 @@ func (:) (tp_t get_hash( const )) =
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if target's dependencies are cyclic
-func (:) (bl_t is_cyclic_recursive( mutable )) =
+func (:s) (bl_t is_cyclic_recursive( mutable )) =
 {
     if( o.flag ) return true;
     o.flag = true;
@@ -97,7 +97,7 @@ func (:) (bl_t is_cyclic_recursive( mutable )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.is_cyclic =
+func (:s) :.is_cyclic =
 {
     o.compiler.clear_flags();
     bl_t cyclic = o.is_cyclic_recursive();
@@ -107,7 +107,7 @@ func (:) :.is_cyclic =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.set_dependencies = (try)
+func (:s) :.set_dependencies = (try)
 {
     sz_t targets = o.compiler.size;
 
@@ -135,7 +135,7 @@ func (:) :.set_dependencies = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t expand_heading( const, sz_t indent, bcore_sink* sink )) = (try)
+func (:s) (er_t expand_heading( const, sz_t indent, bcore_sink* sink )) = (try)
 {
     bcore_cday_utc_s* time = bcore_cday_utc_s!.scope();
     time.from_system();
@@ -177,7 +177,7 @@ func (:) (er_t expand_heading( const, sz_t indent, bcore_sink* sink )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t expand_h( const, sz_t indent, bcore_sink* sink )) = (try)
+func (:s) (er_t expand_h( const, sz_t indent, bcore_sink* sink )) = (try)
 {
     o.expand_heading( indent, sink );
 
@@ -214,14 +214,14 @@ func (:) (er_t expand_h( const, sz_t indent, bcore_sink* sink )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t expand_init1( const, sz_t indent, bcore_sink* sink )) =
+func (:s) (er_t expand_init1( const, sz_t indent, bcore_sink* sink )) =
 {
     return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t expand_c( const, sz_t indent, bcore_sink* sink )) = (try)
+func (:s) (er_t expand_c( const, sz_t indent, bcore_sink* sink )) = (try)
 {
     o.expand_heading( indent, sink );
 
@@ -291,7 +291,7 @@ func (:) (er_t expand_c( const, sz_t indent, bcore_sink* sink )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.to_be_modified =
+func (:s) :.to_be_modified =
 {
     if( o.compiler.always_expand ) return true;
 
@@ -326,7 +326,7 @@ func (:) :.to_be_modified =
 //----------------------------------------------------------------------------------------------------------------------
 
 /// expands all text files in memory
-func (:) :.expand_phase1 = (try)
+func (:s) :.expand_phase1 = (try)
 {
     o.target_h =< NULL;
     o.target_c =< NULL;
@@ -370,7 +370,7 @@ func (er_t write_with_signature( sc_t file, const st_s* data )) = (try)
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if a file was modified
-func (:) :.expand_phase2 = (try)
+func (:s) :.expand_phase2 = (try)
 {
     if( !o.modified )
     {

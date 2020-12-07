@@ -17,7 +17,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:target) :.load = (try)
+func (:target_s) :.load = (try)
 {
     st_s* st_path = st_s!.scope();
     st_path.copy_sc( path );
@@ -95,7 +95,7 @@ func (:target) :.load = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:target) :.build = (try)
+func (:target_s) :.build = (try)
 {
     if( !o.root_    ) o.root_    = ( o.parent_ ) ? o.parent_.root_    : o;
     if( !o.compiler ) o.compiler = ( o.parent_ ) ? o.parent_.compiler : NULL;
@@ -180,7 +180,7 @@ func (:target) :.build = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:main) :.build_from_file = (try)
+func (:main_s) :.build_from_file = (try)
 {
     o.target =< xoico_builder_target_s!;
     o.target.load( false, path );
@@ -192,7 +192,7 @@ func (:main) :.build_from_file = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:main) :.update =
+func (:main_s) :.update =
 {
     if( bcore_error_stack_size() > 0 ) return TYPEOF_error_stack;
     try( o.compiler.update_target_files( NULL ) );

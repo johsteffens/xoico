@@ -39,7 +39,7 @@ stamp :s = aware :
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.parse = (try)
+func (:s) xoico.parse = (try)
 {
     $* compiler = host.compiler();
     o.source_point.set( source );
@@ -65,7 +65,7 @@ func (:) xoico.parse = (try)
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.get_hash =
+func (:s) xoico.get_hash =
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
     hash = bcore_tp_fold_tp( hash, o.typespec.get_hash() );
@@ -75,14 +75,14 @@ func (:) xoico.get_hash =
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t relent( mutable, const xoico_host* host, tp_t tp_obj_type )) =
+func (:s) (er_t relent( mutable, const xoico_host* host, tp_t tp_obj_type )) =
 {
     return o.typespec.relent( host, tp_obj_type );
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t expand( const, const xoico_host* host, bcore_sink* sink )) =
+func (:s) (er_t expand( const, const xoico_host* host, bcore_sink* sink )) =
 {
     try( o.typespec.expand( host, sink ) );
     if( o.name )
@@ -95,7 +95,7 @@ func (:) (er_t expand( const, const xoico_host* host, bcore_sink* sink )) =
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t expand_name( const, const xoico_host* host, bcore_sink* sink )) =
+func (:s) (er_t expand_name( const, const xoico_host* host, bcore_sink* sink )) =
 {
     if( !o.name ) return 0;
     sink.push_fa( "#<sc_t>", host.compiler().nameof( o.name ) );
