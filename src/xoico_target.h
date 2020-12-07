@@ -35,7 +35,7 @@ signature er_t expand_phase2( mutable, bl_t* p_modified );
 signature bl_t is_cyclic( mutable ); // mutable because flag is used for cyclic test
 signature er_t set_dependencies( mutable, const bcore_arr_sz_s* dependencies );
 
-stamp : = aware :
+stamp :s = aware :
 {
     st_s name; // target name (e.g. "bcore")
     st_s include_path; // (local) path used in generated '#include' directives

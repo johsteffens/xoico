@@ -25,7 +25,7 @@
 XOILA_DEFINE_GROUP( xoico_forward, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-stamp : = aware :
+stamp :s = aware :
 {
     st_s name; // deemed global
     hidden aware xoico_group_s* group;

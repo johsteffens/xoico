@@ -61,13 +61,13 @@ signature er_t  check_overwrite( const,  sc_t file );
 signature bl_t  get_self(        const,  tp_t type, const bcore_self_s** self ); // returns success
 
 
-stamp :type_info = aware :
+stamp :type_info_s = aware :
 {
     xoico_typespec_s typespec;
     hidden xoico* item; // group or stamp
 };
 
-stamp :element_info = aware :
+stamp :element_info_s = aware :
 {
     :type_info_s type_info;
     hidden xoico_func_s* func; // NULL in case element is no function
@@ -85,7 +85,7 @@ signature sz_t get_verbosity      ( const );
 signature tp_t entypeof           ( mutable, sc_t name );
 signature sc_t nameof             ( const,   tp_t type );
 
-stamp : = aware :
+stamp :s = aware :
 {
     hidden xoico_target_s => [];
     hidden bcore_life_s life; // lifetime manager for items generation during processing

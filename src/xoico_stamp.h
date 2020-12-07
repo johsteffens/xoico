@@ -35,7 +35,7 @@ signature er_t push_default_funcs( mutable );
 signature const xoico_func_s* get_trait_line_func_from_name( const, tp_t name ); // returns NULL if not found
 
 
-stamp : = aware :
+stamp :s = aware :
 {
     st_s    st_name;
     tp_t    tp_name; // typeof( st_name )

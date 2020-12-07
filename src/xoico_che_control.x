@@ -316,7 +316,7 @@ func (:)( er_t trans_control_default( mutable, bcore_source* source, :result* re
 
 //----------------------------------------------------------------------------------------------------------------------
 
-stamp :result_break = aware :result
+stamp :result_break_s = aware :result
 {
     sz_t ledge_level;
     hidden :result_block_s* parent;
@@ -367,7 +367,7 @@ func (:)( er_t trans_control_break( mutable, bcore_source* source, :result* resu
 
 //----------------------------------------------------------------------------------------------------------------------
 
-stamp :result_return = aware :result
+stamp :result_return_s = aware :result
 {
     hidden :result_block_s* parent;
     hidden aware :result -> result_blm;

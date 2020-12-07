@@ -28,7 +28,7 @@ XOILA_DEFINE_GROUP( xoico_arg, xoico )
 
 signature bl_t is_variadic( const );
 
-stamp : = aware :
+stamp :s = aware :
 {
     bcore_source_point_s source_point;
     xoico_typespec_s typespec;

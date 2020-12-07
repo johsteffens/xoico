@@ -313,18 +313,23 @@ func (:) xoico.parse = (try)
 
     o.group.parse_name( source, st_stamp_name );
 
-    if( st_stamp_name.size >= 2 && sc_t_equ( st_stamp_name.sc + st_stamp_name.size - 2, "_s" ) )
+    if( st_stamp_name.size < 2 || !sc_t_equ( st_stamp_name.sc + st_stamp_name.size - 2, "_s" ) )
     {
-        return o.source_point.parse_error_fa
-        (
-            "Stamp '#<sc_t>' ends in '_s'."
-            "In beth, this ending identifies a structure."
-            "Using it as stamp name could have side effects.",
-            st_stamp_name->sc
-        );
+        return source.parse_error_fa( "Stamp name '#<sc_t>' must end in '_s'.", st_stamp_name->sc );
     }
 
-    st_s_push_fa( st_stamp_name, "_s" );
+//    if( st_stamp_name.size >= 2 && sc_t_equ( st_stamp_name.sc + st_stamp_name.size - 2, "_s" ) )
+//    {
+//        return o.source_point.parse_error_fa
+//        (
+//            "Stamp '#<sc_t>' ends in '_s'."
+//            "In beth, this ending identifies a structure."
+//            "Using it as stamp name could have side effects.",
+//            st_stamp_name->sc
+//        );
+//    }
+//
+//    st_s_push_fa( st_stamp_name, "_s" );
 
     source.parse_em_fa( " = " );
 

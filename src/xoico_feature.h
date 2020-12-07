@@ -29,7 +29,7 @@
 XOILA_DEFINE_GROUP( xoico_feature, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-stamp : = aware :
+stamp :s = aware :
 {
     xoico_signature_s signature;
 

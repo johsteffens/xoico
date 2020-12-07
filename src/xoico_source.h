@@ -28,7 +28,7 @@ XOILA_DEFINE_GROUP( xoico_source, xoico )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-stamp : = aware :
+stamp :s = aware :
 {
     st_s name; // file name excluding directory and extension
     st_s path; // file path excluding extension

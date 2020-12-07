@@ -54,7 +54,7 @@ group :result = :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-    stamp :plain = aware :
+    stamp :plain_s = aware :
     {
         st_s st;
 
@@ -73,11 +73,11 @@ group :result = :
     func (:* create_from_st( const st_s* st ) ) = { $* o = :arr_s!; o.push_st( st ); return o; };
     func (:* create_from_sc(       sc_t  sc ) ) = { $* o = :arr_s!; o.push_sc( sc ); return o; };
 
-    stamp :adl = aware x_array { aware : -> []; }; // !! weak links !!  (if this causes problems revert to strong links)
+    stamp :adl_s = aware x_array { aware : -> []; }; // !! weak links !!  (if this causes problems revert to strong links)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-    stamp :arr = aware :
+    stamp :arr_s = aware :
     {
         :adl_s adl;
 
@@ -115,7 +115,7 @@ group :result = :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-    stamp :block = aware :
+    stamp :block_s = aware :
     {
         :arr_s arr;
         sz_t level = 0;
@@ -166,7 +166,7 @@ group :result = :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-    stamp :blm_init = aware :
+    stamp :blm_init_s = aware :
     {
         sz_t level;
         func :.to_sink = { sink.push_fa( "BLM_INIT_LEVEL(#<sz_t>);", o.level ); return 0; };
@@ -176,7 +176,7 @@ group :result = :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-    stamp :blm_down = aware :
+    stamp :blm_down_s = aware :
     {
         func :.to_sink = { sink.push_sc( "BLM_DOWN();" ); return 0; };
     };
@@ -190,14 +190,14 @@ group :result = :
 /// stack for variable declarations
 group :stack_var = :
 {
-    stamp :unit = aware bcore_inst
+    stamp :unit_s = aware bcore_inst
     {
         sz_t level;
         tp_t name;
         xoico_typespec_s typespec;
     };
 
-    stamp :unit_adl = aware x_array { :unit_s => []; };
+    stamp :unit_adl_s = aware x_array { :unit_s => []; };
 
     signature @* push_unit( mutable, const :unit_s* unit );
     signature @* pop_level( mutable, sz_t level ); // pop all units of or above level
@@ -208,7 +208,7 @@ group :stack_var = :
     signature void clear( mutable );
     signature void rehash_names( mutable );
 
-    stamp : = aware :
+    stamp :s = aware :
     {
         :unit_adl_s adl;
         bcore_hmap_tpuz_s hmap_name;
@@ -265,14 +265,14 @@ group :stack_var = :
 /// stack for block/level specific data
 group :stack_block = :
 {
-    stamp :unit = aware bcore_inst
+    stamp :unit_s = aware bcore_inst
     {
         sz_t level; // level of this block
         bl_t use_blm = false;
         bl_t break_ledge = false; // this block represents a break-ledge for a break-command inside this block or higher-level blocks up to the next break-level
     };
 
-    stamp :unit_adl = aware x_array { :unit_s => []; };
+    stamp :unit_adl_s = aware x_array { :unit_s => []; };
 
     signature @* push( mutable );
     signature @* push_unit( mutable, const :unit_s* unit );
@@ -280,7 +280,7 @@ group :stack_block = :
     signature void clear( mutable );
     signature sz_t get_size( const );
 
-    stamp : = aware :
+    stamp :s = aware :
     {
         :unit_adl_s adl;
         func :.push      = { o.adl.push_d( :unit_s! ); return o; };
@@ -341,7 +341,7 @@ name return;
 name continue;
 name goto;
 
-stamp : = aware :
+stamp :s = aware :
 {
     /// parameters
 

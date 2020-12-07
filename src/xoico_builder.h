@@ -35,9 +35,9 @@ signature const @* name_match( const, sc_t name );
 
 signature void push_target_index_to_arr( const, bcore_arr_sz_s* arr );
 
-stamp :arr_target = aware x_array { :target_s => []; };
+stamp :arr_target_s = aware x_array { :target_s => []; };
 
-stamp :target = aware :
+stamp :target_s = aware :
 {
     st_s => name;             // unique target name
     st_s => extension = "xo"; // extension used for xoila output files
@@ -112,7 +112,7 @@ signature bl_t get_always_expand( const );
 signature er_t set_overwrite_unsigned_target_files( mutable, bl_t v );
 signature bl_t get_overwrite_unsigned_target_files( const );
 
-stamp :main = aware :
+stamp :main_s = aware :
 {
     xoico_compiler_s => compiler!;
     :target_s => target;

@@ -43,9 +43,9 @@ signature const xoico_func_s* get_trait_line_func_from_name( const, tp_t name );
 
 
 /// source stack to handle includes
-stamp :source_stack = aware x_array { aware bcore_source -> []; };
+stamp :source_stack_s = aware x_array { aware bcore_source -> []; };
 
-stamp : = aware :
+stamp :s = aware :
 {
     aware xoico => []; // group elements
 

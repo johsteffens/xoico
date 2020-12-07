@@ -25,7 +25,7 @@
 XOILA_DEFINE_GROUP( xoico_nested_group, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-stamp : = aware :
+stamp :s = aware :
 {
     hidden xoico_group_s* group; // group object;
     func xoico.get_hash =

@@ -35,7 +35,7 @@ signature xoico_func_s* get_func_from_name( const, tp_t name ); // returns NULL 
 signature er_t replace_fork( mutable, sz_t idx, xoico_func_s* func );
 signature tp_t get_hash( const );
 
-stamp : = aware x_array
+stamp :s = aware x_array
 {
     xoico_func_s => [];
 

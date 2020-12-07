@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-12-07T17:17:13Z
+ *  Last File Update: 2020-12-07T20:52:09Z
  *
  *  Copyright and License of this File:
  *
@@ -2926,16 +2926,23 @@ er_t xoico_stamp_s_parse( xoico_stamp_s* o, const xoico_host* host, bcore_source
     
     BLM_TRY(xoico_group_s_parse_name(o->group,source, st_stamp_name ))
     
-    if( st_stamp_name->size >= 2 && sc_t_equ( st_stamp_name->sc + st_stamp_name->size - 2, "_s" ) )
+    if( st_stamp_name->size < 2 || !sc_t_equ( st_stamp_name->sc + st_stamp_name->size - 2, "_s" ) )
     {
-        BLM_RETURNV(er_t, bcore_source_point_s_parse_error_fa(&(o->source_point),"Stamp '#<sc_t>' ends in '_s'."
-            "In beth, this ending identifies a structure."
-            "Using it as stamp name could have side effects.",
-            st_stamp_name->sc
-        ))
+        BLM_RETURNV(er_t, bcore_source_a_parse_error_fa(source,"Stamp name '#<sc_t>' must end in '_s'.", st_stamp_name->sc ))
     }
     
-    st_s_push_fa( st_stamp_name,"_s" );
+    //    if( st_stamp_name.size >= 2 && sc_t_equ( st_stamp_name.sc + st_stamp_name.size - 2, "_s" ) )
+    //    {
+    //        return o.source_point.parse_error_fa
+    //        (
+    //            "Stamp '#<sc_t>' ends in '_s'."
+    //            "In beth, this ending identifies a structure."
+    //            "Using it as stamp name could have side effects.",
+    //            st_stamp_name->sc
+    //        );
+    //    }
+    //
+    //    st_s_push_fa( st_stamp_name, "_s" );
     
     BLM_TRY(bcore_source_a_parse_em_fa(source," = " ))
     
@@ -2974,7 +2981,7 @@ er_t xoico_stamp_s_parse( xoico_stamp_s* o, const xoico_host* host, bcore_source
 
 er_t xoico_stamp_s_finalize( xoico_stamp_s* o, const xoico_host* host )
 {
-    // xoico_stamp.x:366:27
+    // xoico_stamp.x:371:27
     BLM_INIT_LEVEL(0);
     xoico_compiler_s* compiler = o->group->compiler;
     
@@ -3051,7 +3058,7 @@ er_t xoico_stamp_s_finalize( xoico_stamp_s* o, const xoico_host* host )
 
 er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink )
 {
-    // xoico_stamp.x:443:37
+    // xoico_stamp.x:448:37
     BLM_INIT_LEVEL(0);
     sc_t sc_name = o->st_name.sc;
     
@@ -3148,7 +3155,7 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, const xoico_host*
 
 er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink )
 {
-    // xoico_stamp.x:540:36
+    // xoico_stamp.x:545:36
     BLM_INIT_LEVEL(0);
     st_s* embedded_string = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,xoico_stamp_create_embedded_string(o->self_source )));
     
@@ -3181,7 +3188,7 @@ er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, const xoico_host* 
 
 er_t xoico_stamp_s_expand_init1( const xoico_stamp_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink )
 {
-    // xoico_stamp.x:575:31
+    // xoico_stamp.x:580:31
     
     xoico_compiler_s* compiler = o->group->compiler;
     
@@ -8497,4 +8504,4 @@ vd_t xoico_xo_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0x40B4ED785E2A686Aull
+// XOILA_OUT_SIGNATURE 0x80B7E1A8F2900ADBull

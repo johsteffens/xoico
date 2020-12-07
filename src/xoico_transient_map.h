@@ -29,7 +29,7 @@ XOILA_DEFINE_GROUP( xoico_transient_map, xoico )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-stamp : = aware :
+stamp :s = aware :
 {
     bcore_hmap_tptp_s map;
     func xoico.parse;

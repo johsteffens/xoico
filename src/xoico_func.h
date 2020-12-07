@@ -29,7 +29,7 @@ XOILA_DEFINE_GROUP( xoico_func, xoico )
 signature tp_t get_hash( const );
 signature bl_t reflectable( const, const xoico_host* host );
 
-stamp : = aware :
+stamp :s = aware :
 {
     tp_t name;                   // declarative name (not global name)
     tp_t global_name;            // function name in c-implementation

@@ -31,7 +31,7 @@ include deferred "xoico_stamp.h";
 signature er_t relent( mutable, const xoico_host* host, tp_t tp_obj_type );
 signature er_t expand_declaration( const, const xoico_host* host, sc_t sc_func_global_name, sz_t indent, bcore_sink* sink );
 
-stamp : = aware :
+stamp :s = aware :
 {
     tp_t name;
     tp_t global_name;

@@ -26,7 +26,7 @@
 XOILA_DEFINE_GROUP( xoico_name, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-stamp : = aware :
+stamp :s = aware :
 {
     tp_t name; // deemed global
     bcore_source_point_s source_point;

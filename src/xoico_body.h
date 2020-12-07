@@ -34,7 +34,7 @@ signature er_t expand( const, const xoico_host* host, const xoico_signature_s* s
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-stamp :code = aware :
+stamp :code_s = aware :
 {
     bl_t single_line;
     tp_t hash_source;
@@ -47,7 +47,7 @@ stamp :code = aware :
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-stamp : = aware :
+stamp :s = aware :
 {
     st_s name;
     st_s global_name;
