@@ -58,7 +58,7 @@ func (:) (er_t freeze_global_name( mutable )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.parse = (try)
+func (:) xoico.parse = (try)
 {
     $* compiler = o.group.compiler;
 
@@ -74,7 +74,7 @@ func (:) :.parse = (try)
         compiler.life_a_push( signature );
         signature.group = o.group;
         signature.stamp = o.stamp;
-        signature.parse( source );
+        signature.parse( host, source );
         source.parse_em_fa( " ) " );
 
         compiler.register_item( signature, source );
@@ -93,7 +93,7 @@ func (:) :.parse = (try)
         else
         {
             $* st = st_s!.scope();
-            o.group.parse_name( st, source );
+            o.group.parse_name( source, st );
             tp_signature_base_name = compiler.entypeof( st.sc );
         }
 
@@ -113,7 +113,7 @@ func (:) :.parse = (try)
         o.body = xoico_body_s!;
         o.body.set_group( o.group );
         o.body.set_stamp( o.stamp );
-        o.body.parse( source );
+        o.body.parse( host, source );
     }
 
     source.parse_em_fa( " ; " );
@@ -140,7 +140,7 @@ func (:) (er_t push_flect_decl_to_sink( const, bcore_sink* sink )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.finalize = (try)
+func (:) xoico.finalize = (try)
 {
     xoico_compiler_s* compiler = o.group.compiler;
     o.freeze_global_name();
@@ -162,7 +162,7 @@ func (:) :.finalize = (try)
     {
         o.body.set_group( o.group );
         o.body.set_stamp( o.stamp );
-        o.body.finalize();
+        o.body.finalize( host );
     }
 
     return 0;
@@ -183,11 +183,11 @@ func (:) xoico.expand_forward = (try)
     if( go_inline )
     {
         sink.push_fa( "static inline " );
-        signature.expand_declaration( o.stamp, compiler.nameof( o.global_name ), indent, sink );
+        signature.expand_declaration( host, o.stamp, compiler.nameof( o.global_name ), indent, sink );
     }
     else
     {
-        signature.expand_declaration( o.stamp, compiler.nameof( o.global_name ), indent, sink );
+        signature.expand_declaration( host, o.stamp, compiler.nameof( o.global_name ), indent, sink );
     }
     sink.push_fa( ";" );
 
@@ -209,13 +209,13 @@ func (:) xoico.expand_declaration = (try)
     {
         sink.push_fa( " \\\n#rn{ }", indent );
         sink.push_fa( "static inline " );
-        signature.expand_declaration( o->stamp, xoico_compiler_s_nameof( compiler, o->global_name ), indent, sink );
-        o.body.expand( signature, indent, sink );
+        signature.expand_declaration( host, o->stamp, xoico_compiler_s_nameof( compiler, o->global_name ), indent, sink );
+        o.body.expand( host, signature, indent, sink );
     }
     else if( !o->declare_in_expand_forward )
     {
         sink.push_fa( " \\\n#rn{ }", indent );
-        signature.expand_declaration( o->stamp, xoico_compiler_s_nameof( compiler, o->global_name ), indent, sink );
+        signature.expand_declaration( host, o->stamp, xoico_compiler_s_nameof( compiler, o->global_name ), indent, sink );
         sink.push_fa( ";" );
     }
 
@@ -235,9 +235,9 @@ func (:) xoico.expand_definition = (try)
     {
         sink.push_fa( "\n" );
         sink.push_fa( "#rn{ }", indent );
-        signature.expand_declaration( o.stamp, compiler.nameof( o.global_name ), indent, sink );
+        signature.expand_declaration( host, o.stamp, compiler.nameof( o.global_name ), indent, sink );
         sink.push_fa( "\n" );
-        o.body.expand( signature, indent, sink );
+        o.body.expand( host, signature, indent, sink );
         sink.push_fa( "\n" );
     }
 

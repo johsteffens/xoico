@@ -19,6 +19,7 @@
 #include "xoico_cengine.h"
 #include "xoico_body.h"
 #include "xoico_args.h"
+#include "xoico_transient_map.h"
 
 /**********************************************************************************************************************/
 
@@ -354,6 +355,7 @@ stamp : = aware :
     hidden xoico_compiler_s* compiler;
     hidden xoico_group_s*    group;
     hidden xoico_stamp_s*    stamp;
+    hidden xoico_host*       host;
 
     xoico_typespec_s typespec_ret;
 
@@ -451,6 +453,7 @@ stamp : = aware :
     func xoico_compiler.get_group = { return o.compiler.get_group( name ); };
     func xoico_compiler.get_stamp = { return o.compiler.get_stamp( name ); };
     func xoico_compiler.get_func  = { return o.compiler.get_func( name ); };
+    func xoico_compiler.get_transient_map = { return o.compiler.get_transient_map( type ); };
 
     func (bl_t returns_a_value( const )) =
     {

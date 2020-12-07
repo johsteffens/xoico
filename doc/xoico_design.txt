@@ -318,19 +318,18 @@ TODO:
 - typespec: add transient_class
    - used in function arguments indicating that the function's return type can be safely casted into the input type of the transient-argument.
    - used as a generic typelock (the stamp associates a type with the transient_class )
-
 - introduce typed signatures
-
 - (done) allow member functions in groups
-
 - (done) make functions in a trait-line transparent:
     - function can be called as stamp or group member without explicitly changing perspective
     - a stamp or group can overload the function.
-
 - move standard array functions to explicit implementations in the corresponding group
+- bug: stamp default function 'create' is not registered
+- add 'unaware' type modifier. Indicates that a typespec might be used to reference unaware objects (e.g. primitive objects).
+       Used in functions designed to handle unaware types.
 
 Keywords (for syntax highlight)
 
 group stamp stump hidden private func name signature body aware feature extending verbatim
 mutable plain retrievable forward include deferred embed cast foreach in verbatim_C keep fork
-try deduce scope scope_local scope_func extern
+try deduce scope scope_local scope_func extern unaware

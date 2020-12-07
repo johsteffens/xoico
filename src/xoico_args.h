@@ -36,9 +36,9 @@ stamp : = aware x_array
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) xoico.parse = { o.clear(); return o.append( source ); };
+func (:) xoico.parse = { o.clear(); return o.append( host, source ); };
 
-func (:) (er_t append( mutable, bcore_source* source )) = (try)
+func (:) (er_t append( mutable, const xoico_host* host, bcore_source* source )) = (try)
 {
     bl_t first = true;
     while( !source.parse_bl( " #=?')' " ) ) // args follow
@@ -47,26 +47,26 @@ func (:) (er_t append( mutable, bcore_source* source )) = (try)
         if( !first ) xoico_parse_f( source, " , " );
         $* arg = xoico_arg_s!.scope();
         arg.group = o.group;
-        arg.parse( source );
+        arg.parse( host, source );
         o.push_d( arg.fork() );
         first = false;
     }
     return 0;
 };
 
-func (:) (er_t relent( mutable, tp_t tp_obj_type )) =
+func (:) (er_t relent( mutable, const xoico_host* host, tp_t tp_obj_type )) =
 {
-    foreach( $* arg in o ) arg.relent( tp_obj_type ).try();
+    foreach( $* arg in o ) arg.relent( host, tp_obj_type ).try();
     return 0;
 };
 
-func (:) (er_t expand( const, bl_t first, sc_t sc_obj_type, bcore_sink* sink )) =
+func (:) (er_t expand( const, const xoico_host* host, bl_t first, sc_t sc_obj_type, bcore_sink* sink )) =
 {
     foreach( $* arg in o )
     {
         if( !first ) sink.push_fa( ", " );
         first = false;
-        arg.expand( sc_obj_type, sink ).try();
+        arg.expand( host, sc_obj_type, sink ).try();
     }
     return 0;
 };

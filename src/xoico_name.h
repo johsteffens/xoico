@@ -37,7 +37,7 @@ stamp : = aware :
         $* compiler = o.group.compiler;
         o.source_point.set( source );
         $* st_name = st_s!.scope();
-        o.group.parse_name( st_name, source );
+        o.group.parse_name( source, st_name );
         if( st_name.size == 0 ) return source.parse_error_fa( "Name missing." );
         o.name = compiler.entypeof( st_name.sc );
         source.parse_em_fa( " ; " );

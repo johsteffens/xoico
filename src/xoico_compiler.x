@@ -165,7 +165,7 @@ func (:) :.parse = (try)
     }
 
     xoico_target_s* target = o.[ target_index ];
-    target.parse( source_path );
+    target.parse_from_path( source_path );
     if( p_target_index ) p_target_index.0 = target_index;
 
     return 0;
@@ -175,7 +175,7 @@ func (:) :.parse = (try)
 
 func (:) xoico.finalize = (try)
 {
-    foreach( $* e in o ) e.finalize();
+    foreach( $* e in o ) e.finalize( o );
     return 0;
 };
 
@@ -183,7 +183,7 @@ func (:) xoico.finalize = (try)
 
 func (:) xoico.expand_setup = (try)
 {
-    for( sz_t i = 0; i < o->size; i++ ) o.[ i ].expand_setup();
+    for( sz_t i = 0; i < o->size; i++ ) o.[ i ].expand_setup( o );
 
     /* We obtain all names from the global map.
      * This is necessary because names of reflection elements are parsed outside
@@ -213,7 +213,7 @@ func (:) (er_t expand( mutable, bl_t* p_modified )) = (try)
 {
     bl_t modified = false;
 
-    o.expand_setup();
+    o.expand_setup( o );
     for( sz_t i = 0; i < o->size; i++ ) o.[i].expand_phase1( modified.1 );
     for( sz_t i = 0; i < o->size; i++ ) o.[i].expand_phase2( modified.1 );
 

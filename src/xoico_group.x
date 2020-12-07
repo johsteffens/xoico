@@ -56,7 +56,7 @@ func (:) :.parse_name_recursive = (try)
     {
         if( o.parent )
         {
-            o.parent.parse_name_recursive( name, source );
+            o.parent.parse_name_recursive( source, name );
         }
         else
         {
@@ -79,7 +79,7 @@ func (:) :.parse_name = (try)
 {
     if( source.parse_bl( " #?':'" ) )
     {
-        o.parse_name_recursive( name, source );
+        o.parse_name_recursive( source, name );
     }
     else
     {
@@ -99,7 +99,7 @@ func (:) (er_t push_default_feature_from_sc( mutable, sc_t sc )) = (try)
     $* feature = xoico_feature_s!.scope();
     feature.expandable = false;
     feature.group = o;
-    feature.parse( bcore_source_string_s_create_from_sc( sc ).scope() );
+    feature.parse( o, bcore_source_string_s_create_from_sc( sc ).scope() );
 
     if( !compiler.is_item( feature.cast( xoico* ).get_global_name_tp() ) )
     {
@@ -120,7 +120,7 @@ func (:) (er_t parse_func( mutable, bcore_source* source )) = (try)
     $* func = xoico_func_s!.scope();
     func.group = o;
     func.stamp = NULL;
-    func.parse( source );
+    func.parse( o, source );
     o.push_func_d( func.fork() );
     return 0;
 };
@@ -224,7 +224,7 @@ func (:) xoico.parse = (try)
         {
             $* stamp = xoico_stamp_s!.scope( scope_local );
             stamp.group = o;
-            stamp.parse( source );
+            stamp.parse( o, source );
             stamp.push_default_funcs();
             compiler.register_item( stamp, source );
             o.push_item_d( stamp.fork() );
@@ -235,7 +235,7 @@ func (:) xoico.parse = (try)
         {
             $* stump = xoico_stamp_s!.scope( scope_local );
             stump.group = o;
-            stump.parse( source );
+            stump.parse( o, source );
             stump.make_funcs_overloadable();
             compiler.register_item( stump, source );
             compiler.life_a_push( stump.fork() );
@@ -249,7 +249,7 @@ func (:) xoico.parse = (try)
         {
             $* signature = xoico_signature_s!.scope( scope_local );
             signature.group = o;
-            signature.parse( source );
+            signature.parse( o, source );
             source.parse_em_fa( " ; " );
             compiler.register_item( signature, source );
             o.push_item_d( signature.fork() );
@@ -258,7 +258,7 @@ func (:) xoico.parse = (try)
         {
             $* body = xoico_body_s!.scope( scope_local );
             body.set_group( o );
-            body.parse( source );
+            body.parse( o, source );
             source.parse_em_fa( " ; " );
             compiler.register_item( body, source );
             o.push_item_d( body.fork() );
@@ -267,7 +267,7 @@ func (:) xoico.parse = (try)
         {
             $* feature = xoico_feature_s!.scope( scope_local );
             feature.group = o;
-            feature.parse( source );
+            feature.parse( o, source );
             compiler.register_item( feature, source );
             o.hmap_feature.set( feature.signature.name, ( vd_t )feature );
             foreach( $* func in feature.funcs_return_to_group ) o.funcs.push_d( func.fork() );
@@ -282,7 +282,7 @@ func (:) xoico.parse = (try)
                 sz_t index = source.get_index();
                 source.parse_em_fa( "(" );
                 $* stamp_name = st_s!.scope( scope_local );
-                o.parse_name( stamp_name, source );
+                o.parse_name( source, stamp_name );
                 if( source.parse_bl( " #?')'" ) )
                 {
                     stamp_name.push_sc( "_s" );
@@ -313,14 +313,14 @@ func (:) xoico.parse = (try)
         {
             $* name = xoico_name_s!.scope( scope_local );
             name.group = o;
-            name.parse( source );
+            name.parse( o, source );
             o.push_item_d( name.fork() );
         }
         else if( source.parse_bl( " #?w'type' " ) )
         {
             $* name = xoico_name_s!.scope( scope_local );
             name.group = o;
-            name.parse( source );
+            name.parse( o, source );
             compiler.register_external_type( name->name );
             o.push_item_d( name.fork() );
         }
@@ -328,7 +328,7 @@ func (:) xoico.parse = (try)
         {
             $* forward = xoico_forward_s!.scope( scope_local );
             forward.group = o;
-            forward.parse( source );
+            forward.parse( o, source );
             o.push_item_d( forward.fork() );
         }
         else if( bcore_source_a_parse_bl( source, " #?w'extending'" ) )
@@ -345,7 +345,7 @@ func (:) xoico.parse = (try)
             else
             {
                 $* templ_name = st_s!.scope( scope_local );
-                o.parse_name( templ_name, source );
+                o.parse_name( source, templ_name );
                 templ_name.push_fa( "_s" );
                 const xoico* item = compiler.get_const_item( typeof( templ_name.sc ) );
                 if( !item ) return source.parse_error_fa( "Template #<sc_t> not found.", templ_name.sc );
@@ -364,7 +364,7 @@ func (:) xoico.parse = (try)
             group.extending_stamp = o.extending_stamp;
             group.expandable  = o.expandable;
 
-            o.parse_name( group.st_name, source );
+            o.parse_name( source, group.st_name );
             source.parse_em_fa( " =" );
 
             // flags
@@ -372,11 +372,11 @@ func (:) xoico.parse = (try)
 
             st_s* st_trait_name = st_s!.scope();
 
-            o.parse_name( st_trait_name, source );
+            o.parse_name( source, st_trait_name );
             if( st_trait_name.size == 0 ) st_trait_name.copy( o->st_name );
             group.trait_name = compiler.entypeof( st_trait_name.sc );
 
-            group.parse( source );
+            group.parse( o, source );
             source.parse_em_fa( " ; " );
             compiler.register_group( group );
             xoico_nested_group_s* nested_group = xoico_nested_group_s!.scope( scope_local );
@@ -455,10 +455,10 @@ func (:) xoico.parse = (try)
 
 func (:) xoico.finalize = (try)
 {
-    foreach( $* e in o ) e.finalize();
+    foreach( $* e in o ) e.finalize( o );
     foreach( $* func in o.funcs )
     {
-        func.finalize();
+        func.finalize( o );
         o.compiler.register_func( func );
         o.hmap_func.set( func.name, ( vd_t )func );
     }
@@ -471,8 +471,8 @@ func (:) (er_t expand_forward( const, sz_t indent, bcore_sink* sink )) = (try)
 {
     if( !o.expandable ) return 0;
     sink.push_fa( " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o.st_name.sc );
-    foreach( $* e in o ) e.expand_forward( indent, sink );
-    foreach( $* func in o.funcs ) func.expand_forward( indent, sink );
+    foreach( $* e in o ) e.expand_forward( o, indent, sink );
+    foreach( $* func in o.funcs ) func.expand_forward( o, indent, sink );
     return 0;
 };
 
@@ -492,7 +492,7 @@ func (:) (er_t expand_spect_declaration( const, sz_t indent, bcore_sink* sink ))
 
     sink.push_fa( " \\\n#rn{ }{", indent );
     sink.push_fa( " \\\n#rn{ }    bcore_spect_header_s header;", indent );
-    foreach( $* e in o ) e.expand_spect_declaration( indent + 4, sink );
+    foreach( $* e in o ) e.expand_spect_declaration( o, indent + 4, sink );
     sink.push_fa( " \\\n#rn{ }};", indent );
 
     sink.push_fa
@@ -532,16 +532,16 @@ func (:) :.expand_declaration = (try)
 
     sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, sc_spect_name, btypeof( sc_spect_name ) );
 
-    foreach( $* e in o ) e.expand_declaration( indent, sink );
+    foreach( $* e in o ) e.expand_declaration( o, indent, sink );
     sink.push_fa( "#rn{ }##define BETH_EXPAND_GROUP_#<sc_t>", indent, o.st_name.sc );
 
     o.expand_forward( indent + 2, sink );
 
-    foreach( $* e in o ) e.expand_indef_typedef( indent, sink );
+    foreach( $* e in o ) e.expand_indef_typedef( o, indent, sink );
     o.expand_spect_declaration( indent + 2, sink );
 
-    foreach( $* e in o ) e.expand_indef_declaration( indent, sink );
-    foreach( $* func in o->funcs ) func.expand_declaration( indent + 2, sink );
+    foreach( $* e in o ) e.expand_indef_declaration( o, indent, sink );
+    foreach( $* func in o->funcs ) func.expand_declaration( o, indent + 2, sink );
 
     sink.push_fa( "\n" );
     return 0;
@@ -565,7 +565,7 @@ func (:) (er_t expand_spect_definition( const, sz_t indent, bcore_sink* sink )) 
 
     sink.push_fa( "#rn{ }\"{\"\n", indent );
     sink.push_fa( "#rn{ }    \"bcore_spect_header_s header;\"\n", indent );
-    foreach( $* e in o ) e.expand_spect_definition( indent + 4, sink );
+    foreach( $* e in o ) e.expand_spect_definition( o, indent + 4, sink );
     sink.push_fa( "#rn{ }\"}\";\n", indent );
     return 0;
 };
@@ -588,14 +588,14 @@ func (:) :.expand_definition = (try)
     foreach( $* e in o.includes_in_definition ) sink.push_fa( "##include \"#<sc_t>\"\n", e.sc );
 
     // non-features
-    foreach( $* e in o ) if( e._ != TYPEOF_xoico_feature_s ) e.expand_definition( indent, sink );
+    foreach( $* e in o ) if( e._ != TYPEOF_xoico_feature_s ) e.expand_definition( o, indent, sink );
 
     o.expand_spect_definition( indent, sink );
 
     // just-features
-    foreach( $* e in o ) if( e._ == TYPEOF_xoico_feature_s ) e.expand_definition( indent, sink );
+    foreach( $* e in o ) if( e._ == TYPEOF_xoico_feature_s ) e.expand_definition( o, indent, sink );
 
-    foreach( $* func in o->funcs ) func.expand_definition( indent, sink );
+    foreach( $* func in o->funcs ) func.expand_definition( o, indent, sink );
 
     return 0;
 };
@@ -607,7 +607,7 @@ func (:) :.expand_init1 = (try)
     if( !o.expandable ) return 0;
     sink.push_fa( "\n" );
     sink.push_fa( "#rn{ }// group: #<sc_t>\n", indent, o->st_name.sc );
-    foreach( $* e in o ) e.expand_init1( indent, sink );
+    foreach( $* e in o ) e.expand_init1( o, indent, sink );
 
     if( o.short_spect_name )
     {

@@ -21,6 +21,7 @@
 #include "xoico.h"
 #include "xoico_target.h"
 #include "xoico_typespec.h"
+#include "xoico_transient_map.h"
 
 /**********************************************************************************************************************/
 
@@ -49,6 +50,7 @@ signature xoico_stamp_s* get_stamp( mutable, tp_t name );
 signature xoico_body_s*  get_body(  mutable, tp_t name );
 signature xoico_func_s*  get_func(  mutable, tp_t name );
 signature xoico_group_s* get_group( mutable, tp_t name );
+signature xoico_transient_map_s* get_transient_map( mutable, tp_t type );
 signature const xoico_feature_s* get_feature( const, tp_t name );
 
 /// returns signature in case name represents a signature or feature
@@ -209,6 +211,12 @@ stamp : = aware :
     {
         vd_t* ptr = o.hmap_group.get( name );
         return ptr ? ( xoico_group_s* )*ptr : NULL;
+    };
+
+    func :.get_transient_map =
+    {
+        xoico_stamp_s* stamp = o.get_stamp( type );
+        return stamp ? stamp.transient_map.1 : NULL;
     };
 
     func :.get_func =

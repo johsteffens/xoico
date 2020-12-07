@@ -44,7 +44,7 @@ func (:) xoico.parse = (try)
 {
     xoico_compiler_s* compiler = o.group.compiler;
     o.source_point.set( source );
-    o.typespec.parse( o.group, source );
+    o.typespec.parse( host, o.group, source );
 
     if( o.typespec.flag_variadic ) return 0;
 
@@ -64,6 +64,8 @@ func (:) xoico.parse = (try)
     return 0;
 };
 
+// ---------------------------------------------------------------------------------------------------------------------
+
 func (:) xoico.get_hash =
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
@@ -72,14 +74,18 @@ func (:) xoico.get_hash =
     return hash;
 };
 
-func (:) (er_t relent( mutable, tp_t tp_obj_type )) =
+// ---------------------------------------------------------------------------------------------------------------------
+
+func (:) (er_t relent( mutable, const xoico_host* host, tp_t tp_obj_type )) =
 {
-    return o.typespec.relent( o.group, tp_obj_type );
+    return o.typespec.relent( host, o.group, tp_obj_type );
 };
 
-func (:) (er_t expand( const, sc_t sc_obj_type, bcore_sink* sink )) =
+// ---------------------------------------------------------------------------------------------------------------------
+
+func (:) (er_t expand( const, const xoico_host* host, sc_t sc_obj_type, bcore_sink* sink )) =
 {
-    try( o.typespec.expand( o.group, sc_obj_type, sink ) );
+    try( o.typespec.expand( host, o.group, sc_obj_type, sink ) );
     if( o.name )
     {
         sink.push_fa( " " );
@@ -87,6 +93,8 @@ func (:) (er_t expand( const, sc_t sc_obj_type, bcore_sink* sink )) =
     }
     return 0;
 };
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 func (:) (er_t expand_name( const, bcore_sink* sink )) =
 {

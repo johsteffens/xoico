@@ -186,7 +186,7 @@ func (:main) :.build_from_file = (try)
     o.target.load( false, path );
     o.target.compiler = o.compiler;
     o.target.build();
-    o.compiler.finalize();
+    o.compiler.finalize( o );
     return 0;
 };
 

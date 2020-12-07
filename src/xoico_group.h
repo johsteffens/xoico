@@ -29,8 +29,8 @@ XOILA_DEFINE_GROUP( xoico_group, xoico )
 include deferred "xoico_nested_group.h";
 
 signature er_t push_item_d( mutable, xoico* item );
-signature er_t parse_name(           mutable, st_s* name, bcore_source* source );
-signature er_t parse_name_recursive( mutable, st_s* name, bcore_source* source );
+signature er_t parse_name(           mutable, bcore_source* source, st_s* name );
+signature er_t parse_name_recursive( mutable, bcore_source* source, st_s* name );
 signature er_t expand_declaration(   const, sz_t indent, bcore_sink* sink );
 signature er_t expand_definition(    const, sz_t indent, bcore_sink* sink );
 signature er_t expand_init1(         const, sz_t indent, bcore_sink* sink );
@@ -106,7 +106,7 @@ stamp : = aware :
     func xoico.finalize;
     func xoico.expand_setup =
     {
-        foreach( $* e in o ) try( e.expand_setup() );
+        foreach( $* e in o ) try( e.expand_setup( o ) );
         return 0;
     };
 

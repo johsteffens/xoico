@@ -33,7 +33,7 @@
 XOILA_DEFINE_GROUP( xoico_cengine, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-feature 'a' er_t translate( const, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink );
+feature 'a' er_t translate( const, const xoico_host* host, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink );
 feature 'a' tp_t get_hash ( const ) = { return bcore_hash_a_get_tp( (bcore_hash*)o ); };
 feature 'a' bl_t is_reserved( const, tp_t tp_identifier ) = { return false; };
 

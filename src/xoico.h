@@ -30,21 +30,6 @@
 XOILA_DEFINE_GROUP( xoico, bcore_inst )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-feature 'ap' er_t parse                     ( mutable, bcore_source* source );
-feature 'ap' tp_t get_hash                  ( const   );
-feature 'ap' sc_t get_global_name_sc        ( const   );
-feature 'ap' tp_t get_global_name_tp        ( const   )                              = { return btypeof( :a_get_global_name_sc( o ) ); };
-feature 'ap' er_t finalize                  ( mutable )                              = { return 0; };  // final stage in the compilation phase
-feature 'ap' er_t expand_setup              ( mutable )                              = { return 0; };  // first stage in the expansion phase
-feature 'ap' er_t expand_forward            ( const, sz_t indent, bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_indef_typedef      ( const, sz_t indent, bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_spect_declaration  ( const, sz_t indent, bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_spect_definition   ( const, sz_t indent, bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_declaration        ( const, sz_t indent, bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_indef_declaration  ( const, sz_t indent, bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_definition         ( const, sz_t indent, bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_init1              ( const, sz_t indent, bcore_sink* sink ) = { return 0; };
-
 name mutable;
 name const;
 name void;
@@ -68,6 +53,31 @@ forward :source_s;
 forward :target_s;
 forward :compiler_s;
 forward :cengine;
+forward :host;
+
+signature er_t parse_sc( mutable, const :host* host, sc_t sc );
+signature er_t parse_fa( mutable, const :host* host, sc_t format, ... );
+
+feature 'ap' tp_t get_hash                  ( const );
+feature 'ap' sc_t get_global_name_sc        ( const );
+feature 'ap' tp_t get_global_name_tp        ( const ) = { return btypeof( :a_get_global_name_sc( o ) ); };
+
+feature 'ap' er_t parse                     ( mutable, const :host* host, bcore_source* source );
+feature 'ap' er_t finalize(                   mutable, const :host* host ) = { return 0; };  // final stage in the compilation phase
+feature 'ap' er_t expand_setup              ( mutable, const :host* host ) = { return 0; };  // first stage in the expansion phase
+feature 'ap' er_t expand_forward            ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_indef_typedef      ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_spect_declaration  ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_spect_definition   ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_declaration        ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_indef_declaration  ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_definition         ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_init1              ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
+
+group :host = :
+{
+
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 // functions
@@ -103,6 +113,26 @@ func (er_t embed_file_open( bcore_source* parent, sc_t file_name, bcore_source**
     include_source.1 = bcore_file_open_source( path.sc );
     return 0;
 };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func :.parse_sc =
+{
+    return o.parse( host, bcore_source_string_s_create_sc( sc ).scope() );
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func :.parse_fa =
+{
+    va_list args;
+    va_start( args, format );
+    er_t ret = o.parse( host, bcore_source_string_s_create_fv( format, args ).scope() );
+    va_end( args );
+    return ret;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
 
 #endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

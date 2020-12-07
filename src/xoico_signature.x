@@ -39,7 +39,7 @@ func (:) xoico.parse = (try)
 
     if( source.parse_bl( " #?'extending'" ) )
     {
-        o.group.parse_name( name_buf, source );
+        o.group.parse_name( source, name_buf );
         tp_t tp_name = compiler.entypeof( name_buf.sc );
 
         const $* signature = compiler.get_signature( tp_name );
@@ -58,12 +58,12 @@ func (:) xoico.parse = (try)
         o.name = compiler.entypeof( name_buf.sc );
 
         source.parse_em_fa( " (" );
-        o.args.append( source );
+        o.args.append( host, source );
         source.parse_em_fa( " )" );
     }
     else
     {
-        o.typespec_ret.parse( o.group, source );
+        o.typespec_ret.parse( host, o.group, source );
         o.typespec_ret.flag_addressable = false;
 
         // get name
@@ -124,7 +124,7 @@ func (:) xoico.parse = (try)
             source.parse_error_fa( "'typed' can not be used on plain functions." );
         }
 
-        o.args.parse( source );
+        o.args.parse( host, source );
         source.parse_em_fa( " )" );
     }
 
@@ -157,7 +157,7 @@ func (:) xoico.parse = (try)
 func (:) :.expand_declaration = (try)
 {
     sc_t sc_name = stamp ? stamp.st_name.sc : o.group.st_name.sc;
-    o.typespec_ret.expand( o.group, sc_name, sink );
+    o.typespec_ret.expand( host, o.group, sc_name, sink );
     sink.push_fa( " #<sc_t>( ", sc_func_global_name );
 
     if( o.arg_o )
@@ -165,14 +165,14 @@ func (:) :.expand_declaration = (try)
         if( o.typed ) sink.push_sc( "tp_t t, " );
         sink.push_fa( "#<sc_t>", ( o.arg_o == TYPEOF_mutable ) ? "" : "const " );
         sink.push_fa( "#<sc_t>* o", sc_name );
-        o.args.expand( false, sc_name, sink );
+        o.args.expand( host, false, sc_name, sink );
         sink.push_fa( " )" );
     }
     else
     {
         if( o.args.size > 0 )
         {
-            o.args.expand( true, sc_name, sink );
+            o.args.expand( host, true, sc_name, sink );
         }
         else
         {

@@ -17,7 +17,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.parse = (try)
+func (:) :.parse_from_path = (try)
 {
     st_s* source_name        = bcore_file_strip_extension( bcore_file_name( source_path ) ).scope();
     st_s* source_folder_path = bcore_file_folder_path( source_path ).scope();
@@ -45,7 +45,7 @@ func (:) :.parse = (try)
 
         if( bcore_file_exists( source_path_h.sc ) )
         {
-            xsource.parse( bcore_file_open_source( source_path_h->sc ).scope() );
+            xsource.parse( o, bcore_file_open_source( source_path_h->sc ).scope() );
         }
 
         o.push_d( xsource.fork() );
@@ -199,7 +199,7 @@ func (:) (er_t expand_h( const, sz_t indent, bcore_sink* sink )) = (try)
 
     sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o->name.sc, typeof( o->name.sc ) );
 
-    foreach( $* e in o ) e.expand_declaration( indent, sink );
+    foreach( $* e in o ) e.expand_declaration( o, indent, sink );
 
     sink.push_fa( "\n" );
     sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
@@ -234,7 +234,7 @@ func (:) (er_t expand_c( const, sz_t indent, bcore_sink* sink )) = (try)
 
     /// definition section
     sink.push_fa( "\n" );
-    foreach( $* e in o ) e.expand_definition( indent, sink );
+    foreach( $* e in o ) e.expand_definition( o, indent, sink );
 
     /// signal section
     sink.push_fa( "\n" );
@@ -260,7 +260,7 @@ func (:) (er_t expand_c( const, sz_t indent, bcore_sink* sink )) = (try)
     sink.push_fa( "#rn{ }        case TYPEOF_init1:\n", indent );
     sink.push_fa( "#rn{ }        {\n", indent );
     o.expand_init1( indent + 12, sink );
-    foreach( $* e in o ) e.expand_init1( indent + 12, sink );
+    foreach( $* e in o ) e.expand_init1( o, indent + 12, sink );
     sink.push_fa( "#rn{ }        }\n", indent );
     sink.push_fa( "#rn{ }        break;\n", indent );
 

@@ -27,9 +27,9 @@ XOILA_DEFINE_GROUP( xoico_typespec, xoico )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-signature er_t parse( mutable,  xoico_group_s* group, bcore_source* source );
-signature er_t relent( mutable, xoico_group_s* group, tp_t tp_obj_type );
-signature er_t expand( const, xoico_group_s* group, sc_t sc_obj_type, bcore_sink* sink );
+signature er_t parse(  mutable, const xoico_host* host, xoico_group_s* group, bcore_source* source );
+signature er_t relent( mutable, const xoico_host* host, xoico_group_s* group, tp_t tp_obj_type );
+signature er_t expand( const,   const xoico_host* host, xoico_group_s* group, sc_t sc_obj_type, bcore_sink* sink );
 signature bl_t converts_to( const, const @* b ); // converts to b without a cast
 
 signature void reset( mutable );
@@ -47,6 +47,7 @@ stamp : = aware :
     bl_t flag_static;
     bl_t flag_volatile;
     bl_t flag_restrict;
+    bl_t flag_unaware; // unaware indicates that this type can reference unaware objects (extends range of implicit casts)
     bl_t flag_scope;  // object is in scope
     bl_t flag_addressable = true;  // object can have a pointer ('false' for objects returned by a function)
     bl_t flag_variadic; // variadic arguments

@@ -20,6 +20,7 @@
 
 #include "xoico.h"
 #include "xoico_funcs.h"
+#include "xoico_transient_map.h"
 
 /**********************************************************************************************************************/
 
@@ -28,7 +29,6 @@ XOILA_DEFINE_GROUP( xoico_stamp, xoico )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-signature er_t parse( mutable, bcore_source* source );
 signature er_t parse_func( mutable, bcore_source* source );
 signature er_t make_funcs_overloadable( mutable );
 signature er_t push_default_funcs( mutable );
@@ -47,6 +47,8 @@ stamp : = aware :
 
     bcore_self_s => self; // created in expand_setup
     xoico_funcs_s funcs;
+
+    xoico_transient_map_s transient_map;
 
     private aware xoico_group_s* group;
     bcore_source_point_s source_point;
@@ -81,7 +83,7 @@ stamp : = aware :
     func xoico.expand_definition;
     func xoico.expand_init1;
 
-    func :.parse;
+    func xoico.parse;
     func :.parse_func;
 
     func :.make_funcs_overloadable =

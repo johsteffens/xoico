@@ -28,12 +28,6 @@ XOILA_DEFINE_GROUP( xoico_source, xoico )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-signature er_t parse( mutable, bcore_source* source );
-signature er_t finalize( mutable );
-signature er_t expand_declaration( const, sz_t indent, bcore_sink* sink );
-signature er_t expand_definition(  const, sz_t indent, bcore_sink* sink );
-signature er_t expand_init1(       const, sz_t indent, bcore_sink* sink );
-
 stamp : = aware :
 {
     st_s name; // file name excluding directory and extension
@@ -44,7 +38,7 @@ stamp : = aware :
 
     func xoico.expand_setup =
     {
-        foreach( $* e in o ) e.expand_setup().try();
+        foreach( $* e in o ) e.expand_setup( o ).try();
         return 0;
     };
 
@@ -61,16 +55,16 @@ stamp : = aware :
         return hash;
     };
 
-    func :.parse;
+    func xoico.parse;
 
-    func :.finalize =
+    func xoico.finalize =
     {
-        foreach( $* e in o ) e.finalize().try();
+        foreach( $* e in o ) e.finalize( o ).try();
         return 0;
     };
 
 
-    func :.expand_declaration =
+    func xoico.expand_declaration =
     {
         sink.push_fa( "\n" );
         sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
@@ -79,7 +73,7 @@ stamp : = aware :
         return 0;
     };
 
-    func :.expand_definition =
+    func xoico.expand_definition =
     {
         sink.push_fa( "\n" );
         sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
@@ -89,7 +83,7 @@ stamp : = aware :
         return 0;
     };
 
-    func :.expand_init1 =
+    func xoico.expand_init1 =
     {
         sink.push_fa( "\n" );
         sink.push_fa( "#rn{ }// #rn{-}\n", indent, sz_max( 0, 80 - indent ) );
@@ -106,7 +100,7 @@ stamp : = aware :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.parse = (try)
+func (:) xoico.parse = (try)
 {
     $* compiler = o.target.compiler;
     while( !source.eos() )
@@ -132,12 +126,12 @@ func (:) :.parse = (try)
                 xoico_embed_file_open( source, embed_file.sc, include_source.2 );
                 include_source.scope();
                 group.explicit_embeddings.push_st( embed_file );
-                group.parse( include_source );
+                group.parse( o, include_source );
             }
             else
             {
                 source.parse_em_fa( " )" );
-                group.parse( source );
+                group.parse( o, source );
             }
             o.target.compiler.register_group( group );
         }

@@ -173,7 +173,7 @@ func (:) :.parse_func = (try)
     $* func = xoico_func_s!.scope();
     func.group = o.group;
     func.stamp = o;
-    func.parse( source );
+    func.parse( o, source );
 
     sz_t idx = o.funcs.get_index_from_name( func->name );
 
@@ -201,7 +201,7 @@ func (:) :.parse_func = (try)
         }
         else
         {
-            return source.parse_error_fa( "Function '#<sc_t>' has already been declared and is not overloadable.", compiler.nameof( func.name ) );
+            return func.source_point.parse_error_fa( "Function '#<sc_t>' has already been declared and is not overloadable.", compiler.nameof( func.name ) );
         }
     }
     else
@@ -237,7 +237,7 @@ func (:) (er_t parse_extend( mutable, bcore_source* source )) = (try)
                     case ':':
                     {
                         st_s* name = st_s!.scope( scope_local );
-                        o.group.parse_name_recursive( name, source );
+                        o.group.parse_name_recursive( source, name );
                         o.self_buf.push_st( name );
                     }
                     break;
@@ -274,7 +274,7 @@ func (:) (er_t push_default_func_from_sc( mutable, sc_t sc )) = (try)
     func.overloadable = false;
     func.expandable = false;
 
-    func.parse_sc( sc );
+    func.parse_sc( o, sc );
 
     sz_t idx = o.funcs.get_index_from_signature_global_name( func.signature_global_name );
 
@@ -304,8 +304,9 @@ func (:) :.push_default_funcs = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.parse = (try)
+func (:) xoico.parse = (try)
 {
+    o.transient_map.group = o.group;
     $* compiler = o.group.compiler;
     bl_t verbatim = source.parse_bl( " #?w'verbatim'" );
     o.self_buf =< st_s!;
@@ -315,7 +316,7 @@ func (:) :.parse = (try)
 
     o.source_point.set( source );
 
-    o.group.parse_name( st_stamp_name, source );
+    o.group.parse_name( source, st_stamp_name );
 
     if( st_stamp_name.size >= 2 && sc_t_equ( st_stamp_name.sc + st_stamp_name.size - 2, "_s" ) )
     {
@@ -335,7 +336,7 @@ func (:) :.parse = (try)
     if( source.parse_bl( " #?w'extending'" ) )
     {
         st_s* templ_name = st_s!.scope();
-        o.group.parse_name( templ_name, source );
+        o.group.parse_name( source, templ_name );
         templ_name.push_fa( "_s" );
         const xoico* item = compiler.get_const_item( typeof( templ_name.sc ) );
         if( !item ) return source.parse_error_fa( "Template #<sc_t> not found.", templ_name.sc );
@@ -349,9 +350,13 @@ func (:) :.parse = (try)
     else
     {
         if( source.parse_bl( " #?w'aware'" ) ) o.is_aware = true;
-        o.group.parse_name( st_trait_name, source );
+        o.group.parse_name( source, st_trait_name );
         if( st_trait_name.size == 0 ) return source.parse_error_fa( "Trait name expected." );
         o.trait_name = compiler.entypeof( st_trait_name.sc );
+        if( source.parse_bl( " #=?'('" ) )
+        {
+            o.transient_map.parse( o, source );
+        }
     }
 
     o.st_name.copy( st_stamp_name );
@@ -372,7 +377,7 @@ func (:) xoico.finalize = (try)
     {
         func.group = o.group;
         func.stamp = o;
-        func.finalize();
+        func.finalize( o );
         if( func.reflectable() ) func.push_flect_decl_to_sink( o.self_buf );
         compiler.register_func( func );
     }
@@ -411,6 +416,33 @@ func (:) xoico.finalize = (try)
         return o.source_point.parse_error_fa( "In stamp '#<sc_t>': Trait name '#<sc_t>' is not a group.", o.st_name.sc, compiler.nameof( o.trait_name ) );
     }
 
+    // set transient classes for x_array
+    if( o.trait_name == TYPEOF_x_array )
+    {
+        o.transient_map.set( compiler.entypeof( "TO" ), o.tp_name );
+        const bcore_self_item_s* array_item = bcore_self_s_get_first_array_item( o.self );
+        bl_t is_static = false;
+
+        switch( array_item.caps )
+        {
+            case BCORE_CAPS_ARRAY_DYN_SOLID_STATIC:
+            case BCORE_CAPS_ARRAY_DYN_LINK_STATIC:
+            case BCORE_CAPS_ARRAY_FIX_SOLID_STATIC:
+            case BCORE_CAPS_ARRAY_FIX_LINK_STATIC:
+                is_static = true;
+                break;
+
+            default:
+                break;
+        }
+
+        if( is_static )
+        {
+            o.transient_map.set( compiler.entypeof( "TE" ), array_item.type );
+        }
+    }
+
+
     return 0;
 };
 
@@ -429,11 +461,13 @@ func (:) xoico.expand_declaration = (try)
     o.self.struct_body_to_sink_newline_escaped( indent + 2, sink );
     sink.push_fa( ";" );
 
-    foreach( $* func in o.funcs ) func.expand_forward( indent + 2, sink ); // expands all prototypes
+    foreach( $* func in o.funcs ) func.expand_forward( o, indent + 2, sink ); // expands all prototypes
 
     // expand array
     if( o.self.trait == TYPEOF_bcore_array )
     {
+        //return o.source_point.parse_error_fa( "Please use x_array as trait." );
+
         sz_t items = o.self.items_size();
         const bcore_self_item_s* array_item = NULL;
         for( sz_t i = 0; i < items; i++ )
@@ -503,7 +537,7 @@ func (:) xoico.expand_declaration = (try)
         }
     }
 
-    foreach( $* func in o.funcs ) func.expand_declaration( indent + 2, sink ); // only expands static inline functions
+    foreach( $* func in o.funcs ) func.expand_declaration( o, indent + 2, sink ); // only expands static inline functions
 
     sink.push_fa( "\n" );
     return 0;
@@ -539,7 +573,7 @@ func (:) xoico.expand_definition = (try)
     st_s* multiline_string = xoico_stamp_create_structured_multiline_string( self_def, indent ).scope();
     sink.push_fa( "#<sc_t>;\n", multiline_string.sc );
 
-    foreach( $* func in o.funcs ) func.expand_definition( indent, sink );
+    foreach( $* func in o.funcs ) func.expand_definition( o, indent, sink );
 
     return 0;
 };

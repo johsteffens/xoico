@@ -28,8 +28,8 @@ XOILA_DEFINE_GROUP( xoico_signature, xoico )
 
 include deferred "xoico_stamp.h";
 
-signature er_t relent( mutable, tp_t tp_obj_type );
-signature er_t expand_declaration( const, const xoico_stamp_s* stamp, sc_t sc_func_global_name, sz_t indent, bcore_sink* sink );
+signature er_t relent( mutable, const xoico_host* host, tp_t tp_obj_type );
+signature er_t expand_declaration( const, const xoico_host* host, const xoico_stamp_s* stamp, sc_t sc_func_global_name, sz_t indent, bcore_sink* sink );
 
 stamp : = aware :
 {
@@ -57,8 +57,8 @@ stamp : = aware :
 
     func :.relent =
     {
-        o.args.relent( tp_obj_type ).try();
-        o.typespec_ret.relent( o.group, tp_obj_type ).try();
+        o.args.relent( host, tp_obj_type ).try();
+        o.typespec_ret.relent( host, o.group, tp_obj_type ).try();
         return 0;
     };
 

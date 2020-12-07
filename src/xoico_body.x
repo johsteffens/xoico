@@ -17,7 +17,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:code) :.parse = (try)
+func (:code) xoico.parse = (try)
 {
     if( !o.group ) return source.parse_error_fa( "xoico_body_code_s: Code has no group assigned." );
 
@@ -190,14 +190,14 @@ func (:) :.parse_expression = (try)
         o.code =< xoico_body_code_s!;
         o.code.group = o.group;
         o.code.stamp = o.stamp;
-        o.code.parse( source );
+        o.code.parse( host, source );
         o.go_inline = o.code.single_line;
     }
     else
     {
         $* compiler = o.group.compiler;
         $* st_name = st_s!.scope();
-        o.group.parse_name( st_name, source );
+        o.group.parse_name( source, st_name );
 
         if( st_name.size == 0 ) return source.parse_error_fa( "Body name expected." );
 
@@ -227,7 +227,7 @@ func (:) :.parse_expression = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) :.parse = (try)
+func (:) xoico.parse = (try)
 {
     if( !o.group ) return source.parse_error_fa( "Body has no group assigned." );
     st_s* string = st_s!.scope();
@@ -242,7 +242,7 @@ func (:) :.parse = (try)
 
     source.parse_em_fa( " =" );
 
-    o.parse_expression( source );
+    o.parse_expression( host, source );
     o.global_name.copy_fa( "#<sc_t>_#<sc_t>", o.group.st_name.sc, o.name.sc );
     return 0;
 };
@@ -260,7 +260,7 @@ func (:) :.expand = (try)
     if( o.code )
     {
         if( !o.group ) return o.source_point.parse_error_fa( "Body has no group assigned." );
-        cengine.translate( o, signature, ( bcore_sink* )st_out );
+        cengine.translate( host, o, signature, ( bcore_sink* )st_out );
         final_code = st_out;
     }
 

@@ -28,7 +28,7 @@ XOILA_DEFINE_GROUP( xoico_target, xoico )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-signature er_t parse( mutable, sc_t source_path );
+signature er_t parse_from_path( mutable, sc_t source_path );
 signature bl_t to_be_modified( const );
 signature er_t expand_phase1( mutable, bl_t* p_modified );
 signature er_t expand_phase2( mutable, bl_t* p_modified );
@@ -55,18 +55,18 @@ stamp : = aware :
 
     hidden aware xoico_compiler_s* compiler;
 
-    func :.parse;
+    func :.parse_from_path;
     func :.to_be_modified;
 
     func xoico.finalize =
     {
-        foreach( $* e in o ) e.finalize().try();
+        foreach( $* e in o ) e.finalize( o ).try();
         return 0;
     };
 
     func xoico.expand_setup =
     {
-        foreach( $* e in o ) e.expand_setup().try();
+        foreach( $* e in o ) e.expand_setup( o ).try();
         return 0;
     };
 

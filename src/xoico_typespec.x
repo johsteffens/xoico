@@ -28,6 +28,18 @@ func (:) :.parse = (try)
         return 0;
     }
 
+    while( !source.eos() )
+    {
+        if     ( source.parse_bl( " #?'const'"    ) ) o->flag_const = true;
+        else if( source.parse_bl( " #?'static'"   ) ) o->flag_static = true;
+        else if( source.parse_bl( " #?'volatile'" ) ) o->flag_volatile = true;
+        else if( source.parse_bl( " #?'scope'"    ) ) o->flag_scope = true;
+        else if( source.parse_bl( " #?'unaware'"  ) ) o->flag_unaware = true;
+        else break;
+    }
+
+    source.parse_em_fa( " " );
+
     if( source.parse_bl( "#?'(' " ) )
     {
         st_s* s = st_s!.scope();
@@ -37,21 +49,10 @@ func (:) :.parse = (try)
         source.parse_em_fa( " ) " );
     }
 
-    while( !source.eos() )
-    {
-        if     ( source.parse_bl( " #?'const'"    ) ) o->flag_const = true;
-        else if( source.parse_bl( " #?'static'"   ) ) o->flag_static = true;
-        else if( source.parse_bl( " #?'volatile'" ) ) o->flag_volatile = true;
-        else if( source.parse_bl( " #?'scope'"    ) ) o->flag_scope = true;
-        else break;
-    }
-
-    source.parse_em_fa( " " );
-
     st_s* s = st_s!.scope();
     if( source.parse_bl( "#?':' " ) )
     {
-        group.parse_name_recursive( s, source );
+        group.parse_name_recursive( source, s );
         o.type = compiler.entypeof( s.sc );
     }
     else if( source.parse_bl( "#?'@' " ) )
@@ -69,7 +70,17 @@ func (:) :.parse = (try)
         o->type = xoico_compiler_s_entypeof( compiler, s->sc );
     }
 
-    while( source.parse_bl( "#?'*' " ) ) o.indirection++;
+    if( source.parse_bl( "#?'.' " ) )
+    {
+        if( !source.parse_bl( "#?([0]>='0'||[0]<='1') " ) ) source.parse_error_fa( "Argument: Indirection literal expected." );
+        sz_t indirection = 0;
+        source.parse_fa( "#<sz_t*> ", indirection.1 );
+        o.indirection = indirection;
+    }
+    else
+    {
+        while( source.parse_bl( "#?'*' " ) ) o.indirection++;
+    }
 
     if( source.parse_bl( " #?'restrict' " ) ) o.flag_restrict = true;
 

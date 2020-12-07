@@ -53,7 +53,7 @@ func (:) (tp_t get_identifier( mutable, bcore_source* source, bl_t take_from_sou
             case ':':
             {
                 st_s* st_name = st_s!.scope();
-                o.group.parse_name( st_name, source );
+                o.group.parse_name( source, st_name );
                 tp_identifier = o.entypeof( st_name.sc );
             }
             break;
@@ -508,7 +508,7 @@ func (:)
                 else if( o.is_stamp( typespec_expr.type ) )
                 {
                     const xoico_stamp_s* stamp = o.get_stamp( typespec_expr.type );
-                    implicit_cast = stamp.is_aware;
+                    implicit_cast = stamp.is_aware || typespec_target.flag_unaware;
                 }
             }
 
@@ -545,6 +545,7 @@ func (:)
         bcore_source* source,
         tp_t object_type,
         const xoico_signature_s* signature,
+        const xoico_transient_map_s* transient_map,
         const :result* result_obj_expr,
         const xoico_typespec_s* typespec_obj_expr,
         :result* result_out,
@@ -587,6 +588,7 @@ func (:)
 
         if( typespec_obj_expr.type )
         {
+            if( !transient_map ) transient_map = o.get_transient_map( typespec_obj_expr.type );
             if( transient_class && transient_type && ( transient_type.0 == 0 ) && ( signature.arg_o_transient_class == transient_class ) )
             {
                 transient_type.0 = typespec_obj_expr.type;
@@ -600,11 +602,27 @@ func (:)
         if( signature.args.size > 0 ) result_out.push_sc( "," );
     }
 
-    foreach( $* arg in signature.args )
+    if( transient_map && transient_class && transient_type )
+    {
+        tp_t type = transient_map.get( transient_class );
+        if( type )
+        {
+            if( !transient_type.0 )
+            {
+                transient_type.0 = type;
+            }
+            else if( transient_type.0 != type )
+            {
+                return source.parse_error_fa( "Object type expected: '#<sc_t>'. Object type passed: '#<sc_t>'.", o.nameof( type ), o.nameof( transient_type.0 ) );
+            }
+        }
+    }
+
+    foreach( const $* arg in signature.args )
     {
         if( arg.is_variadic() ) break;
 
-        $* result_expr = :result_create_arr().scope();
+        $* result_expr = :result_arr_s!.scope();
         $* typespec_expr = xoico_typespec_s!.scope( scope_local );
         source.parse_em_fa( " " );
 
@@ -614,13 +632,30 @@ func (:)
             result_out.push_sc( "," );
         }
 
+        o.trans_whitespace( source, result_expr );
+        if( source.parse_bl( "#?')'" ) ) return source.parse_error_fa( "Function argument '#<sc_t>': No value passed.", o.nameof( arg.name ) );
+
         o.trans_expression( source, result_expr, typespec_expr );
+
         if( typespec_expr.type )
         {
-            if( transient_class && transient_type && ( transient_type.0 == 0 ) && ( arg.typespec.transient_class == transient_class ) )
+            if( arg.typespec.transient_class )
             {
-                transient_type.0 = typespec_expr.type;
+                if( transient_type && ( transient_type.0 == 0 ) && ( arg.typespec.transient_class == transient_class ) )
+                {
+                    transient_type.0 = typespec_expr.type;
+                }
+
+                if( transient_map )
+                {
+                    tp_t type = transient_map.get( arg.typespec.transient_class );
+                    if( type && typespec_expr.type != type )
+                    {
+                        return source.parse_error_fa( "Function argument '#<sc_t>': Type expected: '#<sc_t>'. Type passed: '#<sc_t>'.", o.nameof( arg.name ), o.nameof( type ), o.nameof( typespec_expr.type ) );
+                    }
+                }
             }
+
             o.adapt_expression( source, typespec_expr, arg.typespec, result_expr, result_out );
         }
         else
@@ -755,20 +790,32 @@ func (:)
             if( info.func ) // member function
             {
                 $* func = info.func;
-                $* signature = func.signature.clone().scope( scope_local );
+                $* signature = func.signature.clone().scope();
                 tp_t object_type = func.stamp ? func.stamp.tp_name : func.group.tp_name;
-                signature.relent( object_type );
+                signature.relent( o.host, object_type );
                 sc_t sc_func_name = o.nameof( func.global_name );
                 ASSERT( sc_func_name );
 
-                $* typespec_ret = signature.typespec_ret.clone().scope( scope_local );
+                $* typespec_ret = signature.typespec_ret.clone().scope();
                 tp_t transient_type = 0;
 
                 $* result_arg_obj = result.clone().scope();
                 result.clear();
-                $* result_args = :result_arr_s!;
+                $* result_args = :result_arr_s!.scope();
 
-                o.trans_function_args( source, object_type, signature, result_arg_obj, in_typespec, result_args, &transient_type );
+                xoico_transient_map_s* transient_map = o.get_transient_map( in_typespec.type );
+
+                o.trans_function_args
+                (
+                    source,
+                    object_type,
+                    signature,
+                    transient_map,
+                    result_arg_obj,
+                    in_typespec,
+                    result_args,
+                    &transient_type
+                );
 
                 if( transient_type != 0 )
                 {
@@ -779,7 +826,7 @@ func (:)
                 }
 
                 result.push_fa( "#<sc_t>", sc_func_name );
-                result.push_result_d( result_args );
+                result.push_result_d( result_args.fork() );
 
                 if( transient_type != 0 )
                 {
@@ -1228,10 +1275,17 @@ func (:)
     }
 
     typespec.type = tp_identifier;
-    while( source.parse_bl( "#?'*'" ) )
+
+//    if( source.parse_bl( "#?'.' " ) )
+//    {
+//        if( !source.parse_bl( "#?([0]>='0'||[0]<='1') " ) ) source.parse_error_fa( "Argument: Indirection literal expected." );
+//        sz_t indirection = 0;
+//        source.parse_fa( "#<sz_t*> ", indirection.1 );
+//        typespec.indirection = indirection;
+//    }
+//    else
     {
-        typespec.indirection++;
-        o.trans_whitespace( source, NULL );
+        while( source.parse_bl( "#?'*' " ) ) typespec.indirection++;
     }
 
     if( require_tractable_type )
@@ -1383,12 +1437,22 @@ func (:)
 
         $* signature = func.signature.clone().scope();
         tp_t object_type = func.stamp ? func.stamp.tp_name : func.group.tp_name;
-        signature.relent( object_type );
+        signature.relent( o.host, object_type );
 
         $* typespec_ret = signature.typespec_ret.clone().scope( scope_local );
         tp_t transient_type = 0;
 
-        o.trans_function_args( source, object_type, signature, NULL, NULL, result_func, &transient_type );
+        o.trans_function_args
+        (
+            source,
+            object_type,
+            signature,
+            NULL/*transient_map*/,
+            NULL,
+            NULL,
+            result_func,
+            &transient_type
+        );
 
         if( transient_type != 0 )
         {
@@ -2032,7 +2096,7 @@ func (:) (er_t trans_block_inside_verbatim_c( mutable, bcore_source* source, :re
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t setup( mutable, const xoico_body_s* body, const xoico_signature_s* signature )) = (try)
+func (:) (er_t setup( mutable, const xoico_host* host, const xoico_body_s* body, const xoico_signature_s* signature )) = (try)
 {
     tp_t tp_assoc_obj_type = body.stamp ? body.stamp.tp_name : body.group.tp_name;
 
@@ -2042,8 +2106,9 @@ func (:) (er_t setup( mutable, const xoico_body_s* body, const xoico_signature_s
     bl_t member_obj_const = ( signature.arg_o == TYPEOF_const );
 
     o.typespec_ret.copy( signature.typespec_ret );
-    o.typespec_ret.relent( body.code.group, tp_assoc_obj_type );
+    o.typespec_ret.relent( host, body.code.group, tp_assoc_obj_type );
 
+    o.host     = host.cast( $* );
     o.group    = body.code.group;
     o.stamp    = body.code.stamp;
     o.compiler = body.group.compiler;
@@ -2086,7 +2151,7 @@ func (:) (er_t setup( mutable, const xoico_body_s* body, const xoico_signature_s
         {
             $* unit = xoico_che_stack_var_unit_s!.scope();
             unit.typespec.copy( arg.typespec );
-            unit.typespec.relent( o.group, tp_assoc_obj_type );
+            unit.typespec.relent( host, o.group, tp_assoc_obj_type );
             unit.name = arg.name;
             unit.level = o.level;
             o.stack_var.push_unit( unit );
@@ -2140,9 +2205,9 @@ func (:) (void remove_indentation( st_s* string, sz_t indentation )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t translate_mutable( mutable, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink )) = (try)
+func (:) (er_t translate_mutable( mutable, const xoico_host* host, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink )) = (try)
 {
-    o.setup( body, signature );
+    o.setup( host, body, signature );
 
     bcore_source* source = body.code.source_point.clone_source().scope();
 
@@ -2229,7 +2294,7 @@ func (:) (er_t translate_mutable( mutable, const xoico_body_s* body, const xoico
 
 func (:) xoico_cengine.translate =
 {
-    er_t er = o.clone().scope().translate_mutable( body, signature, sink );
+    er_t er = o.clone().scope().translate_mutable( host, body, signature, sink );
     return er;
 };
 

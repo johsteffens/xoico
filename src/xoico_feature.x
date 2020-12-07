@@ -65,7 +65,7 @@ func (:) xoico.parse = (try)
     xoico_signature_s* signature = o.signature;
 
     signature.group = o.group;
-    signature.parse( source );
+    signature.parse( host, source );
 
     if( !signature.arg_o )
     {
@@ -77,7 +77,7 @@ func (:) xoico.parse = (try)
         if( o.strict ) return source.parse_error_fa( "Feature is 'strict'. Default function would have no effect." );
         o.default_body = xoico_body_s!;
         o.default_body.set_group( o.group );
-        o.default_body.parse( source );
+        o.default_body.parse( host, source );
         o.st_default_func_name.copy_fa( "#<sc_t>_default", compiler.nameof( o.signature.name ) );
     }
     else if( source.parse_bl( " #?w'extern' " ) )
@@ -92,31 +92,31 @@ func (:) xoico.parse = (try)
 
     o.function_pointer_name = o.signature.global_name;
 
-    o.setup_functions();
+    o.setup_functions( host );
     return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (xoico_func_s* create_func_from_sc( const, sc_t sc )) =
+func (:) (xoico_func_s* create_func_from_sc( const, const xoico_host* host, sc_t sc )) =
 {
     xoico_func_s* func = xoico_func_s!;
     func.group = o.group;
-    func.parse_sc( sc );
+    func.parse_sc( host, sc );
     func.source_point.copy( o.source_point.1 );
     return func;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (xoico_func_s* push_func_from_sc( mutable, sc_t sc )) =
+func (:) (xoico_func_s* push_func_from_sc( mutable, const xoico_host* host, sc_t sc )) =
 {
-    return o.funcs.push_d( o.create_func_from_sc( sc ) );
+    return o.funcs.push_d( o.create_func_from_sc( host, sc ) );
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:) (er_t setup_functions( mutable )) = (try)
+func (:) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
 {
     $* compiler = o.group.compiler;
     sc_t sc_name = compiler.nameof( o.signature.name );
@@ -125,7 +125,7 @@ func (:) (er_t setup_functions( mutable )) = (try)
     sc_t sc_spect_name = st_spect_name.sc;
 
     st_s* st_ret_typespec = st_s!.scope();
-    o.signature.typespec_ret.expand( o.group, sc_group_name, st_ret_typespec );
+    o.signature.typespec_ret.expand( host, o.group, sc_group_name, st_ret_typespec );
     bl_t has_ret = ( o.signature.typespec_ret.type != TYPEOF_void );
     sc_t sc_ret_typespec = st_ret_typespec.sc;
     bl_t flag_const = o->signature.arg_o == TYPEOF_const;
@@ -137,7 +137,7 @@ func (:) (er_t setup_functions( mutable )) = (try)
         st_s* st = st_s!.scope();
         st.push_fa( "(#<sc_t> a_#<sc_t>(", sc_ret_typespec, sc_name );
         st.push_fa( flag_const ? " const" : " mutable" );
-        o.signature.args.expand( false, sc_group_name, st );
+        o.signature.args.expand( host, false, sc_group_name, st );
         st.push_fa( " )) = (verbatim_C) { " );
         st.push_fa( "const #<sc_t>* p = #<sc_t>_get_aware( o ); ", sc_spect_name, sc_spect_name );
         st.push_fa( "assert( p->#<sc_t> ); ", sc_name );
@@ -146,7 +146,7 @@ func (:) (er_t setup_functions( mutable )) = (try)
         o->signature.args.expand_name( false, st );
         st.push_fa( " ); };" );
 
-        xoico_func_s* func = o.push_func_from_sc( st.sc );
+        xoico_func_s* func = o.push_func_from_sc( host, st.sc );
         func.declare_in_expand_forward = false;
 
         xoico_func_s* func_to_group = func.clone();
@@ -170,7 +170,7 @@ func (:) (er_t setup_functions( mutable )) = (try)
             st.push_fa( "{ return #<sc_t>_get_aware( o )->#<sc_t> != NULL; };", sc_spect_name, sc_name );
         }
 
-        xoico_func_s* func = o.push_func_from_sc( st.sc );
+        xoico_func_s* func = o.push_func_from_sc( host, st.sc );
         func.declare_in_expand_forward = false;
     }
 
@@ -179,7 +179,7 @@ func (:) (er_t setup_functions( mutable )) = (try)
         st_s* st = st_s!.scope();
         st.push_fa( "(#<sc_t> t_#<sc_t>( typed", sc_ret_typespec, sc_name );
         st.push_fa( flag_const ? " const" : " mutable" );
-        o->signature.args.expand( false, sc_group_name, st );
+        o->signature.args.expand( host, false, sc_group_name, st );
         st.push_fa( " )) = (verbatim_C) { " );
         st.push_fa( "const #<sc_t>* p = #<sc_t>_get_typed( t ); ", sc_spect_name, sc_spect_name );
         st.push_fa( "assert( p->#<sc_t> ); ", sc_name );
@@ -188,7 +188,7 @@ func (:) (er_t setup_functions( mutable )) = (try)
         o->signature.args.expand_name( false, st );
         st.push_fa( " ); };" );
 
-        xoico_func_s* func = o.push_func_from_sc( st.sc );
+        xoico_func_s* func = o.push_func_from_sc( host, st.sc );
         func.declare_in_expand_forward = false;
     }
 
@@ -205,7 +205,7 @@ func (:) (er_t setup_functions( mutable )) = (try)
             st.push_fa( "{ return #<sc_t>_get_typed( t )->#<sc_t> != NULL; };", sc_spect_name, sc_name );
         }
 
-        xoico_func_s* func = o.push_func_from_sc( st.sc );
+        xoico_func_s* func = o.push_func_from_sc( host, st.sc );
         func.declare_in_expand_forward = false;
     }
 
@@ -216,7 +216,7 @@ func (:) (er_t setup_functions( mutable )) = (try)
 
         if( flag_const ) st.push_fa( " const" );
         st.push_fa( " #<sc_t>* o", sc_group_name );
-        o->signature.args.expand( false, sc_group_name, st );
+        o->signature.args.expand( host, false, sc_group_name, st );
         st.push_fa( " )) = (verbatim_C) { " );
         st.push_fa( "assert( p->#<sc_t> ); ", sc_name );
         if( has_ret ) st.push_fa( "return " );
@@ -224,7 +224,7 @@ func (:) (er_t setup_functions( mutable )) = (try)
         o.signature.args.expand_name( false, st );
         st.push_fa( " ); };" );
 
-        xoico_func_s* func = o.push_func_from_sc( st.sc );
+        xoico_func_s* func = o.push_func_from_sc( host, st.sc );
         func.declare_in_expand_forward = false;
     }
 
@@ -241,7 +241,7 @@ func (:) (er_t setup_functions( mutable )) = (try)
             st.push_fa( "{ return p->#<sc_t> != NULL; };", sc_name );
         }
 
-        xoico_func_s* func = o.push_func_from_sc( st.sc );
+        xoico_func_s* func = o.push_func_from_sc( host, st.sc );
         func.declare_in_expand_forward = false;
     }
 
@@ -250,7 +250,7 @@ func (:) (er_t setup_functions( mutable )) = (try)
         st_s* st = st_s!.scope();
         st.push_fa( "( #<sc_t> r_#<sc_t>(", sc_ret_typespec, sc_name );
         st.push_fa( " const sr_s* o" );
-        o.signature.args.expand( false, sc_group_name, st );
+        o.signature.args.expand( host, false, sc_group_name, st );
         st.push_fa( " )) = (verbatim_C) { " );
         if( !flag_const ) st.push_fa( "ASSERT( !sr_s_is_const( o ) ); " );
         st.push_fa
@@ -267,7 +267,7 @@ func (:) (er_t setup_functions( mutable )) = (try)
         o->signature.args.expand_name( false, st );
         st.push_fa( " ); };" );
 
-        xoico_func_s* func = o.push_func_from_sc( st.sc );
+        xoico_func_s* func = o.push_func_from_sc( host, st.sc );
         func.declare_in_expand_forward = false;
     }
 
@@ -285,7 +285,7 @@ func (:) (er_t setup_functions( mutable )) = (try)
             st.push_fa( "{ return ( (#<sc_t>*)ch_spect_p( o->p, TYPEOF_#<sc_t> ) )->#<sc_t> != NULL; };", sc_spect_name, sc_spect_name, sc_name );
         }
 
-        xoico_func_s* func = o.push_func_from_sc( st.sc );
+        xoico_func_s* func = o.push_func_from_sc( host, st.sc );
         func.declare_in_expand_forward = false;
     }
 
@@ -295,10 +295,10 @@ func (:) (er_t setup_functions( mutable )) = (try)
         st.push_fa( "(#<sc_t> #<sc_t>(", sc_ret_typespec, o.st_default_func_name.sc );
         if( flag_const ) st.push_fa( " const" );
         st.push_fa( " #<sc_t>* o", sc_group_name );
-        o.signature.args.expand( false, sc_group_name, st );
+        o.signature.args.expand( host, false, sc_group_name, st );
         st.push_fa( " ));" );
 
-        xoico_func_s* func = o.push_func_from_sc( st.sc );
+        xoico_func_s* func = o.push_func_from_sc( host, st.sc );
         func.declare_in_expand_forward = false;
         if( o.default_body ) func.body =< o.default_body.fork();
     }
@@ -310,7 +310,7 @@ func (:) (er_t setup_functions( mutable )) = (try)
 
 func (:) xoico.finalize = (try)
 {
-    foreach( $* func in o.funcs ) func.finalize();
+    foreach( $* func in o.funcs ) func.finalize( host );
     return 0;
 };
 
@@ -318,7 +318,7 @@ func (:) xoico.finalize = (try)
 
 func (:) xoico.expand_forward = (try)
 {
-    foreach( $* func in o.funcs ) func.expand_forward( indent, sink );
+    foreach( $* func in o.funcs ) func.expand_forward( host, indent, sink );
     return 0;
 };
 
@@ -329,11 +329,11 @@ func (:) xoico.expand_indef_typedef = (try)
     if( !o.expandable ) return 0;
     xoico_compiler_s* compiler = o.group.compiler;
     sink.push_fa( " \\\n#rn{ }  typedef ", indent );
-    o.signature.typespec_ret.expand( o.group, o.group.st_name.sc, sink );
+    o.signature.typespec_ret.expand( host, o.group, o.group.st_name.sc, sink );
     sink.push_fa( " (*#<sc_t>)(", compiler.nameof( o.function_pointer_name ) );
     if( o.signature.arg_o == TYPEOF_const ) sink.push_fa( " const" );
     sink.push_fa( " #<sc_t>* o", o.group.st_name.sc );
-    o.signature.args.expand( false, o.group.st_name.sc, sink );
+    o.signature.args.expand( host, false, o.group.st_name.sc, sink );
     sink.push_fa( " );" );
     return 0;
 };
@@ -372,7 +372,7 @@ func (:) xoico.expand_spect_definition = (try)
 func (:) xoico.expand_indef_declaration = (try)
 {
     if( !o.expandable ) return 0;
-    foreach( $* func in o->funcs ) func.expand_declaration( indent + 2, sink );
+    foreach( $* func in o->funcs ) func.expand_declaration( host, indent + 2, sink );
     return 0;
 };
 
@@ -381,7 +381,7 @@ func (:) xoico.expand_indef_declaration = (try)
 func (:) xoico.expand_definition = (try)
 {
     if( !o.expandable ) return 0;
-    foreach( $* func in o.funcs ) func.expand_definition( indent, sink );
+    foreach( $* func in o.funcs ) func.expand_definition( host, indent, sink );
     return 0;
 };
 
