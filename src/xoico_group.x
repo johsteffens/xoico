@@ -75,7 +75,7 @@ func (:s) :.parse_name_recursive = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico_host.parse_name = (try)
+func (:s) xoico_host.parse_name_st = (try)
 {
     if( source.parse_bl( " #?':'" ) )
     {
@@ -87,6 +87,28 @@ func (:s) xoico_host.parse_name = (try)
     }
 
     if( name.size > 0 ) o.compiler.entypeof( name.sc );
+
+    return 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:s) xoico_host.parse_name_tp = (try)
+{
+    $* s = st_s!.scope();
+
+    if( source.parse_bl( " #?':'" ) )
+    {
+        o.parse_name_recursive( source, s );
+    }
+    else
+    {
+        source.parse_em_fa( " #name", s );
+    }
+
+    if( s.size == 0 ) source.parse_error_fa( "Identifier expected." );
+
+    if( name.1 ) name.0 = o.compiler.entypeof( s.sc );
 
     return 0;
 };
@@ -276,7 +298,7 @@ func (:s) xoico.parse = (try)
                 sz_t index = source.get_index();
                 source.parse_em_fa( "(" );
                 $* stamp_name = st_s!.scope( scope_local );
-                o.parse_name( source, stamp_name );
+                o.parse_name_st( source, stamp_name );
                 if( source.parse_bl( " #?')'" ) )
                 {
                     if( !stamp_name.ends_in_sc( "_s" ) ) return source.parse_error_fa( "Stamp name '#<sc_t>' must end in '_s'.", stamp_name.sc );
@@ -337,7 +359,7 @@ func (:s) xoico.parse = (try)
             else
             {
                 $* templ_name = st_s!.scope( scope_local );
-                o.parse_name( source, templ_name );
+                o.parse_name_st( source, templ_name );
                 if( !templ_name.ends_in_sc( "_s" ) ) return source.parse_error_fa( "Stamp name '#<sc_t>' must end in '_s'.", templ_name.sc );
                 const xoico* item = compiler.get_const_item( typeof( templ_name.sc ) );
                 if( !item ) return source.parse_error_fa( "Template #<sc_t> not found.", templ_name.sc );
@@ -356,17 +378,15 @@ func (:s) xoico.parse = (try)
             group.extending_stamp = o.extending_stamp;
             group.expandable  = o.expandable;
 
-            o.parse_name( source, group.st_name );
+            o.parse_name_st( source, group.st_name );
             source.parse_em_fa( " =" );
 
             // flags
             if( source.parse_bl( " #?w'retrievable' " ) ) group.retrievable = true;
 
-            st_s* st_trait_name = st_s!.scope();
-
-            o.parse_name( source, st_trait_name );
-            if( st_trait_name.size == 0 ) st_trait_name.copy( o->st_name );
-            group.trait_name = compiler.entypeof( st_trait_name.sc );
+            $* trait_name_st = st_s!.scope();
+            o.parse_name_st( source, trait_name_st );
+            if( trait_name_st.size > 0 ) group.trait_name = compiler.entypeof( trait_name_st.sc );
 
             group.parse( o, source );
             source.parse_em_fa( " ; " );

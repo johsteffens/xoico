@@ -33,12 +33,8 @@ stamp :s = aware :
 
     func xoico.parse = (try)
     {
-        $* compiler = host.compiler();
         o.source_point.set( source );
-        $* st_name = st_s!.scope();
-        host.parse_name( source, st_name );
-        if( st_name.size == 0 ) return source.parse_error_fa( "Name missing." );
-        o.name = compiler.entypeof( st_name.sc );
+        host.parse_name_tp( source, o.name.1 );
         source.parse_em_fa( " ; " );
         return 0;
     };

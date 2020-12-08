@@ -49,11 +49,9 @@ func (:s) :.parse = (try)
         source.parse_em_fa( " ) " );
     }
 
-    st_s* s = st_s!.scope();
     if( source.parse_bl( "#=?':'" ) )
     {
-        host.parse_name( source, s );
-        o.type = compiler.entypeof( s.sc );
+        host.parse_name_tp( source, o.type.1 );
         source.parse_fa( " " );
     }
     else if( source.parse_bl( "#?'@' " ) )
@@ -66,6 +64,7 @@ func (:s) :.parse = (try)
     }
     else
     {
+        st_s* s = st_s!.scope();
         source.parse_em_fa( "#name ", s );
         if( s.size == 0 ) source.parse_error_fa( "Argument: Type expected." );
         o->type = xoico_compiler_s_entypeof( compiler, s->sc );

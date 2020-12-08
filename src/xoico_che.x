@@ -52,9 +52,7 @@ func (:s) (tp_t get_identifier( mutable, bcore_source* source, bl_t take_from_so
 
             case ':':
             {
-                st_s* st_name = st_s!.scope();
-                o.host.parse_name( source, st_name );
-                tp_identifier = o.entypeof( st_name.sc );
+                o.host.parse_name_tp( source, tp_identifier.1 );
             }
             break;
 

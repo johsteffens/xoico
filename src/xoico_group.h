@@ -99,7 +99,6 @@ stamp :s = aware :
 
     func xoico.parse;
     func xoico.get_hash;
-    func xoico.get_global_name_sc = { return o.st_name.sc; };
     func xoico.get_global_name_tp = { return o.tp_name; };
     func xoico.finalize;
     func xoico.expand_setup =
@@ -134,7 +133,9 @@ stamp :s = aware :
     func :.explicit_embeddings_push = { foreach( st_s* st in o.explicit_embeddings ) arr.push_st( st ); };
 
 
-    func xoico_host.parse_name;
+    func xoico_host.parse_name_st;
+    func xoico_host.parse_name_tp;
+
     func xoico_host.compiler = { return o.compiler; };
     func xoico_host.cengine =
     {

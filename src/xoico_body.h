@@ -49,8 +49,8 @@ stamp :code_s = aware :
 
 stamp :s = aware :
 {
-    st_s name;
-    st_s global_name;
+    tp_t name;
+    tp_t global_name;
 
     :code_s => code;
 
@@ -59,7 +59,7 @@ stamp :s = aware :
     bcore_source_point_s source_point;
 
     func xoico.get_hash;
-    func xoico.get_global_name_sc = { return o.global_name.sc; };
+    func xoico.get_global_name_tp = { return o.global_name; };
     func     :.parse_expression;
     func     xoico.parse;
     func     :.finalize = { return 0; };

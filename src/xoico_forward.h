@@ -27,24 +27,14 @@ XOILA_DEFINE_GROUP( xoico_forward, xoico )
 
 stamp :s = aware :
 {
-    st_s name; // deemed global
+    tp_t name; // deemed global
     hidden aware xoico_group_s* group;
     bcore_source_point_s source_point;
 
     func xoico.parse = (try)
     {
         o.source_point.set( source );
-        if( source.parse_bl( " #?':'" ) )
-        {
-            st_s* name = st_s!.scope();
-            source.parse_em_fa( " #name", name );
-            o.name.push_fa( "#<sc_t>#<sc_t>#<sc_t>", o.group.st_name.sc, name.sc[ 0 ] ? "_" : "", name.sc );
-        }
-        else
-        {
-            source.parse_em_fa( " #name", o.name.1 );
-        }
-        if( o.name.size == 0 ) return source.parse_error_fa( "Feature: Name missing." );
+        host.parse_name_tp( source, o.name.1 );
         source.parse_em_fa( " ; " );
         return 0;
     };
@@ -52,21 +42,21 @@ stamp :s = aware :
     func xoico.get_hash =
     {
         tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
-        hash = bcore_tp_fold_sc( hash, o.name.sc );
+        hash = bcore_tp_fold_tp( hash, o.name );
         return hash;
     };
 
-    func xoico.get_global_name_sc = { return o->name.sc; };
+    func xoico.get_global_name_tp = { return o->name; };
 
     func xoico.expand_declaration = (try)
     {
-        sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o.name.sc, btypeof( o.name.sc ) );
+        sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, host.nameof( o.name ), o.name );
         return 0;
     };
 
     func xoico.expand_forward = (try)
     {
-        sink.push_fa( " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o.name.sc );
+        sink.push_fa( " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, host.nameof( o.name ) );
         return 0;
     };
 

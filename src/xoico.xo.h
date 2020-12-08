@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-12-07T21:32:50Z
+ *  Last File Update: 2020-12-08T13:40:53Z
  *
  *  Copyright and License of this File:
  *
@@ -8,6 +8,7 @@
  *  Source code defining this file is distributed across following files:
  *
  *  xoico.h
+ *  xoico_host.h
  *  xoico_name.h
  *  xoico_forward.h
  *  xoico_typespec.h
@@ -50,7 +51,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xo 0x41B788C3A4B706C5ull
+#define HKEYOF_xoico_xo 0x067A1AD69373F286ull
 
 #define TYPEOF_xoico_xo 0x798A9BCF8377232Full
 
@@ -101,13 +102,11 @@
   BCORE_FORWARD_OBJECT( xoico_compiler_s ); \
   BCORE_FORWARD_OBJECT( xoico_cengine ); \
   BCORE_FORWARD_OBJECT( xoico_host ); \
-  BCORE_FORWARD_OBJECT( xoico_host ); \
   er_t xoico_parse_f( bcore_source* source, sc_t format ); \
   er_t xoico_embed_file_open( bcore_source* parent, sc_t file_name, bcore_source** include_source ); \
   er_t xoico_parse_sc( xoico* o, const xoico_host* host, sc_t sc ); \
   er_t xoico_parse_fa( xoico* o, const xoico_host* host, sc_t format, ... ); \
   typedef tp_t (*xoico_get_hash)( const xoico* o ); \
-  typedef sc_t (*xoico_get_global_name_sc)( const xoico* o ); \
   typedef tp_t (*xoico_get_global_name_tp)( const xoico* o ); \
   typedef er_t (*xoico_parse)( xoico* o, const xoico_host* host, bcore_source* source ); \
   typedef er_t (*xoico_finalize)( xoico* o, const xoico_host* host ); \
@@ -124,7 +123,6 @@
   { \
       bcore_spect_header_s header; \
       xoico_get_hash get_hash; \
-      xoico_get_global_name_sc get_global_name_sc; \
       xoico_get_global_name_tp get_global_name_tp; \
       xoico_parse parse; \
       xoico_finalize finalize; \
@@ -143,15 +141,10 @@
   static inline bl_t xoico_a_defines_get_hash( const xoico* o ){ return  xoico_spect_s_get_aware( o )->get_hash != NULL;} \
   static inline tp_t xoico_p_get_hash( const xoico_spect_s* p, const xoico* o ){ assert( p->get_hash ); return p->get_hash( o );} \
   static inline bl_t xoico_p_defines_get_hash( const xoico_spect_s* p ){ return  p->get_hash != NULL;} \
-  static inline sc_t xoico_a_get_global_name_sc( const xoico* o ){ const xoico_spect_s* p = xoico_spect_s_get_aware( o ); assert( p->get_global_name_sc ); return p->get_global_name_sc( o );} \
-  static inline bl_t xoico_a_defines_get_global_name_sc( const xoico* o ){ return  xoico_spect_s_get_aware( o )->get_global_name_sc != NULL;} \
-  static inline sc_t xoico_p_get_global_name_sc( const xoico_spect_s* p, const xoico* o ){ assert( p->get_global_name_sc ); return p->get_global_name_sc( o );} \
-  static inline bl_t xoico_p_defines_get_global_name_sc( const xoico_spect_s* p ){ return  p->get_global_name_sc != NULL;} \
   static inline tp_t xoico_a_get_global_name_tp( const xoico* o ){ const xoico_spect_s* p = xoico_spect_s_get_aware( o ); assert( p->get_global_name_tp ); return p->get_global_name_tp( o );} \
-  static inline bl_t xoico_a_defines_get_global_name_tp( const xoico* o ){ return  true;} \
+  static inline bl_t xoico_a_defines_get_global_name_tp( const xoico* o ){ return  xoico_spect_s_get_aware( o )->get_global_name_tp != NULL;} \
   static inline tp_t xoico_p_get_global_name_tp( const xoico_spect_s* p, const xoico* o ){ assert( p->get_global_name_tp ); return p->get_global_name_tp( o );} \
-  static inline bl_t xoico_p_defines_get_global_name_tp( const xoico_spect_s* p ){ return  true;} \
-  static inline tp_t xoico_get_global_name_tp_default( const xoico* o ){ return  btypeof( xoico_a_get_global_name_sc( o ) );} \
+  static inline bl_t xoico_p_defines_get_global_name_tp( const xoico_spect_s* p ){ return  p->get_global_name_tp != NULL;} \
   static inline er_t xoico_a_parse( xoico* o, const xoico_host* host, bcore_source* source ){ const xoico_spect_s* p = xoico_spect_s_get_aware( o ); assert( p->parse ); return p->parse( o, host, source );} \
   static inline bl_t xoico_a_defines_parse( const xoico* o ){ return  xoico_spect_s_get_aware( o )->parse != NULL;} \
   static inline er_t xoico_p_parse( const xoico_spect_s* p, xoico* o, const xoico_host* host, bcore_source* source ){ assert( p->parse ); return p->parse( o, host, source );} \
@@ -205,8 +198,10 @@
   static inline bl_t xoico_a_defines_expand_init1( const xoico* o ){ return  true;} \
   static inline er_t xoico_p_expand_init1( const xoico_spect_s* p, const xoico* o, const xoico_host* host, sz_t indent, bcore_sink* sink ){ assert( p->expand_init1 ); return p->expand_init1( o, host, indent, sink );} \
   static inline bl_t xoico_p_defines_expand_init1( const xoico_spect_s* p ){ return  true;} \
-  static inline er_t xoico_expand_init1_default( const xoico* o, const xoico_host* host, sz_t indent, bcore_sink* sink ){ return  0;} \
-  BETH_EXPAND_GROUP_xoico_host
+  static inline er_t xoico_expand_init1_default( const xoico* o, const xoico_host* host, sz_t indent, bcore_sink* sink ){ return  0;}
+
+/**********************************************************************************************************************/
+// source: xoico_host.h
 
 //----------------------------------------------------------------------------------------------------------------------
 // group: xoico_host
@@ -215,24 +210,33 @@
 #define TYPEOF_xoico_host_spect_s 0xE197D07631FC2838ull
 #define BETH_EXPAND_GROUP_xoico_host \
   BCORE_FORWARD_OBJECT( xoico_host ); \
-  typedef er_t (*xoico_host_parse_name)( const xoico_host* o, bcore_source* source, st_s* name ); \
+  typedef er_t (*xoico_host_parse_name_st)( const xoico_host* o, bcore_source* source, st_s* name ); \
+  typedef er_t (*xoico_host_parse_name_tp)( const xoico_host* o, bcore_source* source, tp_t* name ); \
   typedef xoico_compiler_s* (*xoico_host_compiler)( const xoico_host* o ); \
   typedef xoico_cengine* (*xoico_host_cengine)( const xoico_host* o ); \
   typedef tp_t (*xoico_host_obj_type)( const xoico_host* o ); \
   typedef st_s* (*xoico_host_create_spect_name)( const xoico_host* o ); \
+  typedef sc_t (*xoico_host_nameof)( const xoico_host* o, tp_t type ); \
+  typedef tp_t (*xoico_host_entypeof)( const xoico_host* o, sc_t name ); \
   XOILA_DECLARE_SPECT( xoico_host ) \
   { \
       bcore_spect_header_s header; \
-      xoico_host_parse_name parse_name; \
+      xoico_host_parse_name_st parse_name_st; \
+      xoico_host_parse_name_tp parse_name_tp; \
       xoico_host_compiler compiler; \
       xoico_host_cengine cengine; \
       xoico_host_obj_type obj_type; \
       xoico_host_create_spect_name create_spect_name; \
+      xoico_host_nameof nameof; \
+      xoico_host_entypeof entypeof; \
   }; \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_host ) \
-  static inline er_t xoico_host_a_parse_name( const xoico_host* o, bcore_source* source, st_s* name ){ const xoico_host_spect_s* p = xoico_host_spect_s_get_aware( o ); assert( p->parse_name ); return p->parse_name( o, source, name );} \
-  static inline bl_t xoico_host_a_defines_parse_name( const xoico_host* o ){ return  true;} \
-  static inline er_t xoico_host_parse_name_default( const xoico_host* o, bcore_source* source, st_s* name ){ ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return  0;} \
+  static inline er_t xoico_host_a_parse_name_st( const xoico_host* o, bcore_source* source, st_s* name ){ const xoico_host_spect_s* p = xoico_host_spect_s_get_aware( o ); assert( p->parse_name_st ); return p->parse_name_st( o, source, name );} \
+  static inline bl_t xoico_host_a_defines_parse_name_st( const xoico_host* o ){ return  true;} \
+  static inline er_t xoico_host_parse_name_st_default( const xoico_host* o, bcore_source* source, st_s* name ){ ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return  0;} \
+  static inline er_t xoico_host_a_parse_name_tp( const xoico_host* o, bcore_source* source, tp_t* name ){ const xoico_host_spect_s* p = xoico_host_spect_s_get_aware( o ); assert( p->parse_name_tp ); return p->parse_name_tp( o, source, name );} \
+  static inline bl_t xoico_host_a_defines_parse_name_tp( const xoico_host* o ){ return  true;} \
+  er_t xoico_host_parse_name_tp_default( const xoico_host* o, bcore_source* source, tp_t* name ); \
   static inline xoico_compiler_s* xoico_host_a_compiler( const xoico_host* o ){ const xoico_host_spect_s* p = xoico_host_spect_s_get_aware( o ); assert( p->compiler ); return p->compiler( o );} \
   static inline bl_t xoico_host_a_defines_compiler( const xoico_host* o ){ return  true;} \
   static inline xoico_compiler_s* xoico_host_compiler_default( const xoico_host* o ){ ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return  NULL;} \
@@ -244,7 +248,13 @@
   static inline tp_t xoico_host_obj_type_default( const xoico_host* o ){ ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return  0;} \
   static inline st_s* xoico_host_a_create_spect_name( const xoico_host* o ){ const xoico_host_spect_s* p = xoico_host_spect_s_get_aware( o ); assert( p->create_spect_name ); return p->create_spect_name( o );} \
   static inline bl_t xoico_host_a_defines_create_spect_name( const xoico_host* o ){ return  true;} \
-  static inline st_s* xoico_host_create_spect_name_default( const xoico_host* o ){ ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return  NULL;}
+  static inline st_s* xoico_host_create_spect_name_default( const xoico_host* o ){ ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return  NULL;} \
+  static inline sc_t xoico_host_a_nameof( const xoico_host* o, tp_t type ){ const xoico_host_spect_s* p = xoico_host_spect_s_get_aware( o ); assert( p->nameof ); return p->nameof( o, type );} \
+  static inline bl_t xoico_host_a_defines_nameof( const xoico_host* o ){ return  true;} \
+  sc_t xoico_host_nameof_default( const xoico_host* o, tp_t type ); \
+  static inline tp_t xoico_host_a_entypeof( const xoico_host* o, sc_t name ){ const xoico_host_spect_s* p = xoico_host_spect_s_get_aware( o ); assert( p->entypeof ); return p->entypeof( o, name );} \
+  static inline bl_t xoico_host_a_defines_entypeof( const xoico_host* o ){ return  true;} \
+  tp_t xoico_host_entypeof_default( const xoico_host* o, sc_t name );
 
 /**********************************************************************************************************************/
 // source: xoico_name.h
@@ -291,17 +301,17 @@
   BCORE_DECLARE_OBJECT( xoico_forward_s ) \
   { \
       aware_t _; \
-      st_s name; \
+      tp_t name; \
       xoico_group_s* group; \
       bcore_source_point_s source_point; \
   }; \
   er_t xoico_forward_s_parse( xoico_forward_s* o, const xoico_host* host, bcore_source* source ); \
   tp_t xoico_forward_s_get_hash( const xoico_forward_s* o ); \
-  static inline sc_t xoico_forward_s_get_global_name_sc( const xoico_forward_s* o ); \
+  static inline tp_t xoico_forward_s_get_global_name_tp( const xoico_forward_s* o ); \
   er_t xoico_forward_s_expand_declaration( const xoico_forward_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink ); \
   er_t xoico_forward_s_expand_forward( const xoico_forward_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink ); \
   static inline er_t xoico_forward_s_expand_init1( const xoico_forward_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink ); \
-  static inline sc_t xoico_forward_s_get_global_name_sc( const xoico_forward_s* o ){ return  o->name.sc;} \
+  static inline tp_t xoico_forward_s_get_global_name_tp( const xoico_forward_s* o ){ return  o->name;} \
   static inline er_t xoico_forward_s_expand_init1( const xoico_forward_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink ){ return  0;}
 #define BETH_EXPAND_GROUP_xoico_forward \
   BCORE_FORWARD_OBJECT( xoico_forward ); \
@@ -521,19 +531,19 @@
   BCORE_DECLARE_OBJECT( xoico_body_s ) \
   { \
       aware_t _; \
-      st_s name; \
-      st_s global_name; \
+      tp_t name; \
+      tp_t global_name; \
       xoico_body_code_s* code; \
       bl_t go_inline; \
       bcore_source_point_s source_point; \
   }; \
-  static inline sc_t xoico_body_s_get_global_name_sc( const xoico_body_s* o ); \
+  static inline tp_t xoico_body_s_get_global_name_tp( const xoico_body_s* o ); \
   static inline er_t xoico_body_s_finalize( xoico_body_s* o, const xoico_host* host ); \
   tp_t xoico_body_s_get_hash( const xoico_body_s* o ); \
   er_t xoico_body_s_parse_expression( xoico_body_s* o, const xoico_host* host, bcore_source* source ); \
   er_t xoico_body_s_parse( xoico_body_s* o, const xoico_host* host, bcore_source* source ); \
   er_t xoico_body_s_expand( const xoico_body_s* o, const xoico_host* host, const xoico_signature_s* signature, sz_t indent, bcore_sink* sink ); \
-  static inline sc_t xoico_body_s_get_global_name_sc( const xoico_body_s* o ){ return  o->global_name.sc;} \
+  static inline tp_t xoico_body_s_get_global_name_tp( const xoico_body_s* o ){ return  o->global_name;} \
   static inline er_t xoico_body_s_finalize( xoico_body_s* o, const xoico_host* host ){ return  0;}
 #define BETH_EXPAND_GROUP_xoico_body \
   BCORE_FORWARD_OBJECT( xoico_body ); \
@@ -718,7 +728,6 @@
       bcore_hmap_tpvd_s hmap_feature; \
       bcore_hmap_tpvd_s hmap_func; \
   }; \
-  static inline sc_t xoico_group_s_get_global_name_sc( const xoico_group_s* o ); \
   static inline tp_t xoico_group_s_get_global_name_tp( const xoico_group_s* o ); \
   er_t xoico_group_s_expand_setup( xoico_group_s* o, const xoico_host* host ); \
   er_t xoico_group_s_push_item_d( xoico_group_s* o, xoico* item ); \
@@ -731,7 +740,8 @@
   tp_t xoico_group_s_get_hash( const xoico_group_s* o ); \
   st_s* xoico_group_s_create_spect_name( const xoico_group_s* o ); \
   er_t xoico_group_s_parse_name_recursive( const xoico_group_s* o, bcore_source* source, st_s* name ); \
-  er_t xoico_group_s_parse_name( const xoico_group_s* o, bcore_source* source, st_s* name ); \
+  er_t xoico_group_s_parse_name_st( const xoico_group_s* o, bcore_source* source, st_s* name ); \
+  er_t xoico_group_s_parse_name_tp( const xoico_group_s* o, bcore_source* source, tp_t* name ); \
   er_t xoico_group_s_push_default_feature_from_sc( xoico_group_s* o, sc_t sc ); \
   er_t xoico_group_s_parse_func( xoico_group_s* o, bcore_source* source ); \
   er_t xoico_group_s_push_func_d( xoico_group_s* o, xoico_func_s* func ); \
@@ -743,7 +753,6 @@
   er_t xoico_group_s_expand_spect_definition( const xoico_group_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_group_s_expand_definition( const xoico_group_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_group_s_expand_init1( const xoico_group_s* o, sz_t indent, bcore_sink* sink ); \
-  static inline sc_t xoico_group_s_get_global_name_sc( const xoico_group_s* o ){ return  o->st_name.sc;} \
   static inline tp_t xoico_group_s_get_global_name_tp( const xoico_group_s* o ){ return  o->tp_name;} \
   static inline void xoico_group_s_explicit_embeddings_push( const xoico_group_s* o, bcore_arr_st_s* arr ){ {const bcore_arr_st_s* __a=&(o->explicit_embeddings );if(__a)for(sz_t __i=0; __i<__a->size; __i++){st_s* st=__a->data[__i]; bcore_arr_st_s_push_st(arr,st );}}} \
   static inline xoico_compiler_s* xoico_group_s_compiler( const xoico_group_s* o ){ return  o->compiler;} \
@@ -786,14 +795,13 @@
       bcore_source_point_s source_point; \
   }; \
   tp_t xoico_stamp_s_get_hash( const xoico_stamp_s* o ); \
-  static inline sc_t xoico_stamp_s_get_global_name_sc( const xoico_stamp_s* o ); \
   static inline tp_t xoico_stamp_s_get_global_name_tp( const xoico_stamp_s* o ); \
   static inline er_t xoico_stamp_s_expand_setup( xoico_stamp_s* o, const xoico_host* host ); \
   er_t xoico_stamp_s_expand_forward( const xoico_stamp_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink ); \
   er_t xoico_stamp_s_expand_indef_declaration( const xoico_stamp_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink ); \
   er_t xoico_stamp_s_make_funcs_overloadable( xoico_stamp_s* o ); \
   const xoico_func_s* xoico_stamp_s_get_trait_line_func_from_name( const xoico_stamp_s* o, tp_t name ); \
-  static inline er_t xoico_stamp_s_parse_name( const xoico_stamp_s* o, bcore_source* source, st_s* name ); \
+  static inline er_t xoico_stamp_s_parse_name_st( const xoico_stamp_s* o, bcore_source* source, st_s* name ); \
   static inline xoico_compiler_s* xoico_stamp_s_compiler( const xoico_stamp_s* o ); \
   static inline xoico_cengine* xoico_stamp_s_cengine( const xoico_stamp_s* o ); \
   static inline tp_t xoico_stamp_s_obj_type( const xoico_stamp_s* o ); \
@@ -807,10 +815,9 @@
   er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink ); \
   er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink ); \
   er_t xoico_stamp_s_expand_init1( const xoico_stamp_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink ); \
-  static inline sc_t xoico_stamp_s_get_global_name_sc( const xoico_stamp_s* o ){ return  o->st_name.sc;} \
   static inline tp_t xoico_stamp_s_get_global_name_tp( const xoico_stamp_s* o ){ return  o->tp_name;} \
   static inline er_t xoico_stamp_s_expand_setup( xoico_stamp_s* o, const xoico_host* host ){ return  0;} \
-  static inline er_t xoico_stamp_s_parse_name( const xoico_stamp_s* o, bcore_source* source, st_s* name ){ return  xoico_group_s_parse_name(o->group,source, name );} \
+  static inline er_t xoico_stamp_s_parse_name_st( const xoico_stamp_s* o, bcore_source* source, st_s* name ){ return  xoico_group_s_parse_name_st(o->group,source, name );} \
   static inline xoico_compiler_s* xoico_stamp_s_compiler( const xoico_stamp_s* o ){ return  o->group->compiler;} \
   static inline xoico_cengine* xoico_stamp_s_cengine( const xoico_stamp_s* o ){ return  xoico_group_s_cengine(o->group);} \
   static inline tp_t xoico_stamp_s_obj_type( const xoico_stamp_s* o ){ return  o->tp_name;}
@@ -1635,4 +1642,4 @@
 vd_t xoico_xo_signal_handler( const bcore_signal_s* o );
 
 #endif // __xoico_xo_H
-// XOILA_OUT_SIGNATURE 0x4B5743E846FC4B2Dull
+// XOILA_OUT_SIGNATURE 0x931B9211D5BE3735ull

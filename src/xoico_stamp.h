@@ -62,7 +62,6 @@ stamp :s = aware :
         return hash;
     };
 
-    func xoico.get_global_name_sc = { return o.st_name.sc; };
     func xoico.get_global_name_tp = { return o.tp_name; };
     func xoico.finalize;
 
@@ -104,7 +103,7 @@ stamp :s = aware :
 
     func :.push_default_funcs;
 
-    func xoico_host.parse_name = { return o.group.parse_name( source, name ); };
+    func xoico_host.parse_name_st = { return o.group.parse_name_st( source, name ); };
     func xoico_host.compiler = { return o.group.compiler; };
     func xoico_host.cengine = { return o.group.cengine(); };
     func xoico_host.obj_type = { return o.tp_name; };

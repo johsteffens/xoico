@@ -155,7 +155,7 @@ func (:code_s) xoico.get_hash =
 func (:s) xoico.get_hash =
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
-    hash = bcore_tp_fold_sc( hash, o.name.sc );
+    hash = bcore_tp_fold_tp( hash, o.name );
     if( o.code ) hash = bcore_tp_fold_tp( hash, o.code.get_hash() );
     hash = bcore_tp_fold_bl( hash, o.go_inline );
     return hash;
@@ -174,12 +174,8 @@ func (:s) :.parse_expression = (try)
     else
     {
         $* compiler = host.compiler();
-        $* st_name = st_s!.scope();
-        host.parse_name( source, st_name );
-
-        if( st_name.size == 0 ) return source.parse_error_fa( "Body name expected." );
-
-        tp_t tp_name = compiler.entypeof( st_name.sc );
+        tp_t tp_name = 0;
+        host.parse_name_tp( source, tp_name );
 
         // if name_buf refers to another body
         if( compiler.is_body( tp_name ) )
@@ -190,7 +186,7 @@ func (:s) :.parse_expression = (try)
         }
         else
         {
-            return source.parse_error_fa( "Cannot resolve body name '#<sc_t>'\n", st_name.sc );
+            return source.parse_error_fa( "Cannot resolve body name '#<sc_t>'\n", host.nameof( tp_name ) );
         }
     }
     return 0;
@@ -208,13 +204,14 @@ func (:s) xoico.parse = (try)
     {
         source.parse_em_fa( " #name", string );
         if( string.size == 0 ) return source.parse_error_fa( "Body name expected." );
-        o.name.push_fa( "#<sc_t>", string.sc );
+        o.name = host.entypeof( string.sc );
     }
 
     source.parse_em_fa( " =" );
 
     o.parse_expression( host, source );
-    o.global_name.copy_fa( "#<sc_t>_#<sc_t>", compiler.nameof( host.obj_type() ), o.name.sc );
+
+    o.global_name = host.entypeof( st_s_create_fa( "#<sc_t>_#<sc_t>", compiler.nameof( host.obj_type() ), compiler.nameof( o.name ) ).scope().sc );
     return 0;
 };
 

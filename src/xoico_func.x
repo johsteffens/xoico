@@ -82,9 +82,7 @@ func (:s) xoico.parse = (try)
         }
         else
         {
-            $* st = st_s!.scope();
-            host.parse_name( source, st );
-            tp_signature_base_name = compiler.entypeof( st.sc );
+            host.parse_name_tp( source, tp_signature_base_name.1 );
         }
 
         source.parse_em_fa( " ." );

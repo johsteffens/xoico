@@ -305,6 +305,15 @@ TODO:
 - (done) disallow 'goto'
 - (done) allow block-keywords like try, verbatim_C to be used declarative for a body
 
+- (done) introduce typed signatures
+- (done) allow member functions in groups
+- (done) make functions in a trait-line transparent:
+    - function can be called as stamp or group member without explicitly changing perspective
+    - a stamp or group can overload the function.
+- (done) stamp definition and reference: require always explicit '*_s' format for the stamp name
+- (done) add 'unaware' type modifier. Indicates that a typespec can be used to reference unaware objects (e.g. primitive objects).
+       The implementation of such a function must handle unaware objects correctly.
+
 - fully handle default functions for arrays  (add them as 'func' and let cengine generate the code)
 - introduce simple way to call the default implementation of a feature
 - introduce simple way to test if a feature is implemented
@@ -318,17 +327,10 @@ TODO:
 - typespec: add transient_class
    - used in function arguments indicating that the function's return type can be safely casted into the input type of the transient-argument.
    - used as a generic typelock (the stamp associates a type with the transient_class )
-- introduce typed signatures
-- (done) allow member functions in groups
-- (done) make functions in a trait-line transparent:
-    - function can be called as stamp or group member without explicitly changing perspective
-    - a stamp or group can overload the function.
 - move standard array functions to explicit implementations in the corresponding group
 - bug: stamp default function 'create' is not registered
-- add 'unaware' type modifier. Indicates that a typespec might be used to reference unaware objects (e.g. primitive objects).
-       Used in functions designed to handle unaware types.
-- func .... = <target-func>: wraps target func
-- stamp definition and reference: require always explicit '*_s' format for the stamp name
+- introduce function wrapping mechanism for a group function
+- decompose reflection items in a stamp; parse and analyze them individually; compute actual reflection only in expand phase
 
 Keywords (for syntax highlight)
 

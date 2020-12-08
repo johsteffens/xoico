@@ -39,13 +39,12 @@ func (:s) xoico.parse = (try)
 
     if( source.parse_bl( " #?'extending'" ) )
     {
-        host.parse_name( source, name_buf );
-        tp_t tp_name = compiler.entypeof( name_buf.sc );
-
+        tp_t tp_name = 0;
+        host.parse_name_tp( source, tp_name.1 );
         const $* signature = compiler.get_signature( tp_name );
         if( !signature )
         {
-            return source.parse_error_fa( "Could not find predefined signature '#<sc_t>'.", name_buf.sc );
+            return source.parse_error_fa( "Could not find predefined signature '#<sc_t>'.", host.nameof( tp_name ) );
         }
 
         o.typespec_ret.copy( signature.typespec_ret );
