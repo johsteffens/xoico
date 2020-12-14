@@ -62,6 +62,7 @@ stamp :s = aware :
 
     func xoico.expand_init1 = { return 0; };
 
+    func xoico.get_source_point = { return o.source_point; };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

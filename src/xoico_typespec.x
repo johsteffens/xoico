@@ -52,7 +52,7 @@ func (:s) :.parse = (try)
     if( source.parse_bl( "#=?':'" ) )
     {
         host.parse_name_tp( source, o.type.1 );
-        source.parse_fa( " " );
+        source.parse_em_fa( " " );
     }
     else if( source.parse_bl( "#?'@' " ) )
     {
@@ -74,7 +74,7 @@ func (:s) :.parse = (try)
     {
         if( !source.parse_bl( "#?([0]>='0'||[0]<='1') " ) ) source.parse_error_fa( "Argument: Indirection literal expected." );
         sz_t indirection = 0;
-        source.parse_fa( "#<sz_t*> ", indirection.1 );
+        source.parse_em_fa( "#<sz_t*> ", indirection.1 );
         o.indirection = indirection;
     }
     else

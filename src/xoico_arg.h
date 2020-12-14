@@ -35,6 +35,7 @@ stamp :s = aware :
     tp_t name;
 
     func :.is_variadic = { return o.typespec.flag_variadic; };
+    func xoico.get_source_point = { return o.source_point; };
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -79,6 +80,11 @@ func (:s) (er_t relent( mutable, const xoico_host* host, tp_t tp_obj_type )) =
 {
     return o.typespec.relent( host, tp_obj_type );
 };
+
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+func (:s) xoico.convert_transient_types = { return o.typespec.convert_transient_types( host, map ); };
 
 // ---------------------------------------------------------------------------------------------------------------------
 

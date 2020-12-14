@@ -185,6 +185,43 @@ group :result = :
 
 //----------------------------------------------------------------------------------------------------------------------
 
+    func (er_t push_fv( mutable, sc_t format, va_list args )) =
+    {
+        st_s* st = st_s_create_fv( format, args );
+        er_t ret = o.push_st( st );
+        st_s_discard( st );
+        return ret;
+    };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    func( er_t push_fa( mutable, sc_t format, ... )) =
+    {
+        va_list args;
+        va_start( args, format );
+        er_t ret = o.push_fv( format, args );
+        va_end( args );
+        return ret;
+    };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    func( er_t copy_fv( mutable, sc_t format, va_list args )) =
+    {
+        xoico_che_result_a_clear( o );
+        return o.push_fv( format, args );
+    };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    func (er_t copy_fa( mutable, sc_t format, ... )) =
+    {
+        va_list args;
+        va_start( args, format );
+        er_t ret = o.copy_fv( format, args );
+        va_end( args );
+        return ret;
+    };
 };
 
 /// stack for variable declarations
@@ -295,6 +332,7 @@ group :stack_block = :
         func :.clear = { o.adl.clear(); };
         func :.get_size = { return o.adl.size; };
     };
+
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -350,16 +388,18 @@ stamp :s = aware :
     /// Prepends a commented reference to the xoila source for each function in *xoila_out.c
     bl_t insert_source_reference = true;
 
-    /// runtime data
+    /// purity-control: Removing tolerance produces error conditions
+    bl_t waive_non_member_variable = true; // Condition: Syntax addresses an undeclared member variable
+    bl_t waive_non_member_function = true; // Condition: Syntax addresses an undeclared member function
 
+    /// runtime data
     hidden xoico_host*       host;
     hidden xoico_compiler_s* compiler;
-
     xoico_typespec_s typespec_ret;
 
+    /// runtime state
     tp_t member_obj_type; // 0 in case function has no arg_o
 
-    /// runtime state
     sz_t level;
     sz_t try_block_level;
 
@@ -476,44 +516,6 @@ embed "xoico_che_control.x";
 #endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 //----------------------------------------------------------------------------------------------------------------------
-
-static inline er_t xoico_che_result_a_push_fv( xoico_che_result* o, sc_t format, va_list args )
-{
-    st_s* st = st_s_create_fv( format, args );
-    er_t ret = xoico_che_result_a_push_st( o, st );
-    st_s_discard( st );
-    return ret;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-static inline er_t xoico_che_result_a_push_fa( xoico_che_result* o, sc_t format, ... )
-{
-    va_list args;
-    va_start( args, format );
-    er_t ret = xoico_che_result_a_push_fv( o, format, args );
-    va_end( args );
-    return ret;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-static inline er_t xoico_che_result_a_copy_fv( xoico_che_result* o, sc_t format, va_list args )
-{
-    xoico_che_result_a_clear( o );
-    return xoico_che_result_a_push_fv( o, format, args );
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-static inline er_t xoico_che_result_a_copy_fa( xoico_che_result* o, sc_t format, ... )
-{
-    va_list args;
-    va_start( args, format );
-    er_t ret = xoico_che_result_a_copy_fv( o, format, args );
-    va_end( args );
-    return ret;
-}
 
 //----------------------------------------------------------------------------------------------------------------------
 

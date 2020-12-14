@@ -28,7 +28,7 @@
 XOILA_DEFINE_GROUP( xoico_compiler, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-signature er_t register_item(  mutable, const xoico* item,          bcore_source* source );
+signature er_t register_item(  mutable, const xoico* item );
 signature er_t register_group( mutable, const xoico_group_s* group );
 signature er_t register_func(  mutable, const xoico_func_s* func );
 signature er_t register_external_type( mutable, tp_t type );
@@ -257,7 +257,7 @@ stamp :s = aware :
 
     func (void push_d( mutable, xoico_target_s* target )) =
     {
-        o.cast( bcore_array* ).push( sr_asd( target ) );
+        o.cast( x_array* ).push_d( target );
     };
 
     /// clears flags in targets

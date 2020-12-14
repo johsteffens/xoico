@@ -126,7 +126,7 @@ func (:s) (er_t push_default_feature_from_sc( mutable, sc_t sc )) = (try)
     {
         foreach( $* func in feature.funcs_return_to_group ) o.funcs.push_d( func.fork() );
         feature.funcs_return_to_group.clear();
-        compiler.register_item( feature, o.source_point.source );
+        compiler.register_item( feature );
         o.hmap_feature.set( feature.signature.name, ( vd_t )feature );
         o.push_item_d( feature.fork() );
     }
@@ -245,7 +245,7 @@ func (:s) xoico.parse = (try)
             stamp.group = o;
             stamp.parse( o, source );
             stamp.push_default_funcs();
-            compiler.register_item( stamp, source );
+            compiler.register_item( stamp );
             o.push_item_d( stamp.fork() );
         }
 
@@ -256,7 +256,7 @@ func (:s) xoico.parse = (try)
             stump.group = o;
             stump.parse( o, source );
             stump.make_funcs_overloadable();
-            compiler.register_item( stump, source );
+            compiler.register_item( stump );
             compiler.life_a_push( stump.fork() );
             if( extend_stump )
             {
@@ -269,7 +269,7 @@ func (:s) xoico.parse = (try)
             $* signature = xoico_signature_s!.scope( scope_local );
             signature.parse( o, source );
             source.parse_em_fa( " ; " );
-            compiler.register_item( signature, source );
+            compiler.register_item( signature );
             o.push_item_d( signature.fork() );
         }
         else if( bcore_source_a_parse_bl( source, " #?w'body' " ) )
@@ -277,14 +277,14 @@ func (:s) xoico.parse = (try)
             $* body = xoico_body_s!.scope( scope_local );
             body.parse( o, source );
             source.parse_em_fa( " ; " );
-            compiler.register_item( body, source );
+            compiler.register_item( body );
             o.push_item_d( body.fork() );
         }
         else if( source.parse_bl( " #?w'feature' " ) )
         {
             $* feature = xoico_feature_s!.scope( scope_local );
             feature.parse( o, source );
-            compiler.register_item( feature, source );
+            compiler.register_item( feature );
             o.hmap_feature.set( feature.signature.name, ( vd_t )feature );
             foreach( $* func in feature.funcs_return_to_group ) o.funcs.push_d( func.fork() );
             feature.funcs_return_to_group.clear();

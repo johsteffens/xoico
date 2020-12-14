@@ -495,6 +495,7 @@ func (:s)
     else
     {
         bl_t implicit_cast = false;
+        st_s* fail_msg = NULL;
         if( typespec_target.type != typespec_expr.type )
         {
             if( o.is_group( typespec_target.type ) && typespec_target.indirection == 1 )
@@ -506,18 +507,36 @@ func (:s)
                 else if( o.is_stamp( typespec_expr.type ) )
                 {
                     const xoico_stamp_s* stamp = o.get_stamp( typespec_expr.type );
-                    implicit_cast = stamp.is_aware || typespec_target.flag_unaware;
+                    if( stamp.is_aware || typespec_target.flag_unaware )
+                    {
+                        implicit_cast = true;
+                    }
+                    else
+                    {
+                        fail_msg = st_s_create_fa( "'#<sc_t>' is unaware but the target typespec does not explicitly tolerate unaware objects.", o.nameof( typespec_expr.type ) ).scope();
+                    }
+                }
+                else
+                {
+                    fail_msg = st_s_create_fa( "Source type cannot be classified." ).scope();
                 }
             }
-
-            if( !implicit_cast )
+            else
             {
-                $* st_typespec_expr = st_s!.scope();
-                $* st_typespec_target = st_s!.scope();
-                o.typespec_to_sink( typespec_expr, st_typespec_expr );
-                o.typespec_to_sink( typespec_target, st_typespec_target );
-                return source.parse_error_fa( "Implicit cast from '#<sc_t>' to '#<sc_t>' is not allowed. A cast-operator might be needed here.", st_typespec_expr.sc, st_typespec_target.sc );
+                fail_msg = st_s_create_fa( "Target is not a group or target indirection is != 1." ).scope();
             }
+        }
+
+        if( fail_msg )
+        {
+            $* st_typespec_expr = st_s!.scope();
+            $* st_typespec_target = st_s!.scope();
+            o.typespec_to_sink( typespec_expr, st_typespec_expr );
+            o.typespec_to_sink( typespec_target, st_typespec_target );
+            $* msg = st_s!.scope();
+            msg.push_fa( "Implicit cast from '#<sc_t>' to '#<sc_t>' is not allowed. ", st_typespec_expr.sc, st_typespec_target.sc );
+            msg.push_fa( "Reason: #<st_s*>\n", fail_msg );
+            return source.parse_error_fa( "#<st_s*>", msg );
         }
 
         if( implicit_cast )
@@ -852,6 +871,7 @@ func (:s)
         }
         else if( source.parse_bl( "#?'('" ) ) // untraced member function
         {
+            if( !o.waive_non_member_function ) return source.parse_error_fa( "'#<sc_t>' has no member function '#<sc_t>'.", o.nameof( in_typespec.type ), o.nameof( tp_identifier ) );
             $* result_arg_obj = result.clone().scope();
             result.clear();
 
@@ -903,6 +923,7 @@ func (:s)
         }
         else // untraced member element
         {
+            if( !o.waive_non_member_variable ) return source.parse_error_fa( "'#<sc_t>' has no member '#<sc_t>'.", o.nameof( in_typespec.type ), o.nameof( tp_identifier ) );
             result.push_fa( "#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : "." );
             result.push_result_d( result_local.fork() );
             o.trans_expression( source, result, NULL );
@@ -1420,7 +1441,7 @@ func (:s)
 {
     tp_t tp_identifier = 0;
 
-    $* result_func = :result_arr_s!;
+    $* result_func = :result_arr_s!.scope();
     o.trans_identifier( source, result_func, tp_identifier );
     o.trans_whitespace( source, result_func );
 
@@ -1460,7 +1481,7 @@ func (:s)
             result.push_sc( ")(" );
         }
 
-        result.push_result_d( result_func );
+        result.push_result_d( result_func.fork() );
 
         if( transient_type != 0 )
         {
@@ -1471,7 +1492,7 @@ func (:s)
     }
     else
     {
-        result.push_result_d( result_func );
+        result.push_result_d( result_func.fork() );
     }
 
     return 0;
@@ -2216,7 +2237,7 @@ func (:s) (er_t translate_mutable( mutable, const xoico_host* host, const xoico_
     {
         while( !source.parse_bl( " #?')'" ) )
         {
-            if( source.parse_bl( " #?'try'" ) )
+            if( source.parse_bl( " #?w'try'" ) )
             {
                 if( o.typespec_ret.type != TYPEOF_er_t || o.typespec_ret.indirection != 0 )
                 {
@@ -2224,7 +2245,7 @@ func (:s) (er_t translate_mutable( mutable, const xoico_host* host, const xoico_
                 }
                 flag_try = true;
             }
-            else if( source.parse_bl( " #?'verbatim_C'" ) )
+            else if( source.parse_bl( " #?w'verbatim_C'" ) )
             {
                 flag_verbatim_c = true;
             }

@@ -60,6 +60,17 @@ stamp :s = aware :
         return 0;
     };
 
+    func xoico.convert_transient_types =
+    {
+        if( o.transient_class )
+        {
+            tp_t type = map.get( o.transient_class );
+            if( type ) o.type = type;
+            o.transient_class = 0;
+        }
+        return 0;
+    };
+
     func     :.expand;
     func     :.converts_to;
 

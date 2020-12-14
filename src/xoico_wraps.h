@@ -13,45 +13,33 @@
  *  limitations under the License.
  */
 
-#ifndef XOICO_NESTED_GROUP_H
-#define XOICO_NESTED_GROUP_H
+#ifndef XOICO_WRAPS_H
+#define XOICO_WRAPS_H
 
 /**********************************************************************************************************************/
 
-#include "xoico.h"
+/** Main Interface */
 
 /**********************************************************************************************************************/
 
-XOILA_DEFINE_GROUP( xoico_nested_group, xoico )
-#ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#include "xoico_wrap.h"
 
-stamp :s = aware :
+/**********************************************************************************************************************/
+
+XOILA_DEFINE_GROUP( xoico_wraps, bcore_inst )
+#ifdef XOILA_SECTION
+
+//----------------------------------------------------------------------------------------------------------------------
+
+stamp :s = aware x_array
 {
-    hidden xoico_group_s* group; // group object;
-    func xoico.get_hash =
-    {
-        return o.group ? o.group.get_hash() : 0;
-    };
-
-    func xoico.expand_forward =
-    {
-        sink.push_fa( " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o.group.st_name.sc );
-        return 0;
-    };
-
-    func xoico.expand_indef_declaration =
-    {
-        sink.push_fa( " \\\n#rn{ }  BETH_EXPAND_GROUP_#<sc_t>", indent, o.group.st_name.sc );
-        return 0;
-    };
-
-    func xoico.get_source_point = { return o.group.source_point; };
+    xoico_wrap_s => [];
 };
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+//----------------------------------------------------------------------------------------------------------------------
+
 /**********************************************************************************************************************/
 
-#endif // XOICO_NESTED_GROUP_H
+#endif // XOICO_WRAPS_H

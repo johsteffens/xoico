@@ -23,7 +23,6 @@ func (:s) :.get_hash =
     hash = bcore_tp_fold_tp( hash, o.pre_hash );
     hash = bcore_tp_fold_tp( hash, o.name );
     hash = bcore_tp_fold_tp( hash, o.global_name );
-    hash = bcore_tp_fold_tp( hash, o.signature_base_name );
     hash = bcore_tp_fold_tp( hash, o.signature_global_name );
     hash = bcore_tp_fold_bl( hash, o.expandable );
     hash = bcore_tp_fold_bl( hash, o.overloadable );
@@ -49,10 +48,7 @@ func (:s) xoico.parse = (try)
     $* compiler = host.compiler();
 
     // global name signature
-    tp_t tp_signature_base_name;
     o.source_point.set( source );
-
-    st_s* st_name = st_s!.scope();
 
     if( source.parse_bl( " #?'('" ) )
     {
@@ -61,14 +57,17 @@ func (:s) xoico.parse = (try)
         signature.parse( host, source );
         source.parse_em_fa( " ) " );
 
-        compiler.register_item( signature, source );
-
         o.pre_hash = bcore_tp_fold_tp( o.pre_hash, signature.get_hash() );
-        tp_signature_base_name = host.obj_type();
-        st_name.copy_sc( compiler.nameof( signature.name ) );
+        o.name = signature.name;
+        o.signature_global_name = signature.global_name;
+
+        compiler.register_item( signature );
     }
     else
     {
+        tp_t tp_signature_base_name;
+        st_s* st_name = st_s!.scope();
+
         if( source.parse_bl( " #?'^'" ) )
         {
             if( host._ == TYPEOF_xoico_stamp_s )
@@ -87,14 +86,14 @@ func (:s) xoico.parse = (try)
 
         source.parse_em_fa( " ." );
         source.parse_em_fa( " #name", st_name );
+
+        if( st_name->size == 0 ) return source.parse_error_fa( "Function name expected." );
+        o.name = compiler.entypeof( st_name.sc );
+
+        o.signature_global_name = compiler.entypeof( st_s_create_fa( "#<sc_t>_#<sc_t>", compiler.nameof( tp_signature_base_name ), st_name.sc ).scope().sc );
+
     }
 
-
-    if( st_name->size == 0 ) return source.parse_error_fa( "Function name expected." );
-    o.name = compiler.entypeof( st_name.sc );
-
-    o.signature_base_name = tp_signature_base_name;
-    o.signature_global_name = compiler.entypeof( st_s_create_fa( "#<sc_t>_#<sc_t>", compiler.nameof( tp_signature_base_name ), st_name.sc ).scope().sc );
 
     if( source.parse_bl( " #=?'='" ) ) o.body!.parse( host, source );
 
@@ -108,13 +107,13 @@ func (:s) (er_t push_flect_decl_to_sink( const, const xoico_host* host, bcore_si
 {
     $* compiler = host.compiler();
     sink.push_sc( "func " );
-    if( host._ == TYPEOF_xoico_stamp_s && o.signature_base_name == host.cast( const xoico_stamp_s* ).trait_name )
+    if( host._ == TYPEOF_xoico_stamp_s && o.signature.base_name == host.cast( const xoico_stamp_s* ).trait_name )
     {
         sink.push_fa( "^:#<sc_t>", compiler.nameof( o.name ) );
     }
     else
     {
-        sink.push_fa( "#<sc_t>:#<sc_t>", compiler.nameof( o.signature_base_name ), compiler.nameof( o.name ) );
+        sink.push_fa( "#<sc_t>:#<sc_t>", compiler.nameof( o.signature.base_name ), compiler.nameof( o.name ) );
     }
     sink.push_sc( ";" );
     return 0;

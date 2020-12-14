@@ -212,9 +212,24 @@ func (:s) :.parse_func = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
+func (:s) :.parse_wrap = (try)
+{
+    $* wrap = xoico_wrap_s!.scope();
+    wrap.parse( o, source );
+    o.wraps.push_d( wrap.fork() );
+    return 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
 func (:s) (er_t parse_extend( mutable, bcore_source* source )) = (try)
 {
     ASSERT( o.self_buf );
+
+    $* buf = st_s!.scope();
+    $* self = bcore_self_s!.scope();
+    self->type = o.tp_name;
+    self->trait = o.trait_name;
 
     source.parse_em_fa( " {" );
 
@@ -224,9 +239,16 @@ func (:s) (er_t parse_extend( mutable, bcore_source* source )) = (try)
         {
             o.parse_func( source );
         }
+        else if( source.parse_bl( " #?w'wrap'" ) )
+        {
+            o.parse_wrap( source );
+        }
         else
         {
             bl_t exit = false;
+
+            buf.clear();
+
             while( !exit && !source.eos() )
             {
                 u0_t c =  source.get_u0();
@@ -236,24 +258,43 @@ func (:s) (er_t parse_extend( mutable, bcore_source* source )) = (try)
                     {
                         st_s* name = st_s!.scope( scope_local );
                         o.group.parse_name_recursive( source, name );
-                        o.self_buf.push_st( name );
+                        buf.push_st( name );
+                    }
+                    break;
+
+                    case '@':
+                    {
+                        buf.push_st( o.st_name );
                     }
                     break;
 
                     case ';':
                     {
-                        o.self_buf.push_char( c );
+                        buf.push_char( c );
                         exit = true;
                     }
                     break;
 
                     default:
                     {
-                        o.self_buf.push_char( c );
+                        buf.push_char( c );
                     }
                     break;
                 }
             }
+
+            $* item = bcore_self_item_s!.scope( scope_local );
+            er_t er = bcore_self_item_s_parse_src( item, sr_awc( bcore_source_string_s_create_from_string( buf ).scope( scope_local ) ), self, false );
+            if( bcore_flect_caps_is_array( item->caps ) && !o.first_array_item ) o.first_array_item = item.clone();
+
+            if( er )
+            {
+                $* msg = st_s!.scope();
+                bcore_error_pop_st( er.1, msg );
+                return source.parse_error_fa( "Reflection parse error:\n#<sc_t>\n", msg.sc );
+            }
+
+            o.self_buf.push_st( buf );
         }
     }
     source.parse_em_fa( " ; " );
@@ -326,8 +367,6 @@ func (:s) xoico.parse = (try)
             return source.parse_error_fa( "Extending: Stamp name '#<sc_t>' must end in '_s'.", templ_name->sc );
         }
 
-        //templ_name.push_fa( "_s" );
-
         const xoico* item = compiler.get_const_item( typeof( templ_name.sc ) );
         if( !item ) return source.parse_error_fa( "Template #<sc_t> not found.", templ_name.sc );
         if( item._ != TYPEOF_xoico_stamp_s ) return source.parse_error_fa( "Template #<sc_t> is no stamp.", templ_name.sc );
@@ -363,10 +402,45 @@ func (:s) xoico.finalize = (try)
 {
     $* compiler = o.group.compiler;
 
+    // set transient classes for x_array
+    if( o.trait_name == TYPEOF_x_array || o.trait_name == TYPEOF_bcore_array )
+    {
+        if( !o.first_array_item )
+        {
+            return o.source_point.parse_error_fa( "In stamp '#<sc_t>': Tramp is of trait 'x_array' but contains no array", o.st_name.sc );
+        }
+        o.transient_map.set( compiler.entypeof( "TO" ), o.tp_name );
+        bl_t is_static = false;
+
+        switch( o.first_array_item.caps )
+        {
+            case BCORE_CAPS_ARRAY_DYN_SOLID_STATIC:
+            case BCORE_CAPS_ARRAY_DYN_LINK_STATIC:
+            case BCORE_CAPS_ARRAY_FIX_SOLID_STATIC:
+            case BCORE_CAPS_ARRAY_FIX_LINK_STATIC:
+                is_static = true;
+                break;
+
+            default:
+                break;
+        }
+
+        if( is_static )
+        {
+            o.transient_map.set( compiler.entypeof( "TE" ), o.first_array_item.type );
+        }
+    }
+
+    foreach( $* wrap in o.wraps )
+    {
+        wrap.finalize( o );
+        o.funcs.push_d( wrap.func.fork() );
+    }
+
     foreach( $* func in o.funcs )
     {
         func.finalize( o );
-        if( func.reflectable( host ) ) func.push_flect_decl_to_sink( host, o.self_buf );
+        if( func.reflectable( o ) ) func.push_flect_decl_to_sink( o, o.self_buf );
         compiler.register_func( func );
     }
 
@@ -404,32 +478,6 @@ func (:s) xoico.finalize = (try)
         return o.source_point.parse_error_fa( "In stamp '#<sc_t>': Trait name '#<sc_t>' is not a group.", o.st_name.sc, compiler.nameof( o.trait_name ) );
     }
 
-    // set transient classes for x_array
-    if( o.trait_name == TYPEOF_x_array )
-    {
-        o.transient_map.set( compiler.entypeof( "TO" ), o.tp_name );
-        const bcore_self_item_s* array_item = bcore_self_s_get_first_array_item( o.self );
-        bl_t is_static = false;
-
-        switch( array_item.caps )
-        {
-            case BCORE_CAPS_ARRAY_DYN_SOLID_STATIC:
-            case BCORE_CAPS_ARRAY_DYN_LINK_STATIC:
-            case BCORE_CAPS_ARRAY_FIX_SOLID_STATIC:
-            case BCORE_CAPS_ARRAY_FIX_LINK_STATIC:
-                is_static = true;
-                break;
-
-            default:
-                break;
-        }
-
-        if( is_static )
-        {
-            o.transient_map.set( compiler.entypeof( "TE" ), array_item.type );
-        }
-    }
-
 
     return 0;
 };
@@ -446,7 +494,7 @@ func (:s) xoico.expand_declaration = (try)
     sink.push_fa( " \\\n#rn{ }  BCORE_DECLARE_OBJECT( #<sc_t> )", indent, sc_name );
     sink.push_fa( " \\\n" );
 
-    o.self.struct_body_to_sink_newline_escaped( indent + 2, sink );
+    bcore_self_s_struct_body_to_sink_newline_escaped( o.self, indent + 2, sink );
     sink.push_fa( ";" );
 
     foreach( $* func in o.funcs ) func.expand_forward( o, indent + 2, sink ); // expands all prototypes

@@ -28,14 +28,15 @@ XOILA_DEFINE_GROUP( xoico_func, xoico )
 
 signature tp_t get_hash( const );
 signature bl_t reflectable( const, const xoico_host* host );
+signature er_t setup_from_signature( mutable, const xoico_host* host, const xoico_signature_s* signature );
 
 stamp :s = aware :
 {
     tp_t name;                   // declarative name (not global name)
-    tp_t global_name;            // function name in c-implementation
-    tp_t signature_base_name;
-    tp_t signature_global_name;
-    tp_t obj_type;
+    tp_t global_name;            // function name in c-implementation (if left 0 it is computed during finalization)
+    tp_t obj_type;               // obj_type to relent signatures
+
+    tp_t signature_global_name;  // used as address to retrieve signature pointer during finalization
 
     bl_t expandable = true;
     bl_t overloadable = false;
@@ -45,7 +46,7 @@ stamp :s = aware :
 
     tp_t pre_hash = 0;
 
-    hidden aware xoico_signature_s* signature;
+    hidden aware xoico_signature_s* signature; // retrieved during finalization
 
     bcore_source_point_s source_point;
 
@@ -61,6 +62,7 @@ stamp :s = aware :
     func xoico.expand_forward;
     func xoico.expand_declaration;
     func xoico.expand_definition;
+    func xoico.get_source_point = { return o.source_point; };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

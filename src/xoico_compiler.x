@@ -39,7 +39,7 @@ func (:s) :.register_item =
     tp_t global_id = item.get_global_name_tp();
     if( o.hmap_item.exists( global_id ) )
     {
-        return source.parse_error_fa( "'#<sc_t>' was already registered\n", o.nameof( global_id ) );
+        return item.get_source_point().parse_error_fa( "'#<sc_t>' was already registered\n", o.nameof( global_id ) );
     }
     o.hmap_item.set( global_id, ( vd_t )item );
     return 0;
@@ -274,64 +274,71 @@ func (:s) :.get_type_element_info =
     {
         const xoico_stamp_s* stamp = xoico_item.cast( const xoico_stamp_s* );
         const bcore_self_s* self = stamp.self;
-        const bcore_self_item_s* self_item = self.get_item_by_name( name ); // returns NULL in case of no match
+        const bcore_self_item_s* self_item = NULL; // returns NULL in case of no match
 
-        bl_t found = true;
-        sz_t indirection = 0;
-
-        if( self_item )
+        if( ( self_item = self.get_item_by_name( name ) ) )
         {
-            switch( self_item.caps )
+            if( self_item.caps == BCORE_CAPS_EXTERNAL_FUNC )
             {
-                case BCORE_CAPS_SOLID_STATIC: indirection = 0; break;
-                case BCORE_CAPS_LINK_STATIC:  indirection = 1; break;
-                case BCORE_CAPS_LINK_TYPED:   indirection = 1; break;
-                case BCORE_CAPS_LINK_AWARE:   indirection = 1; break;
-                case BCORE_CAPS_POINTER:      indirection = 1; break;
-                case BCORE_CAPS_ARRAY_DYN_SOLID_STATIC:
-                case BCORE_CAPS_ARRAY_DYN_SOLID_TYPED:
-                case BCORE_CAPS_ARRAY_DYN_LINK_STATIC:
-                case BCORE_CAPS_ARRAY_DYN_LINK_TYPED:
-                case BCORE_CAPS_ARRAY_DYN_LINK_AWARE:
-                case BCORE_CAPS_ARRAY_FIX_SOLID_STATIC:
-                case BCORE_CAPS_ARRAY_FIX_LINK_STATIC:
-                case BCORE_CAPS_ARRAY_FIX_LINK_AWARE:
-                {
-                    /// arrays are handled separately
-                    return false;
-                }
-                break;
-
-                default:
-                {
-                    found = false;
-                }
-                break;
+                info.func = stamp.get_func_from_name( name ).cast( $* );
+                ASSERT( info.func );
+                success = true;
+            }
+            else if( !bcore_flect_caps_is_array( self_item.caps ) ) // arrays are handled separately
+            {
+                info.type_info.typespec.flag_const = false;
+                info.type_info.typespec.type = self_item.type;
+                info.type_info.typespec.indirection = bcore_flect_caps_get_indirection( self_item.caps );
+                success = true;
+            }
+        }
+        else if( ( info.func = stamp.get_trait_line_func_from_name( name ).cast( $* ) ) ) // trait-line function
+        {
+            success = true;
+        }
+        else if( ( self_item = bcore_self_s_get_first_anonymous_array_item( self ) ) ) // builtin elements for arrays
+        {
+            if( name == TYPEOF_size )
+            {
+                info.type_info.typespec.flag_const = false;
+                info.type_info.typespec.type = TYPEOF_uz_t;
+                info.type_info.typespec.indirection = 0;
+                success = true;
+            }
+            else if( name == TYPEOF_space )
+            {
+                info.type_info.typespec.flag_const = false;
+                info.type_info.typespec.type = TYPEOF_uz_t;
+                info.type_info.typespec.indirection = 0;
+                success = true;
+            }
+            else if( name == TYPEOF_data )
+            {
+                info.type_info.typespec.flag_const = false;
+                info.type_info.typespec.type = self_item.type ? self_item.type : TYPEOF_x_inst;
+                info.type_info.typespec.indirection = bcore_flect_caps_get_indirection( self_item.caps ) + 1;
+                success = true;
             }
         }
         else
         {
-            found = false;
-        }
-
-        info.type_info.typespec.flag_const = false;
-
-        if( found )
-        {
-            info.type_info.typespec.type = self_item.type;
-            info.type_info.typespec.indirection = indirection;
-            success = true;
-        }
-        else
-        {
-            info.func = stamp.get_trait_line_func_from_name( name ).cast( $* );
-            if( info.func ) success = true;
+            success = false;
         }
     }
     else if( xoico_item._ == TYPEOF_xoico_group_s )
     {
-        info.func = xoico_item.cast( xoico_group_s* ).get_trait_line_func_from_name( name ).cast( $* );
-        if( info.func ) success = true;
+        const $* group = xoico_item.cast( xoico_group_s* );
+        if( name == TYPEOF__ ) // group builtin element '_'
+        {
+            info.type_info.typespec.type = TYPEOF_tp_t;
+            info.type_info.typespec.indirection = 0;
+            success = true;
+        }
+        else
+        {
+            info.func = group.get_trait_line_func_from_name( name ).cast( $* );
+            if( info.func ) success = true;
+        }
     }
 
     return success;
@@ -347,48 +354,15 @@ func (:s) :.get_type_array_element_info =
     if( !xoico_item ) return false;
     bl_t success = false;
     info.type_info.item = xoico_item.cast( xoico* );
-    tp_t tp_no_name = btypeof( "" );
 
     if( xoico_item->_ == TYPEOF_xoico_stamp_s )
     {
         const xoico_stamp_s* stamp = xoico_item.cast( const xoico_stamp_s* );
-        const bcore_self_s* self = stamp.self;
-
-        sz_t items = self.items_size();
-        const bcore_self_item_s* self_item = NULL;
-        for( sz_t i = 0; i < items; i++ )
-        {
-            const bcore_self_item_s* item = self.get_item( i );
-            if( item->name == tp_no_name && bcore_flect_caps_is_array( item.caps ) )
-            {
-                self_item = item;
-                break;
-            }
-        }
-
+        const bcore_self_item_s* self_item = bcore_self_s_get_first_anonymous_array_item( stamp.self );
         if( self_item )
         {
-            sz_t indirection = 0;
-            switch( self_item.caps )
-            {
-                case BCORE_CAPS_ARRAY_DYN_SOLID_STATIC: indirection = 0; break;
-                case BCORE_CAPS_ARRAY_DYN_SOLID_TYPED:  indirection = 0; break;
-                case BCORE_CAPS_ARRAY_DYN_LINK_STATIC:  indirection = 1; break;
-                case BCORE_CAPS_ARRAY_DYN_LINK_TYPED:   indirection = 1; break;
-                case BCORE_CAPS_ARRAY_DYN_LINK_AWARE:   indirection = 1; break;
-                case BCORE_CAPS_ARRAY_FIX_SOLID_STATIC: indirection = 0; break;
-                case BCORE_CAPS_ARRAY_FIX_LINK_STATIC:  indirection = 1; break;
-                case BCORE_CAPS_ARRAY_FIX_LINK_AWARE:   indirection = 1; break;
-
-                default:
-                {
-                    ERR_fa( "Invalid array caps" );
-                }
-                break;
-            }
-
             info.type_info.typespec.type = self_item.type;
-            info.type_info.typespec.indirection = indirection;
+            info.type_info.typespec.indirection = bcore_flect_caps_get_indirection( self_item.caps );
             success = true;
         }
     }

@@ -162,7 +162,7 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
         }
         else
         {
-            st.push_fa( "{ return #<sc_t>_get_aware( o )->#<sc_t> != NULL; };", sc_spect_name, sc_name );
+            st.push_fa( "(verbatim_C) { return #<sc_t>_get_aware( o )->#<sc_t> != NULL; };", sc_spect_name, sc_name );
         }
 
         xoico_func_s* func = o.push_func_from_sc( host, st.sc );
@@ -197,7 +197,7 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
         }
         else
         {
-            st.push_fa( "{ return #<sc_t>_get_typed( t )->#<sc_t> != NULL; };", sc_spect_name, sc_name );
+            st.push_fa( "(verbatim_C) { return #<sc_t>_get_typed( t )->#<sc_t> != NULL; };", sc_spect_name, sc_name );
         }
 
         xoico_func_s* func = o.push_func_from_sc( host, st.sc );
@@ -233,7 +233,7 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
         }
         else
         {
-            st.push_fa( "{ return p->#<sc_t> != NULL; };", sc_name );
+            st.push_fa( "(verbatim_C) { return p->#<sc_t> != NULL; };", sc_name );
         }
 
         xoico_func_s* func = o.push_func_from_sc( host, st.sc );
@@ -277,7 +277,7 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
         }
         else
         {
-            st.push_fa( "{ return ( (#<sc_t>*)ch_spect_p( o->p, TYPEOF_#<sc_t> ) )->#<sc_t> != NULL; };", sc_spect_name, sc_spect_name, sc_name );
+            st.push_fa( "(verbatim_C) { return ( (#<sc_t>*)ch_spect_p( o->p, TYPEOF_#<sc_t> ) )->#<sc_t> != NULL; };", sc_spect_name, sc_spect_name, sc_name );
         }
 
         xoico_func_s* func = o.push_func_from_sc( host, st.sc );

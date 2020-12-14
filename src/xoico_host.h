@@ -48,6 +48,7 @@ feature 'a' xoico_compiler_s* compiler( const ) = { ERR_fa( "Not implemented in 
 feature 'a' xoico_cengine* cengine( const )     = { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o._ ) ); return NULL; };
 feature 'a' tp_t obj_type( const )              = { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o._ ) ); return 0; };
 feature 'a' st_s* create_spect_name( const )    = { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o._ ) ); return NULL; };
+feature 'a' const xoico_transient_map_s* transient_map( const ) = { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o._ ) ); return NULL; };
 
 feature 'a' sc_t nameof( const, tp_t type ) =
 {

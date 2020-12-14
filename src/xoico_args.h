@@ -36,6 +36,8 @@ stamp :s = aware x_array
 
 func (:s) xoico.parse = { o.clear(); return o.append( host, source ); };
 
+// ---------------------------------------------------------------------------------------------------------------------
+
 func (:s) (er_t append( mutable, const xoico_host* host, bcore_source* source )) = (try)
 {
     bl_t first = true;
@@ -51,11 +53,23 @@ func (:s) (er_t append( mutable, const xoico_host* host, bcore_source* source ))
     return 0;
 };
 
+// ---------------------------------------------------------------------------------------------------------------------
+
 func (:s) (er_t relent( mutable, const xoico_host* host, tp_t tp_obj_type )) =
 {
     foreach( $* arg in o ) arg.relent( host, tp_obj_type ).try();
     return 0;
 };
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+func (:s) xoico.convert_transient_types = (try)
+{
+    foreach( $* arg in o ) arg.convert_transient_types( host, map );
+    return  0;
+};
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 func (:s) (er_t expand( const, const xoico_host* host, bl_t first, bcore_sink* sink )) =
 {
@@ -68,6 +82,8 @@ func (:s) (er_t expand( const, const xoico_host* host, bl_t first, bcore_sink* s
     return 0;
 };
 
+// ---------------------------------------------------------------------------------------------------------------------
+
 func (:s) (er_t expand_name( const, const xoico_host* host, bl_t first, bcore_sink* sink )) =
 {
     foreach( $* arg in o )
@@ -78,6 +94,8 @@ func (:s) (er_t expand_name( const, const xoico_host* host, bl_t first, bcore_si
     }
     return 0;
 };
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 func (:s) xoico.get_hash =
 {

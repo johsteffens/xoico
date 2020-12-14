@@ -30,6 +30,15 @@ func (:s) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
+func (:s) :.set_global_name = (try)
+{
+    o.base_name = host.obj_type();
+    o.global_name = host.entypeof( st_s_create_fa( "#<sc_t>_#<sc_t>", host.nameof( o.base_name ), host.nameof( o.name ) ).scope().sc );
+    return 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
 func (:s) xoico.parse = (try)
 {
     o.source_point.set( source );
@@ -123,11 +132,6 @@ func (:s) xoico.parse = (try)
         source.parse_em_fa( " )" );
     }
 
-    sc_t sc_name = compiler.nameof( o.name );
-    name_buf.copy_fa( "#<sc_t>_#<sc_t>", compiler.nameof( host.obj_type() ), sc_name );
-
-    o.global_name = compiler.entypeof( name_buf.sc );
-
     if( o.typespec_ret.transient_class )
     {
         if( o.typespec_ret.type == TYPEOF_void && o.typespec_ret.indirection == 0 )
@@ -135,6 +139,8 @@ func (:s) xoico.parse = (try)
             source.parse_error_fa( "'void' can not be a transient type." );
         }
     }
+
+    o.set_global_name( host );
 
     return 0;
 };

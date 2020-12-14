@@ -43,6 +43,7 @@ stamp :code_s = aware :
 
     func xoico.parse;
     func xoico.get_hash;
+    func xoico.get_source_point = { return o.source_point; };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

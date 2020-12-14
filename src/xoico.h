@@ -33,6 +33,7 @@ XOILA_DEFINE_GROUP( xoico, bcore_inst )
 name mutable;
 name const;
 name void;
+name _;
 
 forward :name_s;
 forward :forward_s;
@@ -52,15 +53,18 @@ forward :nested_group_s;
 forward :source_s;
 forward :target_s;
 forward :compiler_s;
+forward :transient_map_s;
 forward :cengine;
 forward :host;
 
 signature er_t parse_sc( mutable, const :host* host, sc_t sc );
 signature er_t parse_fa( mutable, const :host* host, sc_t format, ... );
 
+// converts explicit types accordingly according to transient map and removes all transient types
+feature 'ap' er_t convert_transient_types( mutable, const :host* host, const :transient_map_s* map );
+
 feature 'ap' tp_t get_hash                  ( const );
 feature 'ap' tp_t get_global_name_tp        ( const );
-
 feature 'ap' er_t parse                     ( mutable, const :host* host, bcore_source* source );
 feature 'ap' er_t finalize                  ( mutable, const :host* host ) = { return 0; };  // final stage in the compilation phase
 feature 'ap' er_t expand_setup              ( mutable, const :host* host ) = { return 0; };  // first stage in the expansion phase
@@ -72,6 +76,7 @@ feature 'ap' er_t expand_declaration        ( const, const :host* host, sz_t ind
 feature 'ap' er_t expand_indef_declaration  ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
 feature 'ap' er_t expand_definition         ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
 feature 'ap' er_t expand_init1              ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
+feature 'ap' const bcore_source_point_s* get_source_point( const ) = { ERR_fa( "Not implemented in #<sc_t>\n", bnameof( o._ ) ); return NULL; };
 
 //----------------------------------------------------------------------------------------------------------------------
 // functions

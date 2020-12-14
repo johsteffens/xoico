@@ -20,6 +20,7 @@
 
 #include "xoico.h"
 #include "xoico_funcs.h"
+#include "xoico_wraps.h"
 #include "xoico_transient_map.h"
 
 /**********************************************************************************************************************/
@@ -30,8 +31,10 @@ XOILA_DEFINE_GROUP( xoico_stamp, xoico )
 //----------------------------------------------------------------------------------------------------------------------
 
 signature er_t parse_func( mutable, bcore_source* source );
+signature er_t parse_wrap( mutable, bcore_source* source );
 signature er_t make_funcs_overloadable( mutable );
 signature er_t push_default_funcs( mutable );
+signature const xoico_func_s* get_func_from_name( const, tp_t name ); // returns NULL if not found
 signature const xoico_func_s* get_trait_line_func_from_name( const, tp_t name ); // returns NULL if not found
 
 
@@ -45,8 +48,10 @@ stamp :s = aware :
     st_s => self_buf;
     st_s => self_source;
 
+    bcore_self_item_s => first_array_item; // !=NULL if stamp has an array; valid after parsing
     bcore_self_s => self; // created in expand_setup
     xoico_funcs_s funcs;
+    xoico_wraps_s wraps;
 
     xoico_transient_map_s transient_map;
 
@@ -84,12 +89,15 @@ stamp :s = aware :
 
     func xoico.parse;
     func :.parse_func;
+    func :.parse_wrap;
 
     func :.make_funcs_overloadable =
     {
         foreach( $* func in o.funcs ) func->overloadable = true;
         return 0;
     };
+
+    func :.get_func_from_name = { return o.funcs.get_func_from_name( name ); };
 
     func :.get_trait_line_func_from_name =
     {
@@ -107,6 +115,9 @@ stamp :s = aware :
     func xoico_host.compiler = { return o.group.compiler; };
     func xoico_host.cengine = { return o.group.cengine(); };
     func xoico_host.obj_type = { return o.tp_name; };
+    func xoico_host.transient_map = { return o.transient_map; };
+
+    func xoico.get_source_point = { return o.source_point; };
 };
 
 //----------------------------------------------------------------------------------------------------------------------

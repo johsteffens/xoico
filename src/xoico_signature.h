@@ -30,15 +30,17 @@ include deferred "xoico_stamp.h";
 
 signature er_t relent( mutable, const xoico_host* host, tp_t tp_obj_type );
 signature er_t expand_declaration( const, const xoico_host* host, sc_t sc_func_global_name, sz_t indent, bcore_sink* sink );
+signature er_t set_global_name( mutable, const xoico_host* host );
 
 stamp :s = aware :
 {
     tp_t name;
+    tp_t base_name;
     tp_t global_name;
 
     xoico_typespec_s typespec_ret; // return type
     xoico_args_s args; // e.g.: sz_t a, sz_t b
-    tp_t arg_o;        // object argument: mutable | const | 0
+    tp_t arg_o;        // object argument: mutable | const | 0; 0 indicates a plain function.
     bl_t typed;        // true: object argument is preceded by 'tp_t t' indicating the type of the object (for non-aware objects); no effect in case arg_o == 0
     tp_t arg_o_transient_class;
 
@@ -46,6 +48,20 @@ stamp :s = aware :
 
     func xoico.parse;
     func xoico.get_hash;
+    func :.set_global_name;
+
+    func xoico.convert_transient_types = (try)
+    {
+        if( o.arg_o_transient_class && o.arg_o_transient_class == o.typespec_ret.transient_class )
+        {
+            o.typespec_ret.type = host.obj_type();
+            o.typespec_ret.transient_class = 0;
+        }
+        o.arg_o_transient_class = 0;
+        o.args.convert_transient_types( host, map );
+        o.typespec_ret.convert_transient_types( host, map );
+        return  0;
+    };
 
     func xoico.get_global_name_tp = { return o.global_name; };
 
@@ -60,6 +76,9 @@ stamp :s = aware :
 
     func xoico_arg.is_variadic = { return o.args.is_variadic(); };
 
+    func xoico.get_source_point = { return o.source_point; };
+
+    func (bl_t returns_a_value( const )) = { return o.typespec_ret.type != TYPEOF_void || o.typespec_ret.indirection > 0; };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

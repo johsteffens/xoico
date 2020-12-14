@@ -138,12 +138,12 @@ func (:s) :.set_dependencies = (try)
 func (:s) (er_t expand_heading( const, sz_t indent, bcore_sink* sink )) = (try)
 {
     bcore_cday_utc_s* time = bcore_cday_utc_s!.scope();
-    time.from_system();
+    bcore_cday_utc_s_from_system( time );
 
     sink.push_fa( "/** This file was generated from xoila source code.\n" );
     sink.push_fa( " *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens\n" );
     sink.push_fa( " *  Last File Update: " );
-    time.to_sink( sink );
+    bcore_cday_utc_s_to_sink( time, sink );
     sink.push_fa( "\n" );
     sink.push_fa( " *\n" );
     sink.push_fa( " *  Copyright and License of this File:\n" );

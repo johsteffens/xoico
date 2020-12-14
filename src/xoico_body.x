@@ -25,7 +25,7 @@ func (:code_s) xoico.parse = (try)
 
     if( source.parse_bl( " #?'('" ) )
     {
-        while( !source.eos() && source.inspect_char() != ')' ) source.get_char();
+        while( !source.eos() && source.inspect_char() != ')' ) hash = bcore_tp_fold_u0( hash, source.get_char() );
         source.parse_em_fa( ")" );
     }
 

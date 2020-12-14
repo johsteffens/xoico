@@ -39,6 +39,8 @@ signature xoico_source_s*   get_source( const );
 signature xoico_target_s*   get_target( const );
 signature xoico_compiler_s* get_compiler( const );
 
+signature const xoico_func_s* get_func( const, tp_t name ); // returns NULL in case name is not a member function
+
 signature const xoico_func_s* get_trait_line_func_from_name( const, tp_t name );
 
 
@@ -114,7 +116,7 @@ stamp :s = aware :
 
     func :.push_item_d =
     {
-        o.cast( bcore_array* ).push( sr_asd( item ) );
+        o.cast( x_array* ).push_d( item );
         return 0;
     };
 
@@ -128,6 +130,12 @@ stamp :s = aware :
         if( !o ) return NULL;
         const xoico_func_s** p_func = ( const xoico_func_s** )o.hmap_func.get( name );
         return p_func ? *p_func : o.get_trait_group().get_trait_line_func_from_name( name );
+    };
+
+    func :.get_func =
+    {
+        const xoico_func_s** p_func = ( const xoico_func_s** )o.hmap_func.get( name );
+        return p_func ? *p_func : NULL;
     };
 
     func :.explicit_embeddings_push = { foreach( st_s* st in o.explicit_embeddings ) arr.push_st( st ); };
@@ -144,6 +152,7 @@ stamp :s = aware :
     func xoico_host.obj_type = { return o.tp_name; };
     func xoico_host.create_spect_name;
 
+    func xoico.get_source_point = { return o.source_point; };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

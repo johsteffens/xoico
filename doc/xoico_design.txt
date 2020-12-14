@@ -331,6 +331,7 @@ TODO:
 - bug: stamp default function 'create' is not registered
 - introduce function wrapping mechanism for a group function
 - decompose reflection items in a stamp; parse and analyze them individually; compute actual reflection only in expand phase
+- func: have xoico_func_s own a weak reference to signature; signature is copied in case it needs modifications (e.g. resolving transient types or '@')
 
 Keywords (for syntax highlight)
 

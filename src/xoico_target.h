@@ -77,7 +77,7 @@ stamp :s = aware :
 
     func (void push_d( mutable, xoico_source_s* source )) =
     {
-        o.cast( bcore_array* ).push( sr_asd( source ) );
+        o.cast( x_array* ).push_d( source );
     };
 
     func xoico_group.explicit_embeddings_push =

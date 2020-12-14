@@ -44,7 +44,7 @@ stamp :s = aware :
 
     func (er_t push_d( mutable, xoico_group_s* group )) =
     {
-        o.cast( bcore_array* ).push( sr_asd( group ) );
+        o.cast( x_array* ).push_d( group );
         return 0;
     };
 
