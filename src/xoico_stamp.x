@@ -410,25 +410,7 @@ func (:s) xoico.finalize = (try)
             return o.source_point.parse_error_fa( "In stamp '#<sc_t>': Tramp is of trait 'x_array' but contains no array", o.st_name.sc );
         }
         o.transient_map.set( compiler.entypeof( "TO" ), o.tp_name );
-        bl_t is_static = false;
-
-        switch( o.first_array_item.caps )
-        {
-            case BCORE_CAPS_ARRAY_DYN_SOLID_STATIC:
-            case BCORE_CAPS_ARRAY_DYN_LINK_STATIC:
-            case BCORE_CAPS_ARRAY_FIX_SOLID_STATIC:
-            case BCORE_CAPS_ARRAY_FIX_LINK_STATIC:
-                is_static = true;
-                break;
-
-            default:
-                break;
-        }
-
-        if( is_static )
-        {
-            o.transient_map.set( compiler.entypeof( "TE" ), o.first_array_item.type );
-        }
+        if( o.first_array_item.type ) o.transient_map.set( compiler.entypeof( "TE" ), o.first_array_item.type );
     }
 
     foreach( $* wrap in o.wraps )
@@ -498,81 +480,6 @@ func (:s) xoico.expand_declaration = (try)
     sink.push_fa( ";" );
 
     foreach( $* func in o.funcs ) func.expand_forward( o, indent + 2, sink ); // expands all prototypes
-
-    // expand array
-    if( o.self.trait == TYPEOF_bcore_array )
-    {
-        //return o.source_point.parse_error_fa( "Please use x_array as trait." );
-
-        sz_t items = o.self.items_size();
-        const bcore_self_item_s* array_item = NULL;
-        for( sz_t i = 0; i < items; i++ )
-        {
-            const bcore_self_item_s* self_item = o.self.get_item( i );
-            if( bcore_flect_caps_is_array( self_item.caps ) )
-            {
-                array_item = self_item;
-                break;
-            }
-        }
-
-        if( !array_item )
-        {
-            return o.source_point.parse_error_fa( "Expanding object #<sc_t>: Object is of trait array but contains no array.", sc_name );
-        }
-
-        sink.push_fa( " \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_set_space( #<sc_t>* o, sz_t size ) { bcore_array_t_set_space( TYPEOF_#<sc_t>, ( bcore_array* )o, size ); return o; }", indent, sc_name, sc_name, sc_name, sc_name );
-        sink.push_fa( " \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_set_size( #<sc_t>* o, sz_t size ) { bcore_array_t_set_size( TYPEOF_#<sc_t>, ( bcore_array* )o, size ); return o; }",   indent, sc_name, sc_name, sc_name, sc_name );
-        sink.push_fa( " \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_clear( #<sc_t>* o ) { bcore_array_t_set_space( TYPEOF_#<sc_t>, ( bcore_array* )o, 0 ); return o; }",                   indent, sc_name, sc_name, sc_name, sc_name );
-
-        sc_t  sc_item_name = ifnameof( array_item.name );
-        st_s* st_last = st_s_create_fa( "o->#<sc_t>#<sc_t>data[ o->#<sc_t>#<sc_t>size - 1 ]", sc_item_name, sc_item_name[ 0 ] ? "_" : "", sc_item_name, sc_item_name[ 0 ] ? "_" : ""  ).scope();
-        sc_t  sc_last = st_last.sc;
-        if( array_item.type != 0 && nameof( array_item.type ) != NULL )
-        {
-            sc_t sc_type = ifnameof( array_item.type );
-            if( array_item.caps == BCORE_CAPS_ARRAY_DYN_LINK_AWARE )
-            {
-                sink.push_fa( " \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_push_c( #<sc_t>* o, const #<sc_t>* v ) { bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_awc( v ) ); return #<sc_t>; }", indent, sc_type, sc_name, sc_name, sc_type, sc_name, sc_last );
-                sink.push_fa( " \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_push_d( #<sc_t>* o,       #<sc_t>* v ) { bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_asd( v ) ); return #<sc_t>; }", indent, sc_type, sc_name, sc_name, sc_type, sc_name, sc_last );
-                sink.push_fa( " \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_push_t( #<sc_t>* o, tp_t t )", indent, sc_type, sc_name, sc_name );
-                sink.push_fa( " \\\n#rn{ }  {", indent );
-                sink.push_fa( " \\\n#rn{ }      bcore_trait_assert_satisfied_type( TYPEOF_#<sc_t>, t );",                    indent, sc_type );
-                sink.push_fa( " \\\n#rn{ }      bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_t_create( t ) );", indent, sc_name );
-                sink.push_fa( " \\\n#rn{ }      return #<sc_t>;", indent, sc_last );
-                sink.push_fa( " \\\n#rn{ }  }", indent );
-            }
-            else if( array_item.caps == BCORE_CAPS_ARRAY_DYN_SOLID_STATIC )
-            {
-                sink.push_fa( " \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_push_c( #<sc_t>* o, const #<sc_t>* v ) { bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_twc( TYPEOF_#<sc_t>, v ) ); return &#<sc_t>; }", indent, sc_type, sc_name, sc_name, sc_type, sc_name, sc_type, sc_last );
-                sink.push_fa( " \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_push_d( #<sc_t>* o,       #<sc_t>* v ) { bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_tsd( TYPEOF_#<sc_t>, v ) ); return &#<sc_t>; }", indent, sc_type, sc_name, sc_name, sc_type, sc_name, sc_type, sc_last );
-                sink.push_fa( " \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_push( #<sc_t>* o )", indent, sc_type, sc_name, sc_name );
-                sink.push_fa( " \\\n#rn{ }  {", indent );
-                sink.push_fa( " \\\n#rn{ }      bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_null() );",   indent, sc_name );
-                sink.push_fa( " \\\n#rn{ }      return &#<sc_t>;", indent, sc_last );
-                sink.push_fa( " \\\n#rn{ }  }", indent );
-            }
-            else if( array_item.caps == BCORE_CAPS_ARRAY_DYN_LINK_STATIC )
-            {
-                sink.push_fa( " \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_push_c( #<sc_t>* o, const #<sc_t>* v ) { bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_twc( TYPEOF_#<sc_t>, v ) ); return #<sc_t>; }", indent, sc_type, sc_name, sc_name, sc_type, sc_name, sc_type, sc_last );
-                sink.push_fa( " \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_push_d( #<sc_t>* o,       #<sc_t>* v ) { bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_tsd( TYPEOF_#<sc_t>, v ) ); return #<sc_t>; }", indent, sc_type, sc_name, sc_name, sc_type, sc_name, sc_type, sc_last );
-                sink.push_fa( " \\\n#rn{ }  static inline #<sc_t>* #<sc_t>_push( #<sc_t>* o )", indent, sc_type, sc_name, sc_name );
-                sink.push_fa( " \\\n#rn{ }  {", indent );
-                sink.push_fa( " \\\n#rn{ }      bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_t_create( TYPEOF_#<sc_t> ) );", indent, sc_name, sc_type );
-                sink.push_fa( " \\\n#rn{ }      return #<sc_t>;", indent, sc_last );
-                sink.push_fa( " \\\n#rn{ }  }", indent );
-            }
-        }
-        else
-        {
-            if( bcore_flect_caps_is_aware( array_item.caps ) )
-            {
-                sink.push_fa( " \\\n#rn{ }  static inline void #<sc_t>_push_c( #<sc_t>* o, vc_t v ) { bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_awc( v ) ); }", indent, sc_name, sc_name, sc_name );
-                sink.push_fa( " \\\n#rn{ }  static inline void #<sc_t>_push_d( #<sc_t>* o, vd_t v ) { bcore_array_t_push( TYPEOF_#<sc_t>, ( bcore_array* )o, sr_asd( v ) ); }", indent, sc_name, sc_name, sc_name );
-            }
-        }
-    }
-
     foreach( $* func in o.funcs ) func.expand_declaration( o, indent + 2, sink ); // only expands static inline functions
 
     sink.push_fa( "\n" );
@@ -624,7 +531,7 @@ func (:s) xoico.expand_init1 = (try)
     {
         if( func.reflectable( host ) )
         {
-            const xoico_signature_s* signature = func.signature;
+            const $* signature = func.signature;
             sink.push_fa
             (
                 "#rn{ }BCORE_REGISTER_FFUNC( #<sc_t>, #<sc_t>_#<sc_t> );\n",

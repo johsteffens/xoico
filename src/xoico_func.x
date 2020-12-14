@@ -23,10 +23,10 @@ func (:s) :.get_hash =
     hash = bcore_tp_fold_tp( hash, o.pre_hash );
     hash = bcore_tp_fold_tp( hash, o.name );
     hash = bcore_tp_fold_tp( hash, o.global_name );
-    hash = bcore_tp_fold_tp( hash, o.signature_global_name );
     hash = bcore_tp_fold_bl( hash, o.expandable );
     hash = bcore_tp_fold_bl( hash, o.overloadable );
     hash = bcore_tp_fold_bl( hash, o.declare_in_expand_forward );
+    hash = bcore_tp_fold_tp( hash, o.signature ? o.signature.get_hash() : o.signature_global_name );
     if( o.body ) hash = bcore_tp_fold_tp( hash, xoico_body_s_get_hash( o.body ) );
     return hash;
 };
@@ -127,18 +127,24 @@ func (:s) xoico.finalize = (try)
     o.freeze_global_name( host );
     o.obj_type = host.obj_type();
 
-    xoico_signature_s* signature = compiler.get_signature( o.signature_global_name ).cast( $* );
-    if( !signature )
+    if( !o.signature )
     {
-        return o.source_point.parse_error_fa
-        (
-            "Function #<sc_t>: Could not find signature #<sc_t>",
-            compiler.nameof( o.name ),
-            compiler.nameof( o.signature_global_name )
-        );
+        const xoico_signature_s* signature = compiler.get_signature( o.signature_global_name );
+        if( !signature )
+        {
+            return o.source_point.parse_error_fa
+            (
+                "Function #<sc_t>: Could not find signature #<sc_t>",
+                compiler.nameof( o.name ),
+                compiler.nameof( o.signature_global_name )
+            );
+        }
+
+        o.signature = signature.clone();
+        o.signature.relent( host, host.obj_type() );
+        if( host.defines_transient_map() ) o.signature.convert_transient_types( host, host.transient_map() );
     }
 
-    o.signature = signature;
 
     if( o.body ) o.body.finalize( host );
 

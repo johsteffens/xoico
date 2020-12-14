@@ -155,7 +155,7 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
     if( o.flag_a )
     {
         st_s* st = st_s!.scope();
-        st.push_fa( "(bl_t a_defines_#<sc_t>( const )) = ", sc_name );
+        st.push_fa( "(bl_t defines_#<sc_t>( const )) = ", sc_name );
         if( always_defined )
         {
             st.push_fa( "{ return true; };", sc_name );
@@ -167,6 +167,11 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
 
         xoico_func_s* func = o.push_func_from_sc( host, st.sc );
         func.declare_in_expand_forward = false;
+
+        xoico_func_s* func_to_group = func.clone();
+        func_to_group.body =< NULL;
+        func_to_group.expandable = false;
+        o.funcs_return_to_group.push_d( func_to_group );
     }
 
     if( o.flag_t )

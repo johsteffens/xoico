@@ -36,17 +36,18 @@ stamp :s = aware :
     tp_t global_name;            // function name in c-implementation (if left 0 it is computed during finalization)
     tp_t obj_type;               // obj_type to relent signatures
 
-    tp_t signature_global_name;  // used as address to retrieve signature pointer during finalization
+    tp_t signature_global_name;
 
     bl_t expandable = true;
     bl_t overloadable = false;
     bl_t declare_in_expand_forward = true;
 
-    xoico_body_s => body;
-
     tp_t pre_hash = 0;
 
-    hidden aware xoico_signature_s* signature; // retrieved during finalization
+    xoico_body_s => body;
+
+    // if not defined at finalization it is retrieved via signature_global_name
+    xoico_signature_s => signature;
 
     bcore_source_point_s source_point;
 

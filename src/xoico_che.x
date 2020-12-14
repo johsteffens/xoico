@@ -807,9 +807,8 @@ func (:s)
             if( info.func ) // member function
             {
                 $* func = info.func;
-                $* signature = func.signature.clone().scope();
+                const $* signature = func.signature;
                 tp_t object_type = func.obj_type;
-                signature.relent( o.host, object_type );
                 sc_t sc_func_name = o.nameof( func.global_name );
                 ASSERT( sc_func_name );
 
@@ -1454,9 +1453,8 @@ func (:s)
             return source.parse_error_fa( "Function #<sc_t> has no signature.", o.nameof( tp_identifier ) );
         }
 
-        $* signature = func.signature.clone().scope();
+        const $* signature = func.signature;
         tp_t object_type = func.obj_type;
-        signature.relent( o.host, object_type );
 
         $* typespec_ret = signature.typespec_ret.clone().scope( scope_local );
         tp_t transient_type = 0;
@@ -2125,7 +2123,6 @@ func (:s) (er_t setup( mutable, const xoico_host* host, const xoico_signature_s*
     bl_t member_obj_const = ( signature.arg_o == TYPEOF_const );
 
     o.typespec_ret.copy( signature.typespec_ret );
-    o.typespec_ret.relent( host, host_obj_type );
 
     o.host     = host.cast( $* );
     o.compiler = host.compiler();
@@ -2168,7 +2165,6 @@ func (:s) (er_t setup( mutable, const xoico_host* host, const xoico_signature_s*
         {
             $* unit = xoico_che_stack_var_unit_s!.scope();
             unit.typespec.copy( arg.typespec );
-            unit.typespec.relent( host, host_obj_type );
             unit.name = arg.name;
             unit.level = o.level;
             o.stack_var.push_unit( unit );
