@@ -334,6 +334,7 @@ func (:s) :.push_default_funcs = (try)
     o.push_default_func_from_sc( "bcore_stamp_funcs.init;" );
     o.push_default_func_from_sc( "bcore_stamp_funcs.down;" );
     o.push_default_func_from_sc( "bcore_stamp_funcs.copy;" );
+    o.push_default_func_from_sc( "bcore_stamp_funcs.create;" );
     o.push_default_func_from_sc( "bcore_stamp_funcs.discard;" );
     o.push_default_func_from_sc( "bcore_stamp_funcs.clone;" );
     return 0;

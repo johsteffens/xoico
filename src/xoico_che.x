@@ -562,11 +562,10 @@ func (:s)
         bcore_source* source,
         tp_t object_type,
         const xoico_signature_s* signature,
-        const xoico_transient_map_s* transient_map,
         const :result* result_obj_expr,
         const xoico_typespec_s* typespec_obj_expr,
         :result* result_out,
-        tp_t* transient_type
+        tp_t* transient_ret_type
     )
 ) = (try)
 {
@@ -605,10 +604,9 @@ func (:s)
 
         if( typespec_obj_expr.type )
         {
-            if( !transient_map ) transient_map = o.get_transient_map( typespec_obj_expr.type );
-            if( transient_class && transient_type && ( transient_type.0 == 0 ) && ( signature.arg_o_transient_class == transient_class ) )
+            if( transient_class && transient_ret_type && ( transient_ret_type.0 == 0 ) && ( signature.arg_o_transient_class == transient_class ) )
             {
-                transient_type.0 = typespec_obj_expr.type;
+                transient_ret_type.0 = typespec_obj_expr.type;
             }
             o.adapt_expression( source, typespec_obj_expr, typespec_obj_out, result_obj_expr, result_out );
         }
@@ -619,18 +617,20 @@ func (:s)
         if( signature.args.size > 0 ) result_out.push_sc( "," );
     }
 
-    if( transient_map && transient_class && transient_type )
+    const xoico_transient_map_s* transient_map = ( typespec_obj_expr ) ? o.get_transient_map( typespec_obj_expr.type ) : NULL;
+
+    if( transient_map && transient_class && transient_ret_type )
     {
         tp_t type = transient_map.get( transient_class );
         if( type )
         {
-            if( !transient_type.0 )
+            if( !transient_ret_type.0 )
             {
-                transient_type.0 = type;
+                transient_ret_type.0 = type;
             }
-            else if( transient_type.0 != type )
+            else if( transient_ret_type.0 != type )
             {
-                return source.parse_error_fa( "Object type expected: '#<sc_t>'. Object type passed: '#<sc_t>'.", o.nameof( type ), o.nameof( transient_type.0 ) );
+                return source.parse_error_fa( "Object type expected: '#<sc_t>'. Object type passed: '#<sc_t>'.", o.nameof( type ), o.nameof( transient_ret_type.0 ) );
             }
         }
     }
@@ -658,9 +658,9 @@ func (:s)
         {
             if( arg.typespec.transient_class )
             {
-                if( transient_type && ( transient_type.0 == 0 ) && ( arg.typespec.transient_class == transient_class ) )
+                if( transient_ret_type && ( transient_ret_type.0 == 0 ) && ( arg.typespec.transient_class == transient_class ) )
                 {
-                    transient_type.0 = typespec_expr.type;
+                    transient_ret_type.0 = typespec_expr.type;
                 }
 
                 if( transient_map )
@@ -693,6 +693,67 @@ func (:s)
 
     source.parse_em_fa( " " );
     o.trans( source, ")", result_out );
+    return 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:s)
+(
+    er_t trans_typespec_function
+    (
+        mutable,
+        bcore_source* source,
+        const xoico_typespec_s* in_typespec,
+        const xoico_func_s* func,
+        :result* result,
+        xoico_typespec_s* ret_typespec
+    )
+) = (try)
+{
+    const $* signature = func.signature;
+    tp_t object_type = func.obj_type;
+    sc_t sc_func_name = o.nameof( func.global_name );
+    ASSERT( sc_func_name );
+
+    $* typespec_ret = signature.typespec_ret.clone().scope();
+    tp_t transient_ret_type = 0;
+
+    $* result_arg_obj = result.clone().scope();
+    result.clear();
+    $* result_args = :result_arr_s!.scope();
+
+    o.trans_function_args
+    (
+        source,
+        object_type,
+        signature,
+        result_arg_obj,
+        in_typespec,
+        result_args,
+        &transient_ret_type
+    );
+
+    bl_t cast_ret_type = ( transient_ret_type != 0 && transient_ret_type != typespec_ret.type );
+
+    if( cast_ret_type )
+    {
+        typespec_ret.type = transient_ret_type;
+        result.push_sc( "((" );
+        o.push_typespec( typespec_ret, result );
+        result.push_sc( ")(" );
+    }
+
+    result.push_fa( "#<sc_t>", sc_func_name );
+    result.push_result_d( result_args.fork() );
+
+    if( cast_ret_type )
+    {
+        result.push_sc( "))" );
+    }
+
+    if( ret_typespec ) ret_typespec.copy( typespec_ret );
+
     return 0;
 };
 
@@ -806,49 +867,8 @@ func (:s)
         {
             if( info.func ) // member function
             {
-                $* func = info.func;
-                const $* signature = func.signature;
-                tp_t object_type = func.obj_type;
-                sc_t sc_func_name = o.nameof( func.global_name );
-                ASSERT( sc_func_name );
-
-                $* typespec_ret = signature.typespec_ret.clone().scope();
-                tp_t transient_type = 0;
-
-                $* result_arg_obj = result.clone().scope();
-                result.clear();
-                $* result_args = :result_arr_s!.scope();
-
-                xoico_transient_map_s* transient_map = o.get_transient_map( in_typespec.type );
-
-                o.trans_function_args
-                (
-                    source,
-                    object_type,
-                    signature,
-                    transient_map,
-                    result_arg_obj,
-                    in_typespec,
-                    result_args,
-                    &transient_type
-                );
-
-                if( transient_type != 0 )
-                {
-                    typespec_ret.type = transient_type;
-                    result.push_sc( "((" );
-                    o.push_typespec( typespec_ret, result );
-                    result.push_sc( ")(" );
-                }
-
-                result.push_fa( "#<sc_t>", sc_func_name );
-                result.push_result_d( result_args.fork() );
-
-                if( transient_type != 0 )
-                {
-                    result.push_sc( "))" );
-                }
-
+                $* typespec_ret = xoico_typespec_s!.scope();
+                o.trans_typespec_function( source, in_typespec, info.func, result, typespec_ret );
                 o.trans_typespec_expression( source, result, typespec_ret, out_typespec );
             }
             else // traced member element
@@ -1294,14 +1314,19 @@ func (:s)
 
     typespec.type = tp_identifier;
 
-//    if( source.parse_bl( "#?'.' " ) )
-//    {
-//        if( !source.parse_bl( "#?([0]>='0'||[0]<='1') " ) ) source.parse_error_fa( "Argument: Indirection literal expected." );
-//        sz_t indirection = 0;
-//        source.parse_fa( "#<sz_t*> ", indirection.1 );
-//        typespec.indirection = indirection;
-//    }
-//    else
+    if( source.parse_bl( "#?'.' " ) )
+    {
+        if( !source.parse_bl( "#?([0]>='0'&&[0]<='9') " ) )
+        {
+            source.set_index( index );
+            return 0;
+        }
+
+        sz_t indirection = 0;
+        source.parse_fa( "#<sz_t*> ", indirection.1 );
+        typespec.indirection = indirection;
+    }
+    else
     {
         while( source.parse_bl( "#?'*' " ) ) typespec.indirection++;
     }
@@ -1457,23 +1482,24 @@ func (:s)
         tp_t object_type = func.obj_type;
 
         $* typespec_ret = signature.typespec_ret.clone().scope( scope_local );
-        tp_t transient_type = 0;
+        tp_t transient_ret_type = 0;
 
         o.trans_function_args
         (
             source,
             object_type,
             signature,
-            NULL/*transient_map*/,
             NULL,
             NULL,
             result_func,
-            &transient_type
+            &transient_ret_type
         );
 
-        if( transient_type != 0 )
+        bl_t cast_ret_type = ( transient_ret_type != 0 && transient_ret_type != typespec_ret.type );
+
+        if( cast_ret_type )
         {
-            typespec_ret.type = transient_type;
+            typespec_ret.type = transient_ret_type;
             result.push_sc( "((" );
             o.push_typespec( typespec_ret, result );
             result.push_sc( ")(" );
@@ -1481,14 +1507,14 @@ func (:s)
 
         result.push_result_d( result_func.fork() );
 
-        if( transient_type != 0 )
+        if( cast_ret_type )
         {
             result.push_sc( "))" );
         }
 
         o.trans_typespec_expression( source, result, typespec_ret, out_typespec );
     }
-    else
+    else // untraced processing
     {
         result.push_result_d( result_func.fork() );
     }

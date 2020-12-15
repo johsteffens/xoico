@@ -72,7 +72,7 @@ func (:s) :.parse = (try)
 
     if( source.parse_bl( "#?'.' " ) )
     {
-        if( !source.parse_bl( "#?([0]>='0'||[0]<='1') " ) ) source.parse_error_fa( "Argument: Indirection literal expected." );
+        if( !source.parse_bl( "#?([0]>='0'&&[0]<='9') " ) ) source.parse_error_fa( "Argument: Indirection literal expected." );
         sz_t indirection = 0;
         source.parse_em_fa( "#<sz_t*> ", indirection.1 );
         o.indirection = indirection;
