@@ -314,24 +314,25 @@ TODO:
 - (done) add 'unaware' type modifier. Indicates that a typespec can be used to reference unaware objects (e.g. primitive objects).
        The implementation of such a function must handle unaware objects correctly.
 
-- fully handle default functions for arrays  (add them as 'func' and let cengine generate the code)
-- introduce simple way to call the default implementation of a feature
-- introduce simple way to test if a feature is implemented
-- scope instances on stack: e.g. scope st_s st;
-- is term 'indirection' proper?
-- bug: binary operator not recognized after unregistered member function
-- c-he: add purity level; higher purity raises errors on untraced conditions
-- (speculative) syntax: accessing a feature as non-function-member yields (non-addressable) bl_t indicating if function is defined for the object
-    e.g.:  if( source.get_index ) --> if( bcore_source_a_defines_get_index( source ) )
-
-- typespec: add transient_class
+- (done) typespec: add transient_class
    - used in function arguments indicating that the function's return type can be safely casted into the input type of the transient-argument.
    - used as a generic typelock (the stamp associates a type with the transient_class )
-- move standard array functions to explicit implementations in the corresponding group
-- bug: stamp default function 'create' is not registered
-- introduce function wrapping mechanism for a group function
-- decompose reflection items in a stamp; parse and analyze them individually; compute actual reflection only in expand phase
-- func: have xoico_func_s own a weak reference to signature; signature is copied in case it needs modifications (e.g. resolving transient types or '@')
+- (done) move standard array functions to explicit implementations in the corresponding group
+- (done) introduce function wrapping mechanism for a group function
+- (done) decompose reflection items in a stamp; parse and analyze them individually; compute actual reflection only in expand phase
+- (done) func: have xoico_func_s own signature;
+- (done) func: finalize: resolve all transient type; relent to host obj_type
+- (done: waive-flags) c-he: add purity level; higher purity raises errors on untraced conditions
+- (done) fully handle default functions for arrays  (add them as 'func' and let cengine generate the code)
+- (done) introduce simple way to call the default implementation of a feature
+- (done) introduce simple way to test if a feature is implemented
+- (yes) is term 'indirection' proper?
+- (speculative) syntax: accessing a feature as non-function-member yields (non-addressable) bl_t indicating if function is defined for the object
+    e.g.:  if( source.get_index ) --> if( bcore_source_a_defines_get_index( source ) )
+- (fixed) bug: stamp default function 'create' is not registered
+
+- scope instances on stack: e.g. scope st_s st;
+- bug: binary operator not recognized after unregistered member function
 
 Keywords (for syntax highlight)
 
