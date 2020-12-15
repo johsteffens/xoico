@@ -2,7 +2,7 @@
 
 Xoico is a self-hosting compiler for [xoila](https://github.com/johsteffens/beth#xoila)-code.
 
-It generates c-source code, which is stored in files named `*_xoila_out.{c,h}`.
+It generates c-source code, which is stored in files named `*.xo.{c,h}`.
 
 Configuration files `*_xoico.cfg` specify how xoico is to navigate through the sources.
 I tried to make them self-explanatory.
