@@ -508,6 +508,7 @@ stamp :s = aware :
 };
 
 embed "xoico_che.x";
+embed "xoico_che_function.x";
 embed "xoico_che_builtin.x";
 embed "xoico_che_control.x";
 
