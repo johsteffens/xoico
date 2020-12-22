@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-12-15T13:03:46Z
+ *  Last File Update: 2020-12-22T21:31:02Z
  *
  *  Copyright and License of this File:
  *
@@ -54,7 +54,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xo 0xE917AEC947FF7755ull
+#define HKEYOF_xoico_xo 0xD3905F68B68A5F0Dull
 
 #define TYPEOF_xoico_xo 0x798A9BCF8377232Full
 
@@ -217,7 +217,7 @@
   static inline bl_t xoico_defines_get_source_point( const xoico* o ){ return  true;} \
   static inline const bcore_source_point_s* xoico_p_get_source_point( const xoico_spect_s* p, const xoico* o ){ assert( p->get_source_point ); return p->get_source_point( o );} \
   static inline bl_t xoico_p_defines_get_source_point( const xoico_spect_s* p ){ return  true;} \
-  static inline const bcore_source_point_s* xoico_get_source_point_default( const xoico* o ){ ERR_fa( "Not implemented in #<sc_t>\n", bnameof( o->_ ) ); return  NULL;}
+  static inline const bcore_source_point_s* xoico_get_source_point_default( const xoico* o ){ ERR_fa( "Not implemented in #<sc_t>\n", bnameof( o->_ ) ); return NULL;}
 
 /**********************************************************************************************************************/
 // source: xoico_host.h
@@ -254,22 +254,22 @@
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_host ) \
   static inline er_t xoico_host_a_parse_name_st( const xoico_host* o, bcore_source* source, st_s* name ){ const xoico_host_spect_s* p = xoico_host_spect_s_get_aware( o ); assert( p->parse_name_st ); return p->parse_name_st( o, source, name );} \
   static inline bl_t xoico_host_defines_parse_name_st( const xoico_host* o ){ return  true;} \
-  static inline er_t xoico_host_parse_name_st_default( const xoico_host* o, bcore_source* source, st_s* name ){ ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return  0;} \
+  static inline er_t xoico_host_parse_name_st_default( const xoico_host* o, bcore_source* source, st_s* name ){ ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return 0;} \
   static inline er_t xoico_host_a_parse_name_tp( const xoico_host* o, bcore_source* source, tp_t* name ){ const xoico_host_spect_s* p = xoico_host_spect_s_get_aware( o ); assert( p->parse_name_tp ); return p->parse_name_tp( o, source, name );} \
   static inline bl_t xoico_host_defines_parse_name_tp( const xoico_host* o ){ return  true;} \
   er_t xoico_host_parse_name_tp_default( const xoico_host* o, bcore_source* source, tp_t* name ); \
   static inline xoico_compiler_s* xoico_host_a_compiler( const xoico_host* o ){ const xoico_host_spect_s* p = xoico_host_spect_s_get_aware( o ); assert( p->compiler ); return p->compiler( o );} \
   static inline bl_t xoico_host_defines_compiler( const xoico_host* o ){ return  true;} \
-  static inline xoico_compiler_s* xoico_host_compiler_default( const xoico_host* o ){ ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return  NULL;} \
+  static inline xoico_compiler_s* xoico_host_compiler_default( const xoico_host* o ){ ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return NULL;} \
   static inline xoico_cengine* xoico_host_a_cengine( const xoico_host* o ){ const xoico_host_spect_s* p = xoico_host_spect_s_get_aware( o ); assert( p->cengine ); return p->cengine( o );} \
   static inline bl_t xoico_host_defines_cengine( const xoico_host* o ){ return  true;} \
-  static inline xoico_cengine* xoico_host_cengine_default( const xoico_host* o ){ ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return  NULL;} \
+  static inline xoico_cengine* xoico_host_cengine_default( const xoico_host* o ){ ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return NULL;} \
   static inline tp_t xoico_host_a_obj_type( const xoico_host* o ){ const xoico_host_spect_s* p = xoico_host_spect_s_get_aware( o ); assert( p->obj_type ); return p->obj_type( o );} \
   static inline bl_t xoico_host_defines_obj_type( const xoico_host* o ){ return  true;} \
-  static inline tp_t xoico_host_obj_type_default( const xoico_host* o ){ ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return  0;} \
+  static inline tp_t xoico_host_obj_type_default( const xoico_host* o ){ ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return 0;} \
   static inline st_s* xoico_host_a_create_spect_name( const xoico_host* o ){ const xoico_host_spect_s* p = xoico_host_spect_s_get_aware( o ); assert( p->create_spect_name ); return p->create_spect_name( o );} \
   static inline bl_t xoico_host_defines_create_spect_name( const xoico_host* o ){ return  true;} \
-  static inline st_s* xoico_host_create_spect_name_default( const xoico_host* o ){ ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return  NULL;} \
+  static inline st_s* xoico_host_create_spect_name_default( const xoico_host* o ){ ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return NULL;} \
   static inline const xoico_transient_map_s* xoico_host_a_transient_map( const xoico_host* o ){ const xoico_host_spect_s* p = xoico_host_spect_s_get_aware( o ); assert( p->transient_map ); return p->transient_map( o );} \
   static inline bl_t xoico_host_defines_transient_map( const xoico_host* o ){ return xoico_host_spect_s_get_aware( o )->transient_map != NULL;} \
   static inline sc_t xoico_host_a_nameof( const xoico_host* o, tp_t type ){ const xoico_host_spect_s* p = xoico_host_spect_s_get_aware( o ); assert( p->nameof ); return p->nameof( o, type );} \
@@ -1259,6 +1259,8 @@
 #define TYPEOF_return 0xC5C7B983377CAD5Full
 #define TYPEOF_continue 0xD2BFD5ACCD1966A4ull
 #define TYPEOF_goto 0x9D40D1720EEAE746ull
+#define TYPEOF_true 0x5B5C98EF514DBFA5ull
+#define TYPEOF_false 0xB5FAE2C14238B978ull
 #define TYPEOF_xoico_che_s 0x72C73ADCFF3EA5CAull
 #define BETH_EXPAND_ITEM_xoico_che_s \
   BCORE_DECLARE_OBJECT( xoico_che_s ) \
@@ -1268,6 +1270,8 @@
       bl_t insert_source_reference; \
       bl_t waive_non_member_variable; \
       bl_t waive_non_member_function; \
+      bl_t waive_function_in_untraced_context; \
+      bl_t waive_unknown_identifier; \
       xoico_host* host; \
       xoico_compiler_s* compiler; \
       xoico_typespec_s typespec_ret; \
@@ -1565,19 +1569,19 @@
   static inline void xoico_che_result_clear_default( xoico_che_result* o ){} \
   static inline er_t xoico_che_result_a_push_char( xoico_che_result* o, char c ){ const xoico_che_result_spect_s* p = xoico_che_result_spect_s_get_aware( o ); assert( p->push_char ); return p->push_char( o, c );} \
   static inline bl_t xoico_che_result_defines_push_char( const xoico_che_result* o ){ return  true;} \
-  static inline er_t xoico_che_result_push_char_default( xoico_che_result* o, char c ){ ERR_fa( "Not implemented." ); return  0;} \
+  static inline er_t xoico_che_result_push_char_default( xoico_che_result* o, char c ){ ERR_fa( "Not implemented." ); return 0;} \
   static inline er_t xoico_che_result_a_push_sc( xoico_che_result* o, sc_t sc ){ const xoico_che_result_spect_s* p = xoico_che_result_spect_s_get_aware( o ); assert( p->push_sc ); return p->push_sc( o, sc );} \
   static inline bl_t xoico_che_result_defines_push_sc( const xoico_che_result* o ){ return  true;} \
-  static inline er_t xoico_che_result_push_sc_default( xoico_che_result* o, sc_t sc ){ ERR_fa( "Not implemented." ); return  0;} \
+  static inline er_t xoico_che_result_push_sc_default( xoico_che_result* o, sc_t sc ){ ERR_fa( "Not implemented." ); return 0;} \
   static inline er_t xoico_che_result_a_push_st( xoico_che_result* o, const st_s* st ){ const xoico_che_result_spect_s* p = xoico_che_result_spect_s_get_aware( o ); assert( p->push_st ); return p->push_st( o, st );} \
   static inline bl_t xoico_che_result_defines_push_st( const xoico_che_result* o ){ return  true;} \
-  static inline er_t xoico_che_result_push_st_default( xoico_che_result* o, const st_s* st ){ ERR_fa( "Not implemented." ); return  0;} \
+  static inline er_t xoico_che_result_push_st_default( xoico_che_result* o, const st_s* st ){ ERR_fa( "Not implemented." ); return 0;} \
   static inline xoico_che_result* xoico_che_result_a_push_result_c( xoico_che_result* o, const xoico_che_result* result ){ const xoico_che_result_spect_s* p = xoico_che_result_spect_s_get_aware( o ); assert( p->push_result_c ); return p->push_result_c( o, result );} \
   static inline bl_t xoico_che_result_defines_push_result_c( const xoico_che_result* o ){ return  true;} \
-  static inline xoico_che_result* xoico_che_result_push_result_c_default( xoico_che_result* o, const xoico_che_result* result ){ ERR_fa( "Not implemented." ); return  NULL;} \
+  static inline xoico_che_result* xoico_che_result_push_result_c_default( xoico_che_result* o, const xoico_che_result* result ){ ERR_fa( "Not implemented." ); return NULL;} \
   static inline xoico_che_result* xoico_che_result_a_push_result_d( xoico_che_result* o, xoico_che_result* result ){ const xoico_che_result_spect_s* p = xoico_che_result_spect_s_get_aware( o ); assert( p->push_result_d ); return p->push_result_d( o, result );} \
   static inline bl_t xoico_che_result_defines_push_result_d( const xoico_che_result* o ){ return  true;} \
-  static inline xoico_che_result* xoico_che_result_push_result_d_default( xoico_che_result* o, xoico_che_result* result ){ ERR_fa( "Not implemented." ); return  NULL;} \
+  static inline xoico_che_result* xoico_che_result_push_result_d_default( xoico_che_result* o, xoico_che_result* result ){ ERR_fa( "Not implemented." ); return NULL;} \
   static inline er_t xoico_che_result_a_to_sink( const xoico_che_result* o, bcore_sink* sink ){ const xoico_che_result_spect_s* p = xoico_che_result_spect_s_get_aware( o ); assert( p->to_sink ); return p->to_sink( o, sink );} \
   static inline bl_t xoico_che_result_defines_to_sink( const xoico_che_result* o ){ return xoico_che_result_spect_s_get_aware( o )->to_sink != NULL;} \
   static inline void xoico_che_result_a_set_parent_block( xoico_che_result* o, xoico_che_result_block_s* parent ){ const xoico_che_result_spect_s* p = xoico_che_result_spect_s_get_aware( o ); assert( p->set_parent_block ); p->set_parent_block( o, parent );} \
@@ -1763,4 +1767,4 @@
 vd_t xoico_xo_signal_handler( const bcore_signal_s* o );
 
 #endif // __xoico_xo_H
-// XOILA_OUT_SIGNATURE 0x8BB266A976B0CA62ull
+// XOILA_OUT_SIGNATURE 0x4A2D2E437DD47751ull

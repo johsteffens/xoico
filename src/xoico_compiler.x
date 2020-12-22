@@ -292,11 +292,11 @@ func (:s) :.get_type_element_info =
                 success = true;
             }
         }
-        else if( ( info.func = stamp.get_trait_line_func_from_name( name ).cast( $* ) ) ) // trait-line function
+        else if( ( info.func = stamp.get_trait_line_func_from_name( name ).cast( $* ) ) ) /// trait-line function
         {
             success = true;
         }
-        else if( ( self_item = bcore_self_s_get_first_anonymous_array_item( self ) ) ) // builtin elements for arrays
+        else if( ( self_item = bcore_self_s_get_first_anonymous_array_item( self ) ) ) /// builtin elements for arrays
         {
             if( name == TYPEOF_size )
             {
@@ -319,10 +319,16 @@ func (:s) :.get_type_element_info =
                 info.type_info.typespec.indirection = bcore_flect_caps_get_indirection( self_item.caps ) + 1;
                 success = true;
             }
-        }
-        else
-        {
-            success = false;
+            else if( name == TYPEOF_type )
+            {
+                if( bcore_flect_caps_is_typed( self_item.caps ) )
+                {
+                    info.type_info.typespec.flag_const = false;
+                    info.type_info.typespec.type = TYPEOF_tp_t;
+                    info.type_info.typespec.indirection = 0;
+                    success = true;
+                }
+            }
         }
     }
     else if( xoico_item._ == TYPEOF_xoico_group_s )

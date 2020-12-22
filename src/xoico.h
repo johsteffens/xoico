@@ -76,7 +76,7 @@ feature 'ap' er_t expand_declaration        ( const, const :host* host, sz_t ind
 feature 'ap' er_t expand_indef_declaration  ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
 feature 'ap' er_t expand_definition         ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
 feature 'ap' er_t expand_init1              ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
-feature 'ap' const bcore_source_point_s* get_source_point( const ) = { ERR_fa( "Not implemented in #<sc_t>\n", bnameof( o._ ) ); return NULL; };
+feature 'ap' const bcore_source_point_s* get_source_point( const ) = (verbatim_C) { ERR_fa( "Not implemented in #<sc_t>\n", bnameof( o->_ ) ); return NULL; };
 
 //----------------------------------------------------------------------------------------------------------------------
 // functions

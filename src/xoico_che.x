@@ -1362,6 +1362,18 @@ func (:s)
             continuation = false;
         }
 
+        // identifier represents a boolean literal
+        else if( tp_identifier == TYPEOF_true || tp_identifier == TYPEOF_false )
+        {
+            o.trans_identifier( source, result, NULL );
+            o.trans_whitespace( source, result );
+            $* typespec = xoico_typespec_s!.scope();
+            typespec.type = TYPEOF_bl_t;
+            typespec.indirection = 0;
+            typespec.flag_addressable = false;
+            o.trans_typespec_expression( source, result, typespec, out_typespec );
+        }
+
         // identifier represents a registered variable
         else if( o.is_var( tp_identifier ) )
         {
@@ -1392,6 +1404,7 @@ func (:s)
             }
             else // function name used in untraced context
             {
+                if( !o.waive_function_in_untraced_context ) return source.parse_error_fa( "Function #<sc_t> used in untraced context.\n.", o.nameof( tp_identifier ) );
                 result.push_sc( o.nameof( tp_identifier ) );
                 source.set_index( source_index );
                 o.trans_whitespace( source, result );
@@ -1399,6 +1412,7 @@ func (:s)
         }
         else // unknown identifier
         {
+            if( !o.waive_unknown_identifier ) return source.parse_error_fa( "Unknwon identifier #<sc_t>\n.", o.nameof( tp_identifier ) );
             o.trans_identifier( source, result, NULL );
             o.trans_whitespace( source, result );
 
@@ -1418,9 +1432,6 @@ func (:s)
     else if( source.parse_bl( "#=?'->'" )                ) o.trans_member( source, result );
 
     else if( source.parse_bl( "#=?'=<'" )                ) return source.parse_error_fa( "Attach operator: Expression not tractable." );
-
-//    else if( source.parse_bl( "#=?'&'" ) ) return source.parse_error_fa( "Changing indirection: Prefix '&' is disallowed. Use postfix '.&'" );
-//    else if( source.parse_bl( "#=?'*'" ) ) return source.parse_error_fa( "Changing indirection: Prefix '*' is disallowed. Use postfix '.*'" );
 
     else if( o.trans_inert_operator( source, result )       ) {} // inert operators are not interpreted by che and passed to the c-compiler
 

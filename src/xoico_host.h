@@ -32,7 +32,7 @@ XOILA_DEFINE_GROUP( xoico_host, bcore_inst )
 include deferred "xoico_compiler.h";
 
 // parses an identifier with namespace-syntax
-feature 'a' er_t parse_name_st( const, bcore_source* source, st_s* name ) = { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o._ ) ); return 0; };
+feature 'a' er_t parse_name_st( const, bcore_source* source, st_s* name ) = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return 0; };
 
 feature 'a' er_t parse_name_tp( const, bcore_source* source, tp_t* name ) = (try)
 {
@@ -44,10 +44,10 @@ feature 'a' er_t parse_name_tp( const, bcore_source* source, tp_t* name ) = (try
     return 0;
 };
 
-feature 'a' xoico_compiler_s* compiler( const ) = { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o._ ) ); return NULL; };
-feature 'a' xoico_cengine* cengine( const )     = { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o._ ) ); return NULL; };
-feature 'a' tp_t obj_type( const )              = { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o._ ) ); return 0; };
-feature 'a' st_s* create_spect_name( const )    = { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o._ ) ); return NULL; };
+feature 'a' xoico_compiler_s* compiler( const ) = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return NULL; };
+feature 'a' xoico_cengine* cengine( const )     = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return NULL; };
+feature 'a' tp_t obj_type( const )              = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return 0; };
+feature 'a' st_s* create_spect_name( const )    = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return NULL; };
 feature 'a' const xoico_transient_map_s* transient_map( const );
 
 feature 'a' sc_t nameof( const, tp_t type ) =

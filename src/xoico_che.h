@@ -36,11 +36,11 @@ XOILA_DEFINE_GROUP( xoico_che, xoico_cengine )
 group :result = :
 {
     feature void clear( mutable )             = {};
-    feature er_t push_char( mutable, char c ) = { ERR_fa( "Not implemented." ); return 0; };
-    feature er_t push_sc( mutable, sc_t sc )  = { ERR_fa( "Not implemented." ); return 0; };
-    feature er_t push_st( mutable, const st_s* st ) = { ERR_fa( "Not implemented." ); return 0; };
-    feature :* push_result_c( mutable, const :* result ) = { ERR_fa( "Not implemented." ); return NULL; };
-    feature :* push_result_d( mutable, :* result ) = { ERR_fa( "Not implemented." ); return NULL; };
+    feature er_t push_char( mutable, char c )            = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
+    feature er_t push_sc( mutable, sc_t sc )             = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
+    feature er_t push_st( mutable, const st_s* st )      = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
+    feature :* push_result_c( mutable, const :* result ) = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
+    feature :* push_result_d( mutable, :* result )       = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
     feature er_t to_sink( const, bcore_sink* sink );
 
     feature void set_parent_block( mutable, :block_s* parent ) = {};
@@ -378,6 +378,8 @@ name break;
 name return;
 name continue;
 name goto;
+name true;
+name false;
 
 stamp :s = aware :
 {
@@ -388,9 +390,19 @@ stamp :s = aware :
     /// Prepends a commented reference to the xoila source for each function in *xoila_out.c
     bl_t insert_source_reference = true;
 
-    /// purity-control: Removing tolerance produces error conditions
-    bl_t waive_non_member_variable = true; // Condition: Syntax addresses an undeclared member variable
-    bl_t waive_non_member_function = true; // Condition: Syntax addresses an undeclared member function
+    /// purity-control:
+
+    // Condition: identifier specifies an undeclared member variable
+    bl_t waive_non_member_variable = true;
+
+    // Condition: identifier specifies an undeclared member function
+    bl_t waive_non_member_function = true;
+
+    // Condition: trans_expression: function identifier is not used in a tractable way (e.g. not as function call).
+    bl_t waive_function_in_untraced_context = true;
+
+    // Condition: trans_expression encounters an unknown identifier
+    bl_t waive_unknown_identifier = true;
 
     /// runtime data
     hidden xoico_host*       host;

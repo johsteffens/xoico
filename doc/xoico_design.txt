@@ -330,6 +330,7 @@ TODO:
 - (speculative) syntax: accessing a feature as non-function-member yields (non-addressable) bl_t indicating if function is defined for the object
     e.g.:  if( source.get_index ) --> if( bcore_source_a_defines_get_index( source ) )
 - (fixed) bug: stamp default function 'create' is not registered
+- (fixed) bug: a feature declared in a stump fails binding and does not produce an error if it is defined in a stamp as non-feature member function
 
 - scope instances on stack: e.g. scope st_s st;
 - bug: binary operator not recognized after unregistered member function

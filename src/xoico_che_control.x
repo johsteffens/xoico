@@ -435,7 +435,7 @@ func (:s)( er_t trans_control_return( mutable, bcore_source* source, :result* re
     }
     else
     {
-        result_blm.push_sc( "BLM_RETURN" );
+        result_blm.push_sc( "BLM_RETURN()" );
         result_blm.push_result_d( result_expr_adapted.fork() );
         result_blm.push_sc( ";" );
     }

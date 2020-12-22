@@ -255,7 +255,7 @@ func (:s) xoico.parse = (try)
             $* stump = xoico_stamp_s!.scope( scope_local );
             stump.group = o;
             stump.parse( o, source );
-            stump.make_funcs_overloadable();
+            //stump.make_funcs_overloadable();
             compiler.register_item( stump );
             compiler.life_a_push( stump.fork() );
             if( extend_stump )
