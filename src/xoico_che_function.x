@@ -42,14 +42,14 @@ func (:s)
         if( !result_object_expr )
         {
             $* result_expr   = :result_create_arr().scope();
-            $* typespec_expr = xoico_typespec_s!.scope();
+            $* typespec_expr = xoico_typespec_s!^^;
             o.trans_expression( source, result_expr, typespec_expr );
             result_object_expr = result_expr;
             typespec_object = typespec_expr;
             if( signature.args.size > 0 ) source.parse_em_fa( " ," );
         }
 
-        xoico_typespec_s* typespec_object_adapted = xoico_typespec_s!.scope();
+        xoico_typespec_s* typespec_object_adapted = xoico_typespec_s!^^;
         typespec_object_adapted.type = object_type ? object_type : typespec_object.type;
         typespec_object_adapted.flag_const = signature.arg_o == TYPEOF_const;
         typespec_object_adapted.indirection = 1; // first argument of a member function has always indirection 1
@@ -103,8 +103,8 @@ func (:s)
     {
         if( arg.is_variadic() ) break;
 
-        $* result_expr = :result_arr_s!.scope();
-        $* typespec_expr = xoico_typespec_s!.scope( scope_local );
+        $* result_expr = :result_arr_s!^^;
+        $* typespec_expr = xoico_typespec_s!^;
         source.parse_em_fa( " " );
 
         if( __i > 0 )
@@ -181,7 +181,7 @@ func (:s)
     $* typespec_ret = signature.typespec_ret.clone().scope( scope_local );
     tp_t transient_return_type = 0;
 
-    $* result_args = :result_arr_s!.scope();
+    $* result_args = :result_arr_s!^^;
     o.trans_function_args
     (
         source,

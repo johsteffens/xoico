@@ -45,7 +45,7 @@ func (:s) (er_t append( mutable, const xoico_host* host, bcore_source* source ))
     {
         if( o.is_variadic() ) return source.parse_error_fa( "Cannot append to variadic argument list." );
         if( !first ) xoico_parse_f( source, " , " );
-        $* arg = xoico_arg_s!.scope();
+        $* arg = xoico_arg_s!^^;
         arg.parse( host, source );
         o.push_d( arg.fork() );
         first = false;

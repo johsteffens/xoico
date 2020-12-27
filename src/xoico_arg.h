@@ -53,7 +53,7 @@ func (:s) xoico.parse = (try)
         return o.source_point.parse_error_fa( "'void' is misplaced here." );
     }
 
-    $* s = st_s!.scope();
+    $* s = st_s!^^;
     source.parse_em_fa( "#name ", s );
     if( s.size == 0 )
     {

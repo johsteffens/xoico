@@ -36,7 +36,7 @@ feature 'a' er_t parse_name_st( const, bcore_source* source, st_s* name ) = (ver
 
 feature 'a' er_t parse_name_tp( const, bcore_source* source, tp_t* name ) = (try)
 {
-    $* s = st_s!.scope();
+    $* s = st_s!^^;
     o.parse_name_st( source, s );
     if( s.size == 0 ) return source.parse_error_fa( "Identifier expected." );
     tp_t t = o.compiler().entypeof( s.sc );

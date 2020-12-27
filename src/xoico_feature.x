@@ -27,6 +27,7 @@ func (:s) xoico.get_hash =
     hash = bcore_tp_fold_bl( hash, o.flag_t );
     hash = bcore_tp_fold_bl( hash, o.flag_a );
     hash = bcore_tp_fold_bl( hash, o.flag_r );
+    hash = bcore_tp_fold_sc( hash, o.st_default_func_name.sc );
     return hash;
 };
 
@@ -41,7 +42,7 @@ func (:s) xoico.parse = (try)
 
     if( source.parse_bl( " #?|'|" ) )
     {
-        st_s* flags = st_s!.scope();
+        st_s* flags = st_s!^^;
         source.parse_em_fa( " #until'''", flags );
         for( sz_t i = 0; i < flags.size; i++ )
         {
@@ -79,10 +80,9 @@ func (:s) xoico.parse = (try)
     }
     else if( source.parse_bl( " #?w'extern' " ) )
     {
-        st_s* st_name = st_s!.scope();
-        source.parse_em_fa( " #name ", st_name );
-        if( st_name.size == 0 ) return source.parse_error_fa( "Feature: Default function name expected." );
-        o.st_default_func_name.copy_fa( "#<sc_t>_#<sc_t>", compiler.nameof( o.signature.name ), st_name.sc );
+        o.st_default_func_name.clear();
+        source.parse_fa( "#name ", &o.st_default_func_name );
+        if( o.st_default_func_name.size == 0 ) return source.parse_error_fa( "Feature: Default function: Global function name expected." );
     }
 
     source.parse_em_fa( " ; " );
@@ -119,7 +119,7 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
     sc_t sc_obj_type = compiler.nameof( host.obj_type() );
     sc_t sc_spect_name = host.create_spect_name().scope().sc;
 
-    st_s* st_ret_typespec = st_s!.scope();
+    st_s* st_ret_typespec = st_s!^^;
     o.signature.typespec_ret.expand( host, st_ret_typespec );
     bl_t has_ret = ( o.signature.typespec_ret.type != TYPEOF_void );
     sc_t sc_ret_typespec = st_ret_typespec.sc;
@@ -129,7 +129,7 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
 
     if( o.flag_a )
     {
-        st_s* st = st_s!.scope();
+        st_s* st = st_s!^^;
         st.push_fa( "(#<sc_t> a_#<sc_t>(", sc_ret_typespec, sc_name );
         st.push_fa( flag_const ? " const" : " mutable" );
         o.signature.args.expand( host, false, st );
@@ -154,7 +154,7 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
 
     if( o.flag_a )
     {
-        st_s* st = st_s!.scope();
+        st_s* st = st_s!^^;
         st.push_fa( "(bl_t defines_#<sc_t>( const )) = ", sc_name );
         if( always_defined )
         {
@@ -176,7 +176,7 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
 
     if( o.flag_t )
     {
-        st_s* st = st_s!.scope();
+        st_s* st = st_s!^^;
         st.push_fa( "(#<sc_t> t_#<sc_t>( typed", sc_ret_typespec, sc_name );
         st.push_fa( flag_const ? " const" : " mutable" );
         o->signature.args.expand( host, false, st );
@@ -194,7 +194,7 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
 
     if( o->flag_t )
     {
-        st_s* st = st_s!.scope();
+        st_s* st = st_s!^^;
         st.push_fa( "(bl_t t_defines_#<sc_t>( tp_t t )) = ", sc_name );
         if( always_defined )
         {
@@ -211,7 +211,7 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
 
     if( o.flag_p )
     {
-        st_s* st = st_s!.scope();
+        st_s* st = st_s!^^;
         st.push_fa( "(#<sc_t> p_#<sc_t>( const #<sc_t>* p,", sc_ret_typespec, sc_name, sc_spect_name );
 
         if( flag_const ) st.push_fa( " const" );
@@ -230,7 +230,7 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
 
     if( o.flag_p )
     {
-        st_s* st = st_s!.scope();
+        st_s* st = st_s!^^;
         st.push_fa( "(bl_t p_defines_#<sc_t>( const #<sc_t>* p )) = ", sc_name, sc_spect_name );
         if( always_defined )
         {
@@ -247,7 +247,7 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
 
     if( o.flag_r )
     {
-        st_s* st = st_s!.scope();
+        st_s* st = st_s!^^;
         st.push_fa( "( #<sc_t> r_#<sc_t>(", sc_ret_typespec, sc_name );
         st.push_fa( " const sr_s* o" );
         o.signature.args.expand( host, false, st );
@@ -273,7 +273,7 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
 
     if( o.flag_r )
     {
-        st_s* st = st_s!.scope();
+        st_s* st = st_s!^^;
 
         st.push_fa( "(bl_t r_defines_#<sc_t>( const sr_s* o )) = ", sc_name );
         if( always_defined )
@@ -291,7 +291,7 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
 
     if( o.st_default_func_name.size > 0 )
     {
-        st_s* st = st_s!.scope();
+        st_s* st = st_s!^^;
         st.push_fa( "(#<sc_t> #<sc_t>(", sc_ret_typespec, o.st_default_func_name.sc );
         if( flag_const ) st.push_fa( " const" );
         st.push_fa( " #<sc_t>* o", sc_obj_type );

@@ -82,7 +82,7 @@ func (:s)
     {
         source.parse_em_fa( "cast ( " );
         $* result = :result_create_arr().scope();
-        $* typespec = xoico_typespec_s!.scope();
+        $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
         source.parse_em_fa( " , " );
         typespec_expr = typespec;
@@ -90,7 +90,7 @@ func (:s)
     }
 
     result_out.push_sc( "((" );
-    $* typespec_cast = xoico_typespec_s!.scope();
+    $* typespec_cast = xoico_typespec_s!^^;
 
     o.take_typespec( source, typespec_cast, true );
 
@@ -152,18 +152,29 @@ func (:s)
 ) = (try)
 {
     bl_t has_arg = false;
+    bl_t closing_bracket = true;
+
+    sz_t level = 0;
 
     if( result_expr ) // member call
     {
-        source.parse_em_fa( " ( " );
-        result_out.clear();
-        has_arg = !source.parse_bl( "#=?')'" );
+        if( source.parse_bl( "#?'^'" ) )
+        {
+            level = source.parse_bl( "#?'^'" ) ? 0 : o.level;
+            closing_bracket = false;
+        }
+        else
+        {
+            source.parse_em_fa( " ( " );
+            result_out.clear();
+            has_arg = !source.parse_bl( "#=?')'" );
+        }
     }
     else // direct call
     {
         source.parse_em_fa( "scope ( " );
         $* result = :result_create_arr().scope();
-        $* typespec = xoico_typespec_s!.scope();
+        $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
         typespec_expr = typespec;
         result_expr = result;
@@ -173,8 +184,6 @@ func (:s)
     const xoico_typespec_s* typespec_scope = typespec_expr;
 
     result_out.push_sc( "((" );
-
-    sz_t level = 0;
 
     if( has_arg )
     {
@@ -199,7 +208,7 @@ func (:s)
         }
     }
 
-    source.parse_em_fa( " )" );
+    if( closing_bracket ) source.parse_em_fa( " )" );
 
     if( typespec_scope.type        == 0 ) return source.parse_error_fa( "Operator 'scope': Expression not tractable." );
     if( typespec_scope.indirection != 1 ) return source.parse_error_fa( "Operator 'scope': Expression's indirection != 1." );
@@ -255,7 +264,7 @@ func (:s)
     {
         source.parse_em_fa( "fork ( " );
         $* result = :result_create_arr().scope();
-        $* typespec = xoico_typespec_s!.scope();
+        $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
         typespec_expr = typespec;
         result_expr = result;
@@ -321,7 +330,7 @@ func (:s)
 
         source.parse_em_fa( "( " );
         $* result = :result_create_arr().scope();
-        $* typespec = xoico_typespec_s!.scope();
+        $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
         typespec_expr = typespec;
         result_expr = result;

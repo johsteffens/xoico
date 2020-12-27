@@ -33,7 +33,7 @@ func (:s) (tp_t get_identifier( mutable, bcore_source* source, bl_t take_from_so
             case '@':
             {
                 source.get_char();
-                st_s* st_name = st_s!.scope();
+                st_s* st_name = st_s!^^;
                 st_name.copy_sc( o.nameof( o.host.obj_type() ) );
                 if( source.parse_bl( "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]=='_'||([0]>='0'&&[0]<='9'))" ) )
                 {
@@ -58,7 +58,7 @@ func (:s) (tp_t get_identifier( mutable, bcore_source* source, bl_t take_from_so
 
             default:
             {
-                st_s* st_name = st_s!.scope();
+                st_s* st_name = st_s!^^;
                 source.parse_fa( "#name", st_name );
                 tp_identifier = o.entypeof( st_name.sc );
             }
@@ -529,11 +529,11 @@ func (:s)
 
         if( fail_msg )
         {
-            $* st_typespec_expr = st_s!.scope();
-            $* st_typespec_target = st_s!.scope();
+            $* st_typespec_expr = st_s!^^;
+            $* st_typespec_target = st_s!^^;
             o.typespec_to_sink( typespec_expr, st_typespec_expr );
             o.typespec_to_sink( typespec_target, st_typespec_target );
-            $* msg = st_s!.scope();
+            $* msg = st_s!^^;
             msg.push_fa( "Implicit cast from '#<sc_t>' to '#<sc_t>' is not allowed. ", st_typespec_expr.sc, st_typespec_target.sc );
             msg.push_fa( "Reason: #<st_s*>\n", fail_msg );
             return source.parse_error_fa( "#<st_s*>", msg );
@@ -577,7 +577,7 @@ func (:s)
         source.parse_em_fa( "." );
     }
     source.parse_em_fa( " " );
-    xoico_compiler_element_info_s* info = xoico_compiler_element_info_s!.scope();
+    xoico_compiler_element_info_s* info = xoico_compiler_element_info_s!^^;
 
     char c = source.inspect_char();
 
@@ -594,7 +594,7 @@ func (:s)
 
         typespec_adapted.indirection = adapted_indirection;
 
-        $* result_adapted = :result_arr_s!.scope();
+        $* result_adapted = :result_arr_s!^^;
         result_adapted.push_sc( "(" );
         o.adapt_expression( source, in_typespec, typespec_adapted, result, result_adapted );
         result_adapted.push_sc( ")" );
@@ -652,7 +652,7 @@ func (:s)
         // builtin functions ...
         if( o.is_builtin_func( tp_identifier ) )
         {
-            xoico_typespec_s* typespec_builtin = xoico_typespec_s!.scope();
+            xoico_typespec_s* typespec_builtin = xoico_typespec_s!^^;
             o.trans_builtin( tp_identifier, source, result, in_typespec, result_local, typespec_builtin );
             result.copy( result_local );
             o.trans_typespec_expression( source, result, typespec_builtin, out_typespec );
@@ -661,7 +661,7 @@ func (:s)
         {
             if( info.func ) // member function
             {
-                $* typespec_ret = xoico_typespec_s!.scope();
+                $* typespec_ret = xoico_typespec_s!^^;
                 $* result_object_expr = result.clone().scope();
                 result.clear();
                 o.trans_function( source, info.func, result_object_expr, in_typespec, result, typespec_ret );
@@ -897,7 +897,7 @@ func (:s)
     sc_t sc_type = o.nameof( in_typespec.type );
     result.push_fa( "#<sc_t>", sc_type );
 
-    xoico_typespec_s* typespec_rval = xoico_typespec_s!.scope();
+    xoico_typespec_s* typespec_rval = xoico_typespec_s!^^;
     if( o.is_group( in_typespec.type ) )
     {
         result.push_sc( "_a" );
@@ -931,7 +931,7 @@ func (:s)
 
 func (:s)
 (
-    er_t trans_typespec_ternary_branch
+    er_t trans_typespec_assign
     (
         mutable,
         bcore_source* source,
@@ -941,20 +941,42 @@ func (:s)
     )
 ) = (try)
 {
-    source.parse_em_fa( "?" );
-    result.push_sc( "?" );
-    xoico_typespec_s* typespec_true  = xoico_typespec_s!.scope();
+    source.parse_em_fa( "=" );
+    result.push_sc( "=" );
 
-    o.trans_expression( source, result, typespec_true );
-    source.parse_em_fa( ": " );
-    result.push_sc( ": " );
-    o.trans_expression( source, result, NULL );
-
-    if( out_typespec && typespec_true.type )
+    if( in_typespec.indirection > 0 && o.is_group( in_typespec.type ) )
     {
-        out_typespec.copy( typespec_true );
-        out_typespec.flag_addressable = false;
+        $* typespec_rval = xoico_typespec_s!^^;
+        $* result_rval = :result_arr_s!^;
+        o.trans_expression( source, result_rval, typespec_rval );
+
+        if( o.is_group( typespec_rval.type ) || o.is_stamp( typespec_rval.type ) )
+        {
+            if( typespec_rval.indirection != in_typespec.indirection )
+            {
+                return source.parse_error_fa( "Non declarative assignment: Indirection mismatch." );
+            }
+
+            if( typespec_rval.type != in_typespec.type )
+            {
+                o.adapt_expression( source, typespec_rval, in_typespec, result_rval, result );
+            }
+            else
+            {
+                result.push_result_d( result_rval.fork() );
+            }
+        }
+        else
+        {
+            result.push_result_d( result_rval.fork() );
+        }
     }
+    else
+    {
+        o.trans_expression( source, result, NULL );
+    }
+
+    if( out_typespec ) out_typespec.copy( in_typespec );
     return 0;
 };
 
@@ -1001,10 +1023,15 @@ func (:s)
     {
         o.trans_typespec_attach( source, result, in_typespec, out_typespec );
     }
+    // assign
+    else if( c[0] == '=' )
+    {
+        o.trans_typespec_assign( source, result, in_typespec, out_typespec );
+    }
     // ternary branch operator
     else if( c[0] == '?' )
     {
-        o.trans_typespec_ternary_branch( source, result, in_typespec, out_typespec );
+        o.trans_ternary_branch( source, result, out_typespec );
     }
     else if( out_typespec )
     {
@@ -1222,26 +1249,38 @@ func (:s)
     )
 ) = (try)
 {
-    $* result_type = :result_create_arr().scope();
+    $* result_local = :result_create_arr().scope();
     tp_t tp_identifier;
-    o.trans_identifier( source, result_type, tp_identifier );
-    o.trans_whitespace( source, result_type );
+    o.trans_identifier( source, result_local, tp_identifier );
+    o.trans_whitespace( source, result_local );
     if( source.parse_bl( "#?'!'" ) )
     {
         if( o.is_group( tp_identifier ) )
         {
             return source.parse_error_fa( "Operator '!': lvalue is a group." );
         }
-        result.push_fa( "#<sc_t>_create()", o.nameof( tp_identifier ) );
-        xoico_typespec_s* typespec = xoico_typespec_s!.scope();
+        result_local.clear();
+        result_local.push_fa( "#<sc_t>_create()", o.nameof( tp_identifier ) );
+
+        xoico_typespec_s* typespec = xoico_typespec_s!^^;
         typespec.type = tp_identifier;
         typespec.indirection = 1;
         typespec.flag_addressable = false;
+
+        if( source.parse_bl( "#=?'^'" ) )
+        {
+            o.trans_builtin_scope( source, result_local, typespec, result, NULL );
+        }
+        else
+        {
+            result.push_result_d( result_local.fork() );
+        }
+
         o.trans_typespec_expression( source, result, typespec, out_typespec );
     }
     else
     {
-        result.push_result_d( result_type.fork() );
+        result.push_result_d( result_local.fork() );
     }
     return 0;
 };
@@ -1261,10 +1300,20 @@ func (:s)
 {
     source.parse_em_fa( "?" );
     result.push_sc( "?" );
+    xoico_typespec_s* typespec_true  = xoico_typespec_s!^^;
+
+    o.trans_expression( source, result, typespec_true );
+    source.parse_em_fa( ": " );
+    result.push_sc( ": " );
     o.trans_expression( source, result, NULL );
-    o.trans( source, ": ", result );
-    o.trans_expression( source, result, NULL );
+
+    if( out_typespec && typespec_true.type )
+    {
+        out_typespec.copy( typespec_true );
+        out_typespec.flag_addressable = false;
+    }
     return 0;
+
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1344,7 +1393,7 @@ func (:s)
         // examples of builtin functions: scope, cast, try, fork
         if( o.is_builtin_func( tp_identifier ) )
         {
-            xoico_typespec_s* typespec_builtin = xoico_typespec_s!.scope();
+            xoico_typespec_s* typespec_builtin = xoico_typespec_s!^^;
             o.trans_builtin( tp_identifier, source, NULL, NULL, result, typespec_builtin );
             o.trans_typespec_expression( source, result, typespec_builtin, out_typespec );
         }
@@ -1367,7 +1416,7 @@ func (:s)
         {
             o.trans_identifier( source, result, NULL );
             o.trans_whitespace( source, result );
-            $* typespec = xoico_typespec_s!.scope();
+            $* typespec = xoico_typespec_s!^^;
             typespec.type = TYPEOF_bl_t;
             typespec.indirection = 0;
             typespec.flag_addressable = false;
@@ -1398,7 +1447,7 @@ func (:s)
             if( source.parse_bl( " #=?'('" ) ) // actual function call
             {
                 const xoico_func_s* func = o.get_func( tp_identifier );
-                $* typespec_ret = xoico_typespec_s!.scope();
+                $* typespec_ret = xoico_typespec_s!^^;
                 o.trans_function( source, func, NULL, NULL, result, typespec_ret );
                 o.trans_typespec_expression( source, result, typespec_ret, out_typespec );
             }
@@ -1444,9 +1493,12 @@ func (:s)
     // general bracket
     else if( source.parse_bl( "#=?'('" ) )
     {
-        xoico_typespec_s* typespec_bracket = xoico_typespec_s!.scope();
-        o.trans_bracket( source, result, typespec_bracket );
-        if( typespec_bracket.type ) o.trans_typespec_expression( source, result, typespec_bracket, out_typespec );
+        xoico_typespec_s* typespec_local = xoico_typespec_s!^^;
+        o.trans_bracket( source, result, typespec_local );
+        if( typespec_local.type )
+        {
+            o.trans_typespec_expression( source, result, typespec_local, out_typespec );
+        }
     }
 
     // array subscript
@@ -1505,7 +1557,7 @@ func (:s)
 {
     if( success ) success.0 = false;
 
-    xoico_typespec_s* typespec_var = xoico_typespec_s!.scope();
+    xoico_typespec_s* typespec_var = xoico_typespec_s!^^;
 
     sz_t index = source.get_index();
 
@@ -1542,7 +1594,7 @@ func (:s)
             }
 
             result_var.push_sc( "=" );
-            xoico_typespec_s* typespec_expr = xoico_typespec_s!.scope();
+            xoico_typespec_s* typespec_expr = xoico_typespec_s!^^;
             $* result_expr = :result_create_arr().scope();
             o.trans_expression( source, result_expr, typespec_expr );
 
@@ -1614,9 +1666,9 @@ func(:s) (er_t inspect_variable( mutable, bcore_source* source )) = (try)
 {
     source.parse_em_fa( "\?\?" );
 
-    $* st = st_s!.scope();
+    $* st = st_s!^^;
     $* result_local = :result_create_arr().scope();
-    xoico_typespec_s* typespec = xoico_typespec_s!.scope();
+    xoico_typespec_s* typespec = xoico_typespec_s!^^;
     source.parse_em_fa( " #until';' ", st );
     source.parse_em_fa( ";" );
     bcore_msg_fa( " \?? #<sc_t>;\n", st.sc );
@@ -1651,7 +1703,7 @@ func (:s) (er_t trans_statement_expression( mutable, bcore_source* source, :resu
 {
     if( o.try_block_level > 0 )
     {
-        xoico_typespec_s* typespec = xoico_typespec_s!.scope();
+        xoico_typespec_s* typespec = xoico_typespec_s!^^;
         $* result_expr = :result_create_arr().scope();
         o.trans_expression( source, result_expr, typespec );
         if
@@ -1910,7 +1962,7 @@ func (:s) (er_t setup( mutable, const xoico_host* host, const xoico_signature_s*
 
     if( signature.typed )
     {
-        $* unit = xoico_che_stack_var_unit_s!.scope();
+        $* unit = xoico_che_stack_var_unit_s!^^;
         unit.typespec.type = TYPEOF_tp_t;
         unit.typespec.flag_const = false;
         unit.typespec.indirection = 1;
@@ -1923,7 +1975,7 @@ func (:s) (er_t setup( mutable, const xoico_host* host, const xoico_signature_s*
 
     if( tp_member_obj_type )
     {
-        $* unit = xoico_che_stack_var_unit_s!.scope();
+        $* unit = xoico_che_stack_var_unit_s!^^;
         tp_t tp_member_obj_name  = o.entypeof( "o" );
         unit.typespec.flag_const = member_obj_const;
         unit.typespec.type = tp_member_obj_type;
@@ -1939,7 +1991,7 @@ func (:s) (er_t setup( mutable, const xoico_host* host, const xoico_signature_s*
     {
         if( arg.typespec.type && arg.name )
         {
-            $* unit = xoico_che_stack_var_unit_s!.scope();
+            $* unit = xoico_che_stack_var_unit_s!^^;
             unit.typespec.copy( arg.typespec );
             unit.name = arg.name;
             unit.level = o.level;
@@ -2048,7 +2100,7 @@ func (:s) (er_t translate_mutable( mutable, const xoico_host* host, const xoico_
     result_block.cast( :result_block_s* ).is_root = true;
     result_block.push_result_d( result.fork() );
 
-    st_s* buf = st_s!.scope();
+    st_s* buf = st_s!^^;
     result_block.to_sink( buf );
 
     //remove trailing whitespaces

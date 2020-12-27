@@ -272,7 +272,7 @@ TODO:
 - (speculative) allow (prepended) declaration after opening a bracket
 - (speculative) auto-scpect function return values marked 'scpect'
 
-- (speculative) non declarative assignment: allow adaptation.
+- (speculative) non declarative assignment: allow full adaptation.
     Problems:
       - Use of prefix '*', '&' requires priority handling.
       - When the target indirection is changed the actual desired functionality might change drastically in an unpredictable manner.
@@ -331,12 +331,19 @@ TODO:
     e.g.:  if( source.get_index ) --> if( bcore_source_a_defines_get_index( source ) )
 - (fixed) bug: stamp default function 'create' is not registered
 - (fixed) bug: a feature declared in a stump fails binding and does not produce an error if it is defined in a stamp as non-feature member function
+- (done) introduce operators !^ and !^^ combining create and scoping (!^ is local scope, !^^ function scope)
+- (done) non declarative assignment:
+  if both sides of assignment are traceable:
+    - allow type adaptation if target type is a group
+    - error in case of indirection mismatch.
 
-- scope instances on stack: e.g. scope st_s st;
 - bug: binary operator not recognized after unregistered member function
+- introduce builtin function 'iff' serving as ternary operator  (might be solved by transient function)
+- declaration: scope instances on stack using ^ type specifier. example: st_s^ st;
 
 Keywords (for syntax highlight)
 
 group stamp stump hidden private func name signature body aware feature extending verbatim
 mutable plain retrievable forward include deferred embed cast foreach in verbatim_C keep fork
 try deduce scope scope_local scope_func extern unaware wrap
+

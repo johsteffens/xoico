@@ -37,7 +37,7 @@ func (:s) :.parse_from_path = (try)
 
     if( !source_exists )
     {
-        xoico_source_s* xsource = xoico_source_s!.scope();
+        xoico_source_s* xsource = xoico_source_s!^^;
         xsource.target = o;
 
         xsource.name.copy_sc( source_name.sc );
@@ -70,7 +70,7 @@ func (:s) (tp_t get_hash( const )) =
 
     if( o.dependencies.size > 0 )
     {
-        $* arr_tp = bcore_arr_tp_s!.scope();
+        $* arr_tp = bcore_arr_tp_s!^^;
 
         foreach( $ target_idx in o.dependencies ) arr_tp.push( o.compiler.[ target_idx ].get_hash() );
 
@@ -137,7 +137,7 @@ func (:s) :.set_dependencies = (try)
 
 func (:s) (er_t expand_heading( const, sz_t indent, bcore_sink* sink )) = (try)
 {
-    bcore_cday_utc_s* time = bcore_cday_utc_s!.scope();
+    bcore_cday_utc_s* time = bcore_cday_utc_s!^^;
     bcore_cday_utc_s_from_system( time );
 
     sink.push_fa( "/** This file was generated from xoila source code.\n" );
@@ -155,7 +155,7 @@ func (:s) (er_t expand_heading( const, sz_t indent, bcore_sink* sink )) = (try)
     foreach( $* e in o ) sink.push_fa( " *  #<sc_t>.h\n", e.name.sc );
 
     {
-        $* arr = bcore_arr_st_s!.scope();
+        $* arr = bcore_arr_st_s!^^;
         o.explicit_embeddings_push( arr );
         arr.sort( 1 );
         if( arr.size > 0 )
@@ -343,7 +343,7 @@ func (:s) :.expand_phase1 = (try)
         }
         else
         {
-            st_s* buf = st_s!.scope();
+            st_s* buf = st_s!^^;
             o.expand_h( 0, buf );
             o.expand_c( 0, buf );
         }

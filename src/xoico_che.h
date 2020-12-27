@@ -479,7 +479,7 @@ stamp :s = aware :
 
     func :.push_typedecl =
     {
-        :stack_var_unit_s* unit = :stack_var_unit_s!.scope();
+        :stack_var_unit_s* unit = :stack_var_unit_s!^^;
         unit.level = o->level;
         unit.name = name;
         unit.typespec.copy( typespec );

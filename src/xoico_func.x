@@ -53,7 +53,6 @@ func (:s) xoico.parse = (try)
     if( source.parse_bl( " #?'('" ) )
     {
         xoico_signature_s* signature = xoico_signature_s!;
-        compiler.life_a_push( signature );
         signature.parse( host, source );
         source.parse_em_fa( " ) " );
 
@@ -61,12 +60,15 @@ func (:s) xoico.parse = (try)
         o.name = signature.name;
         o.signature_global_name = signature.global_name;
 
-        compiler.register_item( signature );
+        signature.relent( host, host.obj_type() );
+        if( host.defines_transient_map() ) signature.convert_transient_types( host, host.transient_map() );
+
+        o.signature =< signature;
     }
     else
     {
         tp_t tp_signature_base_name;
-        st_s* st_name = st_s!.scope();
+        st_s* st_name = st_s!^^;
 
         if( source.parse_bl( " #?'^'" ) )
         {
@@ -144,7 +146,10 @@ func (:s) xoico.finalize = (try)
         o.signature.relent( host, host.obj_type() );
         if( host.defines_transient_map() ) o.signature.convert_transient_types( host, host.transient_map() );
     }
-
+    else
+    {
+        if( !compiler.is_item( o.signature.get_global_name_tp() ) ) compiler.register_item( o.signature );
+    }
 
     if( o.body ) o.body.finalize( host );
 

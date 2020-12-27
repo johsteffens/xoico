@@ -86,7 +86,7 @@ func (:s) :.register_func =
 func (bl_t is_signed( sc_t file )) =
 {
     bcore_source* source = bcore_file_open_source( file ).scope();
-    st_s* data = st_s!.scope();
+    st_s* data = st_s!^^;
     while( !source.eos() ) data.push_char( source.get_u0() );
 
     if( data.size < bcore_strlen( "// XOILA_OUT_SIGNATURE" ) ) return false;
@@ -115,7 +115,7 @@ func (:s) :.check_overwrite =
 
     if( !xoico_compiler_is_signed( file ) )
     {
-        st_s* s = st_s!.scope( scope_local );
+        st_s* s = st_s!^;
         s.push_fa( "Planted file #<sc_t>: Signature check failed.\n", file );
         s.push_fa( "This file might have been created or edited outside the xoico framework.\n" );
         if( o.overwrite_unsigned_target_files )
@@ -284,7 +284,14 @@ func (:s) :.get_type_element_info =
                 ASSERT( info.func );
                 success = true;
             }
-            else if( !bcore_flect_caps_is_array( self_item.caps ) ) // arrays are handled separately
+            else if( bcore_flect_caps_is_array_fix( self_item.caps ) )
+            {
+                info.type_info.typespec.flag_const = false;
+                info.type_info.typespec.type = self_item.type;
+                info.type_info.typespec.indirection = 1;
+                success = true;
+            }
+            else if( !bcore_flect_caps_is_array_dyn( self_item.caps ) ) // dynamic arrays are handled separately
             {
                 info.type_info.typespec.flag_const = false;
                 info.type_info.typespec.type = self_item.type;

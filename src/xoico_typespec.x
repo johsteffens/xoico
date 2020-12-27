@@ -42,7 +42,7 @@ func (:s) :.parse = (try)
 
     if( source.parse_bl( "#?'(' " ) )
     {
-        st_s* s = st_s!.scope();
+        st_s* s = st_s!^^;
         source.parse_em_fa( "#name ", s );
         if( s->size == 0 ) source.parse_error_fa( "Transient class: Identifier expected." );
         o->transient_class = xoico_compiler_s_entypeof( compiler, s->sc );
@@ -64,7 +64,7 @@ func (:s) :.parse = (try)
     }
     else
     {
-        st_s* s = st_s!.scope();
+        st_s* s = st_s!^^;
         source.parse_em_fa( "#name ", s );
         if( s.size == 0 ) source.parse_error_fa( "Argument: Type expected." );
         o->type = xoico_compiler_s_entypeof( compiler, s->sc );

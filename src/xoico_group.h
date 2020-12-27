@@ -94,7 +94,7 @@ stamp :s = aware :
     private aware xoico_source_s* xoico_source;
     hidden aware  xoico_compiler_s* compiler;
 
-    bcore_source_point_s source_point;
+    bcore_source_point_s => source_point;
 
     hidden bcore_hmap_tpvd_s hmap_feature;
     hidden bcore_hmap_tpvd_s hmap_func;

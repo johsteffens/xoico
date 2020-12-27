@@ -445,7 +445,7 @@ func (:s)( er_t trans_control_return( mutable, bcore_source* source, :result* re
     result_direct.push_result_d( result_expr_adapted.fork() );
     result_direct.push_sc( ";" );
 
-    $* result_return = :result_return_s!.scope();
+    $* result_return = :result_return_s!^^;
     result_return.result_blm =< result_blm.fork();
     result_return.result_direct =< result_direct.fork();
 

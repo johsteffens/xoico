@@ -47,7 +47,7 @@ func (:s) xoico.parse = (try)
     o.map.clear();
     xoico_compiler_s* compiler = host.compiler();
     source.parse_em_fa( "( " );
-    $* s = st_s!.scope();
+    $* s = st_s!^^;
 
     while( !source.eos() )
     {

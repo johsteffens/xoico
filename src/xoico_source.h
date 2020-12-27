@@ -114,24 +114,28 @@ func (:s) xoico.parse = (try)
 
         if( source.parse_bl( " #?w'XOILA_DEFINE_GROUP'" ) )
         {
-            group = xoico_group_s!.scope();
+            group = xoico_group_s!^^;
             o.push_d( group.fork() );
             group.xoico_source = o;
             group.compiler = compiler;
 
-            st_s* st_trait_name = st_s!.scope();
+            st_s* st_trait_name = st_s!^^;
             source.parse_em_fa( " ( #name, #name", group.st_name.1, st_trait_name.1 );
             group.trait_name = compiler.entypeof( st_trait_name.sc );
 
-            if( source.parse_bl( "#?','" ) )
+            if( source.parse_bl( " #=?','" ) )
             {
-                st_s* embed_file = st_s!.scope();
-                source.parse_em_fa( " #string )", embed_file );
-                bcore_source* include_source = NULL;
-                xoico_embed_file_open( source, embed_file.sc, include_source.2 );
-                include_source.scope();
-                group.explicit_embeddings.push_st( embed_file );
-                group.parse( o, include_source );
+                while( source.parse_bl( " #?','" ) )
+                {
+                    st_s* embed_file = st_s!^;
+                    source.parse_em_fa( " #string", embed_file );
+                    bcore_source* include_source = NULL;
+                    xoico_embed_file_open( source, embed_file.sc, include_source.2 );
+                    include_source.scope();
+                    group.explicit_embeddings.push_st( embed_file );
+                    group.parse( o, include_source );
+                }
+                source.parse_em_fa( " )" );
             }
             else
             {

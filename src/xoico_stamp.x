@@ -170,7 +170,7 @@ func (:s) (sc_t get_rel_name_sc( const )) =
 func (:s) :.parse_func = (try)
 {
     $* compiler = o.group.compiler;
-    $* func = xoico_func_s!.scope();
+    $* func = xoico_func_s!^^;
     func.parse( o, source );
 
     sz_t idx = o.funcs.get_index_from_name( func->name );
@@ -214,7 +214,7 @@ func (:s) :.parse_func = (try)
 
 func (:s) :.parse_wrap = (try)
 {
-    $* wrap = xoico_wrap_s!.scope();
+    $* wrap = xoico_wrap_s!^^;
     wrap.parse( o, source );
     o.wraps.push_d( wrap.fork() );
     return 0;
@@ -226,8 +226,8 @@ func (:s) (er_t parse_extend( mutable, bcore_source* source )) = (try)
 {
     ASSERT( o.self_buf );
 
-    $* buf = st_s!.scope();
-    $* self = bcore_self_s!.scope();
+    $* buf = st_s!^^;
+    $* self = bcore_self_s!^^;
     self->type = o.tp_name;
     self->trait = o.trait_name;
 
@@ -256,7 +256,7 @@ func (:s) (er_t parse_extend( mutable, bcore_source* source )) = (try)
                 {
                     case ':':
                     {
-                        st_s* name = st_s!.scope( scope_local );
+                        st_s* name = st_s!^;
                         o.group.parse_name_recursive( source, name );
                         buf.push_st( name );
                     }
@@ -283,13 +283,13 @@ func (:s) (er_t parse_extend( mutable, bcore_source* source )) = (try)
                 }
             }
 
-            $* item = bcore_self_item_s!.scope( scope_local );
+            $* item = bcore_self_item_s!^;
             er_t er = bcore_self_item_s_parse_src( item, sr_awc( bcore_source_string_s_create_from_string( buf ).scope( scope_local ) ), self, false );
             if( bcore_flect_caps_is_array( item->caps ) && !o.first_array_item ) o.first_array_item = item.clone();
 
             if( er )
             {
-                $* msg = st_s!.scope();
+                $* msg = st_s!^^;
                 bcore_error_pop_st( er.1, msg );
                 return source.parse_error_fa( "Reflection parse error:\n#<sc_t>\n", msg.sc );
             }
@@ -307,7 +307,7 @@ func (:s) (er_t parse_extend( mutable, bcore_source* source )) = (try)
 func (:s) (er_t push_default_func_from_sc( mutable, sc_t sc )) = (try)
 {
     $* compiler = o.group.compiler;
-    $* func = xoico_func_s!.scope();
+    $* func = xoico_func_s!^^;
     func.overloadable = false;
     func.expandable = false;
 
@@ -348,7 +348,7 @@ func (:s) xoico.parse = (try)
     bl_t verbatim = source.parse_bl( " #?w'verbatim'" );
     o.self_buf =< st_s!;
 
-    $* st_stamp_name = st_s!.scope();
+    $* st_stamp_name = st_s!^^;
 
     o.source_point.set( source );
 
@@ -360,7 +360,7 @@ func (:s) xoico.parse = (try)
 
     if( source.parse_bl( " #?w'extending'" ) )
     {
-        st_s* templ_name = st_s!.scope();
+        st_s* templ_name = st_s!^^;
         o.group.parse_name_st( source, templ_name );
 
         if( !templ_name.ends_in_sc( "_s" ) )
@@ -379,7 +379,7 @@ func (:s) xoico.parse = (try)
     }
     else
     {
-        $* st_trait_name = st_s!.scope();
+        $* st_trait_name = st_s!^^;
         if( source.parse_bl( " #?w'aware'" ) ) o.is_aware = true;
         o.group.parse_name_st( source, st_trait_name );
         if( st_trait_name.size == 0 ) return source.parse_error_fa( "Trait name expected." );
@@ -439,7 +439,7 @@ func (:s) xoico.finalize = (try)
     o.self =< bcore_self_s_parse_source( bcore_source_string_s_create_from_string( o.self_source ).scope().cast( bcore_source* ), 0, 0, o.group.st_name.sc, false );
 
     // checking for repetitions in o.self (non-functions)
-    $* hmap_name = bcore_hmap_tp_s!.scope();
+    $* hmap_name = bcore_hmap_tp_s!^^;
     sz_t self_items = bcore_self_s_items_size( o.self );
     for( sz_t i = 0; i < self_items; i++ )
     {

@@ -19,12 +19,12 @@
 
 func (:target_s) :.load = (try)
 {
-    st_s* st_path = st_s!.scope();
+    st_s* st_path = st_s!^^;
     st_path.copy_sc( path );
 
     if( st_path->sc[ 0 ] != '/' )
     {
-        st_s* current_folder = st_s!.scope();
+        st_s* current_folder = st_s!^^;
         bcore_folder_get_current( current_folder );
         st_path = st_s_create_fa( "#<sc_t>/#<sc_t>", current_folder.sc, st_path.sc ).scope();
     }
@@ -58,7 +58,7 @@ func (:target_s) :.load = (try)
     {
         if( !o.dependencies_target_ ) o.dependencies_target_ = xoico_builder_arr_target_s!;
 
-        st_s* file_path = st_s!.scope( scope_local );
+        st_s* file_path = st_s!^;
         if( e.sc[ 0 ] != '/' )
         {
             if( o.root_folder ) file_path.push_fa( "#<sc_t>/", o.root_folder.sc );
@@ -127,7 +127,7 @@ func (:target_s) :.build = (try)
 
     foreach( $* e in o.sources )
     {
-        st_s* file_path = st_s!.scope( scope_local );
+        st_s* file_path = st_s!^;
         if( e.sc[ 0 ] != '/' )
         {
             if( o.root_folder ) file_path.push_fa( "#<sc_t>/", o.root_folder.sc );
@@ -158,7 +158,7 @@ func (:target_s) :.build = (try)
     if( o.target_index_ >= 0 )
     {
         ASSERT( o.target_index_ < o.compiler.size );
-        bcore_arr_sz_s* dependencies = bcore_arr_sz_s!.scope();
+        bcore_arr_sz_s* dependencies = bcore_arr_sz_s!^^;
         foreach( $* e in o->dependencies_target_ ) e.push_target_index_to_arr( dependencies );
 
         xoico_target_s* target = o.compiler.[ o.target_index_ ];

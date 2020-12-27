@@ -44,7 +44,7 @@ func (:s) xoico.parse = (try)
     o.source_point.set( source );
     $* compiler = host.compiler();
 
-    $* name_buf = st_s!.scope();
+    $* name_buf = st_s!^^;
 
     if( source.parse_bl( " #?'extending'" ) )
     {
@@ -86,7 +86,7 @@ func (:s) xoico.parse = (try)
         tp_t transient_class = 0;
         if( source.parse_bl( "#?'(' " ) )
         {
-            st_s* s = st_s!.scope();
+            st_s* s = st_s!^^;
             source.parse_em_fa( "#name ", s );
             if( s->size == 0 ) source.parse_error_fa( "Transient class: Identifier expected." );
             transient_class = compiler.entypeof( s->sc );

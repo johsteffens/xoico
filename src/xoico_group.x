@@ -66,7 +66,7 @@ func (:s) :.parse_name_recursive = (try)
     else
     {
         name.copy( o.st_name );
-        st_s* s = st_s!.scope();
+        st_s* s = st_s!^^;
         source.parse_em_fa( " #name", s );
         if( s.size > 0 ) name.push_fa( "_#<sc_t>", s.sc );
     }
@@ -95,7 +95,7 @@ func (:s) xoico_host.parse_name_st = (try)
 
 func (:s) xoico_host.parse_name_tp = (try)
 {
-    $* s = st_s!.scope();
+    $* s = st_s!^^;
 
     if( source.parse_bl( " #?':'" ) )
     {
@@ -118,11 +118,11 @@ func (:s) xoico_host.parse_name_tp = (try)
 func (:s) (er_t push_default_feature_from_sc( mutable, sc_t sc )) = (try)
 {
     $* compiler = o.compiler;
-    $* feature = xoico_feature_s!.scope();
+    $* feature = xoico_feature_s!^^;
     feature.expandable = false;
     feature.parse( o, bcore_source_string_s_create_from_sc( sc ).scope() );
 
-    if( !compiler.is_item( feature.cast( xoico* ).get_global_name_tp() ) )
+    if( !compiler.is_item( feature.get_global_name_tp() ) )
     {
         foreach( $* func in feature.funcs_return_to_group ) o.funcs.push_d( func.fork() );
         feature.funcs_return_to_group.clear();
@@ -136,9 +136,20 @@ func (:s) (er_t push_default_feature_from_sc( mutable, sc_t sc )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
+func (:s) (er_t push_default_func_from_sc( mutable, sc_t sc )) = (try)
+{
+    $* func = xoico_func_s!^^;
+    func.expandable = false;
+    func.parse( o, bcore_source_string_s_create_from_sc( sc ).scope() );
+    o.push_func_d( func.fork() );
+    return 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
 func (:s) (er_t parse_func( mutable, bcore_source* source )) = (try)
 {
-    $* func = xoico_func_s!.scope();
+    $* func = xoico_func_s!^^;
     func.parse( o, source );
     o.push_func_d( func.fork() );
     return 0;
@@ -188,30 +199,26 @@ func (:s) (er_t push_func_d( mutable, xoico_func_s* func )) = (try)
 func (:s) xoico.parse = (try)
 {
     $* compiler = o.compiler;
-    $* stack = xoico_group_source_stack_s!.scope();
+    $* stack = xoico_group_source_stack_s!^^;
     stack.push_d( source.fork() );
 
     sc_t group_termination = NULL;
 
-    o.source_point.set( source );
-    o.pre_hash = bcore_tp_init();
-    o.tp_name = compiler.entypeof( o.st_name.sc );
+    if( !o.source_point )
+    {
+        o.source_point!.set( source );
+        o.pre_hash = bcore_tp_init();
+        o.tp_name = compiler.entypeof( o.st_name.sc );
+    }
 
     if( o.parent ) // this group is nested in another group, the group body is enclosed in { ... }
     {
         source.parse_em_fa( " {" );
         group_termination = " #?'}'";
     }
-    else // this group is root
+    else if( source.parse_bl( " #?'#ifdef XOILA_SECTION'" ) ) // this group is root
     {
-        if( source.parse_bl( " #?'#ifdef XOILA_SECTION'" ) )
-        {
-            group_termination = " #?'#endif'";
-        }
-        else
-        {
-            group_termination = NULL;
-        }
+        group_termination = " #?'#endif'";
     }
 
     bl_t extend_stump = false;
@@ -241,7 +248,7 @@ func (:s) xoico.parse = (try)
         }
         else if( source.parse_bl( " #?w'stamp' " ) )
         {
-            $* stamp = xoico_stamp_s!.scope( scope_local );
+            $* stamp = xoico_stamp_s!^;
             stamp.group = o;
             stamp.parse( o, source );
             stamp.push_default_funcs();
@@ -252,7 +259,7 @@ func (:s) xoico.parse = (try)
         /// stumps are inexpandable stamps. They can be used as template.
         else if( source.parse_bl( " #?w'stump' " ) )
         {
-            $* stump = xoico_stamp_s!.scope( scope_local );
+            $* stump = xoico_stamp_s!^;
             stump.group = o;
             stump.parse( o, source );
             //stump.make_funcs_overloadable();
@@ -266,7 +273,7 @@ func (:s) xoico.parse = (try)
         }
         else if( source.parse_bl( " #?w'signature' " ) )
         {
-            $* signature = xoico_signature_s!.scope( scope_local );
+            $* signature = xoico_signature_s!^;
             signature.parse( o, source );
             source.parse_em_fa( " ; " );
             compiler.register_item( signature );
@@ -274,7 +281,7 @@ func (:s) xoico.parse = (try)
         }
         else if( bcore_source_a_parse_bl( source, " #?w'body' " ) )
         {
-            $* body = xoico_body_s!.scope( scope_local );
+            $* body = xoico_body_s!^;
             body.parse( o, source );
             source.parse_em_fa( " ; " );
             compiler.register_item( body );
@@ -282,7 +289,7 @@ func (:s) xoico.parse = (try)
         }
         else if( source.parse_bl( " #?w'feature' " ) )
         {
-            $* feature = xoico_feature_s!.scope( scope_local );
+            $* feature = xoico_feature_s!^;
             feature.parse( o, source );
             compiler.register_item( feature );
             o.hmap_feature.set( feature.signature.name, ( vd_t )feature );
@@ -297,7 +304,7 @@ func (:s) xoico.parse = (try)
             {
                 sz_t index = source.get_index();
                 source.parse_em_fa( "(" );
-                $* stamp_name = st_s!.scope( scope_local );
+                $* stamp_name = st_s!^;
                 o.parse_name_st( source, stamp_name );
                 if( source.parse_bl( " #?')'" ) )
                 {
@@ -327,20 +334,20 @@ func (:s) xoico.parse = (try)
         }
         else if( source.parse_bl( " #?w'name' " ) )
         {
-            $* name = xoico_name_s!.scope( scope_local );
+            $* name = xoico_name_s!^;
             name.parse( o, source );
             o.push_item_d( name.fork() );
         }
         else if( source.parse_bl( " #?w'type' " ) )
         {
-            $* name = xoico_name_s!.scope( scope_local );
+            $* name = xoico_name_s!^;
             name.parse( o, source );
             compiler.register_external_type( name->name );
             o.push_item_d( name.fork() );
         }
         else if( bcore_source_a_parse_bl( source, " #?w'forward' " ) )
         {
-            $* forward = xoico_forward_s!.scope( scope_local );
+            $* forward = xoico_forward_s!^;
             forward.group = o;
             forward.parse( o, source );
             o.push_item_d( forward.fork() );
@@ -358,7 +365,7 @@ func (:s) xoico.parse = (try)
             }
             else
             {
-                $* templ_name = st_s!.scope( scope_local );
+                $* templ_name = st_s!^;
                 o.parse_name_st( source, templ_name );
                 if( !templ_name.ends_in_sc( "_s" ) ) return source.parse_error_fa( "Stamp name '#<sc_t>' must end in '_s'.", templ_name.sc );
                 const xoico* item = compiler.get_const_item( typeof( templ_name.sc ) );
@@ -370,9 +377,11 @@ func (:s) xoico.parse = (try)
         }
         else if( source.parse_bl( " #?w'group' " ) )
         {
-            $* group = xoico_group_s!.scope( scope_local );
+            $* group = xoico_group_s!^;
             o.xoico_source.push_d( group.fork() );
             group.parent = o;
+            group.trait_name = o.tp_name;
+
             group.xoico_source = o.xoico_source;
             group.compiler = o.compiler;
             group.extending_stamp = o.extending_stamp;
@@ -384,14 +393,17 @@ func (:s) xoico.parse = (try)
             // flags
             if( source.parse_bl( " #?w'retrievable' " ) ) group.retrievable = true;
 
-            $* trait_name_st = st_s!.scope();
+            $* trait_name_st = st_s!^^;
             o.parse_name_st( source, trait_name_st );
-            if( trait_name_st.size > 0 ) group.trait_name = compiler.entypeof( trait_name_st.sc );
+            if( trait_name_st.size > 0 )
+            {
+                group.trait_name = compiler.entypeof( trait_name_st.sc );
+            }
 
             group.parse( o, source );
             source.parse_em_fa( " ; " );
             compiler.register_group( group );
-            xoico_nested_group_s* nested_group = xoico_nested_group_s!.scope( scope_local );
+            xoico_nested_group_s* nested_group = xoico_nested_group_s!^;
             nested_group.group = group;
             o.push_item_d( nested_group.fork() );
         }
@@ -407,7 +419,7 @@ func (:s) xoico.parse = (try)
         {
             st_s* folder = bcore_file_folder_path( bcore_source_a_get_file( source ) ).scope( scope_local );
             if( folder.size == 0 ) folder.push_char( '.' );
-            st_s* embed_file = st_s!.scope( scope_local );
+            st_s* embed_file = st_s!^;
             source.parse_em_fa( " #string" , embed_file );
             source.parse_em_fa( " ;" );
             o.explicit_embeddings.push_st( embed_file );
@@ -430,7 +442,7 @@ func (:s) xoico.parse = (try)
         else if( source.parse_bl( " #?w'include' " ) )
         {
             bl_t deferred = source.parse_bl( " #?w'deferred' " );
-            st_s* include_file = st_s!.scope( scope_local );
+            st_s* include_file = st_s!^;
             source.parse_em_fa( " #string" , include_file );
             source.parse_em_fa( " ;" );
             if( deferred )
@@ -450,11 +462,6 @@ func (:s) xoico.parse = (try)
         source.parse_em_fa( " " );// consume whitespaces
     }
 
-    /// default features
-    o.push_default_feature_from_sc( "@* clone( const );" );
-    o.push_default_feature_from_sc( "void copy( mutable, const @* src );" );
-    o.push_default_feature_from_sc( "void discard( mutable );" );
-
     if( stack.size > 1 )
     {
         return source.parse_error_fa( "Xoico: Unexpected end of group reached." );
@@ -467,6 +474,12 @@ func (:s) xoico.parse = (try)
 
 func (:s) xoico.finalize = (try)
 {
+    /// default features
+    o.push_default_feature_from_sc( "@* clone( const );" );
+    o.push_default_feature_from_sc( "void copy( mutable, const @* src );" );
+    o.push_default_feature_from_sc( "void discard( mutable );" );
+    o.push_default_func_from_sc(    "(@* t_create( tp_t t ));" );
+
     foreach( $* e in o ) e.finalize( o );
     foreach( $* func in o.funcs )
     {
