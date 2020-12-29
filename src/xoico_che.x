@@ -1024,7 +1024,7 @@ func (:s)
         o.trans_typespec_attach( source, result, in_typespec, out_typespec );
     }
     // assign
-    else if( c[0] == '=' )
+    else if( c[0] == '=' && c[1] != '=' )
     {
         o.trans_typespec_assign( source, result, in_typespec, out_typespec );
     }

@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-12-27T16:12:32Z
+ *  Last File Update: 2020-12-29T11:32:35Z
  *
  *  Copyright and License of this File:
  *
@@ -6011,7 +6011,7 @@ er_t xoico_che_s_trans_typespec_expression( xoico_che_s* o, bcore_source* source
         BLM_TRY(xoico_che_s_trans_typespec_attach(o,source, result, in_typespec, out_typespec ))
     }
     // assign
-    else if( c[0] == '=' )
+    else if( c[0] == '=' && c[1] != '=' )
     {
         BLM_TRY(xoico_che_s_trans_typespec_assign(o,source, result, in_typespec, out_typespec ))
     }
@@ -8812,4 +8812,4 @@ vd_t xoico_xo_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0x9113DB55AAEB79D4ull
+// XOILA_OUT_SIGNATURE 0x95AA6F1EB8108F5Dull
