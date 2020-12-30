@@ -1300,12 +1300,36 @@ func (:s)
 {
     source.parse_em_fa( "?" );
     result.push_sc( "?" );
-    xoico_typespec_s* typespec_true  = xoico_typespec_s!^^;
+    xoico_typespec_s* typespec_true  = xoico_typespec_s!^;
+    xoico_typespec_s* typespec_false = xoico_typespec_s!^;
 
     o.trans_expression( source, result, typespec_true );
     source.parse_em_fa( ": " );
     result.push_sc( ": " );
-    o.trans_expression( source, result, NULL );
+    o.trans_expression( source, result, typespec_false );
+
+    if( typespec_true.type && typespec_false.type )
+    {
+        if( typespec_true.type != typespec_false.type )
+        {
+            source.parse_error_fa
+            (
+                "Ternary operator: Branches differ in type: ('#<sc_t>' : '#<sc_t>')",
+                o.nameof( typespec_true.type ),
+                o.nameof( typespec_false.type )
+            );
+        }
+
+        if( typespec_true.indirection != typespec_false.indirection )
+        {
+            source.parse_error_fa
+            (
+                "Ternary operator: Branches differ in levels of indirection: ('#<sz_t>' : '#<sz_t>')",
+                typespec_true.indirection,
+                typespec_false.indirection
+            );
+        }
+    }
 
     if( out_typespec && typespec_true.type )
     {

@@ -336,9 +336,10 @@ TODO:
   if both sides of assignment are traceable:
     - allow type adaptation if target type is a group
     - error in case of indirection mismatch.
+- (fixed) bug: c-style ternary operator does not capture the yielded types in all situations
 
 - bug: binary operator not recognized after unregistered member function
-- introduce builtin function 'iff' serving as ternary operator  (might be solved by transient function)
+- introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
 - declaration: scope instances on stack using ^ type specifier. example: st_s^ st;
 
 Keywords (for syntax highlight)

@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2020-12-29T11:32:35Z
+ *  Last File Update: 2020-12-30T19:51:21Z
  *
  *  Copyright and License of this File:
  *
@@ -6248,11 +6248,31 @@ er_t xoico_che_s_trans_ternary_branch( xoico_che_s* o, bcore_source* source, xoi
     BLM_TRY(bcore_source_a_parse_em_fa(source,"?" ))
     BLM_TRY(xoico_che_result_a_push_sc(result,"?" ))
     xoico_typespec_s* typespec_true  = ((xoico_typespec_s*)BLM_LEVEL_T_PUSH(0,xoico_typespec_s,xoico_typespec_s_create()));
+    xoico_typespec_s* typespec_false = ((xoico_typespec_s*)BLM_LEVEL_T_PUSH(0,xoico_typespec_s,xoico_typespec_s_create()));
     
     BLM_TRY(xoico_che_s_trans_expression(o,source, result, typespec_true ))
     BLM_TRY(bcore_source_a_parse_em_fa(source,": " ))
     BLM_TRY(xoico_che_result_a_push_sc(result,": " ))
-    BLM_TRY(xoico_che_s_trans_expression(o,source, result, NULL ))
+    BLM_TRY(xoico_che_s_trans_expression(o,source, result, typespec_false ))
+    
+    if( typespec_true->type && typespec_false->type )
+    {
+        if( typespec_true->type != typespec_false->type )
+        {
+            BLM_TRY(bcore_source_a_parse_error_fa(source,"Ternary operator: Branches differ in type: ('#<sc_t>' : '#<sc_t>')",
+                xoico_che_s_nameof(o,typespec_true->type ),
+                xoico_che_s_nameof(o,typespec_false->type )
+            ))
+        }
+    
+        if( typespec_true->indirection != typespec_false->indirection )
+        {
+            BLM_TRY(bcore_source_a_parse_error_fa(source,"Ternary operator: Branches differ in levels of indirection: ('#<sz_t>' : '#<sz_t>')",
+                typespec_true->indirection,
+                typespec_false->indirection
+            ))
+        }
+    }
     
     if( out_typespec && typespec_true->type )
     {
@@ -6264,7 +6284,7 @@ er_t xoico_che_s_trans_ternary_branch( xoico_che_s* o, bcore_source* source, xoi
 
 er_t xoico_che_s_trans_bracket( xoico_che_s* o, bcore_source* source, xoico_che_result* result, xoico_typespec_s* out_typespec )
 {
-    // xoico_che.x:1330:5
+    // xoico_che.x:1354:5
     
     BLM_TRY(bcore_source_a_parse_em_fa(source,"(" ))
     BLM_TRY(xoico_che_result_a_push_char(result,'(' ))
@@ -6282,7 +6302,7 @@ er_t xoico_che_s_trans_bracket( xoico_che_s* o, bcore_source* source, xoico_che_
 
 er_t xoico_che_s_trans_array_subscript( xoico_che_s* o, bcore_source* source, xoico_che_result* result, xoico_typespec_s* out_typespec )
 {
-    // xoico_che.x:1357:5
+    // xoico_che.x:1381:5
     
     BLM_TRY(bcore_source_a_parse_em_fa(source,"[" ))
     BLM_TRY(xoico_che_result_a_push_sc(result,"[" ))
@@ -6294,7 +6314,7 @@ er_t xoico_che_s_trans_array_subscript( xoico_che_s* o, bcore_source* source, xo
 
 er_t xoico_che_s_trans_expression( xoico_che_s* o, bcore_source* source, xoico_che_result* result_out, xoico_typespec_s* out_typespec )
 {
-    // xoico_che.x:1378:5
+    // xoico_che.x:1402:5
     BLM_INIT_LEVEL(0);
     sc_t sc_bl_end_of_expression = "#?([0]==';'||[0]=='{'||[0]=='}'||[0]==')'||[0]==']'||[0]==','||([0]==':'&&([1]==' '||[1]=='\t'||[1]=='\n'||[1]=='/')))";
     
@@ -6460,7 +6480,7 @@ er_t xoico_che_s_trans_expression( xoico_che_s* o, bcore_source* source, xoico_c
 
 er_t xoico_che_s_try_trans_declaration( xoico_che_s* o, bcore_source* source, xoico_che_result* result_out, bl_t* success )
 {
-    // xoico_che.x:1556:5
+    // xoico_che.x:1580:5
     BLM_INIT_LEVEL(0);
     if( success ) (*(success)) = false;
     
@@ -6569,7 +6589,7 @@ er_t xoico_che_s_try_trans_declaration( xoico_che_s* o, bcore_source* source, xo
 
 er_t xoico_che_s_inspect_variable( xoico_che_s* o, bcore_source* source )
 {
-    // xoico_che.x:1665:69
+    // xoico_che.x:1689:69
     BLM_INIT_LEVEL(0);
     BLM_TRY(bcore_source_a_parse_em_fa(source,"\?\?" ))
     
@@ -6606,7 +6626,7 @@ er_t xoico_che_s_inspect_variable( xoico_che_s* o, bcore_source* source )
 
 er_t xoico_che_s_trans_statement_expression( xoico_che_s* o, bcore_source* source, xoico_che_result* result )
 {
-    // xoico_che.x:1702:97
+    // xoico_che.x:1726:97
     BLM_INIT_LEVEL(0);
     if( o->try_block_level > 0 )
     {
@@ -6647,7 +6667,7 @@ er_t xoico_che_s_trans_statement_expression( xoico_che_s* o, bcore_source* sourc
 
 er_t xoico_che_s_trans_statement( xoico_che_s* o, bcore_source* source, xoico_che_result* result )
 {
-    // xoico_che.x:1743:86
+    // xoico_che.x:1767:86
     
     BLM_TRY(xoico_che_s_trans_whitespace(o,source, result ))
     
@@ -6724,7 +6744,7 @@ er_t xoico_che_s_trans_statement( xoico_che_s* o, bcore_source* source, xoico_ch
 
 er_t xoico_che_s_trans_block_inside( xoico_che_s* o, bcore_source* source, xoico_che_result* result_out )
 {
-    // xoico_che.x:1820:93
+    // xoico_che.x:1844:93
     BLM_INIT_LEVEL(0);
     xoico_che_result* result = ((xoico_che_result*)BLM_LEVEL_A_PUSH(0,xoico_che_result_create_arr()));
     
@@ -6757,7 +6777,7 @@ er_t xoico_che_s_trans_block_inside( xoico_che_s* o, bcore_source* source, xoico
 
 er_t xoico_che_s_trans_block( xoico_che_s* o, bcore_source* source, xoico_che_result* result_out, bl_t is_break_ledge )
 {
-    // xoico_che.x:1853:107
+    // xoico_che.x:1877:107
     BLM_INIT_LEVEL(0);
     xoico_che_s_inc_block(o);
     xoico_che_result* result = ((xoico_che_result*)BLM_LEVEL_A_PUSH(0,xoico_che_result_create_arr()));
@@ -6774,7 +6794,7 @@ er_t xoico_che_s_trans_block( xoico_che_s* o, bcore_source* source, xoico_che_re
 
 er_t xoico_che_s_trans_statement_as_block( xoico_che_s* o, bcore_source* source, xoico_che_result* result_out, bl_t is_break_ledge )
 {
-    // xoico_che.x:1870:120
+    // xoico_che.x:1894:120
     BLM_INIT_LEVEL(0);
     xoico_che_result* result = ((xoico_che_result*)BLM_LEVEL_A_PUSH(0,xoico_che_result_create_arr()));
     
@@ -6807,7 +6827,7 @@ er_t xoico_che_s_trans_statement_as_block( xoico_che_s* o, bcore_source* source,
 
 er_t xoico_che_s_trans_block_inside_verbatim_c( xoico_che_s* o, bcore_source* source, xoico_che_result* result )
 {
-    // xoico_che.x:1903:100
+    // xoico_che.x:1927:100
     
     BLM_TRY(xoico_che_s_trans_whitespace(o,source, result ))
     while( !bcore_source_a_parse_bl(source,"#=?'}'" ) && !bcore_source_a_eos(source) )
@@ -6848,7 +6868,7 @@ er_t xoico_che_s_trans_block_inside_verbatim_c( xoico_che_s* o, bcore_source* so
 
 er_t xoico_che_s_setup( xoico_che_s* o, const xoico_host* host, const xoico_signature_s* signature )
 {
-    // xoico_che.x:1944:97
+    // xoico_che.x:1968:97
     BLM_INIT_LEVEL(0);
     tp_t host_obj_type = xoico_host_a_obj_type(host);
     
@@ -6912,7 +6932,7 @@ er_t xoico_che_s_setup( xoico_che_s* o, const xoico_host* host, const xoico_sign
 
 sz_t xoico_che_s_assess_indentation( bcore_source* source )
 {
-    // xoico_che.x:2009:1
+    // xoico_che.x:2033:1
     
     sz_t index = bcore_source_a_get_index(source);
     while( !bcore_source_a_eos(source) ) if( bcore_source_a_get_char(source) == '\n' ) break;
@@ -6928,7 +6948,7 @@ sz_t xoico_che_s_assess_indentation( bcore_source* source )
 
 void xoico_che_s_remove_indentation( st_s* string, sz_t indentation )
 {
-    // xoico_che.x:2025:1
+    // xoico_che.x:2049:1
     
     ASSERT( string->space >= string->size );
     
@@ -6953,7 +6973,7 @@ void xoico_che_s_remove_indentation( st_s* string, sz_t indentation )
 
 er_t xoico_che_s_translate_mutable( xoico_che_s* o, const xoico_host* host, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink )
 {
-    // xoico_che.x:2049:153
+    // xoico_che.x:2073:153
     BLM_INIT_LEVEL(0);
     BLM_TRY(xoico_che_s_setup(o,host, signature ))
     
@@ -7040,7 +7060,7 @@ er_t xoico_che_s_translate_mutable( xoico_che_s* o, const xoico_host* host, cons
 
 er_t xoico_che_s_translate( const xoico_che_s* o, const xoico_host* host, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink )
 {
-    // xoico_che.x:2137:1
+    // xoico_che.x:2161:1
     BLM_INIT_LEVEL(0);
     er_t er = xoico_che_s_translate_mutable(((xoico_che_s*)BLM_LEVEL_T_PUSH(0,xoico_che_s,xoico_che_s_clone(o))),host, body, signature, sink );
     BLM_RETURNV(er_t, er)
@@ -8812,4 +8832,4 @@ vd_t xoico_xo_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0x95AA6F1EB8108F5Dull
+// XOILA_OUT_SIGNATURE 0x60325F71BB1EB3EDull
