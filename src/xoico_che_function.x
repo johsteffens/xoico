@@ -49,26 +49,13 @@ func (:s)
             if( signature.args.size > 0 ) source.parse_em_fa( " ," );
         }
 
-        xoico_typespec_s* typespec_object_adapted = xoico_typespec_s!^^;
+        xoico_typespec_s* typespec_object_adapted = signature.arg_o.typespec.clone().scope();
         typespec_object_adapted.type = object_type ? object_type : typespec_object.type;
-        typespec_object_adapted.flag_const = signature.arg_o == TYPEOF_const;
-        typespec_object_adapted.indirection = 1; // first argument of a member function has always indirection 1
-
-        if( signature.typed )
-        {
-            if( typespec_object.type )
-            {
-                result.push_fa( "TYPEOF_#<sc_t>,", o.nameof( typespec_object.type ) );
-            }
-            else
-            {
-                return source.parse_error_fa( "Function requires a typed object reference but object expression is not tractable." );
-            }
-        }
+        typespec_object_adapted.flag_restrict = false;
 
         if( typespec_object.type )
         {
-            if( transient_class && transient_return_type && ( transient_return_type.0 == 0 ) && ( signature.arg_o_transient_class == transient_class ) )
+            if( transient_class && transient_return_type && ( transient_return_type.0 == 0 ) && ( signature.arg_o.typespec.transient_class == transient_class ) )
             {
                 transient_return_type.0 = typespec_object.type;
             }

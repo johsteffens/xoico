@@ -78,7 +78,7 @@ stamp :s = aware :
 
         if( o.signature.arg_o )
         {
-            st.push_sc( "o" );
+            o.signature.arg_o.expand_name( host, st );
             o.signature.args.expand_name( host, false, st );
         }
         else

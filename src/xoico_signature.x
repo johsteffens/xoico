@@ -22,9 +22,8 @@ func (:s) xoico.get_hash =
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
     hash = bcore_tp_fold_tp( hash, o.global_name );
     hash = bcore_tp_fold_tp( hash, o.typespec_ret.get_hash() );
+    hash = bcore_tp_fold_tp( hash, o.arg_o ? o.arg_o.get_hash() : 0 );
     hash = bcore_tp_fold_tp( hash, o.args.get_hash() );
-    hash = bcore_tp_fold_bl( hash, o.typed );
-    hash = bcore_tp_fold_tp( hash, o.arg_o );
     return hash;
 };
 
@@ -41,9 +40,7 @@ func (:s) :.set_global_name = (try)
 
 func (:s) xoico.parse = (try)
 {
-    o.source_point.set( source );
     $* compiler = host.compiler();
-
     $* name_buf = st_s!^^;
 
     if( source.parse_bl( " #?'extending'" ) )
@@ -51,26 +48,19 @@ func (:s) xoico.parse = (try)
         tp_t tp_name = 0;
         host.parse_name_tp( source, tp_name.1 );
         const $* signature = compiler.get_signature( tp_name );
-        if( !signature )
-        {
-            return source.parse_error_fa( "Could not find predefined signature '#<sc_t>'.", host.nameof( tp_name ) );
-        }
-
-        o.typespec_ret.copy( signature.typespec_ret );
-        o.args.copy( signature.args );
-        o.arg_o = signature.arg_o;
-        o.typed = signature.typed;
-
+        if( !signature ) return source.parse_error_fa( "Could not find predefined signature '#<sc_t>'.", host.nameof( tp_name ) );
+        o.copy( signature );
+        o.source_point.set( source );
         source.parse_em_fa( " #name", name_buf );
         if( name_buf.size == 0 ) return source.parse_error_fa( "Signature name missing." );
         o.name = compiler.entypeof( name_buf.sc );
-
         source.parse_em_fa( " (" );
         o.args.append( host, source );
         source.parse_em_fa( " )" );
     }
     else
     {
+        o.source_point.set( source );
         o.typespec_ret.parse( host, source );
         o.typespec_ret.flag_addressable = false;
 
@@ -93,23 +83,17 @@ func (:s) xoico.parse = (try)
             source.parse_em_fa( " ) " );
         }
 
-
-        if( source.parse_bl( " #?'typed' " ) )
-        {
-            o.typed = true;
-        }
-
-        o.arg_o = 0;
+        tp_t tp_arg_o = 0;
         if( source.parse_bl( " #?'mutable' " ) )
         {
-            o.arg_o = TYPEOF_mutable;
+            tp_arg_o = TYPEOF_mutable;
         }
         else if( source.parse_bl( " #=?'const'" ) )
         {
             source.parse_em_fa( "const " );
             if( source.parse_bl( "#?([0]==','||[0]==')')" ) )
             {
-                o.arg_o = TYPEOF_const;
+                tp_arg_o = TYPEOF_const;
             }
             else
             {
@@ -118,26 +102,19 @@ func (:s) xoico.parse = (try)
             }
         }
 
-        if( o.arg_o )
+        if( tp_arg_o )
         {
             if( !source.parse_bl( " #=?')'" ) ) source.parse_em_fa( ", " );
-            o.arg_o_transient_class = transient_class;
-        }
-        else if( o.typed )
-        {
-            source.parse_error_fa( "'typed' can not be used on plain functions." );
+            o.arg_o =< xoico_arg_s!;
+            o.arg_o.typespec.type = TYPEOF_type_object;
+            o.arg_o.typespec.flag_const = ( tp_arg_o == TYPEOF_const );
+            o.arg_o.typespec.indirection = 1;
+            o.arg_o.typespec.transient_class = transient_class;
+            o.arg_o.name = TYPEOF_o;
         }
 
         o.args.parse( host, source );
         source.parse_em_fa( " )" );
-    }
-
-    if( o.typespec_ret.transient_class )
-    {
-        if( o.typespec_ret.type == TYPEOF_void && o.typespec_ret.indirection == 0 )
-        {
-            source.parse_error_fa( "'void' can not be a transient type." );
-        }
     }
 
     o.set_global_name( host );
@@ -149,15 +126,12 @@ func (:s) xoico.parse = (try)
 
 func (:s) :.expand_declaration = (try)
 {
-    sc_t sc_name = host.compiler().nameof( host.obj_type() );
-    o.typespec_ret.expand( host, sink );
+    o.expand_ret( host, sink );
     sink.push_fa( " #<sc_t>( ", sc_func_global_name );
 
     if( o.arg_o )
     {
-        if( o.typed ) sink.push_sc( "tp_t t, " );
-        sink.push_fa( "#<sc_t>", ( o.arg_o == TYPEOF_mutable ) ? "" : "const " );
-        sink.push_fa( "#<sc_t>* o", sc_name );
+        o.arg_o.expand( host, sink );
         o.args.expand( host, false, sink );
         sink.push_fa( " )" );
     }

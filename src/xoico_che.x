@@ -1163,6 +1163,8 @@ func (:s)
         }
     }
 
+    if( source.parse_bl( " #?w'restrict'") ) typespec.flag_restrict = true;
+
     if( success ) success.0 = true;
     return 0;
 };
@@ -1971,8 +1973,8 @@ func (:s) (er_t setup( mutable, const xoico_host* host, const xoico_signature_s*
 
     const xoico_args_s* args = signature.args;
 
-    tp_t tp_member_obj_type  = ( signature.arg_o == 0 ) ? 0 : host_obj_type;
-    bl_t member_obj_const = ( signature.arg_o == TYPEOF_const );
+    tp_t tp_member_obj_type  = ( signature.arg_o ) ? host_obj_type : 0;
+    bl_t member_obj_const    = ( signature.arg_o ) ? signature.arg_o.typespec.flag_const : false;
 
     o.typespec_ret.copy( signature.typespec_ret );
 
@@ -1983,19 +1985,6 @@ func (:s) (er_t setup( mutable, const xoico_host* host, const xoico_signature_s*
     o.try_block_level = 0;
     o.stack_var.clear();
     o.init_level0();
-
-    if( signature.typed )
-    {
-        $* unit = xoico_che_stack_var_unit_s!^^;
-        unit.typespec.type = TYPEOF_tp_t;
-        unit.typespec.flag_const = false;
-        unit.typespec.indirection = 1;
-        unit.name = o.entypeof( "t" );
-        unit.level = o.level;
-        o.stack_var.push_unit( unit );
-        o.hmap_name.set_sc( "tp_t" );
-        o.hmap_name.set_sc( "t" );
-    }
 
     if( tp_member_obj_type )
     {

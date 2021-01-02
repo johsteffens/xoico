@@ -39,10 +39,8 @@ stamp :s = aware :
     tp_t global_name;
 
     xoico_typespec_s typespec_ret; // return type
+    xoico_arg_s => arg_o; // object argument (NULL in case of plain function)
     xoico_args_s args; // e.g.: sz_t a, sz_t b
-    tp_t arg_o;        // object argument: mutable | const | 0; 0 indicates a plain function.
-    bl_t typed;        // true: object argument is preceded by 'tp_t t' indicating the type of the object (for non-aware objects); no effect in case arg_o == 0
-    tp_t arg_o_transient_class;
 
     bcore_source_point_s source_point;
 
@@ -52,12 +50,16 @@ stamp :s = aware :
 
     func xoico.convert_transient_types = (try)
     {
-        if( o.arg_o_transient_class && o.arg_o_transient_class == o.typespec_ret.transient_class )
+        if( o.arg_o )
         {
-            o.typespec_ret.type = host.obj_type();
-            o.typespec_ret.transient_class = 0;
+            if( o.arg_o.typespec.transient_class && o.arg_o.typespec.transient_class == o.typespec_ret.transient_class )
+            {
+                o.typespec_ret.type = host.obj_type();
+                o.typespec_ret.transient_class = 0;
+            }
+            o.arg_o.typespec.transient_class = 0;
         }
-        o.arg_o_transient_class = 0;
+
         o.args.convert_transient_types( host, map );
         o.typespec_ret.convert_transient_types( host, map );
         return  0;
@@ -78,7 +80,13 @@ stamp :s = aware :
 
     func xoico.get_source_point = { return o.source_point; };
 
-    func (bl_t returns_a_value( const )) = { return o.typespec_ret.type != TYPEOF_void || o.typespec_ret.indirection > 0; };
+    func (bl_t returns_a_value( const )) = { return !o.typespec_ret.is_void(); };
+
+    func (er_t expand_ret( const, const xoico_host* host, bcore_sink* sink )) = (try)
+    {
+        o.typespec_ret.expand( host, sink );
+        return 0;
+    };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

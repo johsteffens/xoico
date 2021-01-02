@@ -34,6 +34,7 @@ name mutable;
 name const;
 name void;
 name _;
+name o;
 
 forward :name_s;
 forward :forward_s;

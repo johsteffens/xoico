@@ -68,7 +68,7 @@ func (:s) xoico.parse = (try)
 
     if( !signature.arg_o )
     {
-        return source.parse_error_fa( "Feature: The first argument must be 'mutable' or 'const'." );
+        return source.parse_error_fa( "Feature: A feature must have a first argument of name 'o'." );
     }
 
     if( source.parse_bl( " #=?'=' " ) )
@@ -120,10 +120,12 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
     sc_t sc_spect_name = host.create_spect_name().scope().sc;
 
     st_s* st_ret_typespec = st_s!^^;
-    o.signature.typespec_ret.expand( host, st_ret_typespec );
-    bl_t has_ret = ( o.signature.typespec_ret.type != TYPEOF_void );
+
+    bl_t has_ret = o.signature.returns_a_value();
+    o.signature.expand_ret( host, st_ret_typespec );
+
     sc_t sc_ret_typespec = st_ret_typespec.sc;
-    bl_t flag_const = o->signature.arg_o == TYPEOF_const;
+    bl_t flag_const = o->signature.arg_o.typespec.flag_const;
 
     bl_t always_defined = ( o.strict || o.default_body || o.st_default_func_name.size > 0 );
 
@@ -177,8 +179,9 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
     if( o.flag_t )
     {
         st_s* st = st_s!^^;
-        st.push_fa( "(#<sc_t> t_#<sc_t>( typed", sc_ret_typespec, sc_name );
-        st.push_fa( flag_const ? " const" : " mutable" );
+        st.push_fa( "(#<sc_t> t_#<sc_t>( tp_t t, ", sc_ret_typespec, sc_name );
+        if( flag_const ) st.push_fa( " const" );
+        st.push_fa( " #<sc_t>* o", sc_obj_type );
         o->signature.args.expand( host, false, st );
         st.push_fa( " )) = (verbatim_C) { " );
         st.push_fa( "const #<sc_t>* p = #<sc_t>_get_typed( t ); ", sc_spect_name, sc_spect_name );
@@ -329,10 +332,9 @@ func (:s) xoico.expand_indef_typedef = (try)
     if( !o.expandable ) return 0;
     xoico_compiler_s* compiler = host.compiler();
     sink.push_fa( " \\\n#rn{ }  typedef ", indent );
-    o.signature.typespec_ret.expand( host, sink );
+    o.signature.expand_ret( host, sink );
     sink.push_fa( " (*#<sc_t>)(", compiler.nameof( o.function_pointer_name ) );
-    if( o.signature.arg_o == TYPEOF_const ) sink.push_fa( " const" );
-    sink.push_fa( " #<sc_t>* o", compiler.nameof( host.obj_type() ) );
+    o.signature.arg_o.expand( host, sink );
     o.signature.args.expand( host, false, sink );
     sink.push_fa( " );" );
     return 0;

@@ -135,7 +135,7 @@ func (:s) :.expand = (try)
     sink.push_fa( "#<sc_t>", sc_type );
 
     for( sz_t i = 0; i < o.indirection; i++ ) sink.push_fa( "*" );
-    if( o.flag_restrict ) sink.push_fa( "restrict " );
+    if( o.flag_restrict ) sink.push_fa( " restrict " );
 
     return 0;
 };
@@ -222,6 +222,21 @@ func (:s) :.converts_to =
             if( o.indirection == 1 && !o.flag_const )
             {
                 return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else if( b.type == TYPEOF_bl_t && b.indirection == 0 )
+        {
+            if( o.indirection > 0 )
+            {
+                return true;
+            }
+            else if( o.type == TYPEOF_vd_t || o.type == TYPEOF_vc_t || o.type == TYPEOF_sc_t || o.type == TYPEOF_sd_t )
+            {
+                return ( o.indirection == 0 );
             }
             else
             {

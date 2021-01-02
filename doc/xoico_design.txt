@@ -341,10 +341,21 @@ TODO:
 - bug: binary operator not recognized after unregistered member function
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
 - declaration: scope instances on stack using ^ type specifier. example: st_s^ st;
+- allow implicit cast from pointer to bl_t
+- introduce transient 'const' in connection with a transient type: eg.: ((const)TO) x_inst* arg
+- make 'fork' a transient function in x_inst rather than a builtin function
+- (done) allow restrict keyword in declarations, casts, etc
+- allow restrict keyword in main object of member signatures
+- signature: remove 'typed' keyword and typed mechanism (not practical)
+- signature:
+   - formulate all arguments (including the object argument) in the same way in a unique order
+   - The object argument can only be the first argument of the list. It must also carry the name 'o'
+   - In all other cases, the function has no object argument. <=> plain function
+
 
 Keywords (for syntax highlight)
 
 group stamp stump hidden private func name signature body aware feature extending verbatim
-mutable plain retrievable forward include deferred embed cast foreach in verbatim_C keep fork
-try deduce scope scope_local scope_func extern unaware wrap
+mutable plain retrievable forward include deferred embed cast foreach in verbatim_C fork
+try deduce scope scope_local scope_func extern unaware wrap restrict
 
