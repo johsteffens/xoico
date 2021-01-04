@@ -89,7 +89,7 @@ stamp :target_s = aware :
         }
         else
         {
-            foreach( $* e in o.dependencies_target_ ) e.push_target_index_to_arr( arr );
+            foreach( m $* e in o.dependencies_target_ ) e.push_target_index_to_arr( arr );
         }
     };
 

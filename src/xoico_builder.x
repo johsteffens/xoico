@@ -19,12 +19,12 @@
 
 func (:target_s) :.load = (try)
 {
-    st_s* st_path = st_s!^^;
+    m st_s* st_path = st_s!^^;
     st_path.copy_sc( path );
 
     if( st_path->sc[ 0 ] != '/' )
     {
-        st_s* current_folder = st_s!^^;
+        m st_s* current_folder = st_s!^^;
         bcore_folder_get_current( current_folder );
         st_path = st_s_create_fa( "#<sc_t>/#<sc_t>", current_folder.sc, st_path.sc ).scope();
     }
@@ -54,11 +54,11 @@ func (:target_s) :.load = (try)
         }
     }
 
-    foreach( $* e in o.dependencies )
+    foreach( m $* e in o.dependencies )
     {
         if( !o.dependencies_target_ ) o.dependencies_target_ = xoico_builder_arr_target_s!;
 
-        st_s* file_path = st_s!^;
+        m st_s* file_path = st_s!^;
         if( e.sc[ 0 ] != '/' )
         {
             if( o.root_folder ) file_path.push_fa( "#<sc_t>/", o.root_folder.sc );
@@ -66,7 +66,7 @@ func (:target_s) :.load = (try)
 
         bl_t dep_readonly = o.readonly;
 
-        bcore_source* source = bcore_source_string_s_create_sc( e.sc ).scope( scope_local );
+        m bcore_source* source = bcore_source_string_s_create_sc( e.sc ).scope( scope_local );
         source.parse_em_fa( " #:until':'", file_path );
 
         /// remove trailing spaces
@@ -84,7 +84,7 @@ func (:target_s) :.load = (try)
             }
         }
 
-        xoico_builder_target_s* target = o->dependencies_target_.push_d( xoico_builder_target_s! );
+        m xoico_builder_target_s* target = o->dependencies_target_.push_d( xoico_builder_target_s! );
         target.parent_ = o;
 
         target.load( dep_readonly, file_path->sc );
@@ -110,11 +110,11 @@ func (:target_s) :.build = (try)
 
     tp_t tp_target_name = bentypeof( o.name.sc );
 
-    foreach( $* e in o.dependencies_target_ ) e.build();
+    foreach( m $* e in o.dependencies_target_ ) e.build();
 
     if( o.root_.hmap_built_target_.exists( tp_target_name ) )
     {
-        xoico_builder_target_s* target = o.root_.hmap_built_target_.get( tp_target_name ).cast( xoico_builder_target_s** ).1;
+        m xoico_builder_target_s* target = o.root_.hmap_built_target_.get( tp_target_name ).cast( m xoico_builder_target_s** ).1;
         o.target_index_ = target.target_index_;
         return 0;
     }
@@ -125,9 +125,9 @@ func (:target_s) :.build = (try)
 
     bcore_msg_fa( "XOICO: compiling #<sc_t>\n", o.full_path_.sc );
 
-    foreach( $* e in o.sources )
+    foreach( m $* e in o.sources )
     {
-        st_s* file_path = st_s!^;
+        m st_s* file_path = st_s!^;
         if( e.sc[ 0 ] != '/' )
         {
             if( o.root_folder ) file_path.push_fa( "#<sc_t>/", o.root_folder.sc );
@@ -158,13 +158,13 @@ func (:target_s) :.build = (try)
     if( o.target_index_ >= 0 )
     {
         ASSERT( o.target_index_ < o.compiler.size );
-        bcore_arr_sz_s* dependencies = bcore_arr_sz_s!^^;
-        foreach( $* e in o->dependencies_target_ ) e.push_target_index_to_arr( dependencies );
+        m bcore_arr_sz_s* dependencies = bcore_arr_sz_s!^^;
+        foreach( m $* e in o->dependencies_target_ ) e.push_target_index_to_arr( dependencies );
 
-        xoico_target_s* target = o.compiler.[ o.target_index_ ];
+        m xoico_target_s* target = o.compiler.[ o.target_index_ ];
 
         target.set_dependencies( dependencies );
-        st_s* signal_handler = st_s_create_fa( "#<sc_t>_general_signal_handler", o.name.sc ).scope();
+        m st_s* signal_handler = st_s_create_fa( "#<sc_t>_general_signal_handler", o.name.sc ).scope();
         if( o.signal_handler ) signal_handler.copy( o.signal_handler );
         target.signal_handler_name.copy_sc( signal_handler.sc );
         target.readonly = o.readonly;

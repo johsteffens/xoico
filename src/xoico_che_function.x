@@ -41,15 +41,15 @@ func (:s)
     {
         if( !result_object_expr )
         {
-            $* result_expr   = :result_create_arr().scope();
-            $* typespec_expr = xoico_typespec_s!^^;
+            m $* result_expr   = :result_create_arr().scope();
+            m $* typespec_expr = xoico_typespec_s!^^;
             o.trans_expression( source, result_expr, typespec_expr );
             result_object_expr = result_expr;
             typespec_object = typespec_expr;
             if( signature.args.size > 0 ) source.parse_em_fa( " ," );
         }
 
-        xoico_typespec_s* typespec_object_adapted = signature.arg_o.typespec.clone().scope();
+        m xoico_typespec_s* typespec_object_adapted = signature.arg_o.typespec.clone().scope();
         typespec_object_adapted.type = object_type ? object_type : typespec_object.type;
         typespec_object_adapted.flag_restrict = false;
 
@@ -90,8 +90,8 @@ func (:s)
     {
         if( arg.is_variadic() ) break;
 
-        $* result_expr = :result_arr_s!^^;
-        $* typespec_expr = xoico_typespec_s!^;
+        m $* result_expr = :result_arr_s!^^;
+        m $* typespec_expr = xoico_typespec_s!^;
         source.parse_em_fa( " " );
 
         if( __i > 0 )
@@ -165,10 +165,10 @@ func (:s)
 {
     const $* signature = func.signature;
 
-    $* typespec_ret = signature.typespec_ret.clone().scope( scope_local );
+    m $* typespec_ret = signature.typespec_ret.clone().scope( scope_local );
     tp_t transient_return_type = 0;
 
-    $* result_args = :result_arr_s!^^;
+    m $* result_args = :result_arr_s!^^;
     o.trans_function_args
     (
         source,

@@ -44,7 +44,7 @@ stamp :s = aware :
     {
         source.parse_em_fa( " " );
         host.parse_name_tp( source, o.group_name.1 );
-        $* st = st_s!^^;
+        m $* st = st_s!^^;
         source.parse_em_fa( " . #name ", st );
         if( st.size == 0 ) source.parse_error_fa( "Function name expected." );
         o.func_name = host.entypeof( st.sc );
@@ -54,7 +54,7 @@ stamp :s = aware :
 
     func xoico.finalize = (try)
     {
-        $* compiler = host.compiler();
+        m $* compiler = host.compiler();
         const xoico_group_s* group = compiler.get_group( o.group_name );
         if( !group ) o.source_point.parse_error_fa( "Wrap: '#<sc_t>' is not a group.", compiler.nameof( o.group_name ) );
         const xoico_func_s* func = group.get_func( o.func_name );
@@ -70,7 +70,7 @@ stamp :s = aware :
         o.func.name = o.signature.name;
         o.func.signature_global_name = o.signature.global_name;
 
-        st_s* st = st_s!^^;
+        m st_s* st = st_s!^^;
         st.push_fa( "={" );
         if( o.signature.returns_a_value() ) st.push_sc( "return " );
 

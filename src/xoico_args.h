@@ -45,7 +45,7 @@ func (:s) (er_t append( m @* o, c xoico_host* host, m bcore_source* source )) = 
     {
         if( o.is_variadic() ) return source.parse_error_fa( "Cannot append to variadic argument list." );
         if( !first ) xoico_parse_f( source, " , " );
-        $* arg = xoico_arg_s!^^;
+        m $* arg = xoico_arg_s!^^;
         arg.parse( host, source );
         o.push_d( arg.fork() );
         first = false;
@@ -57,7 +57,7 @@ func (:s) (er_t append( m @* o, c xoico_host* host, m bcore_source* source )) = 
 
 func (:s) (er_t relent( m @* o, const xoico_host* host, tp_t tp_obj_type )) =
 {
-    foreach( $* arg in o ) arg.relent( host, tp_obj_type ).try();
+    foreach( m $* arg in o ) arg.relent( host, tp_obj_type ).try();
     return 0;
 };
 
@@ -65,7 +65,7 @@ func (:s) (er_t relent( m @* o, const xoico_host* host, tp_t tp_obj_type )) =
 
 func (:s) xoico.convert_transient_types = (try)
 {
-    foreach( $* arg in o ) arg.convert_transient_types( host, map );
+    foreach( m $* arg in o ) arg.convert_transient_types( host, map );
     return  0;
 };
 
@@ -73,7 +73,7 @@ func (:s) xoico.convert_transient_types = (try)
 
 func (:s) (er_t expand( c @* o, c xoico_host* host, bl_t first, m bcore_sink* sink )) =
 {
-    foreach( $* arg in o )
+    foreach( m $* arg in o )
     {
         if( !first ) sink.push_fa( ", " );
         first = false;
@@ -86,7 +86,7 @@ func (:s) (er_t expand( c @* o, c xoico_host* host, bl_t first, m bcore_sink* si
 
 func (:s) (er_t expand_x( c @* o, c xoico_host* host, bl_t first, m bcore_sink* sink )) =
 {
-    foreach( $* arg in o )
+    foreach( m $* arg in o )
     {
         if( !first ) sink.push_fa( ", " );
         first = false;
@@ -99,7 +99,7 @@ func (:s) (er_t expand_x( c @* o, c xoico_host* host, bl_t first, m bcore_sink* 
 
 func (:s) (er_t expand_name( c @* o, c xoico_host* host, bl_t first, m bcore_sink* sink )) =
 {
-    foreach( $* arg in o )
+    foreach( m $* arg in o )
     {
         if( !first ) sink.push_fa( ", " );
         first = false;
@@ -113,7 +113,7 @@ func (:s) (er_t expand_name( c @* o, c xoico_host* host, bl_t first, m bcore_sin
 func (:s) xoico.get_hash =
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
-    foreach( $* arg in o ) hash = bcore_tp_fold_tp( hash, arg.get_hash() );
+    foreach( m $* arg in o ) hash = bcore_tp_fold_tp( hash, arg.get_hash() );
     return hash;
 };
 

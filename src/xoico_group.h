@@ -105,7 +105,7 @@ stamp :s = aware :
     func xoico.finalize;
     func xoico.expand_setup =
     {
-        foreach( $* e in o ) try( e.expand_setup( o ) );
+        foreach( m $* e in o ) try( e.expand_setup( o ) );
         return 0;
     };
 
@@ -116,7 +116,7 @@ stamp :s = aware :
 
     func :.push_item_d =
     {
-        o.cast( x_array* ).push_d( item );
+        o.cast( m x_array* ).push_d( item );
         return 0;
     };
 
@@ -138,7 +138,7 @@ stamp :s = aware :
         return p_func ? *p_func : NULL;
     };
 
-    func :.explicit_embeddings_push = { foreach( st_s* st in o.explicit_embeddings ) arr.push_st( st ); };
+    func :.explicit_embeddings_push = { foreach( m st_s* st in o.explicit_embeddings ) arr.push_st( st ); };
 
 
     func xoico_host.parse_name_st;

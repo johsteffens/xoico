@@ -36,7 +36,7 @@ func (:s) :.get_hash =
 func (:s) (er_t freeze_global_name( m @* o, const xoico_host* host )) = (try)
 {
     if( o.global_name ) return 0;
-    $* compiler = host.compiler();
+    m $* compiler = host.compiler();
     o.global_name = compiler.entypeof( st_s_create_fa( "#<sc_t>_#<sc_t>", compiler.nameof( host.obj_type() ), compiler.nameof( o.name ) ).scope().sc );
     return 0;
 };
@@ -45,14 +45,14 @@ func (:s) (er_t freeze_global_name( m @* o, const xoico_host* host )) = (try)
 
 func (:s) xoico.parse = (try)
 {
-    $* compiler = host.compiler();
+    m $* compiler = host.compiler();
 
     // global name signature
     o.source_point.set( source );
 
     if( source.parse_bl( " #?'('" ) )
     {
-        xoico_signature_s* signature = xoico_signature_s!;
+        m xoico_signature_s* signature = xoico_signature_s!^;
         signature.parse( host, source );
         source.parse_em_fa( " ) " );
 
@@ -63,12 +63,12 @@ func (:s) xoico.parse = (try)
         signature.relent( host, host.obj_type() );
         if( host.defines_transient_map() ) signature.convert_transient_types( host, host.transient_map() );
 
-        o.signature =< signature;
+        o.signature =< signature.fork();
     }
     else
     {
         tp_t tp_signature_base_name;
-        st_s* st_name = st_s!^^;
+        m st_s* st_name = st_s!^^;
 
         if( source.parse_bl( " #?'^'" ) )
         {
@@ -107,7 +107,7 @@ func (:s) xoico.parse = (try)
 
 func (:s) (er_t push_flect_decl_to_sink( c @* o, c xoico_host* host, m bcore_sink* sink )) =
 {
-    $* compiler = host.compiler();
+    m $* compiler = host.compiler();
     sink.push_sc( "func " );
     if( host._ == TYPEOF_xoico_stamp_s && o.signature.base_name == host.cast( const xoico_stamp_s* ).trait_name )
     {
@@ -125,7 +125,7 @@ func (:s) (er_t push_flect_decl_to_sink( c @* o, c xoico_host* host, m bcore_sin
 
 func (:s) xoico.finalize = (try)
 {
-    $* compiler = host.compiler();
+    m $* compiler = host.compiler();
     o.freeze_global_name( host );
     o.obj_type = host.obj_type();
 
@@ -163,7 +163,7 @@ func (:s) xoico.expand_forward = (try)
     if( !o->expandable ) return 0;
     if( !o->declare_in_expand_forward ) return 0;
 
-    $* compiler = host.compiler();
+    m $* compiler = host.compiler();
     sink.push_fa( " \\\n#rn{ }", indent );
     bl_t go_inline = o.body && o.body.go_inline;
     const $* signature = o.signature;
@@ -191,7 +191,7 @@ func (:s) xoico.expand_declaration = (try)
     bl_t go_inline = o.body && o.body.go_inline;
     const $* signature = o.signature;
     ASSERT( signature );
-    $* compiler = host.compiler();
+    m $* compiler = host.compiler();
 
     if( go_inline )
     {
@@ -215,7 +215,7 @@ func (:s) xoico.expand_declaration = (try)
 func (:s) xoico.expand_definition = (try)
 {
     if( !o.expandable ) return 0;
-    $* compiler = host.compiler();
+    m $* compiler = host.compiler();
 
     const $* signature = o.signature;
     ASSERT( signature );

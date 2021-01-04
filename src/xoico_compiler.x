@@ -51,7 +51,7 @@ func (:s) :.register_func =
 {
     if( o.hmap_func.exists( func.global_name ) )
     {
-        xoico_func_s* func_registered = o.hmap_func.get( func.global_name ).cast( xoico_func_s** );
+        m xoico_func_s* func_registered = o.hmap_func.get( func.global_name ).cast( m xoico_func_s** );
 
         if( func_registered == func )
         {
@@ -85,8 +85,8 @@ func (:s) :.register_func =
 /// returns true if correct signature could be verified
 func (bl_t is_signed( sc_t file )) =
 {
-    bcore_source* source = bcore_file_open_source( file ).scope();
-    st_s* data = st_s!^^;
+    m bcore_source* source = bcore_file_open_source( file ).scope();
+    m st_s* data = st_s!^^;
     while( !source.eos() ) data.push_char( source.get_u0() );
 
     if( data.size < bcore_strlen( "// XOILA_OUT_SIGNATURE" ) ) return false;
@@ -115,7 +115,7 @@ func (:s) :.check_overwrite =
 
     if( !xoico_compiler_is_signed( file ) )
     {
-        st_s* s = st_s!^;
+        m st_s* s = st_s!^;
         s.push_fa( "Planted file #<sc_t>: Signature check failed.\n", file );
         s.push_fa( "This file might have been created or edited outside the xoico framework.\n" );
         if( o.overwrite_unsigned_target_files )
@@ -140,8 +140,8 @@ func (:s) :.check_overwrite =
 
 func (:s) :.parse = (try)
 {
-    st_s* source_folder_path = bcore_file_folder_path( source_path ).scope();
-    st_s* target_path        = st_s_create_fa( "#<sc_t>/#<sc_t>.#<sc_t>", source_folder_path->sc, target_name, target_ext ).scope();
+    m st_s* source_folder_path = bcore_file_folder_path( source_path ).scope();
+    m st_s* target_path        = st_s_create_fa( "#<sc_t>/#<sc_t>.#<sc_t>", source_folder_path->sc, target_name, target_ext ).scope();
 
     sz_t target_index = -1;
     for( sz_t i = 0; i < o->size; i++ )
@@ -155,7 +155,7 @@ func (:s) :.parse = (try)
 
     if( target_index == -1 )
     {
-        xoico_target_s* target = xoico_target_s!;
+        m xoico_target_s* target = xoico_target_s!;
         target.compiler = o;
         target.name        .copy_fa( "#<sc_t>_#<sc_t>", target_name, target_ext );
         target.include_path.copy_fa( "#<sc_t>.#<sc_t>", target_name, target_ext );
@@ -164,7 +164,7 @@ func (:s) :.parse = (try)
         target_index = o->size - 1;
     }
 
-    xoico_target_s* target = o.[ target_index ];
+    m xoico_target_s* target = o.[ target_index ];
     target.parse_from_path( source_path );
     if( p_target_index ) p_target_index.0 = target_index;
 
@@ -175,7 +175,7 @@ func (:s) :.parse = (try)
 
 func (:s) xoico.finalize = (try)
 {
-    foreach( $* e in o ) e.finalize( o );
+    foreach( m $* e in o ) e.finalize( o );
     return 0;
 };
 
@@ -247,7 +247,7 @@ func (:s) :.get_type_info =
     ASSERT( info );
     if( item->_ == TYPEOF_xoico_stamp_s || item->_ == TYPEOF_xoico_group_s )
     {
-        info.item = item.cast( $* );
+        info.item = item.cast( m $* );
         info.typespec.type = type;
         return true;
     }
@@ -262,13 +262,13 @@ func (:s) :.get_type_element_info =
     const xoico* xoico_item = o.get_const_item( type );
     if( !xoico_item )
     {
-        xoico_item = o.cast( $* ).get_group( type ).cast( const xoico* );
+        xoico_item = o.cast( m $* ).get_group( type ).cast( const xoico* );
         if( !xoico_item ) return false;
     }
 
     bl_t success = false;
     ASSERT( info );
-    info.type_info.item = xoico_item.cast( $* );
+    info.type_info.item = xoico_item.cast( m $* );
 
     if( xoico_item->_ == TYPEOF_xoico_stamp_s )
     {
@@ -280,7 +280,7 @@ func (:s) :.get_type_element_info =
         {
             if( self_item.caps == BCORE_CAPS_EXTERNAL_FUNC )
             {
-                info.func = stamp.get_func_from_name( name ).cast( $* );
+                info.func = stamp.get_func_from_name( name ).cast( m $* );
                 ASSERT( info.func );
                 success = true;
             }
@@ -299,7 +299,7 @@ func (:s) :.get_type_element_info =
                 success = true;
             }
         }
-        else if( ( info.func = stamp.get_trait_line_func_from_name( name ).cast( $* ) ) ) /// trait-line function
+        else if( ( info.func = stamp.get_trait_line_func_from_name( name ).cast( m $* ) ) ) /// trait-line function
         {
             success = true;
         }
@@ -340,7 +340,7 @@ func (:s) :.get_type_element_info =
     }
     else if( xoico_item._ == TYPEOF_xoico_group_s )
     {
-        const $* group = xoico_item.cast( xoico_group_s* );
+        const $* group = xoico_item.cast( m xoico_group_s* );
         if( name == TYPEOF__ ) // group builtin element '_'
         {
             info.type_info.typespec.type = TYPEOF_tp_t;
@@ -349,7 +349,7 @@ func (:s) :.get_type_element_info =
         }
         else
         {
-            info.func = group.get_trait_line_func_from_name( name ).cast( $* );
+            info.func = group.get_trait_line_func_from_name( name ).cast( m $* );
             if( info.func ) success = true;
         }
     }
@@ -366,7 +366,7 @@ func (:s) :.get_type_array_element_info =
     const xoico* xoico_item = o.get_const_item( type );
     if( !xoico_item ) return false;
     bl_t success = false;
-    info.type_info.item = xoico_item.cast( xoico* );
+    info.type_info.item = xoico_item.cast( m xoico* );
 
     if( xoico_item->_ == TYPEOF_xoico_stamp_s )
     {

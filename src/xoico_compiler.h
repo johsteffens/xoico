@@ -183,27 +183,27 @@ stamp :s = aware :
     func :.get_stamp =
     {
         const xoico* item = o.get_const_item( name );
-        return ( item ) ? ( item._ == TYPEOF_xoico_stamp_s ) ? item.cast( xoico_stamp_s* ) : NULL : NULL;
+        return ( item ) ? ( item._ == TYPEOF_xoico_stamp_s ) ? item.cast( m xoico_stamp_s* ) : NULL : NULL;
     };
 
     func :.get_body =
     {
         const xoico* item = o.get_const_item( name );
-        return ( item ) ? ( item._ == TYPEOF_xoico_body_s ) ? item.cast( xoico_body_s* ) : NULL : NULL;
+        return ( item ) ? ( item._ == TYPEOF_xoico_body_s ) ? item.cast( m xoico_body_s* ) : NULL : NULL;
     };
 
     func :.get_feature =
     {
         const xoico* item = o.get_const_item( name );
-        return ( item ) ? ( item._ == TYPEOF_xoico_feature_s ) ? item.cast( xoico_feature_s* ) : NULL : NULL;
+        return ( item ) ? ( item._ == TYPEOF_xoico_feature_s ) ? item.cast( m xoico_feature_s* ) : NULL : NULL;
     };
 
     func :.get_signature =
     {
         const xoico* item = o.get_const_item( name );
         if( !item ) return NULL;
-        if( item._ == TYPEOF_xoico_signature_s ) return item.cast( xoico_signature_s* );
-        if( item._ == TYPEOF_xoico_feature_s   ) return item.cast( xoico_feature_s* ).signature;
+        if( item._ == TYPEOF_xoico_signature_s ) return item.cast( m xoico_signature_s* );
+        if( item._ == TYPEOF_xoico_feature_s   ) return item.cast( m xoico_feature_s* ).signature;
         return NULL;
     };
 
@@ -215,7 +215,7 @@ stamp :s = aware :
 
     func :.get_transient_map =
     {
-        xoico_stamp_s* stamp = o.get_stamp( type );
+        m xoico_stamp_s* stamp = o.get_stamp( type );
         return stamp ? stamp.transient_map.1 : NULL;
     };
 
@@ -255,13 +255,13 @@ stamp :s = aware :
         }
     };
 
-    func (void push_d( m @* o, m xoico_target_s* target )) =
+    func (void push_d( m @* o, d xoico_target_s* target )) =
     {
-        o.cast( x_array* ).push_d( target );
+        o.cast( m x_array* ).push_d( target );
     };
 
     /// clears flags in targets
-    func (void clear_flags( m @* o )) = { foreach( $* e in o ) e.flag = false; };
+    func (void clear_flags( m @* o )) = { foreach( m $* e in o ) e.flag = false; };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -40,6 +40,9 @@ name type_object;
 name const;
 name mutable;
 name discardable;
+name c;
+name m;
+name d;
 
 stamp :s = aware :
 {

@@ -19,14 +19,14 @@
 
 func (:s) :.parse_from_path = (try)
 {
-    st_s* source_name        = bcore_file_strip_extension( bcore_file_name( source_path ) ).scope();
-    st_s* source_folder_path = bcore_file_folder_path( source_path ).scope();
-    st_s* source_path_n      = st_s_create_fa( "#<sc_t>/#<sc_t>", source_folder_path->sc, source_name->sc ).scope();
-    st_s* source_path_h      = st_s_create_fa( "#<sc_t>.h", source_path_n->sc ).scope();
+    m st_s* source_name        = bcore_file_strip_extension( bcore_file_name( source_path ) ).scope();
+    m st_s* source_folder_path = bcore_file_folder_path( source_path ).scope();
+    m st_s* source_path_n      = st_s_create_fa( "#<sc_t>/#<sc_t>", source_folder_path->sc, source_name->sc ).scope();
+    m st_s* source_path_h      = st_s_create_fa( "#<sc_t>.h", source_path_n->sc ).scope();
 
     bl_t source_exists = false;
 
-    foreach( $* e in o )
+    foreach( m $* e in o )
     {
         if( source_path_n.equal_st( e.path ) )
         {
@@ -37,7 +37,7 @@ func (:s) :.parse_from_path = (try)
 
     if( !source_exists )
     {
-        xoico_source_s* xsource = xoico_source_s!^^;
+        m xoico_source_s* xsource = xoico_source_s!^^;
         xsource.target = o;
 
         xsource.name.copy_sc( source_name.sc );
@@ -66,11 +66,11 @@ func (:s) (tp_t get_hash( c @* o )) =
 
     if( o.cengine ) hash = bcore_tp_fold_tp( hash, o.cengine.get_hash() );
 
-    foreach( $* e in o ) hash = bcore_tp_fold_tp( hash, e.get_hash() );
+    foreach( m $* e in o ) hash = bcore_tp_fold_tp( hash, e.get_hash() );
 
     if( o.dependencies.size > 0 )
     {
-        $* arr_tp = bcore_arr_tp_s!^^;
+        m $* arr_tp = bcore_arr_tp_s!^^;
 
         foreach( $ target_idx in o.dependencies ) arr_tp.push( o.compiler.[ target_idx ].get_hash() );
 
@@ -112,9 +112,9 @@ func (:s) :.set_dependencies = (try)
     sz_t targets = o.compiler.size;
 
     /// sort, remove duplicates, copy
-    bcore_arr_sz_s* dst = o.dependencies;
+    m bcore_arr_sz_s* dst = o.dependencies;
     dst.set_size( 0 );
-    bcore_arr_sz_s* src = dependencies.clone().scope().sort( 1 );
+    m bcore_arr_sz_s* src = dependencies.clone().scope().sort( 1 );
     for( sz_t i = 0; i < src.size; i++ )
     {
         if( i == 0 || src.[ i ] != src.[ i - 1 ] )
@@ -137,7 +137,7 @@ func (:s) :.set_dependencies = (try)
 
 func (:s) (er_t expand_heading( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
 {
-    bcore_cday_utc_s* time = bcore_cday_utc_s!^^;
+    m bcore_cday_utc_s* time = bcore_cday_utc_s!^^;
     bcore_cday_utc_s_from_system( time );
 
     sink.push_fa( "/** This file was generated from xoila source code.\n" );
@@ -152,16 +152,16 @@ func (:s) (er_t expand_heading( c @* o, sz_t indent, m bcore_sink* sink )) = (tr
     sink.push_fa( " *  Source code defining this file is distributed across following files:\n" );
     sink.push_fa( " *\n" );
 
-    foreach( $* e in o ) sink.push_fa( " *  #<sc_t>.h\n", e.name.sc );
+    foreach( m $* e in o ) sink.push_fa( " *  #<sc_t>.h\n", e.name.sc );
 
     {
-        $* arr = bcore_arr_st_s!^^;
+        m $* arr = bcore_arr_st_s!^^;
         o.explicit_embeddings_push( arr );
         arr.sort( 1 );
         if( arr.size > 0 )
         {
-            st_s* prev_file = NULL;
-            foreach( st_s* file in arr )
+            m st_s* prev_file = NULL;
+            foreach( m st_s* file in arr )
             {
                 if( !file.equal_st( prev_file ) ) sink.push_fa( " *  #<sc_t>\n", file.sc );
                 prev_file = file;
@@ -199,7 +199,7 @@ func (:s) (er_t expand_h( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
 
     sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o->name.sc, typeof( o->name.sc ) );
 
-    foreach( $* e in o ) e.expand_declaration( o, indent, sink );
+    foreach( m $* e in o ) e.expand_declaration( o, indent, sink );
 
     sink.push_fa( "\n" );
     sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
@@ -234,7 +234,7 @@ func (:s) (er_t expand_c( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
 
     /// definition section
     sink.push_fa( "\n" );
-    foreach( $* e in o ) e.expand_definition( o, indent, sink );
+    foreach( m $* e in o ) e.expand_definition( o, indent, sink );
 
     /// signal section
     sink.push_fa( "\n" );
@@ -260,7 +260,7 @@ func (:s) (er_t expand_c( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
     sink.push_fa( "#rn{ }        case TYPEOF_init1:\n", indent );
     sink.push_fa( "#rn{ }        {\n", indent );
     o.expand_init1( indent + 12, sink );
-    foreach( $* e in o ) e.expand_init1( o, indent + 12, sink );
+    foreach( m $* e in o ) e.expand_init1( o, indent + 12, sink );
     sink.push_fa( "#rn{ }        }\n", indent );
     sink.push_fa( "#rn{ }        break;\n", indent );
 
@@ -299,11 +299,11 @@ func (:s) :.to_be_modified =
 
     tp_t target_hash = o.get_hash();
 
-    st_s* file_h = st_s_create_fa( "#<sc_t>.h", o->path.sc ).scope();
+    m st_s* file_h = st_s_create_fa( "#<sc_t>.h", o->path.sc ).scope();
     if( bcore_file_exists( file_h.sc ) )
     {
-        st_s* key_defined = st_s_create_fa( "##?'define HKEYOF_#<sc_t>'", o.name.sc ).scope();
-        bcore_source* source = bcore_file_open_source( file_h->sc ).scope();
+        m st_s* key_defined = st_s_create_fa( "##?'define HKEYOF_#<sc_t>'", o.name.sc ).scope();
+        m bcore_source* source = bcore_file_open_source( file_h->sc ).scope();
         while( !source.eos() )
         {
             char c = source.get_u0();
@@ -343,7 +343,7 @@ func (:s) :.expand_phase1 = (try)
         }
         else
         {
-            st_s* buf = st_s!^^;
+            m st_s* buf = st_s!^^;
             o.expand_h( 0, buf );
             o.expand_c( 0, buf );
         }
@@ -361,7 +361,7 @@ func (:s) :.expand_phase1 = (try)
 func (er_t write_with_signature( sc_t file, const st_s* data )) = (try)
 {
     tp_t hash = bcore_tp_fold_sc( bcore_tp_init(), data.sc );
-    bcore_sink* sink = bcore_file_open_sink( file ).scope();
+    m bcore_sink* sink = bcore_file_open_sink( file ).scope();
     sink.push_data( ( vc_t )data.data, data.size );
     sink.push_fa( "// XOILA_OUT_SIGNATURE 0x#pl16'0'{#X<tp_t>}ull\n", hash );
     return 0;
@@ -381,8 +381,8 @@ func (:s) :.expand_phase2 = (try)
     ASSERT( o.target_h );
     ASSERT( o.target_c );
 
-    st_s* file_h = st_s_create_fa( "#<sc_t>.h", o.path.sc ).scope();
-    st_s* file_c = st_s_create_fa( "#<sc_t>.c", o.path.sc ).scope();
+    m st_s* file_h = st_s_create_fa( "#<sc_t>.h", o.path.sc ).scope();
+    m st_s* file_c = st_s_create_fa( "#<sc_t>.c", o.path.sc ).scope();
 
     if( o.readonly )
     {

@@ -38,20 +38,20 @@ stamp :s = aware :
 
     func xoico.expand_setup =
     {
-        foreach( $* e in o ) e.expand_setup( o ).try();
+        foreach( m $* e in o ) e.expand_setup( o ).try();
         return 0;
     };
 
-    func (er_t push_d( m @* o, m xoico_group_s* group )) =
+    func (er_t push_d( m @* o, d xoico_group_s* group )) =
     {
-        o.cast( x_array* ).push_d( group );
+        o.cast( m x_array* ).push_d( group );
         return 0;
     };
 
     func xoico.get_hash =
     {
         tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
-        foreach( xoico_group_s* e in o ) hash = bcore_tp_fold_tp( hash, e.get_hash() );
+        foreach( m xoico_group_s* e in o ) hash = bcore_tp_fold_tp( hash, e.get_hash() );
         return hash;
     };
 
@@ -59,7 +59,7 @@ stamp :s = aware :
 
     func xoico.finalize =
     {
-        foreach( $* e in o ) e.finalize( o ).try();
+        foreach( m $* e in o ) e.finalize( o ).try();
         return 0;
     };
 
@@ -69,7 +69,7 @@ stamp :s = aware :
         sink.push_fa( "\n" );
         sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
         sink.push_fa( "#rn{ }// source: #<sc_t>.h\n", indent, o.name.sc );
-        foreach( $* e in o ) e.expand_declaration( indent, sink ).try();
+        foreach( m $* e in o ) e.expand_declaration( indent, sink ).try();
         return 0;
     };
 
@@ -79,7 +79,7 @@ stamp :s = aware :
         sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
         sink.push_fa( "#rn{ }// source: #<sc_t>.h\n", indent, o.name.sc );
         sink.push_fa( "#rn{ }##include \"#<sc_t>.h\"\n", indent, o.name.sc );
-        foreach( $* e in o ) e.expand_definition( indent, sink ).try();
+        foreach( m $* e in o ) e.expand_definition( indent, sink ).try();
         return 0;
     };
 
@@ -88,13 +88,13 @@ stamp :s = aware :
         sink.push_fa( "\n" );
         sink.push_fa( "#rn{ }// #rn{-}\n", indent, sz_max( 0, 80 - indent ) );
         sink.push_fa( "#rn{ }// source: #<sc_t>.h\n", indent, o.name.sc );
-        foreach( $* e in o ) e.expand_init1( indent, sink ).try();
+        foreach( m $* e in o ) e.expand_init1( indent, sink ).try();
         return 0;
     };
 
     func xoico_group.explicit_embeddings_push =
     {
-        foreach( $* group in o ) group.explicit_embeddings_push( arr );
+        foreach( m $* group in o ) group.explicit_embeddings_push( arr );
     };
 
     func xoico_host.compiler =
@@ -107,10 +107,10 @@ stamp :s = aware :
 
 func (:s) xoico.parse = (try)
 {
-    $* compiler = o.target.compiler;
+    m $* compiler = o.target.compiler;
     while( !source.eos() )
     {
-        xoico_group_s* group = NULL;
+        m xoico_group_s* group = NULL;
 
         if( source.parse_bl( " #?w'XOILA_DEFINE_GROUP'" ) )
         {
@@ -119,7 +119,7 @@ func (:s) xoico.parse = (try)
             group.xoico_source = o;
             group.compiler = compiler;
 
-            st_s* st_trait_name = st_s!^^;
+            m st_s* st_trait_name = st_s!^^;
             source.parse_em_fa( " ( #name, #name", group.st_name.1, st_trait_name.1 );
             group.trait_name = compiler.entypeof( st_trait_name.sc );
 
@@ -127,9 +127,9 @@ func (:s) xoico.parse = (try)
             {
                 while( source.parse_bl( " #?','" ) )
                 {
-                    st_s* embed_file = st_s!^;
+                    m st_s* embed_file = st_s!^;
                     source.parse_em_fa( " #string", embed_file );
-                    bcore_source* include_source = NULL;
+                    m bcore_source* include_source = NULL;
                     xoico_embed_file_open( source, embed_file.sc, include_source.2 );
                     include_source.scope();
                     group.explicit_embeddings.push_st( embed_file );

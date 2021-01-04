@@ -60,13 +60,13 @@ stamp :s = aware :
 
     func xoico.finalize =
     {
-        foreach( $* e in o ) e.finalize( o ).try();
+        foreach( m $* e in o ) e.finalize( o ).try();
         return 0;
     };
 
     func xoico.expand_setup =
     {
-        foreach( $* e in o ) e.expand_setup( o ).try();
+        foreach( m $* e in o ) e.expand_setup( o ).try();
         return 0;
     };
 
@@ -75,14 +75,14 @@ stamp :s = aware :
     func :.is_cyclic;
     func :.set_dependencies;
 
-    func (void push_d( m @* o, m xoico_source_s* source )) =
+    func (void push_d( m @* o, d xoico_source_s* source )) =
     {
-        o.cast( x_array* ).push_d( source );
+        o.cast( m x_array* ).push_d( source );
     };
 
     func xoico_group.explicit_embeddings_push =
     {
-        foreach( $* source in o ) source.explicit_embeddings_push( arr );
+        foreach( m $* source in o ) source.explicit_embeddings_push( arr );
     };
 
     func xoico_host.compiler = { return o.compiler; };

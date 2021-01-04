@@ -81,8 +81,8 @@ func (:s)
     else // direct call
     {
         source.parse_em_fa( "cast ( " );
-        $* result = :result_create_arr().scope();
-        $* typespec = xoico_typespec_s!^^;
+        m $* result = :result_create_arr().scope();
+        m $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
         source.parse_em_fa( " , " );
         typespec_expr = typespec;
@@ -90,11 +90,18 @@ func (:s)
     }
 
     result_out.push_sc( "((" );
-    $* typespec_cast = xoico_typespec_s!^^;
+    m $* typespec_cast = xoico_typespec_s!^^;
 
-    o.take_typespec( source, typespec_cast, true );
+    typespec_cast.parse( o.host, source );
 
-    if( typespec_cast.type == TYPEOF_type_deduce )
+    //o.take_typespec( source, typespec_cast, true );
+
+
+    if( typespec_cast.type == TYPEOF_type_object )
+    {
+        typespec_cast.type = o.host.obj_type();
+    }
+    else if( typespec_cast.type == TYPEOF_type_deduce )
     {
         if( !typespec_expr.type )
         {
@@ -173,8 +180,8 @@ func (:s)
     else // direct call
     {
         source.parse_em_fa( "scope ( " );
-        $* result = :result_create_arr().scope();
-        $* typespec = xoico_typespec_s!^^;
+        m $* result = :result_create_arr().scope();
+        m $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
         typespec_expr = typespec;
         result_expr = result;
@@ -263,8 +270,8 @@ func (:s)
     else // direct call
     {
         source.parse_em_fa( "fork ( " );
-        $* result = :result_create_arr().scope();
-        $* typespec = xoico_typespec_s!^^;
+        m $* result = :result_create_arr().scope();
+        m $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
         typespec_expr = typespec;
         result_expr = result;
@@ -329,8 +336,8 @@ func (:s)
         }
 
         source.parse_em_fa( "( " );
-        $* result = :result_create_arr().scope();
-        $* typespec = xoico_typespec_s!^^;
+        m $* result = :result_create_arr().scope();
+        m $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
         typespec_expr = typespec;
         result_expr = result;

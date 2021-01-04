@@ -41,7 +41,7 @@ stamp :s = aware x_array
 
     func :.get_index_from_signature_global_name =
     {
-        foreach( $* e in o ) if( e.signature_global_name == signature_global_name ) return __i;
+        foreach( m $* e in o ) if( e.signature_global_name == signature_global_name ) return __i;
         return -1;
     };
 
@@ -52,7 +52,7 @@ stamp :s = aware x_array
 
     func :.get_index_from_name =
     {
-        foreach( $* e in o ) if( e.name == name ) return __i;
+        foreach( m $* e in o ) if( e.name == name ) return __i;
         return -1;
     };
 
@@ -85,7 +85,7 @@ stamp :s = aware x_array
     func :.get_hash =
     {
         tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
-        foreach( $* func in o ) hash = bcore_tp_fold_tp( hash, func.get_hash() );
+        foreach( m $* func in o ) hash = bcore_tp_fold_tp( hash, func.get_hash() );
         return hash;
     };
 };

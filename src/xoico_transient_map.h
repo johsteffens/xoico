@@ -35,7 +35,7 @@ stamp :s = aware :
     func xoico.parse;
 
     func (m @* set(    m @* o, tp_t key, tp_t val )) = { o.map.set( key, val ); return o; };
-    func (tp_t get(    c @* o, tp_t key )) = { tp_t* p = o.map.get( key ); return p ? *p : 0; };
+    func (tp_t get(    c @* o, tp_t key )) = { m tp_t* p = o.map.get( key ); return p ? *p : 0; };
     func (bl_t exists( c @* o, tp_t key )) = { return o.map.exists( key ); };
 };
 
@@ -45,9 +45,9 @@ stamp :s = aware :
 func (:s) xoico.parse = (try)
 {
     o.map.clear();
-    xoico_compiler_s* compiler = host.compiler();
+    m xoico_compiler_s* compiler = host.compiler();
     source.parse_em_fa( "( " );
-    $* s = st_s!^^;
+    m $* s = st_s!^^;
 
     while( !source.eos() )
     {

@@ -20,7 +20,7 @@
 /// removes comments, excessive whitespaces; trailing whitespaces; keeps strings but replaces '"' with '\"'
 func (m st_s* create_embedded_string( c st_s* s )) =
 {
-    st_s* out = st_s!;
+    m st_s* out = st_s!;
     for( sz_t i = 0; i < s.size; i++ )
     {
         if( s.[ i ] == '/' && s.[ i + 1 ] == '/' )
@@ -84,7 +84,7 @@ func (m st_s* create_embedded_string( c st_s* s )) =
  */
 func (m st_s* create_structured_multiline_string( c sc_t s, sz_t indent )) =
 {
-    st_s* out = st_s!;
+    d st_s* out = st_s!;
     sz_t ind = indent;
     bl_t newline = true;
     for( sz_t i = 0; s[ i ] != 0; i++ )
@@ -169,15 +169,15 @@ func (:s) (sc_t get_rel_name_sc( c @* o )) =
 
 func (:s) :.parse_func = (try)
 {
-    $* compiler = o.group.compiler;
-    $* func = xoico_func_s!^^;
+    m $* compiler = o.group.compiler;
+    m $* func = xoico_func_s!^^;
     func.parse( o, source );
 
     sz_t idx = o.funcs.get_index_from_name( func->name );
 
     if( idx >= 0 )
     {
-        xoico_func_s* prex_func = o.funcs.[ idx ];
+        m xoico_func_s* prex_func = o.funcs.[ idx ];
         if( ( prex_func.signature_global_name == func.signature_global_name ) )
         {
             if( !func.body )
@@ -214,7 +214,7 @@ func (:s) :.parse_func = (try)
 
 func (:s) :.parse_wrap = (try)
 {
-    $* wrap = xoico_wrap_s!^^;
+    m $* wrap = xoico_wrap_s!^^;
     wrap.parse( o, source );
     o.wraps.push_d( wrap.fork() );
     return 0;
@@ -226,8 +226,8 @@ func (:s) (er_t parse_extend( m @* o, m bcore_source* source )) = (try)
 {
     ASSERT( o.self_buf );
 
-    $* buf = st_s!^^;
-    $* self = bcore_self_s!^^;
+    m $* buf = st_s!^^;
+    m $* self = bcore_self_s!^^;
     self->type = o.tp_name;
     self->trait = o.trait_name;
 
@@ -256,7 +256,7 @@ func (:s) (er_t parse_extend( m @* o, m bcore_source* source )) = (try)
                 {
                     case ':':
                     {
-                        st_s* name = st_s!^;
+                        m st_s* name = st_s!^;
                         o.group.parse_name_recursive( source, name );
                         buf.push_st( name );
                     }
@@ -283,13 +283,13 @@ func (:s) (er_t parse_extend( m @* o, m bcore_source* source )) = (try)
                 }
             }
 
-            $* item = bcore_self_item_s!^;
+            m $* item = bcore_self_item_s!^;
             er_t er = bcore_self_item_s_parse_src( item, sr_awc( bcore_source_string_s_create_from_string( buf ).scope( scope_local ) ), self, false );
             if( bcore_flect_caps_is_array( item->caps ) && !o.first_array_item ) o.first_array_item = item.clone();
 
             if( er )
             {
-                $* msg = st_s!^^;
+                m $* msg = st_s!^^;
                 bcore_error_pop_st( er.1, msg );
                 return source.parse_error_fa( "Reflection parse error:\n#<sc_t>\n", msg.sc );
             }
@@ -306,8 +306,8 @@ func (:s) (er_t parse_extend( m @* o, m bcore_source* source )) = (try)
 
 func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc )) = (try)
 {
-    $* compiler = o.group.compiler;
-    $* func = xoico_func_s!^^;
+    m $* compiler = o.group.compiler;
+    m $* func = xoico_func_s!^^;
     func.overloadable = false;
     func.expandable = false;
 
@@ -344,11 +344,11 @@ func (:s) :.push_default_funcs = (try)
 
 func (:s) xoico.parse = (try)
 {
-    $* compiler = o.group.compiler;
+    m $* compiler = o.group.compiler;
     bl_t verbatim = source.parse_bl( " #?w'verbatim'" );
     o.self_buf =< st_s!;
 
-    $* st_stamp_name = st_s!^^;
+    m $* st_stamp_name = st_s!^^;
 
     o.source_point.set( source );
 
@@ -360,7 +360,7 @@ func (:s) xoico.parse = (try)
 
     if( source.parse_bl( " #?w'extending'" ) )
     {
-        st_s* templ_name = st_s!^^;
+        m st_s* templ_name = st_s!^^;
         o.group.parse_name_st( source, templ_name );
 
         if( !templ_name.ends_in_sc( "_s" ) )
@@ -371,7 +371,7 @@ func (:s) xoico.parse = (try)
         const xoico* item = compiler.get_const_item( typeof( templ_name.sc ) );
         if( !item ) return source.parse_error_fa( "Template #<sc_t> not found.", templ_name.sc );
         if( item._ != TYPEOF_xoico_stamp_s ) return source.parse_error_fa( "Template #<sc_t> is no stamp.", templ_name.sc );
-        o.copy( item.cast( xoico_stamp_s* ) );
+        o.copy( item.cast( m xoico_stamp_s* ) );
     }
     else if( !verbatim && o.group.extending_stamp )
     {
@@ -379,7 +379,7 @@ func (:s) xoico.parse = (try)
     }
     else
     {
-        $* st_trait_name = st_s!^^;
+        m $* st_trait_name = st_s!^^;
         if( source.parse_bl( " #?w'aware'" ) ) o.is_aware = true;
         o.group.parse_name_st( source, st_trait_name );
         if( st_trait_name.size == 0 ) return source.parse_error_fa( "Trait name expected." );
@@ -401,7 +401,7 @@ func (:s) xoico.parse = (try)
 
 func (:s) xoico.finalize = (try)
 {
-    $* compiler = o.group.compiler;
+    m $* compiler = o.group.compiler;
 
     // set transient classes for x_array
     if( o.trait_name == TYPEOF_x_array || o.trait_name == TYPEOF_bcore_array )
@@ -414,13 +414,13 @@ func (:s) xoico.finalize = (try)
         if( o.first_array_item.type ) o.transient_map.set( compiler.entypeof( "TE" ), o.first_array_item.type );
     }
 
-    foreach( $* wrap in o.wraps )
+    foreach( m $* wrap in o.wraps )
     {
         wrap.finalize( o );
         o.funcs.push_d( wrap.func.fork() );
     }
 
-    foreach( $* func in o.funcs )
+    foreach( m $* func in o.funcs )
     {
         func.finalize( o );
         if( func.reflectable( o ) ) func.push_flect_decl_to_sink( o, o.self_buf );
@@ -436,10 +436,10 @@ func (:s) xoico.finalize = (try)
     o.self_source.push_fa( "{#<st_s*>}", o.self_buf );
     o.self_buf =< NULL;
 
-    o.self =< bcore_self_s_parse_source( bcore_source_string_s_create_from_string( o.self_source ).scope().cast( bcore_source* ), 0, 0, o.group.st_name.sc, false );
+    o.self =< bcore_self_s_parse_source( bcore_source_string_s_create_from_string( o.self_source ).scope().cast( m bcore_source* ), 0, 0, o.group.st_name.sc, false );
 
     // checking for repetitions in o.self (non-functions)
-    $* hmap_name = bcore_hmap_tp_s!^^;
+    m $* hmap_name = bcore_hmap_tp_s!^^;
     sz_t self_items = bcore_self_s_items_size( o.self );
     for( sz_t i = 0; i < self_items; i++ )
     {
@@ -480,8 +480,8 @@ func (:s) xoico.expand_declaration = (try)
     bcore_self_s_struct_body_to_sink_newline_escaped( o.self, indent + 2, sink );
     sink.push_fa( ";" );
 
-    foreach( $* func in o.funcs ) func.expand_forward( o, indent + 2, sink ); // expands all prototypes
-    foreach( $* func in o.funcs ) func.expand_declaration( o, indent + 2, sink ); // only expands static inline functions
+    foreach( m $* func in o.funcs ) func.expand_forward( o, indent + 2, sink ); // expands all prototypes
+    foreach( m $* func in o.funcs ) func.expand_declaration( o, indent + 2, sink ); // only expands static inline functions
 
     sink.push_fa( "\n" );
     return 0;
@@ -491,7 +491,7 @@ func (:s) xoico.expand_declaration = (try)
 
 func (:s) xoico.expand_definition = (try)
 {
-    st_s* embedded_string = o.create_embedded_string( o.self_source ).scope();
+    m st_s* embedded_string = o.create_embedded_string( o.self_source ).scope();
 
     // 4095 is the C99-limit for string literals
     if( embedded_string.size > 4095 )
@@ -514,10 +514,10 @@ func (:s) xoico.expand_definition = (try)
     sink.push_fa( "\n" );
     sink.push_fa( "#rn{ }BCORE_DEFINE_OBJECT_INST_P( #<sc_t> )\n", indent, o.st_name.sc );
 
-    st_s* multiline_string = xoico_stamp_create_structured_multiline_string( self_def, indent ).scope();
+    m st_s* multiline_string = xoico_stamp_create_structured_multiline_string( self_def, indent ).scope();
     sink.push_fa( "#<sc_t>;\n", multiline_string.sc );
 
-    foreach( $* func in o.funcs ) func.expand_definition( o, indent, sink );
+    foreach( m $* func in o.funcs ) func.expand_definition( o, indent, sink );
 
     return 0;
 };
@@ -526,9 +526,9 @@ func (:s) xoico.expand_definition = (try)
 
 func (:s) xoico.expand_init1 = (try)
 {
-    $* compiler = o.group.compiler;
+    m $* compiler = o.group.compiler;
 
-    foreach( $* func in o.funcs )
+    foreach( m $* func in o.funcs )
     {
         if( func.reflectable( host ) )
         {

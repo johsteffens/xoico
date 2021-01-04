@@ -47,7 +47,7 @@ group :result = :
 
     feature d st_s* create_st( c @* o ) =
     {
-        $* st = st_s!;
+        m $* st = st_s!;
         o.to_sink( st );
         return st;
     };
@@ -58,9 +58,9 @@ group :result = :
     {
         st_s st;
 
-        func (d @* create_from_st(   c st_s* st ) ) = { $* o = @!; o.st.copy( st ); return o; };
-        func (d @* create_from_st_d( d st_s* st ) ) = { $* o = @!; o.st.copy( st ); st.discard(); return o; };
-        func (d @* create_from_sc(     sc_t  sc ) ) = { $* o = @!; o.st.copy_sc( sc ); return o; };
+        func (d @* create_from_st(   c st_s* st ) ) = { d $* o = @!; o.st.copy( st ); return o; };
+        func (d @* create_from_st_d( d st_s* st ) ) = { d $* o = @!; o.st.copy( st ); st.discard(); return o; };
+        func (d @* create_from_sc(     sc_t  sc ) ) = { d $* o = @!; o.st.copy_sc( sc ); return o; };
 
         func :.clear     = { o.st.clear(); };
         func :.push_char = { o.st.push_char( c ); return 0; };
@@ -70,8 +70,8 @@ group :result = :
         func :.create_st = { return o.st.clone(); };
     };
 
-    func (d :* create_from_st( const st_s* st ) ) = { $* o = :arr_s!; o.push_st( st ); return o; };
-    func (d :* create_from_sc(       sc_t  sc ) ) = { $* o = :arr_s!; o.push_sc( sc ); return o; };
+    func (d :* create_from_st( const st_s* st ) ) = { d $* o = :arr_s!; o.push_st( st ); return o; };
+    func (d :* create_from_sc(       sc_t  sc ) ) = { d $* o = :arr_s!; o.push_sc( sc ); return o; };
 
     stamp :adl_s = aware x_array { aware : -> []; }; // !! weak links !!  (if this causes problems revert to strong links)
 
@@ -85,12 +85,12 @@ group :result = :
 
         func (m :* last( m @* o )) =
         {
-            return ( o.adl.size == 0 ) ? o.adl.push_d( :plain_s!.cast( :* ) ) : o.adl.[ o.adl.size - 1 ];
+            return ( o.adl.size == 0 ) ? o.adl.push_d( :plain_s!.cast( m :* ) ) : o.adl.[ o.adl.size - 1 ];
         };
 
         func (m :* last_plain( m @* o )) =
         {
-            return ( o.last()._ != TYPEOF_:plain_s ) ? o.adl.push_d( :plain_s!.cast( :* ) ) : o.adl.[ o.adl.size - 1 ];
+            return ( o.last()._ != TYPEOF_:plain_s ) ? o.adl.push_d( :plain_s!.cast( m :* ) ) : o.adl.[ o.adl.size - 1 ];
         };
 
         func :.push_char = { return o.last_plain().push_char( c ); };
@@ -101,13 +101,13 @@ group :result = :
 
         func :.to_sink =
         {
-            foreach( $* e in o.adl ) e.to_sink( sink );
+            foreach( m $* e in o.adl ) e.to_sink( sink );
             return 0;
         };
 
         func :.set_parent_block =
         {
-            foreach( $* e in o.adl ) e.set_parent_block( parent );
+            foreach( m $* e in o.adl ) e.set_parent_block( parent );
         };
     };
 
@@ -129,14 +129,14 @@ group :result = :
 
         func :.push_result_d =
         {
-            :* result_pushed = o.arr.push_result_d( result );
+            m :* result_pushed = o.arr.push_result_d( result );
             result_pushed.set_parent_block( o );
             return result_pushed;
         };
 
         func :.push_result_c =
         {
-            :* result_pushed = o.arr.push_result_c( result );
+            m :* result_pushed = o.arr.push_result_c( result );
             result_pushed.set_parent_block( o );
             return result_pushed;
         };
@@ -158,7 +158,7 @@ group :result = :
 
     func (d :* create_block( sz_t level, bl_t is_using_blm  ) ) =
     {
-        $* o = :block_s!;
+        m $* o = :block_s!;
         o.level = level;
         o.is_using_blm = is_using_blm;
         return o;
@@ -172,7 +172,7 @@ group :result = :
         func :.to_sink = { sink.push_fa( "BLM_INIT_LEVEL(#<sz_t>);", o.level ); return 0; };
     };
 
-    func (d :* create_blm_init( sz_t level ) ) = { $* o = :blm_init_s!; o.level = level; return o; };
+    func (d :* create_blm_init( sz_t level ) ) = { d $* o = :blm_init_s!; o.level = level; return o; };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -181,13 +181,13 @@ group :result = :
         func :.to_sink = { sink.push_sc( "BLM_DOWN();" ); return 0; };
     };
 
-    func (d :* create_blm_down() ) = { $* o = :blm_down_s!; return o; };
+    func (d :* create_blm_down() ) = { d $* o = :blm_down_s!; return o; };
 
 //----------------------------------------------------------------------------------------------------------------------
 
     func (er_t push_fv( m @* o, sc_t format, va_list args )) =
     {
-        st_s* st = st_s_create_fv( format, args );
+        m st_s* st = st_s_create_fv( format, args );
         er_t ret = o.push_st( st );
         st_s_discard( st );
         return ret;
@@ -276,7 +276,7 @@ group :stack_var = :
 
         func :.get_typespec =
         {
-            uz_t* p_idx = o.hmap_name.get( name );
+            m uz_t* p_idx = o.hmap_name.get( name );
             if( !p_idx ) return NULL;
             return o.adl.[ p_idx.0 ].typespec;
         };
@@ -284,7 +284,7 @@ group :stack_var = :
         /// returns -1 if not found
         func :.get_level =
         {
-            uz_t* p_idx = o.hmap_name.get( name );
+            m uz_t* p_idx = o.hmap_name.get( name );
             if( !p_idx ) return -1;
             return o.adl.[ p_idx.0 ].level;
         };
@@ -472,14 +472,14 @@ stamp :s = aware :
 
     func :.stack_block_get_level_unit =
     {
-        foreach( $* e in o.stack_block.adl ) if( e.level == level ) return e;
+        foreach( m $* e in o.stack_block.adl ) if( e.level == level ) return e;
         ERR_fa( "Level #<sz_t> not found.", level );
         return NULL;
     };
 
     func :.push_typedecl =
     {
-        :stack_var_unit_s* unit = :stack_var_unit_s!^^;
+        m :stack_var_unit_s* unit = :stack_var_unit_s!^^;
         unit.level = o->level;
         unit.name = name;
         unit.typespec.copy( typespec );
@@ -489,7 +489,7 @@ stamp :s = aware :
     func :.push_typespec;
     func :.typespec_to_sink =
     {
-        $* result = :result_create_arr().scope();
+        m $* result = :result_create_arr().scope();
         o.push_typespec( typespec, result );
         sink.push_sc( result.create_st().scope().sc );
     };

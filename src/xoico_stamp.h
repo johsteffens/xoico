@@ -93,7 +93,7 @@ stamp :s = aware :
 
     func :.make_funcs_overloadable =
     {
-        foreach( $* func in o.funcs ) func->overloadable = true;
+        foreach( m $* func in o.funcs ) func->overloadable = true;
         return 0;
     };
 

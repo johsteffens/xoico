@@ -173,7 +173,7 @@ func (:s) :.parse_expression = (try)
     }
     else
     {
-        $* compiler = host.compiler();
+        m $* compiler = host.compiler();
         tp_t tp_name = 0;
         host.parse_name_tp( source, tp_name );
 
@@ -196,8 +196,8 @@ func (:s) :.parse_expression = (try)
 
 func (:s) xoico.parse = (try)
 {
-    $* compiler = host.compiler();
-    st_s* string = st_s!^^;
+    m $* compiler = host.compiler();
+    m st_s* string = st_s!^^;
     o.source_point.set( source );
 
     if( !source.parse_bl( " #=?'='" ) )
@@ -220,9 +220,9 @@ func (:s) xoico.parse = (try)
 func (:s) :.expand = (try)
 {
     const st_s* final_code = NULL;
-    st_s* st_out = st_s!^^;
+    m st_s* st_out = st_s!^^;
 
-    xoico_cengine* cengine = host.cengine();
+    m xoico_cengine* cengine = host.cengine();
     ASSERT( cengine );
 
     if( o.code )

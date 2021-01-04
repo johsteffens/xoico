@@ -20,7 +20,7 @@
 func (:s) :.parse = (try)
 {
     o.reset();
-    $* compiler = host.compiler();
+    m $* compiler = host.compiler();
 
     if( source.parse_bl( "#?'...' " ) )
     {
@@ -48,7 +48,7 @@ func (:s) :.parse = (try)
 
     if( source.parse_bl( "#?'(' " ) )
     {
-        st_s* s = st_s!^^;
+        m st_s* s = st_s!^^;
         source.parse_em_fa( "#name ", s );
         if( s.size == 0 ) source.parse_error_fa( "Transient class: Identifier expected." );
         o.transient_class = compiler.entypeof( s.sc );
@@ -70,7 +70,7 @@ func (:s) :.parse = (try)
     }
     else
     {
-        st_s* s = st_s!^^;
+        m st_s* s = st_s!^^;
         source.parse_em_fa( "#name ", s );
         if( s.size == 0 ) source.parse_error_fa( "Argument: Type expected." );
         o->type = xoico_compiler_s_entypeof( compiler, s->sc );
@@ -145,7 +145,7 @@ func (:s) :.expand = (try)
         return 0;
     }
 
-    $* compiler = host.compiler();
+    m $* compiler = host.compiler();
 
     tp_t type = o.type;
 
@@ -159,7 +159,7 @@ func (:s) :.expand = (try)
         ERR_fa( "Cannot resolve 'type_deduce' at this point." );
     }
 
-    st_s* st_type = st_s_create_sc( compiler.nameof( type ) ).scope();
+    m st_s* st_type = st_s_create_sc( compiler.nameof( type ) ).scope();
 
     sc_t sc_type = st_type.sc;
     if( o.flag_static   ) sink.push_fa( "static " );
@@ -183,7 +183,7 @@ func (:s) :.expand_x = (try)
         return 0;
     }
 
-    $* compiler = host.compiler();
+    m $* compiler = host.compiler();
 
     tp_t type = o.type;
 
@@ -197,7 +197,7 @@ func (:s) :.expand_x = (try)
         ERR_fa( "Cannot resolve 'type_deduce' at this point." );
     }
 
-    st_s* st_type = st_s_create_sc( compiler.nameof( type ) ).scope();
+    m st_s* st_type = st_s_create_sc( compiler.nameof( type ) ).scope();
 
     if( o.indirection > 0 )
     {

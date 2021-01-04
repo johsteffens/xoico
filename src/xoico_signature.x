@@ -40,8 +40,8 @@ func (:s) :.set_global_name = (try)
 
 func (:s) xoico.parse = (try)
 {
-    $* compiler = host.compiler();
-    $* name_buf = st_s!^^;
+    m $* compiler = host.compiler();
+    m $* name_buf = st_s!^^;
 
     if( source.parse_bl( " #?'extending'" ) )
     {
@@ -76,7 +76,7 @@ func (:s) xoico.parse = (try)
         tp_t transient_class = 0;
         if( source.parse_bl( "#?'(' " ) )
         {
-            st_s* s = st_s!^^;
+            m st_s* s = st_s!^^;
             source.parse_em_fa( "#name ", s );
             if( s->size == 0 ) source.parse_error_fa( "Transient class: Identifier expected." );
             transient_class = compiler.entypeof( s->sc );
@@ -117,7 +117,7 @@ func (:s) xoico.parse = (try)
         }
         else if( !source.parse_bl( " #=?')'" ) )
         {
-            xoico_arg_s* arg = xoico_arg_s!^;
+            m xoico_arg_s* arg = xoico_arg_s!^;
             arg.parse( host, source );
             if( !source.parse_bl( " #=?')'" ) ) source.parse_em_fa( ", " );
             if( arg.name == TYPEOF_o )

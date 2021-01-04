@@ -110,7 +110,7 @@ func (:s)( er_t trans_control_foreach( m @* o, m bcore_source* source, m :result
     o.stack_block_get_top_unit().break_ledge = true;
     source.parse_em_fa( "foreach ( " );
 
-    xoico_typespec_s* typespec_var = scope( xoico_typespec_s! );
+    m xoico_typespec_s* typespec_var = scope( xoico_typespec_s! );
     o.take_typespec( source, typespec_var, true );
 
     tp_t tp_var_name = 0;
@@ -126,8 +126,8 @@ func (:s)( er_t trans_control_foreach( m @* o, m bcore_source* source, m :result
 
     source.parse_em_fa( " in " );
 
-    xoico_typespec_s* typespec_arr_expr = scope( xoico_typespec_s! );
-    $* result_arr_expr = :result_create_arr().scope();
+    m xoico_typespec_s* typespec_arr_expr = scope( xoico_typespec_s! );
+    m $* result_arr_expr = :result_create_arr().scope();
     o.trans_expression( source, result_arr_expr, typespec_arr_expr );
 
     if( !typespec_arr_expr.type )
@@ -135,31 +135,31 @@ func (:s)( er_t trans_control_foreach( m @* o, m bcore_source* source, m :result
         return source.parse_error_fa( "Array expression not tractable." );
     }
 
-    xoico_compiler_element_info_s* info = scope( xoico_compiler_element_info_s! );
+    m xoico_compiler_element_info_s* info = scope( xoico_compiler_element_info_s! );
 
     if( !o.compiler.get_type_array_element_info( typespec_arr_expr.type, info ) )
     {
         return source.parse_error_fa( "Expression does not evaluate to an array." );
     }
 
-    xoico_typespec_s* typespec_element = info.type_info.typespec;
+    m xoico_typespec_s* typespec_element = info.type_info.typespec;
 
     if( typespec_var.type == TYPEOF_type_deduce ) typespec_var.type = typespec_element.type;
 
     source.parse_em_fa( " )" );
 
-    xoico_typespec_s* typespec_arr = scope( typespec_arr_expr.clone() );
+    m xoico_typespec_s* typespec_arr = scope( typespec_arr_expr.clone() );
     typespec_arr.indirection = 1;
     typespec_arr.flag_const = true;
 
-    xoico_typespec_s* typespec_idx = scope( xoico_typespec_s! );
+    m xoico_typespec_s* typespec_idx = scope( xoico_typespec_s! );
     typespec_idx.type = TYPEOF_sz_t;
 
     o.push_typedecl( typespec_var, tp_var_name );
     o.push_typedecl( typespec_arr, o.entypeof( "__a" ) );
     o.push_typedecl( typespec_idx, o.entypeof( "__i" ) );
 
-    $* result_statement = :result_create_arr().scope();
+    m $* result_statement = :result_create_arr().scope();
     if( source.parse_bl( "#=?'{'" ) )
     {
         o.trans_block( source, result_statement, false );
@@ -180,7 +180,7 @@ func (:s)( er_t trans_control_foreach( m @* o, m bcore_source* source, m :result
     o.push_typespec( typespec_var, result );
     result.push_fa( " #<sc_t>=", xoico_che_s_nameof( o, tp_var_name ) );
 
-    $* result_element_expr = :result_create_from_sc( "__a->data[__i]" ).scope();
+    m $* result_element_expr = :result_create_from_sc( "__a->data[__i]" ).scope();
 
     o.adapt_expression( source, typespec_element, typespec_var, result_element_expr, result );
     result.push_fa( ";" );
@@ -337,7 +337,7 @@ stamp :result_break_s = aware :result
         return 0;
     };
 
-    func (d @* create_setup( sz_t ledge_level )) = { $* o = @!; o.ledge_level = ledge_level; return o; };
+    func (d @* create_setup( sz_t ledge_level )) = { d $* o = @!; o.ledge_level = ledge_level; return o; };
 };
 
 func (:s)( er_t trans_control_break( m @* o, m bcore_source* source, m :result* result ) ) = (try)
@@ -396,9 +396,9 @@ func (:s)( er_t trans_control_return( m @* o, m bcore_source* source, m :result*
 {
     source.parse_em_fa( "return" );
 
-    $* result_expr = :result_create_arr().scope();
+    m $* result_expr = :result_create_arr().scope();
 
-    xoico_typespec_s* typespec_expr = scope( xoico_typespec_s! );
+    m xoico_typespec_s* typespec_expr = scope( xoico_typespec_s! );
     const xoico_typespec_s* typespec_ret = o.typespec_ret;
 
     o.trans_expression( source, result_expr, typespec_expr );
@@ -413,7 +413,7 @@ func (:s)( er_t trans_control_return( m @* o, m bcore_source* source, m :result*
         }
     }
 
-    $* result_expr_adapted = :result_create_arr().scope();
+    m $* result_expr_adapted = :result_create_arr().scope();
     if( o.returns_a_value() && typespec_expr.type )
     {
         o.adapt_expression( source, typespec_expr, typespec_ret, result_expr, result_expr_adapted );
@@ -424,7 +424,7 @@ func (:s)( er_t trans_control_return( m @* o, m bcore_source* source, m :result*
     }
 
 
-    $* result_blm = :result_create_arr().scope();
+    m $* result_blm = :result_create_arr().scope();
     if( o.returns_a_value() )
     {
         result_blm.push_sc( "BLM_RETURNV(" );
@@ -440,12 +440,12 @@ func (:s)( er_t trans_control_return( m @* o, m bcore_source* source, m :result*
         result_blm.push_sc( ";" );
     }
 
-    $* result_direct = :result_create_arr().scope();
+    m $* result_direct = :result_create_arr().scope();
     result_direct.push_sc( "return " );
     result_direct.push_result_d( result_expr_adapted.fork() );
     result_direct.push_sc( ";" );
 
-    $* result_return = :result_return_s!^^;
+    m $* result_return = :result_return_s!^^;
     result_return.result_blm =< result_blm.fork();
     result_return.result_direct =< result_direct.fork();
 
