@@ -188,7 +188,7 @@ func (:s)
         has_arg = source.parse_bl( "#?','" );
     }
 
-    const xoico_typespec_s* typespec_scope = typespec_expr;
+    c xoico_typespec_s* typespec_scope = typespec_expr;
 
     result_out.push_sc( "((" );
 
@@ -277,7 +277,7 @@ func (:s)
         result_expr = result;
     }
 
-    const xoico_typespec_s* typespec_fork = typespec_expr;
+    c xoico_typespec_s* typespec_fork = typespec_expr;
 
     result_out.push_sc( "((" );
 
@@ -343,7 +343,7 @@ func (:s)
         result_expr = result;
     }
 
-    const xoico_typespec_s* typespec_try = typespec_expr;
+    c xoico_typespec_s* typespec_try = typespec_expr;
 
     source.parse_em_fa( " ) ;" );
 

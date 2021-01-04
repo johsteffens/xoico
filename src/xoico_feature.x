@@ -112,7 +112,7 @@ func (:s) (m xoico_func_s* push_func_from_sc( m @* o, c xoico_host* host, sc_t s
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t setup_functions( m @* o, const xoico_host* host )) = (try)
+func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) = (try)
 {
     m $* compiler = host.compiler();
     sc_t sc_name = compiler.nameof( o.signature.name );

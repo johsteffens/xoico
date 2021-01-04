@@ -180,7 +180,7 @@ func (:s) :.parse_expression = (try)
         // if name_buf refers to another body
         if( compiler.is_body( tp_name ) )
         {
-            const $* body = compiler.get_body( tp_name );
+            c $* body = compiler.get_body( tp_name );
             o.code =< body.code.clone();
             o.go_inline = body.go_inline;
         }
@@ -219,7 +219,7 @@ func (:s) xoico.parse = (try)
 
 func (:s) :.expand = (try)
 {
-    const st_s* final_code = NULL;
+    c st_s* final_code = NULL;
     m st_s* st_out = st_s!^^;
 
     m xoico_cengine* cengine = host.cengine();

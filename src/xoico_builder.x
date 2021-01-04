@@ -40,7 +40,7 @@ func (:target_s) :.load = (try)
     /// check for dependency cycles
     if( o.parent_ )
     {
-        const xoico_builder_target_s* match = o->parent_.name_match( o->name.sc );
+        c xoico_builder_target_s* match = o->parent_.name_match( o->name.sc );
         if( match )
         {
             if( match.full_path_.equal_st( o.full_path_ ) )

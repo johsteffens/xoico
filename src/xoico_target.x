@@ -244,7 +244,7 @@ func (:s) (er_t expand_c( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
     /// prototypes of signal handlers this target depends on
     foreach( sz_t target_idx in o->dependencies )
     {
-        const xoico_target_s* target = o.compiler.data[ target_idx ];
+        c xoico_target_s* target = o.compiler.data[ target_idx ];
         if( target.signal_handler_name.size > 0 )
         {
             sink.push_fa( "#rn{ }vd_t #<sc_t>( const bcore_signal_s* o );\n", indent, target.signal_handler_name.sc );
@@ -272,7 +272,7 @@ func (:s) (er_t expand_c( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
         sink.push_fa( "#rn{ }            bcore_arr_fp_s* arr_fp = o->object;\n", indent );
         foreach( sz_t target_idx in o.dependencies )
         {
-            const xoico_target_s* target = o.compiler.[ target_idx ];
+            c xoico_target_s* target = o.compiler.[ target_idx ];
             if( target.signal_handler_name.size > 0 )
             {
                 sink.push_fa( "#rn{ }            bcore_arr_fp_s_push( arr_fp, ( fp_t )#<sc_t> );\n", indent, target.signal_handler_name.sc );
@@ -358,7 +358,7 @@ func (:s) :.expand_phase1 = (try)
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if a file was modified
-func (er_t write_with_signature( sc_t file, const st_s* data )) = (try)
+func (er_t write_with_signature( sc_t file, c st_s* data )) = (try)
 {
     tp_t hash = bcore_tp_fold_sc( bcore_tp_init(), data.sc );
     m bcore_sink* sink = bcore_file_open_sink( file ).scope();

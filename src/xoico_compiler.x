@@ -225,12 +225,12 @@ func (:s) (er_t expand( m @* o, m bl_t* p_modified )) = (try)
 
 func (:s) :.get_self =
 {
-    const xoico* item = o.get_const_item( type );
+    c xoico* item = o.get_const_item( type );
     if( !item ) return false;
 
     if( item->_ == TYPEOF_xoico_stamp_s )
     {
-        const xoico_stamp_s* stamp = item.cast( const xoico_stamp_s* );
+        c xoico_stamp_s* stamp = item.cast( c xoico_stamp_s* );
         if( self ) self.1 = stamp->self;
         return true;
     }
@@ -242,7 +242,7 @@ func (:s) :.get_self =
 
 func (:s) :.get_type_info =
 {
-    const xoico* item = o.get_const_item( type );
+    c xoico* item = o.get_const_item( type );
     if( !item ) return false;
     ASSERT( info );
     if( item->_ == TYPEOF_xoico_stamp_s || item->_ == TYPEOF_xoico_group_s )
@@ -259,10 +259,10 @@ func (:s) :.get_type_info =
 
 func (:s) :.get_type_element_info =
 {
-    const xoico* xoico_item = o.get_const_item( type );
+    c xoico* xoico_item = o.get_const_item( type );
     if( !xoico_item )
     {
-        xoico_item = o.cast( m $* ).get_group( type ).cast( const xoico* );
+        xoico_item = o.cast( m $* ).get_group( type ).cast( c xoico* );
         if( !xoico_item ) return false;
     }
 
@@ -272,9 +272,9 @@ func (:s) :.get_type_element_info =
 
     if( xoico_item->_ == TYPEOF_xoico_stamp_s )
     {
-        const xoico_stamp_s* stamp = xoico_item.cast( const xoico_stamp_s* );
-        const bcore_self_s* self = stamp.self;
-        const bcore_self_item_s* self_item = NULL; // returns NULL in case of no match
+        c xoico_stamp_s* stamp = xoico_item.cast( c xoico_stamp_s* );
+        c bcore_self_s* self = stamp.self;
+        c bcore_self_item_s* self_item = NULL; // returns NULL in case of no match
 
         if( ( self_item = self.get_item_by_name( name ) ) )
         {
@@ -340,7 +340,7 @@ func (:s) :.get_type_element_info =
     }
     else if( xoico_item._ == TYPEOF_xoico_group_s )
     {
-        const $* group = xoico_item.cast( m xoico_group_s* );
+        c $* group = xoico_item.cast( m xoico_group_s* );
         if( name == TYPEOF__ ) // group builtin element '_'
         {
             info.type_info.typespec.type = TYPEOF_tp_t;
@@ -363,15 +363,15 @@ func (:s) :.get_type_array_element_info =
 {
     ASSERT( info );
 
-    const xoico* xoico_item = o.get_const_item( type );
+    c xoico* xoico_item = o.get_const_item( type );
     if( !xoico_item ) return false;
     bl_t success = false;
     info.type_info.item = xoico_item.cast( m xoico* );
 
     if( xoico_item->_ == TYPEOF_xoico_stamp_s )
     {
-        const xoico_stamp_s* stamp = xoico_item.cast( const xoico_stamp_s* );
-        const bcore_self_item_s* self_item = bcore_self_s_get_first_anonymous_array_item( stamp.self );
+        c xoico_stamp_s* stamp = xoico_item.cast( c xoico_stamp_s* );
+        c bcore_self_item_s* self_item = bcore_self_s_get_first_anonymous_array_item( stamp.self );
         if( self_item )
         {
             info.type_info.typespec.type = self_item.type;

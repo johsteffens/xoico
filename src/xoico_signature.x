@@ -47,7 +47,7 @@ func (:s) xoico.parse = (try)
     {
         tp_t tp_name = 0;
         host.parse_name_tp( source, tp_name.1 );
-        const $* signature = compiler.get_signature( tp_name );
+        c $* signature = compiler.get_signature( tp_name );
         if( !signature ) return source.parse_error_fa( "Could not find predefined signature '#<sc_t>'.", host.nameof( tp_name ) );
         o.copy( signature );
         o.source_point.set( source );

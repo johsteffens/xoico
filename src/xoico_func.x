@@ -33,7 +33,7 @@ func (:s) :.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t freeze_global_name( m @* o, const xoico_host* host )) = (try)
+func (:s) (er_t freeze_global_name( m @* o, c xoico_host* host )) = (try)
 {
     if( o.global_name ) return 0;
     m $* compiler = host.compiler();
@@ -74,7 +74,7 @@ func (:s) xoico.parse = (try)
         {
             if( host._ == TYPEOF_xoico_stamp_s )
             {
-                tp_signature_base_name = host.cast( const xoico_stamp_s* ).trait_name;
+                tp_signature_base_name = host.cast( c xoico_stamp_s* ).trait_name;
             }
             else
             {
@@ -109,7 +109,7 @@ func (:s) (er_t push_flect_decl_to_sink( c @* o, c xoico_host* host, m bcore_sin
 {
     m $* compiler = host.compiler();
     sink.push_sc( "func " );
-    if( host._ == TYPEOF_xoico_stamp_s && o.signature.base_name == host.cast( const xoico_stamp_s* ).trait_name )
+    if( host._ == TYPEOF_xoico_stamp_s && o.signature.base_name == host.cast( c xoico_stamp_s* ).trait_name )
     {
         sink.push_fa( "^:#<sc_t>", compiler.nameof( o.name ) );
     }
@@ -131,7 +131,7 @@ func (:s) xoico.finalize = (try)
 
     if( !o.signature )
     {
-        const xoico_signature_s* signature = compiler.get_signature( o.signature_global_name );
+        c xoico_signature_s* signature = compiler.get_signature( o.signature_global_name );
         if( !signature )
         {
             return o.source_point.parse_error_fa
@@ -166,7 +166,7 @@ func (:s) xoico.expand_forward = (try)
     m $* compiler = host.compiler();
     sink.push_fa( " \\\n#rn{ }", indent );
     bl_t go_inline = o.body && o.body.go_inline;
-    const $* signature = o.signature;
+    c $* signature = o.signature;
     ASSERT( signature );
     if( go_inline )
     {
@@ -189,7 +189,7 @@ func (:s) xoico.expand_declaration = (try)
     if( !o.expandable ) return 0;
 
     bl_t go_inline = o.body && o.body.go_inline;
-    const $* signature = o.signature;
+    c $* signature = o.signature;
     ASSERT( signature );
     m $* compiler = host.compiler();
 
@@ -217,7 +217,7 @@ func (:s) xoico.expand_definition = (try)
     if( !o.expandable ) return 0;
     m $* compiler = host.compiler();
 
-    const $* signature = o.signature;
+    c $* signature = o.signature;
     ASSERT( signature );
     if( o.body && !o.body.go_inline )
     {

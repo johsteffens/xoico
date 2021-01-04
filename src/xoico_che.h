@@ -38,7 +38,7 @@ group :result = :
     feature void clear( m @* o )             = {};
     feature er_t push_char( m @* o, char c )          = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
     feature er_t push_sc( m @* o, sc_t sc )           = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
-    feature er_t push_st( m @* o, const st_s* st )    = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
+    feature er_t push_st( m @* o, c st_s* st )    = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
     feature m :* push_result_c( m @* o, c :* result ) = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
     feature m :* push_result_d( m @* o, d :* result ) = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
     feature er_t to_sink( c @* o, m bcore_sink* sink );
@@ -70,8 +70,8 @@ group :result = :
         func :.create_st = { return o.st.clone(); };
     };
 
-    func (d :* create_from_st( const st_s* st ) ) = { d $* o = :arr_s!; o.push_st( st ); return o; };
-    func (d :* create_from_sc(       sc_t  sc ) ) = { d $* o = :arr_s!; o.push_sc( sc ); return o; };
+    func (d :* create_from_st( c st_s* st ) ) = { d $* o = :arr_s!; o.push_st( st ); return o; };
+    func (d :* create_from_sc(   sc_t  sc ) ) = { d $* o = :arr_s!; o.push_sc( sc ); return o; };
 
     stamp :adl_s = aware x_array { aware : -> []; }; // !! weak links !!  (if this causes problems revert to strong links)
 
@@ -240,8 +240,8 @@ group :stack_var = :
     signature m @* pop_level( m @* o, sz_t level ); // pop all units of or above level
 
     signature bl_t exists( c @* o, tp_t name );
-    signature const xoico_typespec_s* get_typespec( c @* o, tp_t name );
-    signature const sz_t get_level( c @* o, tp_t name );
+    signature c xoico_typespec_s* get_typespec( c @* o, tp_t name );
+    signature c sz_t get_level( c @* o, tp_t name );
     signature void clear( m @* o );
     signature void rehash_names( m @* o );
 
@@ -312,7 +312,7 @@ group :stack_block = :
     stamp :unit_adl_s = aware x_array { :unit_s => []; };
 
     signature m @* push( m @* o );
-    signature m @* push_unit( m @* o, const :unit_s* unit );
+    signature m @* push_unit( m @* o, c :unit_s* unit );
     signature m @* pop(  m @* o );
     signature void clear( m @* o );
     signature sz_t get_size( c @* o );

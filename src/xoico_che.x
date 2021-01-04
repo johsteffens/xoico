@@ -506,7 +506,7 @@ func (:s)
                 }
                 else if( o.is_stamp( typespec_expr.type ) )
                 {
-                    const xoico_stamp_s* stamp = o.get_stamp( typespec_expr.type );
+                    c xoico_stamp_s* stamp = o.get_stamp( typespec_expr.type );
                     if( stamp.is_aware || typespec_target.flag_unaware )
                     {
                         implicit_cast = true;
@@ -1119,11 +1119,16 @@ func (:s)
     }
 
     tp_t access_class = 0;
+    bl_t literal_const_used = false;
 
     switch( tp_identifier )
     {
-        case TYPEOF_c:
         case TYPEOF_const:
+            access_class = TYPEOF_const;
+            literal_const_used = true;
+            break;
+
+        case TYPEOF_c:
             access_class = TYPEOF_const;
             break;
 
@@ -1221,6 +1226,8 @@ func (:s)
             if( typespec.indirection > 0 ) source.parse_error_fa( "Declaratione with indirection: access-class missing: (c|const) | (m|mutable) | (d|discardable)" );
         }
     }
+
+    if( literal_const_used ) source.parse_error_fa( "Abbreviate 'const' to 'c'." );
 
     if( success ) success.0 = true;
     return 0;
@@ -1511,7 +1518,7 @@ func (:s)
         {
             o.trans_identifier( source, result, NULL );
             o.trans_whitespace( source, result );
-            const xoico_typespec_s* typespec_var = o.stack_var.get_typespec( tp_identifier );
+            c xoico_typespec_s* typespec_var = o.stack_var.get_typespec( tp_identifier );
             o.trans_typespec_expression( source, result, typespec_var, out_typespec );
         }
 
@@ -1529,7 +1536,7 @@ func (:s)
 
             if( source.parse_bl( " #=?'('" ) ) // actual function call
             {
-                const xoico_func_s* func = o.get_func( tp_identifier );
+                c xoico_func_s* func = o.get_func( tp_identifier );
                 m $* typespec_ret = xoico_typespec_s!^^;
                 o.trans_function( source, func, NULL, NULL, result, typespec_ret );
                 o.trans_typespec_expression( source, result, typespec_ret, out_typespec );
@@ -2024,11 +2031,11 @@ func (:s) (er_t trans_block_inside_verbatim_c( m @* o, m bcore_source* source, m
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t setup( m @* o, const xoico_host* host, const xoico_signature_s* signature )) = (try)
+func (:s) (er_t setup( m @* o, c xoico_host* host, c xoico_signature_s* signature )) = (try)
 {
     tp_t host_obj_type = host.obj_type();
 
-    const xoico_args_s* args = signature.args;
+    c xoico_args_s* args = signature.args;
 
     tp_t tp_member_obj_type  = ( signature.arg_o ) ? host_obj_type : 0;
     bl_t member_obj_const    = ( signature.arg_o ) ? signature.arg_o.typespec.flag_const : false;

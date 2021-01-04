@@ -368,7 +368,7 @@ func (:s) xoico.parse = (try)
             return source.parse_error_fa( "Extending: Stamp name '#<sc_t>' must end in '_s'.", templ_name->sc );
         }
 
-        const xoico* item = compiler.get_const_item( typeof( templ_name.sc ) );
+        c xoico* item = compiler.get_const_item( typeof( templ_name.sc ) );
         if( !item ) return source.parse_error_fa( "Template #<sc_t> not found.", templ_name.sc );
         if( item._ != TYPEOF_xoico_stamp_s ) return source.parse_error_fa( "Template #<sc_t> is no stamp.", templ_name.sc );
         o.copy( item.cast( m xoico_stamp_s* ) );
@@ -443,7 +443,7 @@ func (:s) xoico.finalize = (try)
     sz_t self_items = bcore_self_s_items_size( o.self );
     for( sz_t i = 0; i < self_items; i++ )
     {
-        const bcore_self_item_s* item = o.self.get_item( i );
+        c bcore_self_item_s* item = o.self.get_item( i );
         if( item.name && ( item.caps != BCORE_CAPS_EXTERNAL_FUNC ) )
         {
             if( hmap_name.exists( item.name ) )
@@ -532,7 +532,7 @@ func (:s) xoico.expand_init1 = (try)
     {
         if( func.reflectable( host ) )
         {
-            const $* signature = func.signature;
+            c $* signature = func.signature;
             sink.push_fa
             (
                 "#rn{ }BCORE_REGISTER_FFUNC( #<sc_t>, #<sc_t>_#<sc_t> );\n",

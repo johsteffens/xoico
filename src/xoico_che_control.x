@@ -349,7 +349,7 @@ func (:s)( er_t trans_control_break( m @* o, m bcore_source* source, m :result* 
 
     for( sz_t i = o.stack_block.adl.size - 1; i >= 0; i-- )
     {
-        const xoico_che_stack_block_unit_s* unit = o.stack_block.adl.[ i ];
+        c xoico_che_stack_block_unit_s* unit = o.stack_block.adl.[ i ];
         use_blm = use_blm || unit.use_blm;
         if( unit.break_ledge )
         {
@@ -399,7 +399,7 @@ func (:s)( er_t trans_control_return( m @* o, m bcore_source* source, m :result*
     m $* result_expr = :result_create_arr().scope();
 
     m xoico_typespec_s* typespec_expr = scope( xoico_typespec_s! );
-    const xoico_typespec_s* typespec_ret = o.typespec_ret;
+    c xoico_typespec_s* typespec_ret = o.typespec_ret;
 
     o.trans_expression( source, result_expr, typespec_expr );
     o.trans_whitespace( source, result_expr );

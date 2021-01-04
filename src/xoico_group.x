@@ -368,7 +368,7 @@ func (:s) xoico.parse = (try)
                 m $* templ_name = st_s!^;
                 o.parse_name_st( source, templ_name );
                 if( !templ_name.ends_in_sc( "_s" ) ) return source.parse_error_fa( "Stamp name '#<sc_t>' must end in '_s'.", templ_name.sc );
-                const xoico* item = compiler.get_const_item( typeof( templ_name.sc ) );
+                c xoico* item = compiler.get_const_item( typeof( templ_name.sc ) );
                 if( !item ) return source.parse_error_fa( "Template #<sc_t> not found.", templ_name.sc );
                 if( item._ != TYPEOF_xoico_stamp_s ) return source.parse_error_fa( "Template #<sc_t> is no stamp.", templ_name.sc );
                 o.extending_stamp = item.cast( m xoico_stamp_s* );

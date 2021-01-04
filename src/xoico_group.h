@@ -39,9 +39,9 @@ signature m xoico_source_s*   get_source( c @* o );
 signature m xoico_target_s*   get_target( c @* o );
 signature m xoico_compiler_s* get_compiler( c @* o );
 
-signature const xoico_func_s* get_func( c @* o, tp_t name ); // returns NULL in case name is not a member function
+signature c xoico_func_s* get_func( c @* o, tp_t name ); // returns NULL in case name is not a member function
 
-signature const xoico_func_s* get_trait_line_func_from_name( c @* o, tp_t name );
+signature c xoico_func_s* get_trait_line_func_from_name( c @* o, tp_t name );
 
 
 /// source stack to handle includes
@@ -120,7 +120,7 @@ stamp :s = aware :
         return 0;
     };
 
-    func (const @* get_trait_group( c @* o )) =
+    func (c @* get_trait_group( c @* o )) =
     {
         return ( o.trait_name != o.tp_name ) ? o.compiler.get_group( o.trait_name ) : NULL;
     };
@@ -128,13 +128,13 @@ stamp :s = aware :
     func :.get_trait_line_func_from_name =
     {
         if( !o ) return NULL;
-        const xoico_func_s** p_func = ( const xoico_func_s** )o.hmap_func.get( name );
+        c xoico_func_s** p_func = ( const xoico_func_s** )o.hmap_func.get( name );
         return p_func ? *p_func : o.get_trait_group().get_trait_line_func_from_name( name );
     };
 
     func :.get_func =
     {
-        const xoico_func_s** p_func = ( const xoico_func_s** )o.hmap_func.get( name );
+        c xoico_func_s** p_func = ( const xoico_func_s** )o.hmap_func.get( name );
         return p_func ? *p_func : NULL;
     };
 

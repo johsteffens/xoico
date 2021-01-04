@@ -68,7 +68,7 @@ func (:s)
         if( signature.args.size > 0 ) result.push_sc( "," );
     }
 
-    const xoico_transient_map_s* transient_map = ( typespec_object ) ? o.get_transient_map( typespec_object.type ) : NULL;
+    c xoico_transient_map_s* transient_map = ( typespec_object ) ? o.get_transient_map( typespec_object.type ) : NULL;
 
     if( transient_map && transient_class && transient_return_type )
     {
@@ -86,7 +86,7 @@ func (:s)
         }
     }
 
-    foreach( const $* arg in signature.args )
+    foreach( c $* arg in signature.args )
     {
         if( arg.is_variadic() ) break;
 
@@ -163,7 +163,7 @@ func (:s)
     )
 ) = (try)
 {
-    const $* signature = func.signature;
+    c $* signature = func.signature;
 
     m $* typespec_ret = signature.typespec_ret.clone().scope( scope_local );
     tp_t transient_return_type = 0;

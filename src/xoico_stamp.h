@@ -34,8 +34,8 @@ signature er_t parse_func( m @* o, m bcore_source* source );
 signature er_t parse_wrap( m @* o, m bcore_source* source );
 signature er_t make_funcs_overloadable( m @* o );
 signature er_t push_default_funcs( m @* o );
-signature const xoico_func_s* get_func_from_name( c @* o, tp_t name ); // returns NULL if not found
-signature const xoico_func_s* get_trait_line_func_from_name( c @* o, tp_t name ); // returns NULL if not found
+signature c xoico_func_s* get_func_from_name( c @* o, tp_t name ); // returns NULL if not found
+signature c xoico_func_s* get_trait_line_func_from_name( c @* o, tp_t name ); // returns NULL if not found
 
 
 stamp :s = aware :
@@ -101,7 +101,7 @@ stamp :s = aware :
 
     func :.get_trait_line_func_from_name =
     {
-        const $* func = o.funcs.get_func_from_name( name );
+        c $* func = o.funcs.get_func_from_name( name );
         if( !func )
         {
             func = o.group.compiler.get_group( o.trait_name ).get_trait_line_func_from_name( name );

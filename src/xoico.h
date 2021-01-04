@@ -58,26 +58,26 @@ forward :transient_map_s;
 forward :cengine;
 forward :host;
 
-signature er_t parse_sc( m @* o, const :host* host, sc_t sc );
-signature er_t parse_fa( m @* o, const :host* host, sc_t format, ... );
+signature er_t parse_sc( m @* o, c :host* host, sc_t sc );
+signature er_t parse_fa( m @* o, c :host* host, sc_t format, ... );
 
 // converts explicit types accordingly according to transient map and removes all transient types
-feature 'ap' er_t convert_transient_types( m @* o, const :host* host, const :transient_map_s* map );
+feature 'ap' er_t convert_transient_types( m @* o, c :host* host, c :transient_map_s* map );
 
 feature 'ap' tp_t get_hash                  ( c @* o );
 feature 'ap' tp_t get_global_name_tp        ( c @* o );
-feature 'ap' er_t parse                     ( m @* o, const :host* host, m bcore_source* source );
-feature 'ap' er_t finalize                  ( m @* o, const :host* host ) = { return 0; };  // final stage in the compilation phase
-feature 'ap' er_t expand_setup              ( m @* o, const :host* host ) = { return 0; };  // first stage in the expansion phase
-feature 'ap' er_t expand_forward            ( c @* o, const :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_indef_typedef      ( c @* o, const :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_spect_declaration  ( c @* o, const :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_spect_definition   ( c @* o, const :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_declaration        ( c @* o, const :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_indef_declaration  ( c @* o, const :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_definition         ( c @* o, const :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_init1              ( c @* o, const :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
-feature 'ap' const bcore_source_point_s* get_source_point( c @* o ) = (verbatim_C) { ERR_fa( "Not implemented in #<sc_t>\n", bnameof( o->_ ) ); return NULL; };
+feature 'ap' er_t parse                     ( m @* o, c :host* host, m bcore_source* source );
+feature 'ap' er_t finalize                  ( m @* o, c :host* host ) = { return 0; };  // final stage in the compilation phase
+feature 'ap' er_t expand_setup              ( m @* o, c :host* host ) = { return 0; };  // first stage in the expansion phase
+feature 'ap' er_t expand_forward            ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_indef_typedef      ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_spect_declaration  ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_spect_definition   ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_declaration        ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_indef_declaration  ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_definition         ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_init1              ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
+feature 'ap' c bcore_source_point_s* get_source_point( c @* o ) = (verbatim_C) { ERR_fa( "Not implemented in #<sc_t>\n", bnameof( o->_ ) ); return NULL; };
 
 //----------------------------------------------------------------------------------------------------------------------
 // functions

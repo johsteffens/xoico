@@ -76,7 +76,7 @@ func (:s) xoico.get_hash =
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t relent( m @* o, const xoico_host* host, tp_t tp_obj_type )) =
+func (:s) (er_t relent( m @* o, c xoico_host* host, tp_t tp_obj_type )) =
 {
     return o.typespec.relent( host, tp_obj_type );
 };
@@ -114,7 +114,7 @@ func (:s) (er_t expand_x( c @* o, c xoico_host* host, m bcore_sink* sink )) =
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_name( c @* o, const xoico_host* host, m bcore_sink* sink )) =
+func (:s) (er_t expand_name( c @* o, c xoico_host* host, m bcore_sink* sink )) =
 {
     if( !o.name ) return 0;
     sink.push_fa( "#<sc_t>", host.compiler().nameof( o.name ) );

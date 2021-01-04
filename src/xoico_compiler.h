@@ -28,9 +28,9 @@
 XOILA_DEFINE_GROUP( xoico_compiler, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-signature er_t register_item(  m @* o, const xoico* item );
-signature er_t register_group( m @* o, const xoico_group_s* group );
-signature er_t register_func(  m @* o, const xoico_func_s* func );
+signature er_t register_item(  m @* o, c xoico* item );
+signature er_t register_group( m @* o, c xoico_group_s* group );
+signature er_t register_func(  m @* o, c xoico_func_s* func );
 signature er_t register_external_type( m @* o, tp_t type );
 
 signature bl_t is_item(  c @* o, tp_t name );
@@ -134,28 +134,28 @@ stamp :s = aware :
 
     func :.is_stamp =
     {
-        const xoico* item = o.get_const_item( name );
+        c xoico* item = o.get_const_item( name );
         if( item && ( item->_ == TYPEOF_xoico_stamp_s ) ) return true;
         return false;
     };
 
     func :.is_body =
     {
-        const xoico* item = o.get_const_item( name );
+        c xoico* item = o.get_const_item( name );
         if( item && ( item->_ == TYPEOF_xoico_body_s ) ) return true;
         return false;
     };
 
     func :.is_signature =
     {
-        const xoico* item = o.get_const_item( name );
+        c xoico* item = o.get_const_item( name );
         if( item && ( item->_ == TYPEOF_xoico_signature_s ) ) return true;
         return false;
     };
 
     func :.is_signature_or_feature =
     {
-        const xoico* item = o.get_const_item( name );
+        c xoico* item = o.get_const_item( name );
         if( !item ) return NULL;
         if( item->_ == TYPEOF_xoico_signature_s || item->_ == TYPEOF_xoico_feature_s ) return true;
         return false;
@@ -163,7 +163,7 @@ stamp :s = aware :
 
     func :.is_feature =
     {
-        const xoico* item = o.get_const_item( name );
+        c xoico* item = o.get_const_item( name );
         if( item && ( item->_ == TYPEOF_xoico_feature_s ) ) return true;
         return false;
     };
@@ -182,25 +182,25 @@ stamp :s = aware :
 
     func :.get_stamp =
     {
-        const xoico* item = o.get_const_item( name );
+        c xoico* item = o.get_const_item( name );
         return ( item ) ? ( item._ == TYPEOF_xoico_stamp_s ) ? item.cast( m xoico_stamp_s* ) : NULL : NULL;
     };
 
     func :.get_body =
     {
-        const xoico* item = o.get_const_item( name );
+        c xoico* item = o.get_const_item( name );
         return ( item ) ? ( item._ == TYPEOF_xoico_body_s ) ? item.cast( m xoico_body_s* ) : NULL : NULL;
     };
 
     func :.get_feature =
     {
-        const xoico* item = o.get_const_item( name );
+        c xoico* item = o.get_const_item( name );
         return ( item ) ? ( item._ == TYPEOF_xoico_feature_s ) ? item.cast( m xoico_feature_s* ) : NULL : NULL;
     };
 
     func :.get_signature =
     {
-        const xoico* item = o.get_const_item( name );
+        c xoico* item = o.get_const_item( name );
         if( !item ) return NULL;
         if( item._ == TYPEOF_xoico_signature_s ) return item.cast( m xoico_signature_s* );
         if( item._ == TYPEOF_xoico_feature_s   ) return item.cast( m xoico_feature_s* ).signature;

@@ -55,9 +55,9 @@ stamp :s = aware :
     func xoico.finalize = (try)
     {
         m $* compiler = host.compiler();
-        const xoico_group_s* group = compiler.get_group( o.group_name );
+        c xoico_group_s* group = compiler.get_group( o.group_name );
         if( !group ) o.source_point.parse_error_fa( "Wrap: '#<sc_t>' is not a group.", compiler.nameof( o.group_name ) );
-        const xoico_func_s* func = group.get_func( o.func_name );
+        c xoico_func_s* func = group.get_func( o.func_name );
         if( !func ) o.source_point.parse_error_fa( "Wrap: '#<sc_t>' is not a function in group '#<sc_t>'.", compiler.nameof( o.func_name ), compiler.nameof( o.group_name ) );
 
         o.signature!;

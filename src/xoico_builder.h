@@ -31,7 +31,7 @@ XOILA_DEFINE_GROUP( xoico_builder, xoico )
 /// returns index of target
 signature er_t load( m @* o, bl_t readonly, sc_t path );
 signature er_t build( m @* o );
-signature const @* name_match( c @* o, sc_t name );
+signature c @* name_match( c @* o, sc_t name );
 
 signature void push_target_index_to_arr( c @* o, m bcore_arr_sz_s* arr );
 
