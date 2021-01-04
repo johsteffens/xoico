@@ -95,7 +95,7 @@ func (:s) xoico.parse = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (xoico_func_s* create_func_from_sc( const, const xoico_host* host, sc_t sc )) =
+func (:s) (d xoico_func_s* create_func_from_sc( c @* o, c xoico_host* host, sc_t sc )) =
 {
     xoico_func_s* func = xoico_func_s!;
     func.parse_sc( host, sc );
@@ -105,14 +105,14 @@ func (:s) (xoico_func_s* create_func_from_sc( const, const xoico_host* host, sc_
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (xoico_func_s* push_func_from_sc( mutable, const xoico_host* host, sc_t sc )) =
+func (:s) (m xoico_func_s* push_func_from_sc( m @* o, c xoico_host* host, sc_t sc )) =
 {
     return o.funcs.push_d( o.create_func_from_sc( host, sc ) );
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
+func (:s) (er_t setup_functions( m @* o, const xoico_host* host )) = (try)
 {
     $* compiler = host.compiler();
     sc_t sc_name = compiler.nameof( o.signature.name );
@@ -122,7 +122,8 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
     st_s* st_ret_typespec = st_s!^^;
 
     bl_t has_ret = o.signature.returns_a_value();
-    o.signature.expand_ret( host, st_ret_typespec );
+    o.signature.expand_ret_x( host, st_ret_typespec );
+//    o.signature.expand_ret( host, st_ret_typespec );
 
     sc_t sc_ret_typespec = st_ret_typespec.sc;
     bl_t flag_const = o->signature.arg_o.typespec.flag_const;
@@ -133,8 +134,9 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
     {
         st_s* st = st_s!^^;
         st.push_fa( "(#<sc_t> a_#<sc_t>(", sc_ret_typespec, sc_name );
-        st.push_fa( flag_const ? " const" : " mutable" );
-        o.signature.args.expand( host, false, st );
+        st.push_fa( flag_const ? " c" : " m" );
+        st.push_fa( " @* o" );
+        o.signature.args.expand_x( host, false, st );
         st.push_fa( " )) = (verbatim_C) { " );
         st.push_fa( "const #<sc_t>* p = #<sc_t>_get_aware( o ); ", sc_spect_name, sc_spect_name );
         st.push_fa( "assert( p->#<sc_t> ); ", sc_name );
@@ -157,7 +159,7 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
     if( o.flag_a )
     {
         st_s* st = st_s!^^;
-        st.push_fa( "(bl_t defines_#<sc_t>( const )) = ", sc_name );
+        st.push_fa( "(bl_t defines_#<sc_t>( c @* o )) = ", sc_name );
         if( always_defined )
         {
             st.push_fa( "{ return true; };", sc_name );
@@ -180,9 +182,9 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
     {
         st_s* st = st_s!^^;
         st.push_fa( "(#<sc_t> t_#<sc_t>( tp_t t, ", sc_ret_typespec, sc_name );
-        if( flag_const ) st.push_fa( " const" );
+        st.push_fa( flag_const ? " c" : " m" );
         st.push_fa( " #<sc_t>* o", sc_obj_type );
-        o->signature.args.expand( host, false, st );
+        o->signature.args.expand_x( host, false, st );
         st.push_fa( " )) = (verbatim_C) { " );
         st.push_fa( "const #<sc_t>* p = #<sc_t>_get_typed( t ); ", sc_spect_name, sc_spect_name );
         st.push_fa( "assert( p->#<sc_t> ); ", sc_name );
@@ -215,11 +217,11 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
     if( o.flag_p )
     {
         st_s* st = st_s!^^;
-        st.push_fa( "(#<sc_t> p_#<sc_t>( const #<sc_t>* p,", sc_ret_typespec, sc_name, sc_spect_name );
+        st.push_fa( "(#<sc_t> p_#<sc_t>( c #<sc_t>* p,", sc_ret_typespec, sc_name, sc_spect_name );
 
-        if( flag_const ) st.push_fa( " const" );
+        st.push_fa( flag_const ? " c" : " m" );
         st.push_fa( " #<sc_t>* o", sc_obj_type );
-        o->signature.args.expand( host, false, st );
+        o->signature.args.expand_x( host, false, st );
         st.push_fa( " )) = (verbatim_C) { " );
         st.push_fa( "assert( p->#<sc_t> ); ", sc_name );
         if( has_ret ) st.push_fa( "return " );
@@ -234,7 +236,7 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
     if( o.flag_p )
     {
         st_s* st = st_s!^^;
-        st.push_fa( "(bl_t p_defines_#<sc_t>( const #<sc_t>* p )) = ", sc_name, sc_spect_name );
+        st.push_fa( "(bl_t p_defines_#<sc_t>( c #<sc_t>* p )) = ", sc_name, sc_spect_name );
         if( always_defined )
         {
             st.push_fa( "{ return true; };", sc_name );
@@ -252,8 +254,8 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
     {
         st_s* st = st_s!^^;
         st.push_fa( "( #<sc_t> r_#<sc_t>(", sc_ret_typespec, sc_name );
-        st.push_fa( " const sr_s* o" );
-        o.signature.args.expand( host, false, st );
+        st.push_fa( " c sr_s* o" );
+        o.signature.args.expand_x( host, false, st );
         st.push_fa( " )) = (verbatim_C) { " );
         if( !flag_const ) st.push_fa( "ASSERT( !sr_s_is_const( o ) ); " );
         st.push_fa
@@ -278,7 +280,7 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
     {
         st_s* st = st_s!^^;
 
-        st.push_fa( "(bl_t r_defines_#<sc_t>( const sr_s* o )) = ", sc_name );
+        st.push_fa( "(bl_t r_defines_#<sc_t>( c sr_s* o )) = ", sc_name );
         if( always_defined )
         {
             st.push_fa( "{ return true; };", sc_name );
@@ -296,9 +298,9 @@ func (:s) (er_t setup_functions( mutable, const xoico_host* host )) = (try)
     {
         st_s* st = st_s!^^;
         st.push_fa( "(#<sc_t> #<sc_t>(", sc_ret_typespec, o.st_default_func_name.sc );
-        if( flag_const ) st.push_fa( " const" );
+        st.push_fa( flag_const ? " c" : " m" );
         st.push_fa( " #<sc_t>* o", sc_obj_type );
-        o.signature.args.expand( host, false, st );
+        o.signature.args.expand_x( host, false, st );
         st.push_fa( " ));" );
 
         xoico_func_s* func = o.push_func_from_sc( host, st.sc );

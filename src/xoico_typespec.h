@@ -27,15 +27,19 @@ XOILA_DEFINE_GROUP( xoico_typespec, xoico )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-signature er_t parse(  mutable, const xoico_host* host, bcore_source* source );
-signature er_t relent( mutable, const xoico_host* host, tp_t tp_obj_type );
-signature er_t expand( const,   const xoico_host* host, bcore_sink* sink );
-signature bl_t converts_to( const, const @* b ); // converts to b without a cast
+signature er_t parse(  m @* o, c xoico_host* host, m bcore_source* source );
+signature er_t relent( m @* o, c xoico_host* host, tp_t tp_obj_type );
+signature er_t expand( c @* o, c xoico_host* host, m bcore_sink* sink );
+signature er_t expand_x( c @* o, c xoico_host* host, m bcore_sink* sink ); // expands in x-format
+signature bl_t converts_to( c @* o, c @* b ); // converts to b without a cast
 
-signature void reset( mutable );
+signature void reset( m @* o );
 
 name type_deduce;
 name type_object;
+name const;
+name mutable;
+name discardable;
 
 stamp :s = aware :
 {
@@ -44,6 +48,7 @@ stamp :s = aware :
     sz_t indirection;
 
     bl_t flag_const;
+    bl_t flag_discardable;
     bl_t flag_static;
     bl_t flag_volatile;
     bl_t flag_restrict;
@@ -71,22 +76,25 @@ stamp :s = aware :
         return 0;
     };
 
-    func     :.expand;
-    func     :.converts_to;
+    func :.expand;
+    func :.expand_x;
+    func :.converts_to;
 
-    func     :.reset =
+    func :.reset =
     {
         o->type = 0;
         o->indirection = 0;
         o->flag_const    = false;
+        o->flag_discardable = false;
         o->flag_static   = false;
         o->flag_volatile = false;
         o->flag_restrict = false;
+        o->flag_unaware  = false;
         o->flag_scope    = false;
         o->flag_addressable = true;  // object can have a pointer ('false' for objects returned by a function)
     };
 
-    func ( bl_t is_void( const )) = { return o.type == TYPEOF_void && o.indirection == 0; };
+    func ( bl_t is_void( c @* o )) = { return o.type == TYPEOF_void && o.indirection == 0; };
 };
 
 //----------------------------------------------------------------------------------------------------------------------

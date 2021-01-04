@@ -56,7 +56,7 @@ func (:s) :.parse_from_path = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (tp_t get_hash( const )) =
+func (:s) (tp_t get_hash( c @* o )) =
 {
     tp_t hash = bcore_tp_init();
 
@@ -86,7 +86,7 @@ func (:s) (tp_t get_hash( const )) =
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if target's dependencies are cyclic
-func (:s) (bl_t is_cyclic_recursive( mutable )) =
+func (:s) (bl_t is_cyclic_recursive( m @* o )) =
 {
     if( o.flag ) return true;
     o.flag = true;
@@ -135,7 +135,7 @@ func (:s) :.set_dependencies = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_heading( const, sz_t indent, bcore_sink* sink )) = (try)
+func (:s) (er_t expand_heading( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
 {
     bcore_cday_utc_s* time = bcore_cday_utc_s!^^;
     bcore_cday_utc_s_from_system( time );
@@ -177,7 +177,7 @@ func (:s) (er_t expand_heading( const, sz_t indent, bcore_sink* sink )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_h( const, sz_t indent, bcore_sink* sink )) = (try)
+func (:s) (er_t expand_h( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
 {
     o.expand_heading( indent, sink );
 
@@ -214,14 +214,14 @@ func (:s) (er_t expand_h( const, sz_t indent, bcore_sink* sink )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_init1( const, sz_t indent, bcore_sink* sink )) =
+func (:s) (er_t expand_init1( c @* o, sz_t indent, m bcore_sink* sink )) =
 {
     return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_c( const, sz_t indent, bcore_sink* sink )) = (try)
+func (:s) (er_t expand_c( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
 {
     o.expand_heading( indent, sink );
 

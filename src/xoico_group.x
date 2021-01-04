@@ -115,7 +115,7 @@ func (:s) xoico_host.parse_name_tp = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_default_feature_from_sc( mutable, sc_t sc )) = (try)
+func (:s) (er_t push_default_feature_from_sc( m @* o, sc_t sc )) = (try)
 {
     $* compiler = o.compiler;
     $* feature = xoico_feature_s!^^;
@@ -136,7 +136,7 @@ func (:s) (er_t push_default_feature_from_sc( mutable, sc_t sc )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_default_func_from_sc( mutable, sc_t sc )) = (try)
+func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc )) = (try)
 {
     $* func = xoico_func_s!^^;
     func.expandable = false;
@@ -147,7 +147,7 @@ func (:s) (er_t push_default_func_from_sc( mutable, sc_t sc )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t parse_func( mutable, bcore_source* source )) = (try)
+func (:s) (er_t parse_func( m @* o, m bcore_source* source )) = (try)
 {
     $* func = xoico_func_s!^^;
     func.parse( o, source );
@@ -157,7 +157,7 @@ func (:s) (er_t parse_func( mutable, bcore_source* source )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_func_d( mutable, xoico_func_s* func )) = (try)
+func (:s) (er_t push_func_d( m @* o, m xoico_func_s* func )) = (try)
 {
     sz_t idx = o.funcs.get_index_from_name( func.name );
 
@@ -475,10 +475,10 @@ func (:s) xoico.parse = (try)
 func (:s) xoico.finalize = (try)
 {
     /// default features
-    o.push_default_feature_from_sc( "@* clone( const );" );
-    o.push_default_feature_from_sc( "void copy( mutable, const @* src );" );
-    o.push_default_feature_from_sc( "void discard( mutable );" );
-    o.push_default_func_from_sc(    "(@* t_create( tp_t t ));" );
+    o.push_default_feature_from_sc( "d @* clone( c @* o );" );
+    o.push_default_feature_from_sc( "void copy( m @* o, c @* src );" );
+    o.push_default_feature_from_sc( "void discard( m @* o );" );
+    o.push_default_func_from_sc(    "(d @* t_create( tp_t t ));" );
 
     foreach( $* e in o ) e.finalize( o );
     foreach( $* func in o.funcs )
@@ -492,7 +492,7 @@ func (:s) xoico.finalize = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_forward( const, sz_t indent, bcore_sink* sink )) = (try)
+func (:s) (er_t expand_forward( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
 {
     if( !o.expandable ) return 0;
     sink.push_fa( " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o.st_name.sc );
@@ -503,7 +503,7 @@ func (:s) (er_t expand_forward( const, sz_t indent, bcore_sink* sink )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_spect_declaration( const, sz_t indent, bcore_sink* sink )) = (try)
+func (:s) (er_t expand_spect_declaration( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
 {
     if( !o.expandable ) return 0;
     if( o.short_spect_name )
@@ -574,7 +574,7 @@ func (:s) :.expand_declaration = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_spect_definition( const, sz_t indent, bcore_sink* sink )) = (try)
+func (:s) (er_t expand_spect_definition( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
 {
     $* compiler = o.compiler;
     if( !o.expandable ) return 0;

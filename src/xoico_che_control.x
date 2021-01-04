@@ -17,7 +17,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( bl_t is_control_name( const, tp_t tp_identifier ) ) =
+func (:s)( bl_t is_control_name( c @* o, tp_t tp_identifier ) ) =
 {
     switch( tp_identifier )
     {
@@ -43,7 +43,7 @@ func (:s)( bl_t is_control_name( const, tp_t tp_identifier ) ) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control( mutable, tp_t tp_control, bcore_source* source, :result* result ) ) = (try)
+func (:s)( er_t trans_control( m @* o, tp_t tp_control, m bcore_source* source, m :result* result ) ) = (try)
 {
     switch( tp_control )
     {
@@ -71,7 +71,7 @@ func (:s)( er_t trans_control( mutable, tp_t tp_control, bcore_source* source, :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control_for( mutable, bcore_source* source, :result* result ) ) = (try)
+func (:s)( er_t trans_control_for( m @* o, m bcore_source* source, m :result* result ) ) = (try)
 {
     o.inc_block();
     o.stack_block_get_top_unit().break_ledge = true;
@@ -104,7 +104,7 @@ func (:s)( er_t trans_control_for( mutable, bcore_source* source, :result* resul
  *  -->
  * { <typespec> __a = (match)<arr_expr>; for( sz_t __i = 0; __i < __a->size; __i++ ) { <typespec> var = (match)__a->data[ __i ]; <foreach-statement> }  }
  */
-func (:s)( er_t trans_control_foreach( mutable, bcore_source* source, :result* result ) ) = (try)
+func (:s)( er_t trans_control_foreach( m @* o, m bcore_source* source, m :result* result ) ) = (try)
 {
     o.inc_block();
     o.stack_block_get_top_unit().break_ledge = true;
@@ -194,7 +194,7 @@ func (:s)( er_t trans_control_foreach( mutable, bcore_source* source, :result* r
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control_if( mutable, bcore_source* source, :result* result ) ) = (try)
+func (:s)( er_t trans_control_if( m @* o, m bcore_source* source, m :result* result ) ) = (try)
 {
     o.trans( source, "if", result );
     o.trans_whitespace( source, result );
@@ -215,7 +215,7 @@ func (:s)( er_t trans_control_if( mutable, bcore_source* source, :result* result
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control_while( mutable, bcore_source* source, :result* result ) ) = (try)
+func (:s)( er_t trans_control_while( m @* o, m bcore_source* source, m :result* result ) ) = (try)
 {
     o.trans( source, "while", result );
     o.trans_whitespace( source, result );
@@ -236,7 +236,7 @@ func (:s)( er_t trans_control_while( mutable, bcore_source* source, :result* res
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control_do( mutable, bcore_source* source, :result* result ) ) = (try)
+func (:s)( er_t trans_control_do( m @* o, m bcore_source* source, m :result* result ) ) = (try)
 {
     o.trans( source, "do", result );
     o.trans_whitespace( source, result );
@@ -260,7 +260,7 @@ func (:s)( er_t trans_control_do( mutable, bcore_source* source, :result* result
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control_else( mutable, bcore_source* source, :result* result ) ) = (try)
+func (:s)( er_t trans_control_else( m @* o, m bcore_source* source, m :result* result ) ) = (try)
 {
     o.trans( source, "else", result );
     o.trans_whitespace( source, result );
@@ -277,7 +277,7 @@ func (:s)( er_t trans_control_else( mutable, bcore_source* source, :result* resu
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control_switch( mutable, bcore_source* source, :result* result ) ) = (try)
+func (:s)( er_t trans_control_switch( m @* o, m bcore_source* source, m :result* result ) ) = (try)
 {
     o.trans( source, "switch", result );
     o.trans_whitespace( source, result );
@@ -291,7 +291,7 @@ func (:s)( er_t trans_control_switch( mutable, bcore_source* source, :result* re
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control_case( mutable, bcore_source* source, :result* result ) ) = (try)
+func (:s)( er_t trans_control_case( m @* o, m bcore_source* source, m :result* result ) ) = (try)
 {
     o.trans( source, "case", result );
     o.trans_expression( source, result, NULL );
@@ -304,7 +304,7 @@ func (:s)( er_t trans_control_case( mutable, bcore_source* source, :result* resu
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control_default( mutable, bcore_source* source, :result* result ) ) = (try)
+func (:s)( er_t trans_control_default( m @* o, m bcore_source* source, m :result* result ) ) = (try)
 {
     o.trans( source, "default", result );
     o.trans_whitespace( source, result );
@@ -337,10 +337,10 @@ stamp :result_break_s = aware :result
         return 0;
     };
 
-    func (@* create_setup( sz_t ledge_level )) = { $* o = @!; o.ledge_level = ledge_level; return o; };
+    func (d @* create_setup( sz_t ledge_level )) = { $* o = @!; o.ledge_level = ledge_level; return o; };
 };
 
-func (:s)( er_t trans_control_break( mutable, bcore_source* source, :result* result ) ) = (try)
+func (:s)( er_t trans_control_break( m @* o, m bcore_source* source, m :result* result ) ) = (try)
 {
     source.parse_em_fa( "break ;" );
 
@@ -392,7 +392,7 @@ stamp :result_return_s = aware :result
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control_return( mutable, bcore_source* source, :result* result ) ) = (try)
+func (:s)( er_t trans_control_return( m @* o, m bcore_source* source, m :result* result ) ) = (try)
 {
     source.parse_em_fa( "return" );
 

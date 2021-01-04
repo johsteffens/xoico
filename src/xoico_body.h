@@ -28,9 +28,9 @@ XOILA_DEFINE_GROUP( xoico_body, xoico )
 include deferred "xoico_stamp.h";
 include deferred "xoico_cengine.h";
 
-signature er_t parse_expression( mutable, const xoico_host* host, bcore_source* source );
-signature er_t finalize( mutable, const xoico_host* host );
-signature er_t expand( const, const xoico_host* host, const xoico_signature_s* signature, sz_t indent, bcore_sink* sink );
+signature er_t parse_expression( m @* o, c xoico_host* host, m bcore_source* source );
+signature er_t finalize( m @* o, c xoico_host* host );
+signature er_t expand( c @* o, c xoico_host* host, c xoico_signature_s* signature, sz_t indent, m bcore_sink* sink );
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -18,7 +18,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 
 /// removes comments, excessive whitespaces; trailing whitespaces; keeps strings but replaces '"' with '\"'
-func (st_s* create_embedded_string( const st_s* s )) =
+func (m st_s* create_embedded_string( c st_s* s )) =
 {
     st_s* out = st_s!;
     for( sz_t i = 0; i < s.size; i++ )
@@ -82,7 +82,7 @@ func (st_s* create_embedded_string( const st_s* s )) =
 /** Creates a structured multiline string for direct code embedding
  *  from an embedded string
  */
-func (st_s* create_structured_multiline_string( const sc_t s, sz_t indent )) =
+func (m st_s* create_structured_multiline_string( c sc_t s, sz_t indent )) =
 {
     st_s* out = st_s!;
     sz_t ind = indent;
@@ -153,7 +153,7 @@ func (st_s* create_structured_multiline_string( const sc_t s, sz_t indent )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (sc_t get_rel_name_sc( const )) =
+func (:s) (sc_t get_rel_name_sc( c @* o )) =
 {
     sc_t group_name = o.group.st_name.sc;
     sc_t stamp_name = o.st_name.sc;
@@ -222,7 +222,7 @@ func (:s) :.parse_wrap = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t parse_extend( mutable, bcore_source* source )) = (try)
+func (:s) (er_t parse_extend( m @* o, m bcore_source* source )) = (try)
 {
     ASSERT( o.self_buf );
 
@@ -304,7 +304,7 @@ func (:s) (er_t parse_extend( mutable, bcore_source* source )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_default_func_from_sc( mutable, sc_t sc )) = (try)
+func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc )) = (try)
 {
     $* compiler = o.group.compiler;
     $* func = xoico_func_s!^^;

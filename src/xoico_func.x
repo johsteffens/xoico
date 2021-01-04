@@ -33,7 +33,7 @@ func (:s) :.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t freeze_global_name( mutable, const xoico_host* host )) = (try)
+func (:s) (er_t freeze_global_name( m @* o, const xoico_host* host )) = (try)
 {
     if( o.global_name ) return 0;
     $* compiler = host.compiler();
@@ -105,7 +105,7 @@ func (:s) xoico.parse = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_flect_decl_to_sink( const, const xoico_host* host, bcore_sink* sink )) =
+func (:s) (er_t push_flect_decl_to_sink( c @* o, c xoico_host* host, m bcore_sink* sink )) =
 {
     $* compiler = host.compiler();
     sink.push_sc( "func " );

@@ -22,14 +22,14 @@ func (:s)
 (
     er_t trans_function_args
     (
-        mutable,
-        bcore_source* source,
+        m @* o,
+        m bcore_source* source,
         tp_t object_type,
-        const xoico_signature_s* signature,
-        const :result* result_object_expr,
-        const xoico_typespec_s* typespec_object,
-        :result* result,
-        tp_t* transient_return_type
+        c xoico_signature_s* signature,
+        c :result* result_object_expr,
+        c xoico_typespec_s* typespec_object,
+        m :result* result,
+        m tp_t* transient_return_type
     )
 ) = (try)
 {
@@ -153,13 +153,13 @@ func (:s)
 (
     er_t trans_function
     (
-        mutable,
-        bcore_source* source,
-        const xoico_func_s* func,
-        const :result* result_object_expr, // NULL on direct calls
-        const xoico_typespec_s* typespec_object, // NULL on direct calls
-        :result* result,
-        xoico_typespec_s* return_typespec
+        m @* o,
+        m bcore_source* source,
+        c xoico_func_s* func,
+        c :result* result_object_expr, // NULL on direct calls
+        c xoico_typespec_s* typespec_object, // NULL on direct calls
+        m :result* result,
+        m xoico_typespec_s* return_typespec
     )
 ) = (try)
 {

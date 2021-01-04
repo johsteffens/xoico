@@ -26,14 +26,14 @@
 XOILA_DEFINE_GROUP( xoico_funcs, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-signature bl_t exists_from_signature_global_name( const, tp_t signature_global_name );
-signature bl_t exists_from_name( const, tp_t name );
-signature sz_t get_index_from_signature_global_name( const, tp_t signature_global_name ); // returns -1 if not found
-signature sz_t get_index_from_name( const, tp_t name ); // returns -1 if not found
-signature xoico_func_s* get_func_from_signature_global_name( const, tp_t signature_global_name ); // returns NULL if not found
-signature xoico_func_s* get_func_from_name( const, tp_t name ); // returns NULL if not found
-signature er_t replace_fork( mutable, sz_t idx, xoico_func_s* func );
-signature tp_t get_hash( const );
+signature bl_t exists_from_signature_global_name( c @* o, tp_t signature_global_name );
+signature bl_t exists_from_name( c @* o, tp_t name );
+signature sz_t get_index_from_signature_global_name( c @* o, tp_t signature_global_name ); // returns -1 if not found
+signature sz_t get_index_from_name( c @* o, tp_t name ); // returns -1 if not found
+signature m xoico_func_s* get_func_from_signature_global_name( c @* o, tp_t signature_global_name ); // returns NULL if not found
+signature m xoico_func_s* get_func_from_name( c @* o, tp_t name ); // returns NULL if not found
+signature er_t replace_fork( m @* o, sz_t idx, m xoico_func_s* func );
+signature tp_t get_hash( c @* o );
 
 stamp :s = aware x_array
 {

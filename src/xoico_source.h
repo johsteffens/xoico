@@ -42,7 +42,7 @@ stamp :s = aware :
         return 0;
     };
 
-    func (er_t push_d( mutable, xoico_group_s* group )) =
+    func (er_t push_d( m @* o, m xoico_group_s* group )) =
     {
         o.cast( x_array* ).push_d( group );
         return 0;

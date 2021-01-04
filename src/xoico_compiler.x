@@ -197,7 +197,7 @@ func (:s) xoico.expand_setup = (try)
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if a file will be modified in function xoico_compiler_s_expand
-func (:s) (bl_t to_be_modified( const )) =
+func (:s) (bl_t to_be_modified( c @* o )) =
 {
     for( sz_t i = 0; i < o->size; i++ )
     {
@@ -209,7 +209,7 @@ func (:s) (bl_t to_be_modified( const )) =
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if a file was modified
-func (:s) (er_t expand( mutable, bl_t* p_modified )) = (try)
+func (:s) (er_t expand( m @* o, m bl_t* p_modified )) = (try)
 {
     bl_t modified = false;
 

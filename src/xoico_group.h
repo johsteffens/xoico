@@ -28,20 +28,20 @@ XOILA_DEFINE_GROUP( xoico_group, xoico )
 
 include deferred "xoico_nested_group.h";
 
-signature er_t push_item_d( mutable, xoico* item );
-signature er_t parse_name_recursive( const, bcore_source* source, st_s* name );
-signature er_t expand_declaration(   const, sz_t indent, bcore_sink* sink );
-signature er_t expand_definition(    const, sz_t indent, bcore_sink* sink );
-signature er_t expand_init1(         const, sz_t indent, bcore_sink* sink );
-signature void explicit_embeddings_push( const, bcore_arr_st_s* arr );
+signature er_t push_item_d( m @* o, m xoico* item );
+signature er_t parse_name_recursive( c @* o, m bcore_source* source, m st_s* name );
+signature er_t expand_declaration(   c @* o, sz_t indent, m bcore_sink* sink );
+signature er_t expand_definition(    c @* o, sz_t indent, m bcore_sink* sink );
+signature er_t expand_init1(         c @* o, sz_t indent, m bcore_sink* sink );
+signature void explicit_embeddings_push( c @* o, m bcore_arr_st_s* arr );
 
-signature xoico_source_s*   get_source( const );
-signature xoico_target_s*   get_target( const );
-signature xoico_compiler_s* get_compiler( const );
+signature m xoico_source_s*   get_source( c @* o );
+signature m xoico_target_s*   get_target( c @* o );
+signature m xoico_compiler_s* get_compiler( c @* o );
 
-signature const xoico_func_s* get_func( const, tp_t name ); // returns NULL in case name is not a member function
+signature const xoico_func_s* get_func( c @* o, tp_t name ); // returns NULL in case name is not a member function
 
-signature const xoico_func_s* get_trait_line_func_from_name( const, tp_t name );
+signature const xoico_func_s* get_trait_line_func_from_name( c @* o, tp_t name );
 
 
 /// source stack to handle includes
@@ -120,7 +120,7 @@ stamp :s = aware :
         return 0;
     };
 
-    func (const @* get_trait_group( const )) =
+    func (const @* get_trait_group( c @* o )) =
     {
         return ( o.trait_name != o.tp_name ) ? o.compiler.get_group( o.trait_name ) : NULL;
     };

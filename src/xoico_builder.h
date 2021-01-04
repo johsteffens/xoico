@@ -29,11 +29,11 @@ XOILA_DEFINE_GROUP( xoico_builder, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 /// returns index of target
-signature er_t load( mutable, bl_t readonly, sc_t path );
-signature er_t build( mutable );
-signature const @* name_match( const, sc_t name );
+signature er_t load( m @* o, bl_t readonly, sc_t path );
+signature er_t build( m @* o );
+signature const @* name_match( c @* o, sc_t name );
 
-signature void push_target_index_to_arr( const, bcore_arr_sz_s* arr );
+signature void push_target_index_to_arr( c @* o, m bcore_arr_sz_s* arr );
 
 stamp :arr_target_s = aware x_array { :target_s => []; };
 
@@ -99,18 +99,18 @@ stamp :target_s = aware :
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-signature er_t build_from_file( mutable, sc_t path );
-signature bl_t update_required( const );
-signature er_t update         ( const );
+signature er_t build_from_file( m @* o, sc_t path );
+signature bl_t update_required( c @* o );
+signature er_t update         ( c @* o );
 
-signature er_t set_dry_run( mutable, bl_t v );
-signature bl_t get_dry_run( const );
+signature er_t set_dry_run( m @* o, bl_t v );
+signature bl_t get_dry_run( c @* o );
 
-signature er_t set_always_expand( mutable, bl_t v );
-signature bl_t get_always_expand( const );
+signature er_t set_always_expand( m @* o, bl_t v );
+signature bl_t get_always_expand( c @* o );
 
-signature er_t set_overwrite_unsigned_target_files( mutable, bl_t v );
-signature bl_t get_overwrite_unsigned_target_files( const );
+signature er_t set_overwrite_unsigned_target_files( m @* o, bl_t v );
+signature bl_t get_overwrite_unsigned_target_files( c @* o );
 
 stamp :main_s = aware :
 {

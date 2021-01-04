@@ -35,17 +35,17 @@ XOILA_DEFINE_GROUP( xoico_che, xoico_cengine )
 /// stack for variable declarations
 group :result = :
 {
-    feature void clear( mutable )             = {};
-    feature er_t push_char( mutable, char c )            = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
-    feature er_t push_sc( mutable, sc_t sc )             = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
-    feature er_t push_st( mutable, const st_s* st )      = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
-    feature :* push_result_c( mutable, const :* result ) = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
-    feature :* push_result_d( mutable, :* result )       = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
-    feature er_t to_sink( const, bcore_sink* sink );
+    feature void clear( m @* o )             = {};
+    feature er_t push_char( m @* o, char c )          = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
+    feature er_t push_sc( m @* o, sc_t sc )           = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
+    feature er_t push_st( m @* o, const st_s* st )    = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
+    feature m :* push_result_c( m @* o, c :* result ) = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
+    feature m :* push_result_d( m @* o, d :* result ) = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
+    feature er_t to_sink( c @* o, m bcore_sink* sink );
 
-    feature void set_parent_block( mutable, :block_s* parent ) = {};
+    feature void set_parent_block( m @* o, m :block_s* parent ) = {};
 
-    feature st_s* create_st( const ) =
+    feature d st_s* create_st( c @* o ) =
     {
         $* st = st_s!;
         o.to_sink( st );
@@ -58,9 +58,9 @@ group :result = :
     {
         st_s st;
 
-        func (@* create_from_st( const st_s* st ) ) = { $* o = @!; o.st.copy( st ); return o; };
-        func (@* create_from_st_d(     st_s* st ) ) = { $* o = @!; o.st.copy( st ); st.discard(); return o; };
-        func (@* create_from_sc(       sc_t  sc ) ) = { $* o = @!; o.st.copy_sc( sc ); return o; };
+        func (d @* create_from_st(   c st_s* st ) ) = { $* o = @!; o.st.copy( st ); return o; };
+        func (d @* create_from_st_d( d st_s* st ) ) = { $* o = @!; o.st.copy( st ); st.discard(); return o; };
+        func (d @* create_from_sc(     sc_t  sc ) ) = { $* o = @!; o.st.copy_sc( sc ); return o; };
 
         func :.clear     = { o.st.clear(); };
         func :.push_char = { o.st.push_char( c ); return 0; };
@@ -70,8 +70,8 @@ group :result = :
         func :.create_st = { return o.st.clone(); };
     };
 
-    func (:* create_from_st( const st_s* st ) ) = { $* o = :arr_s!; o.push_st( st ); return o; };
-    func (:* create_from_sc(       sc_t  sc ) ) = { $* o = :arr_s!; o.push_sc( sc ); return o; };
+    func (d :* create_from_st( const st_s* st ) ) = { $* o = :arr_s!; o.push_st( st ); return o; };
+    func (d :* create_from_sc(       sc_t  sc ) ) = { $* o = :arr_s!; o.push_sc( sc ); return o; };
 
     stamp :adl_s = aware x_array { aware : -> []; }; // !! weak links !!  (if this causes problems revert to strong links)
 
@@ -83,12 +83,12 @@ group :result = :
 
         func :.clear = { o.adl.clear(); };
 
-        func (:* last( mutable )) =
+        func (m :* last( m @* o )) =
         {
             return ( o.adl.size == 0 ) ? o.adl.push_d( :plain_s!.cast( :* ) ) : o.adl.[ o.adl.size - 1 ];
         };
 
-        func (:* last_plain( mutable )) =
+        func (m :* last_plain( m @* o )) =
         {
             return ( o.last()._ != TYPEOF_:plain_s ) ? o.adl.push_d( :plain_s!.cast( :* ) ) : o.adl.[ o.adl.size - 1 ];
         };
@@ -111,7 +111,7 @@ group :result = :
         };
     };
 
-    func (:* create_arr() ) = { return :arr_s!; };
+    func (d :* create_arr() ) = { return :arr_s!; };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -144,7 +144,7 @@ group :result = :
         func :.to_sink = { return o.arr.to_sink( sink ); };
         func :.set_parent_block = { o.parent = parent; };
 
-        func (bl_t is_using_blm_until_level( const, sz_t level )) =
+        func (bl_t is_using_blm_until_level( c @* o, sz_t level )) =
         {
             if( level > o.level ) return false;
             if( o.is_using_blm ) return true;
@@ -156,7 +156,7 @@ group :result = :
 
     };
 
-    func (:* create_block( sz_t level, bl_t is_using_blm  ) ) =
+    func (d :* create_block( sz_t level, bl_t is_using_blm  ) ) =
     {
         $* o = :block_s!;
         o.level = level;
@@ -172,7 +172,7 @@ group :result = :
         func :.to_sink = { sink.push_fa( "BLM_INIT_LEVEL(#<sz_t>);", o.level ); return 0; };
     };
 
-    func (:* create_blm_init( sz_t level ) ) = { $* o = :blm_init_s!; o.level = level; return o; };
+    func (d :* create_blm_init( sz_t level ) ) = { $* o = :blm_init_s!; o.level = level; return o; };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -181,11 +181,11 @@ group :result = :
         func :.to_sink = { sink.push_sc( "BLM_DOWN();" ); return 0; };
     };
 
-    func (:* create_blm_down() ) = { $* o = :blm_down_s!; return o; };
+    func (d :* create_blm_down() ) = { $* o = :blm_down_s!; return o; };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-    func (er_t push_fv( mutable, sc_t format, va_list args )) =
+    func (er_t push_fv( m @* o, sc_t format, va_list args )) =
     {
         st_s* st = st_s_create_fv( format, args );
         er_t ret = o.push_st( st );
@@ -195,7 +195,7 @@ group :result = :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-    func( er_t push_fa( mutable, sc_t format, ... )) =
+    func( er_t push_fa( m @* o, sc_t format, ... )) =
     {
         va_list args;
         va_start( args, format );
@@ -206,7 +206,7 @@ group :result = :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-    func( er_t copy_fv( mutable, sc_t format, va_list args )) =
+    func( er_t copy_fv( m @* o, sc_t format, va_list args )) =
     {
         xoico_che_result_a_clear( o );
         return o.push_fv( format, args );
@@ -214,7 +214,7 @@ group :result = :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-    func (er_t copy_fa( mutable, sc_t format, ... )) =
+    func (er_t copy_fa( m @* o, sc_t format, ... )) =
     {
         va_list args;
         va_start( args, format );
@@ -236,14 +236,14 @@ group :stack_var = :
 
     stamp :unit_adl_s = aware x_array { :unit_s => []; };
 
-    signature @* push_unit( mutable, const :unit_s* unit );
-    signature @* pop_level( mutable, sz_t level ); // pop all units of or above level
+    signature m @* push_unit( m @* o, c :unit_s* unit );
+    signature m @* pop_level( m @* o, sz_t level ); // pop all units of or above level
 
-    signature bl_t exists( const, tp_t name );
-    signature const xoico_typespec_s* get_typespec( const, tp_t name );
-    signature const sz_t get_level( const, tp_t name );
-    signature void clear( mutable );
-    signature void rehash_names( mutable );
+    signature bl_t exists( c @* o, tp_t name );
+    signature const xoico_typespec_s* get_typespec( c @* o, tp_t name );
+    signature const sz_t get_level( c @* o, tp_t name );
+    signature void clear( m @* o );
+    signature void rehash_names( m @* o );
 
     stamp :s = aware :
     {
@@ -311,11 +311,11 @@ group :stack_block = :
 
     stamp :unit_adl_s = aware x_array { :unit_s => []; };
 
-    signature @* push( mutable );
-    signature @* push_unit( mutable, const :unit_s* unit );
-    signature @* pop(  mutable );
-    signature void clear( mutable );
-    signature sz_t get_size( const );
+    signature m @* push( m @* o );
+    signature m @* push_unit( m @* o, const :unit_s* unit );
+    signature m @* pop(  m @* o );
+    signature void clear( m @* o );
+    signature sz_t get_size( c @* o );
 
     stamp :s = aware :
     {
@@ -337,21 +337,21 @@ group :stack_block = :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-signature tp_t entypeof(  mutable, sc_t name );
-signature sc_t nameof(    mutable, tp_t type );
-signature void init_level0( mutable );
-signature void inc_level( mutable );
-signature void dec_level( mutable );
-signature void inc_block( mutable );
-signature void dec_block( mutable );
-signature void push_typedecl( mutable, const xoico_typespec_s* typespec, tp_t name );
-signature :stack_block_unit_s* stack_block_get_top_unit( mutable );
-signature :stack_block_unit_s* stack_block_get_bottom_unit( mutable );
-signature :stack_block_unit_s* stack_block_get_level_unit( mutable, sz_t level );
-signature er_t push_typespec( mutable, const xoico_typespec_s* typespec, :result* result );
-signature void typespec_to_sink( mutable, const xoico_typespec_s* typespec, bcore_sink* sink );
+signature tp_t entypeof(  m @* o, sc_t name );
+signature sc_t nameof(    m @* o, tp_t type );
+signature void init_level0( m @* o );
+signature void inc_level( m @* o );
+signature void dec_level( m @* o );
+signature void inc_block( m @* o );
+signature void dec_block( m @* o );
+signature void push_typedecl( m @* o, c xoico_typespec_s* typespec, tp_t name );
+signature m :stack_block_unit_s* stack_block_get_top_unit( m @* o );
+signature m :stack_block_unit_s* stack_block_get_bottom_unit( m @* o );
+signature m :stack_block_unit_s* stack_block_get_level_unit( m @* o, sz_t level );
+signature er_t push_typespec( m @* o, c xoico_typespec_s* typespec, m :result* result );
+signature void typespec_to_sink( m @* o, c xoico_typespec_s* typespec, m bcore_sink* sink );
 
-signature bl_t is_var( const, tp_t name );
+signature bl_t is_var( c @* o, tp_t name );
 
 name static;
 name volatile;
@@ -505,12 +505,12 @@ stamp :s = aware :
     func xoico_compiler.get_func  = { return o.compiler.get_func( name ); };
     func xoico_compiler.get_transient_map = { return o.compiler.get_transient_map( type ); };
 
-    func (bl_t returns_a_value( const )) =
+    func (bl_t returns_a_value( c @* o )) =
     {
         return ( !( ( o.typespec_ret.type == 0 ) || ( o.typespec_ret.type == TYPEOF_void ) ) ) || ( o.typespec_ret.indirection > 0 );
     };
 
-    func (er_t trans( const, bcore_source* source, sc_t format, :result* result )) =
+    func (er_t trans( c @* o, m bcore_source* source, sc_t format, m :result* result )) =
     {
         try( source.parse_em_fa( format ));
         result.push_sc( format );

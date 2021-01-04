@@ -26,7 +26,7 @@
 XOILA_DEFINE_GROUP( xoico_arg, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-signature bl_t is_variadic( const );
+signature bl_t is_variadic( c @* o );
 
 stamp :s = aware :
 {
@@ -76,7 +76,7 @@ func (:s) xoico.get_hash =
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t relent( mutable, const xoico_host* host, tp_t tp_obj_type )) =
+func (:s) (er_t relent( m @* o, const xoico_host* host, tp_t tp_obj_type )) =
 {
     return o.typespec.relent( host, tp_obj_type );
 };
@@ -88,7 +88,7 @@ func (:s) xoico.convert_transient_types = { return o.typespec.convert_transient_
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand( const, const xoico_host* host, bcore_sink* sink )) =
+func (:s) (er_t expand( c @* o, c xoico_host* host, m bcore_sink* sink )) =
 {
     try( o.typespec.expand( host, sink ) );
     if( o.name )
@@ -101,7 +101,20 @@ func (:s) (er_t expand( const, const xoico_host* host, bcore_sink* sink )) =
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_name( const, const xoico_host* host, bcore_sink* sink )) =
+func (:s) (er_t expand_x( c @* o, c xoico_host* host, m bcore_sink* sink )) =
+{
+    try( o.typespec.expand_x( host, sink ) );
+    if( o.name )
+    {
+        sink.push_fa( " " );
+        o.expand_name( host, sink );
+    }
+    return 0;
+};
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+func (:s) (er_t expand_name( c @* o, const xoico_host* host, m bcore_sink* sink )) =
 {
     if( !o.name ) return 0;
     sink.push_fa( "#<sc_t>", host.compiler().nameof( o.name ) );

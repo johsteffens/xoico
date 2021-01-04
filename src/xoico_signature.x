@@ -104,6 +104,8 @@ func (:s) xoico.parse = (try)
 
         if( tp_arg_o )
         {
+            source.parse_error_fa( "Please use explicit object syntax." );
+
             if( !source.parse_bl( " #=?')'" ) ) source.parse_em_fa( ", " );
             o.arg_o =< xoico_arg_s!;
             o.arg_o.typespec.type = TYPEOF_type_object;
@@ -111,9 +113,29 @@ func (:s) xoico.parse = (try)
             o.arg_o.typespec.indirection = 1;
             o.arg_o.typespec.transient_class = transient_class;
             o.arg_o.name = TYPEOF_o;
+            o.args.parse( host, source );
+        }
+        else if( !source.parse_bl( " #=?')'" ) )
+        {
+            xoico_arg_s* arg = xoico_arg_s!^;
+            arg.parse( host, source );
+            if( !source.parse_bl( " #=?')'" ) ) source.parse_em_fa( ", " );
+            if( arg.name == TYPEOF_o )
+            {
+                o.arg_o =< arg.fork();
+                o.args.parse( host, source );
+            }
+            else
+            {
+                o.args.push_d( arg.fork() );
+                o.args.append( host, source );
+            }
+        }
+        else
+        {
+            o.args.parse( host, source );
         }
 
-        o.args.parse( host, source );
         source.parse_em_fa( " )" );
     }
 

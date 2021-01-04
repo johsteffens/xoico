@@ -28,12 +28,12 @@ XOILA_DEFINE_GROUP( xoico_target, xoico )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-signature er_t parse_from_path( mutable, sc_t source_path );
-signature bl_t to_be_modified( const );
-signature er_t expand_phase1( mutable, bl_t* p_modified );
-signature er_t expand_phase2( mutable, bl_t* p_modified );
-signature bl_t is_cyclic( mutable ); // mutable because flag is used for cyclic test
-signature er_t set_dependencies( mutable, const bcore_arr_sz_s* dependencies );
+signature er_t parse_from_path( m @* o, sc_t source_path );
+signature bl_t to_be_modified( c @* o );
+signature er_t expand_phase1( m @* o, m bl_t* p_modified );
+signature er_t expand_phase2( m @* o, m bl_t* p_modified );
+signature bl_t is_cyclic( m @* o ); // mutable because flag is used for cyclic test
+signature er_t set_dependencies( m @* o, c bcore_arr_sz_s* dependencies );
 
 stamp :s = aware :
 {
@@ -75,7 +75,7 @@ stamp :s = aware :
     func :.is_cyclic;
     func :.set_dependencies;
 
-    func (void push_d( mutable, xoico_source_s* source )) =
+    func (void push_d( m @* o, m xoico_source_s* source )) =
     {
         o.cast( x_array* ).push_d( source );
     };

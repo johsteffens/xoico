@@ -34,9 +34,9 @@ stamp :s = aware :
     bcore_hmap_tptp_s map;
     func xoico.parse;
 
-    func (@*   set(  mutable, tp_t key, tp_t val )) = { o.map.set( key, val ); return o; };
-    func (tp_t get(    const, tp_t key )) = { tp_t* p = o.map.get( key ); return p ? *p : 0; };
-    func (bl_t exists( const, tp_t key )) = { return o.map.exists( key ); };
+    func (m @* set(    m @* o, tp_t key, tp_t val )) = { o.map.set( key, val ); return o; };
+    func (tp_t get(    c @* o, tp_t key )) = { tp_t* p = o.map.get( key ); return p ? *p : 0; };
+    func (bl_t exists( c @* o, tp_t key )) = { return o.map.exists( key ); };
 };
 
 //----------------------------------------------------------------------------------------------------------------------

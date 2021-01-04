@@ -28,9 +28,9 @@ XOILA_DEFINE_GROUP( xoico_signature, xoico )
 
 include deferred "xoico_stamp.h";
 
-signature er_t relent( mutable, const xoico_host* host, tp_t tp_obj_type );
-signature er_t expand_declaration( const, const xoico_host* host, sc_t sc_func_global_name, sz_t indent, bcore_sink* sink );
-signature er_t set_global_name( mutable, const xoico_host* host );
+signature er_t relent( m @* o, const xoico_host* host, tp_t tp_obj_type );
+signature er_t expand_declaration( c @* o, c xoico_host* host, sc_t sc_func_global_name, sz_t indent, m bcore_sink* sink );
+signature er_t set_global_name( m @* o, c xoico_host* host );
 
 stamp :s = aware :
 {
@@ -80,11 +80,17 @@ stamp :s = aware :
 
     func xoico.get_source_point = { return o.source_point; };
 
-    func (bl_t returns_a_value( const )) = { return !o.typespec_ret.is_void(); };
+    func (bl_t returns_a_value( c @* o )) = { return !o.typespec_ret.is_void(); };
 
-    func (er_t expand_ret( const, const xoico_host* host, bcore_sink* sink )) = (try)
+    func (er_t expand_ret( c @* o, c xoico_host* host, m bcore_sink* sink )) = (try)
     {
         o.typespec_ret.expand( host, sink );
+        return 0;
+    };
+
+    func (er_t expand_ret_x( c @* o, c xoico_host* host, m bcore_sink* sink )) = (try)
+    {
+        o.typespec_ret.expand_x( host, sink );
         return 0;
     };
 };

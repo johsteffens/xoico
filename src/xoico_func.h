@@ -26,9 +26,9 @@
 XOILA_DEFINE_GROUP( xoico_func, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-signature tp_t get_hash( const );
-signature bl_t reflectable( const, const xoico_host* host );
-signature er_t setup_from_signature( mutable, const xoico_host* host, const xoico_signature_s* signature );
+signature tp_t get_hash( c @* o );
+signature bl_t reflectable( c @* o, const xoico_host* host );
+signature er_t setup_from_signature( m @* o, const xoico_host* host, const xoico_signature_s* signature );
 
 stamp :s = aware :
 {

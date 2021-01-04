@@ -28,37 +28,37 @@
 XOILA_DEFINE_GROUP( xoico_compiler, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-signature er_t register_item(  mutable, const xoico* item );
-signature er_t register_group( mutable, const xoico_group_s* group );
-signature er_t register_func(  mutable, const xoico_func_s* func );
-signature er_t register_external_type( mutable, tp_t type );
+signature er_t register_item(  m @* o, const xoico* item );
+signature er_t register_group( m @* o, const xoico_group_s* group );
+signature er_t register_func(  m @* o, const xoico_func_s* func );
+signature er_t register_external_type( m @* o, tp_t type );
 
-signature bl_t is_item(  const, tp_t name );
-signature bl_t is_group( const, tp_t name ); // checks if name represents a registered group
-signature bl_t is_func(  const, tp_t name ); // checks if name represents the global name of a function (==name of implementation)
-signature bl_t is_stamp( const, tp_t name ); // checks if name represents a registered stamp
-signature bl_t is_body(  const, tp_t name ); // checks if name represents a registered body
-signature bl_t is_type(  const, tp_t name ); // checks if name represents a registered type (either group, stamp, or external type)
-signature bl_t is_signature( const, tp_t name ); // checks if name represents a registered signature
-signature bl_t is_feature( const, tp_t name ); // checks if name represents a registered feature
-signature bl_t is_signature_or_feature( const, tp_t name ); // checks if name represents a registered signature or feature
+signature bl_t is_item(  c @* o, tp_t name );
+signature bl_t is_group( c @* o, tp_t name ); // checks if name represents a registered group
+signature bl_t is_func(  c @* o, tp_t name ); // checks if name represents the global name of a function (==name of implementation)
+signature bl_t is_stamp( c @* o, tp_t name ); // checks if name represents a registered stamp
+signature bl_t is_body(  c @* o, tp_t name ); // checks if name represents a registered body
+signature bl_t is_type(  c @* o, tp_t name ); // checks if name represents a registered type (either group, stamp, or external type)
+signature bl_t is_signature( c @* o, tp_t name ); // checks if name represents a registered signature
+signature bl_t is_feature( c @* o, tp_t name ); // checks if name represents a registered feature
+signature bl_t is_signature_or_feature( c @* o, tp_t name ); // checks if name represents a registered signature or feature
 
 // getters below return NULL in case object was not registered
-signature xoico* get_item( mutable, tp_t name );
-signature const xoico* get_const_item( const,  tp_t name );
-signature xoico_stamp_s* get_stamp( mutable, tp_t name );
-signature xoico_body_s*  get_body(  mutable, tp_t name );
-signature xoico_func_s*  get_func(  mutable, tp_t name );
-signature xoico_group_s* get_group( mutable, tp_t name );
-signature xoico_transient_map_s* get_transient_map( mutable, tp_t type );
-signature const xoico_feature_s* get_feature( const, tp_t name );
+signature m xoico* get_item( m @* o, tp_t name );
+signature c xoico* get_const_item( c @* o,  tp_t name );
+signature m xoico_stamp_s* get_stamp( m @* o, tp_t name );
+signature m xoico_body_s*  get_body(  m @* o, tp_t name );
+signature m xoico_func_s*  get_func(  m @* o, tp_t name );
+signature m xoico_group_s* get_group( m @* o, tp_t name );
+signature m xoico_transient_map_s* get_transient_map( m @* o, tp_t type );
+signature c xoico_feature_s* get_feature( c @* o, tp_t name );
 
 /// returns signature in case name represents a signature or feature
-signature const xoico_signature_s* get_signature( const, tp_t name );
+signature c xoico_signature_s* get_signature( c @* o, tp_t name );
 
-signature er_t  life_a_push(    mutable, bcore_inst* object );
-signature er_t  check_overwrite( const,  sc_t file );
-signature bl_t  get_self(        const,  tp_t type, const bcore_self_s** self ); // returns success
+signature er_t life_a_push(     m @* o, m bcore_inst* object );
+signature er_t check_overwrite( c @* o, sc_t file );
+signature bl_t get_self(        c @* o, tp_t type, c bcore_self_s** self ); // returns success
 
 
 stamp :type_info_s = aware :
@@ -73,17 +73,17 @@ stamp :element_info_s = aware :
     hidden xoico_func_s* func; // NULL in case element is no function
 };
 
-signature bl_t get_type_info(               const, tp_t type,            :type_info_s*    info );
-signature bl_t get_type_element_info(       const, tp_t type, tp_t name, :element_info_s* info );
-signature bl_t get_type_array_element_info( const, tp_t type,            :element_info_s* info );
+signature bl_t get_type_info(               c @* o, tp_t type,            m :type_info_s*    info );
+signature bl_t get_type_element_info(       c @* o, tp_t type, tp_t name, m :element_info_s* info );
+signature bl_t get_type_array_element_info( c @* o, tp_t type,            m :element_info_s* info );
 
 // external interface ...
-signature er_t parse              ( mutable, sc_t target_name, sc_t target_ext, sc_t source_path, sz_t* p_target_index );
-signature er_t update_target_files( mutable, bl_t* p_modified );
-signature bl_t update_required    ( mutable );
-signature sz_t get_verbosity      ( const );
-signature tp_t entypeof           ( mutable, sc_t name );
-signature sc_t nameof             ( const,   tp_t type );
+signature er_t parse              ( m @* o, sc_t target_name, sc_t target_ext, sc_t source_path, m sz_t* p_target_index );
+signature er_t update_target_files( m @* o, m bl_t* p_modified );
+signature bl_t update_required    ( m @* o );
+signature sz_t get_verbosity      ( c @* o );
+signature tp_t entypeof           ( m @* o, sc_t name );
+signature sc_t nameof             ( c @* o, tp_t type );
 
 stamp :s = aware :
 {
@@ -255,13 +255,13 @@ stamp :s = aware :
         }
     };
 
-    func (void push_d( mutable, xoico_target_s* target )) =
+    func (void push_d( m @* o, m xoico_target_s* target )) =
     {
         o.cast( x_array* ).push_d( target );
     };
 
     /// clears flags in targets
-    func (void clear_flags( mutable )) = { foreach( $* e in o ) e.flag = false; };
+    func (void clear_flags( m @* o )) = { foreach( $* e in o ) e.flag = false; };
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

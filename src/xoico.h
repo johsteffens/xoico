@@ -58,31 +58,31 @@ forward :transient_map_s;
 forward :cengine;
 forward :host;
 
-signature er_t parse_sc( mutable, const :host* host, sc_t sc );
-signature er_t parse_fa( mutable, const :host* host, sc_t format, ... );
+signature er_t parse_sc( m @* o, const :host* host, sc_t sc );
+signature er_t parse_fa( m @* o, const :host* host, sc_t format, ... );
 
 // converts explicit types accordingly according to transient map and removes all transient types
-feature 'ap' er_t convert_transient_types( mutable, const :host* host, const :transient_map_s* map );
+feature 'ap' er_t convert_transient_types( m @* o, const :host* host, const :transient_map_s* map );
 
-feature 'ap' tp_t get_hash                  ( const );
-feature 'ap' tp_t get_global_name_tp        ( const );
-feature 'ap' er_t parse                     ( mutable, const :host* host, bcore_source* source );
-feature 'ap' er_t finalize                  ( mutable, const :host* host ) = { return 0; };  // final stage in the compilation phase
-feature 'ap' er_t expand_setup              ( mutable, const :host* host ) = { return 0; };  // first stage in the expansion phase
-feature 'ap' er_t expand_forward            ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_indef_typedef      ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_spect_declaration  ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_spect_definition   ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_declaration        ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_indef_declaration  ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_definition         ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_init1              ( const, const :host* host, sz_t indent, bcore_sink* sink ) = { return 0; };
-feature 'ap' const bcore_source_point_s* get_source_point( const ) = (verbatim_C) { ERR_fa( "Not implemented in #<sc_t>\n", bnameof( o->_ ) ); return NULL; };
+feature 'ap' tp_t get_hash                  ( c @* o );
+feature 'ap' tp_t get_global_name_tp        ( c @* o );
+feature 'ap' er_t parse                     ( m @* o, const :host* host, m bcore_source* source );
+feature 'ap' er_t finalize                  ( m @* o, const :host* host ) = { return 0; };  // final stage in the compilation phase
+feature 'ap' er_t expand_setup              ( m @* o, const :host* host ) = { return 0; };  // first stage in the expansion phase
+feature 'ap' er_t expand_forward            ( c @* o, const :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_indef_typedef      ( c @* o, const :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_spect_declaration  ( c @* o, const :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_spect_definition   ( c @* o, const :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_declaration        ( c @* o, const :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_indef_declaration  ( c @* o, const :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_definition         ( c @* o, const :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_init1              ( c @* o, const :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
+feature 'ap' const bcore_source_point_s* get_source_point( c @* o ) = (verbatim_C) { ERR_fa( "Not implemented in #<sc_t>\n", bnameof( o->_ ) ); return NULL; };
 
 //----------------------------------------------------------------------------------------------------------------------
 // functions
 
-func (er_t parse_f( bcore_source* source, sc_t format )) =
+func (er_t parse_f( m bcore_source* source, sc_t format )) =
 {
     return bcore_source_a_parse_em_fa( source, format );
 };
@@ -90,7 +90,7 @@ func (er_t parse_f( bcore_source* source, sc_t format )) =
 //----------------------------------------------------------------------------------------------------------------------
 
 /// opens an include file from an include directive in parent
-func (er_t embed_file_open( bcore_source* parent, sc_t file_name, bcore_source** include_source )) = (try)
+func (er_t embed_file_open( m bcore_source* parent, sc_t file_name, m bcore_source** include_source )) = (try)
 {
     st_s* folder = bcore_file_folder_path( parent.get_file() ).scope();
     if( folder.size == 0 ) folder.push_char( '.' );

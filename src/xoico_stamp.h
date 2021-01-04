@@ -30,12 +30,12 @@ XOILA_DEFINE_GROUP( xoico_stamp, xoico )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-signature er_t parse_func( mutable, bcore_source* source );
-signature er_t parse_wrap( mutable, bcore_source* source );
-signature er_t make_funcs_overloadable( mutable );
-signature er_t push_default_funcs( mutable );
-signature const xoico_func_s* get_func_from_name( const, tp_t name ); // returns NULL if not found
-signature const xoico_func_s* get_trait_line_func_from_name( const, tp_t name ); // returns NULL if not found
+signature er_t parse_func( m @* o, m bcore_source* source );
+signature er_t parse_wrap( m @* o, m bcore_source* source );
+signature er_t make_funcs_overloadable( m @* o );
+signature er_t push_default_funcs( m @* o );
+signature const xoico_func_s* get_func_from_name( c @* o, tp_t name ); // returns NULL if not found
+signature const xoico_func_s* get_trait_line_func_from_name( c @* o, tp_t name ); // returns NULL if not found
 
 
 stamp :s = aware :

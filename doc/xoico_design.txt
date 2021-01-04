@@ -357,5 +357,5 @@ Keywords (for syntax highlight)
 
 group stamp stump hidden private func name signature body aware feature extending verbatim
 mutable plain retrievable forward include deferred embed cast foreach in verbatim_C fork
-try deduce scope scope_local scope_func extern unaware wrap restrict
+strict try deduce scope scope_local scope_func extern unaware wrap restrict
 

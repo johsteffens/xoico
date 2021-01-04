@@ -28,13 +28,19 @@ func (:s) :.parse = (try)
         return 0;
     }
 
+    tp_t access_class = 0;
+
+    if(      source.parse_bl( " #?w'c'" ) || source.parse_bl( " #?w'const'"       ) ) access_class = TYPEOF_const;
+    else if( source.parse_bl( " #?w'm'" ) || source.parse_bl( " #?w'mutable'"     ) ) access_class = TYPEOF_mutable;
+    else if( source.parse_bl( " #?w'd'" ) || source.parse_bl( " #?w'discardable'" ) ) access_class = TYPEOF_discardable;
+
+    if( source.parse_bl( " #?w'unaware'"  ) ) o.flag_unaware = true;
+    if( source.parse_bl( " #?w'scope'"    ) ) o.flag_scope = true;
+
     while( !source.eos() )
     {
-        if     ( source.parse_bl( " #?'const'"    ) ) o->flag_const = true;
-        else if( source.parse_bl( " #?'static'"   ) ) o->flag_static = true;
-        else if( source.parse_bl( " #?'volatile'" ) ) o->flag_volatile = true;
-        else if( source.parse_bl( " #?'scope'"    ) ) o->flag_scope = true;
-        else if( source.parse_bl( " #?'unaware'"  ) ) o->flag_unaware = true;
+        if     ( source.parse_bl( " #?w'static'"   ) ) o->flag_static = true;
+        else if( source.parse_bl( " #?w'volatile'" ) ) o->flag_volatile = true;
         else break;
     }
 
@@ -44,8 +50,8 @@ func (:s) :.parse = (try)
     {
         st_s* s = st_s!^^;
         source.parse_em_fa( "#name ", s );
-        if( s->size == 0 ) source.parse_error_fa( "Transient class: Identifier expected." );
-        o->transient_class = xoico_compiler_s_entypeof( compiler, s->sc );
+        if( s.size == 0 ) source.parse_error_fa( "Transient class: Identifier expected." );
+        o.transient_class = compiler.entypeof( s.sc );
         source.parse_em_fa( " ) " );
     }
 
@@ -83,6 +89,33 @@ func (:s) :.parse = (try)
     }
 
     if( source.parse_bl( " #?'restrict' " ) ) o.flag_restrict = true;
+
+    switch( access_class )
+    {
+        case TYPEOF_const:
+        {
+            o->flag_const = true;
+        }
+        break;
+
+        case TYPEOF_mutable:
+        {
+            o->flag_const = false;
+        }
+        break;
+
+        case TYPEOF_discardable:
+        {
+            o->flag_const = false;
+            o->flag_discardable = true;
+        }
+        break;
+
+        default:
+        {
+            if( o.indirection > 0 ) source.parse_error_fa( "Access-class missing: (c|const) | (m|mutable) | (d|discardable)" );
+        }
+    }
 
     return 0;
 };
@@ -135,6 +168,59 @@ func (:s) :.expand = (try)
     sink.push_fa( "#<sc_t>", sc_type );
 
     for( sz_t i = 0; i < o.indirection; i++ ) sink.push_fa( "*" );
+    if( o.flag_restrict ) sink.push_fa( " restrict " );
+
+    return 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:s) :.expand_x = (try)
+{
+    if( o.flag_variadic )
+    {
+        sink.push_fa( "..." );
+        return 0;
+    }
+
+    $* compiler = host.compiler();
+
+    tp_t type = o.type;
+
+    if( type == TYPEOF_type_object )
+    {
+        //if( !sc_obj_type ) ERR_fa( "Cannot resolve 'type_object' at this point." );
+        type = host.obj_type(); //compiler.entypeof( sc_obj_type );
+    }
+    else if( type == TYPEOF_type_deduce )
+    {
+        ERR_fa( "Cannot resolve 'type_deduce' at this point." );
+    }
+
+    st_s* st_type = st_s_create_sc( compiler.nameof( type ) ).scope();
+
+    if( o.indirection > 0 )
+    {
+        if( o.flag_const )
+        {
+            sink.push_fa( "c " );
+        }
+        else if( o.flag_discardable )
+        {
+            sink.push_fa( "d " );
+        }
+        else
+        {
+            sink.push_fa( "m " );
+        }
+    }
+
+    if( o.flag_static   ) sink.push_fa( "static " );
+    if( o.flag_volatile ) sink.push_fa( "volatile " );
+    sc_t sc_type = st_type.sc;
+    sink.push_fa( "#<sc_t>", sc_type );
+
+    if( o.indirection > 0 ) sink.push_fa( ".#<sz_t>", o.indirection );
     if( o.flag_restrict ) sink.push_fa( " restrict " );
 
     return 0;

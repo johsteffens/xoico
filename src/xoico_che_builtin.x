@@ -17,7 +17,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( bl_t is_builtin_func( const, tp_t tp_identifier ) ) =
+func (:s)( bl_t is_builtin_func( c @* o, tp_t tp_identifier ) ) =
 {
     switch( tp_identifier )
     {
@@ -38,13 +38,13 @@ func (:s)
 (
     er_t trans_builtin
     (
-        mutable,
+        m @* o,
         tp_t tp_builtin,
-        bcore_source* source,
-        const :result* result_expr,
-        const xoico_typespec_s* typespec_expr,
-        :result* result_out,
-        xoico_typespec_s* typespec_out
+        m bcore_source* source,
+        c :result* result_expr,
+        c xoico_typespec_s* typespec_expr,
+        m :result* result_out,
+        m xoico_typespec_s* typespec_out
     )
 ) = (try)
 {
@@ -64,12 +64,12 @@ func (:s)
 (
     er_t trans_builtin_cast
     (
-        mutable,
-        bcore_source* source,
-        const :result* result_expr,
-        const xoico_typespec_s* typespec_expr,
-        :result* result_out,
-        xoico_typespec_s* typespec_out
+        m @* o,
+        m bcore_source* source,
+        c :result* result_expr,
+        c xoico_typespec_s* typespec_expr,
+        m :result* result_out,
+        m xoico_typespec_s* typespec_out
     )
 ) = (try)
 {
@@ -142,12 +142,12 @@ func (:s)
 (
     er_t trans_builtin_scope
     (
-        mutable,
-        bcore_source* source,
-        const :result* result_expr,
-        const xoico_typespec_s* typespec_expr,
-        :result* result_out,
-        xoico_typespec_s* typespec_out
+        m @* o,
+        m bcore_source* source,
+        c :result* result_expr,
+        c xoico_typespec_s* typespec_expr,
+        m :result* result_out,
+        m xoico_typespec_s* typespec_out
     )
 ) = (try)
 {
@@ -246,12 +246,12 @@ func (:s)
 (
     er_t trans_builtin_fork
     (
-        mutable,
-        bcore_source* source,
-        const :result* result_expr,
-        const xoico_typespec_s* typespec_expr,
-        :result* result_out,
-        xoico_typespec_s* typespec_out
+        m @* o,
+        m bcore_source* source,
+        c :result* result_expr,
+        c xoico_typespec_s* typespec_expr,
+        m :result* result_out,
+        m xoico_typespec_s* typespec_out
     )
 ) = (try)
 {
@@ -295,12 +295,12 @@ func (:s)
 (
     er_t trans_builtin_try
     (
-        mutable,
-        bcore_source* source,
-        const :result* result_expr,
-        const xoico_typespec_s* typespec_expr,
-        :result* result_out,
-        xoico_typespec_s* typespec_out
+        m @* o,
+        m bcore_source* source,
+        c :result* result_expr,
+        c xoico_typespec_s* typespec_expr,
+        m :result* result_out,
+        m xoico_typespec_s* typespec_out
     )
 ) = (try)
 {

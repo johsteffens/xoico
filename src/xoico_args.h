@@ -38,7 +38,7 @@ func (:s) xoico.parse = { o.clear(); return o.append( host, source ); };
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t append( mutable, const xoico_host* host, bcore_source* source )) = (try)
+func (:s) (er_t append( m @* o, c xoico_host* host, m bcore_source* source )) = (try)
 {
     bl_t first = true;
     while( !source.parse_bl( " #=?')' " ) ) // args follow
@@ -55,7 +55,7 @@ func (:s) (er_t append( mutable, const xoico_host* host, bcore_source* source ))
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t relent( mutable, const xoico_host* host, tp_t tp_obj_type )) =
+func (:s) (er_t relent( m @* o, const xoico_host* host, tp_t tp_obj_type )) =
 {
     foreach( $* arg in o ) arg.relent( host, tp_obj_type ).try();
     return 0;
@@ -71,7 +71,7 @@ func (:s) xoico.convert_transient_types = (try)
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand( const, const xoico_host* host, bl_t first, bcore_sink* sink )) =
+func (:s) (er_t expand( c @* o, c xoico_host* host, bl_t first, m bcore_sink* sink )) =
 {
     foreach( $* arg in o )
     {
@@ -84,7 +84,20 @@ func (:s) (er_t expand( const, const xoico_host* host, bl_t first, bcore_sink* s
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_name( const, const xoico_host* host, bl_t first, bcore_sink* sink )) =
+func (:s) (er_t expand_x( c @* o, c xoico_host* host, bl_t first, m bcore_sink* sink )) =
+{
+    foreach( $* arg in o )
+    {
+        if( !first ) sink.push_fa( ", " );
+        first = false;
+        arg.expand_x( host, sink ).try();
+    }
+    return 0;
+};
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+func (:s) (er_t expand_name( c @* o, c xoico_host* host, bl_t first, m bcore_sink* sink )) =
 {
     foreach( $* arg in o )
     {

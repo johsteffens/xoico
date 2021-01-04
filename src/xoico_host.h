@@ -32,9 +32,9 @@ XOILA_DEFINE_GROUP( xoico_host, bcore_inst )
 include deferred "xoico_compiler.h";
 
 // parses an identifier with namespace-syntax
-feature 'a' er_t parse_name_st( const, bcore_source* source, st_s* name ) = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return 0; };
+feature 'a' er_t parse_name_st( c @* o, m bcore_source* source, m st_s* name ) = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return 0; };
 
-feature 'a' er_t parse_name_tp( const, bcore_source* source, tp_t* name ) = (try)
+feature 'a' er_t parse_name_tp( c @* o, m bcore_source* source, m tp_t* name ) = (try)
 {
     $* s = st_s!^^;
     o.parse_name_st( source, s );
@@ -44,18 +44,18 @@ feature 'a' er_t parse_name_tp( const, bcore_source* source, tp_t* name ) = (try
     return 0;
 };
 
-feature 'a' xoico_compiler_s* compiler( const ) = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return NULL; };
-feature 'a' xoico_cengine* cengine( const )     = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return NULL; };
-feature 'a' tp_t obj_type( const )              = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return 0; };
-feature 'a' st_s* create_spect_name( const )    = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return NULL; };
-feature 'a' const xoico_transient_map_s* transient_map( const );
+feature 'a' m xoico_compiler_s* compiler( c @* o ) = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return NULL; };
+feature 'a' m xoico_cengine* cengine( c @* o )     = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return NULL; };
+feature 'a' tp_t obj_type( c @* o )              = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return 0; };
+feature 'a' d st_s* create_spect_name( c @* o )    = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return NULL; };
+feature 'a' c xoico_transient_map_s* transient_map( c @* o );
 
-feature 'a' sc_t nameof( const, tp_t type ) =
+feature 'a' sc_t nameof( c @* o, tp_t type ) =
 {
     return o.compiler().nameof( type );
 };
 
-feature 'a' tp_t entypeof( const, sc_t name ) =
+feature 'a' tp_t entypeof( c @* o, sc_t name ) =
 {
     return o.compiler().entypeof( name );
 };
