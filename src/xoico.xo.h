@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2021-01-04T18:49:10Z
+ *  Last File Update: 2021-01-05T15:26:02Z
  *
  *  Copyright and License of this File:
  *
@@ -54,7 +54,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xo 0x6A2376960FED134Aull
+#define HKEYOF_xoico_xo 0xC9B8ED16159906D0ull
 
 #define TYPEOF_xoico_xo 0x798A9BCF8377232Full
 
@@ -1346,7 +1346,7 @@
   er_t xoico_che_s_trans_array_subscript( xoico_che_s* o, bcore_source* source, xoico_che_result* result, xoico_typespec_s* out_typespec ); \
   er_t xoico_che_s_trans_expression( xoico_che_s* o, bcore_source* source, xoico_che_result* result_out, xoico_typespec_s* out_typespec ); \
   er_t xoico_che_s_try_trans_declaration( xoico_che_s* o, bcore_source* source, xoico_che_result* result_out, bl_t* success ); \
-  er_t xoico_che_s_inspect_variable( xoico_che_s* o, bcore_source* source ); \
+  er_t xoico_che_s_inspect_expression( xoico_che_s* o, bcore_source* source ); \
   er_t xoico_che_s_trans_statement_expression( xoico_che_s* o, bcore_source* source, xoico_che_result* result ); \
   er_t xoico_che_s_trans_statement( xoico_che_s* o, bcore_source* source, xoico_che_result* result ); \
   er_t xoico_che_s_trans_block_inside( xoico_che_s* o, bcore_source* source, xoico_che_result* result_out ); \
@@ -1781,4 +1781,4 @@
 vd_t xoico_xo_signal_handler( const bcore_signal_s* o );
 
 #endif // __xoico_xo_H
-// XOILA_OUT_SIGNATURE 0xE321059C7F960A5Cull
+// XOILA_OUT_SIGNATURE 0x64B60676EA0C574Cull

@@ -47,7 +47,7 @@ group :result = :
 
     feature d st_s* create_st( c @* o ) =
     {
-        m $* st = st_s!;
+        d $* st = st_s!;
         o.to_sink( st );
         return st;
     };
@@ -85,12 +85,12 @@ group :result = :
 
         func (m :* last( m @* o )) =
         {
-            return ( o.adl.size == 0 ) ? o.adl.push_d( :plain_s!.cast( m :* ) ) : o.adl.[ o.adl.size - 1 ];
+            return ( o.adl.size == 0 ) ? o.adl.push_d( :plain_s! ) : o.adl.[ o.adl.size - 1 ];
         };
 
         func (m :* last_plain( m @* o )) =
         {
-            return ( o.last()._ != TYPEOF_:plain_s ) ? o.adl.push_d( :plain_s!.cast( m :* ) ) : o.adl.[ o.adl.size - 1 ];
+            return ( o.last()._ != TYPEOF_:plain_s ) ? o.adl.push_d( :plain_s! ) : o.adl.[ o.adl.size - 1 ];
         };
 
         func :.push_char = { return o.last_plain().push_char( c ); };
@@ -158,7 +158,7 @@ group :result = :
 
     func (d :* create_block( sz_t level, bl_t is_using_blm  ) ) =
     {
-        m $* o = :block_s!;
+        d $* o = :block_s!;
         o.level = level;
         o.is_using_blm = is_using_blm;
         return o;
@@ -187,7 +187,7 @@ group :result = :
 
     func (er_t push_fv( m @* o, sc_t format, va_list args )) =
     {
-        m st_s* st = st_s_create_fv( format, args );
+        d st_s* st = st_s_create_fv( format, args );
         er_t ret = o.push_st( st );
         st_s_discard( st );
         return ret;

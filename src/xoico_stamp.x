@@ -18,9 +18,9 @@
 //----------------------------------------------------------------------------------------------------------------------
 
 /// removes comments, excessive whitespaces; trailing whitespaces; keeps strings but replaces '"' with '\"'
-func (m st_s* create_embedded_string( c st_s* s )) =
+func (d st_s* create_embedded_string( c st_s* s )) =
 {
-    m st_s* out = st_s!;
+    d st_s* out = st_s!;
     for( sz_t i = 0; i < s.size; i++ )
     {
         if( s.[ i ] == '/' && s.[ i + 1 ] == '/' )
@@ -82,7 +82,7 @@ func (m st_s* create_embedded_string( c st_s* s )) =
 /** Creates a structured multiline string for direct code embedding
  *  from an embedded string
  */
-func (m st_s* create_structured_multiline_string( c sc_t s, sz_t indent )) =
+func (d st_s* create_structured_multiline_string( c sc_t s, sz_t indent )) =
 {
     d st_s* out = st_s!;
     sz_t ind = indent;

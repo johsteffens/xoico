@@ -188,7 +188,10 @@ func (:s)
         has_arg = source.parse_bl( "#?','" );
     }
 
-    c xoico_typespec_s* typespec_scope = typespec_expr;
+    if(  typespec_expr.type        == 0 ) return source.parse_error_fa( "scope: Expression not tractable." );
+    if( !typespec_expr.flag_discardable ) return source.parse_error_fa( "scope: Expression is not discardable." );
+    m xoico_typespec_s* typespec_scope = typespec_expr.clone().scope();
+    typespec_scope.flag_discardable = false;
 
     result_out.push_sc( "((" );
 
@@ -217,9 +220,8 @@ func (:s)
 
     if( closing_bracket ) source.parse_em_fa( " )" );
 
-    if( typespec_scope.type        == 0 ) return source.parse_error_fa( "Operator 'scope': Expression not tractable." );
-    if( typespec_scope.indirection != 1 ) return source.parse_error_fa( "Operator 'scope': Expression's indirection != 1." );
-    if( typespec_scope.flag_scope )       return source.parse_error_fa( "Operator 'scope': Target is already scoped." );
+    if( typespec_scope.indirection != 1 ) return source.parse_error_fa( "scope: Expression's indirection != 1." );
+    if( typespec_scope.flag_scope )       return source.parse_error_fa( "scope: Target is already scoped." );
 
     o.push_typespec( typespec_scope, result_out );
 
@@ -277,7 +279,8 @@ func (:s)
         result_expr = result;
     }
 
-    c xoico_typespec_s* typespec_fork = typespec_expr;
+    m xoico_typespec_s* typespec_fork = typespec_expr.clone().scope();
+    typespec_fork.flag_discardable = true;
 
     result_out.push_sc( "((" );
 

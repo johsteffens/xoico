@@ -157,7 +157,7 @@ func (:s) (er_t parse_func( m @* o, m bcore_source* source )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_func_d( m @* o, m xoico_func_s* func )) = (try)
+func (:s) (er_t push_func_d( m @* o, d xoico_func_s* func )) = (try)
 {
     sz_t idx = o.funcs.get_index_from_name( func.name );
 
@@ -423,8 +423,8 @@ func (:s) xoico.parse = (try)
             source.parse_em_fa( " #string" , embed_file );
             source.parse_em_fa( " ;" );
             o.explicit_embeddings.push_st( embed_file );
-            m bcore_source* embed_source = NULL;
-            try( xoico_embed_file_open( source, embed_file.sc, embed_source.1 ) );
+            d bcore_source* embed_source = NULL;
+            try( xoico_embed_file_open( source, embed_file.sc, embed_source.2 ) );
 
             // check for cyclic inclusions
             foreach( m $* e in stack )
@@ -436,8 +436,8 @@ func (:s) xoico.parse = (try)
                 }
             }
 
+            stack.push_d( embed_source );
             source = embed_source;
-            stack.push_d( source );
         }
         else if( source.parse_bl( " #?w'include' " ) )
         {

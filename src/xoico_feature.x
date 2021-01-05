@@ -97,7 +97,7 @@ func (:s) xoico.parse = (try)
 
 func (:s) (d xoico_func_s* create_func_from_sc( c @* o, c xoico_host* host, sc_t sc )) =
 {
-    m xoico_func_s* func = xoico_func_s!;
+    d xoico_func_s* func = xoico_func_s!;
     func.parse_sc( host, sc );
     func.source_point.copy( o.source_point.1 );
     return func;
@@ -148,7 +148,7 @@ func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) = (try)
         m xoico_func_s* func = o.push_func_from_sc( host, st.sc );
         func.declare_in_expand_forward = false;
 
-        m xoico_func_s* func_to_group = func.clone();
+        d xoico_func_s* func_to_group = func.clone();
         func_to_group.body =< NULL;
         func_to_group.freeze_global_name( host ); // set global name before local name is changed
         func_to_group.name = o.signature.name;
@@ -172,7 +172,7 @@ func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) = (try)
         m xoico_func_s* func = o.push_func_from_sc( host, st.sc );
         func.declare_in_expand_forward = false;
 
-        m xoico_func_s* func_to_group = func.clone();
+        d xoico_func_s* func_to_group = func.clone();
         func_to_group.body =< NULL;
         func_to_group.expandable = false;
         o.funcs_return_to_group.push_d( func_to_group );

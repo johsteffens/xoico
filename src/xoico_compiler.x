@@ -155,7 +155,7 @@ func (:s) :.parse = (try)
 
     if( target_index == -1 )
     {
-        m xoico_target_s* target = xoico_target_s!;
+        d xoico_target_s* target = xoico_target_s!;
         target.compiler = o;
         target.name        .copy_fa( "#<sc_t>_#<sc_t>", target_name, target_ext );
         target.include_path.copy_fa( "#<sc_t>.#<sc_t>", target_name, target_ext );

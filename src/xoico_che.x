@@ -488,6 +488,11 @@ func (:s)
 
     if( discarding_const ) return source.parse_error_fa( "Discarding 'const' qualifier." );
 
+    if( typespec_target.flag_discardable && !typespec_expr.flag_discardable )
+    {
+        return source.parse_error_fa( "Discardable expression expected." );
+    }
+
     if( typespec_expr.converts_to( typespec_target ) )
     {
         result.push_result_c( result_expr );
@@ -884,9 +889,14 @@ func (:s)
     )
 ) = (try)
 {
-    if( !( in_typespec.indirection == 1 && in_typespec.flag_addressable ) )
+    if( in_typespec.indirection != 1 )
     {
-        return source.parse_error_fa( "Attach-Operator requires lvalue with addressable indirection of 1" );
+        return source.parse_error_fa( "Attach-Operator: lvalue with indirection of 1 expected." );
+    }
+
+    if( !in_typespec.flag_addressable )
+    {
+        return source.parse_error_fa( "Attach-Operator: Addressable lvalue expected." );
     }
 
     source.parse_em_fa( "=<" );
@@ -904,7 +914,6 @@ func (:s)
         result.push_sc( "_attach( &(" );
         result.push_result_d( result_arg_obj.fork() );
         result.push_fa( "), (#<sc_t>*)", sc_type );
-
         result.push_sc( "(" );
         o.trans_expression( source, result, typespec_rval );
         result.push_sc( "))" );
@@ -918,9 +927,17 @@ func (:s)
         result.push_sc( ")" );
     }
 
-    if( typespec_rval.type && typespec_rval.indirection != 1 )
+    if( typespec_rval.type )
     {
-        return source.parse_error_fa( "Attach operator requires rvalue with indirection '1'" );
+        if( typespec_rval.indirection != 1 )
+        {
+            return source.parse_error_fa( "Attach operator: rvalue with indirection '1' expected." );
+        }
+
+        if( !typespec_rval.flag_discardable )
+        {
+            return source.parse_error_fa( "Attach operator: Discardable rvalue expected." );
+        }
     }
 
     if( out_typespec ) out_typespec.copy( in_typespec );
@@ -1223,7 +1240,7 @@ func (:s)
 
         default:
         {
-            if( typespec.indirection > 0 ) source.parse_error_fa( "Declaratione with indirection: access-class missing: (c|const) | (m|mutable) | (d|discardable)" );
+            if( typespec.indirection > 0 ) source.parse_error_fa( "Declaration with indirection: access-class missing: (c|const) | (m|mutable) | (d|discardable)" );
         }
     }
 
@@ -1332,10 +1349,12 @@ func (:s)
         typespec.type = tp_identifier;
         typespec.indirection = 1;
         typespec.flag_addressable = false;
+        typespec.flag_discardable = true;
 
         if( source.parse_bl( "#=?'^'" ) )
         {
             o.trans_builtin_scope( source, result_local, typespec, result, NULL );
+            typespec.flag_discardable = false;
         }
         else
         {
@@ -1674,7 +1693,7 @@ func (:s)
         o.trans_identifier( source, result_var, tp_identifier.1 );
         o.trans_whitespace( source, result_var );
 
-        if( source.parse_bl( "#?'='" ) )
+        if( source.parse_bl( "#?'='" ) ) // assignment
         {
             bl_t pushed_typedecl = false;
             if( typespec_var.type != TYPEOF_type_deduce )
@@ -1699,6 +1718,18 @@ func (:s)
 
             if( typespec_expr.type )
             {
+                if( typespec_expr.flag_discardable != typespec_var.flag_discardable )
+                {
+                    if( typespec_expr.flag_discardable )
+                    {
+                        return source.parse_error_fa( "Declaration-syntax: Assignment: Conversion 'discardable' to 'mutable' without a cast." );
+                    }
+
+                    if( typespec_var.flag_discardable )
+                    {
+                        return source.parse_error_fa( "Declaration-syntax: Assignment: Conversion 'mutable' to 'discardable' without a cast." );
+                    }
+                }
                 o.adapt_expression( source, typespec_expr, typespec_var, result_expr, result_var );
             }
             else
@@ -1714,7 +1745,7 @@ func (:s)
         {
             return source.parse_error_fa( "Declaration-syntax: Deduce requested without assignment." );
         }
-        else if( source.parse_bl( "#=?'['" ) )
+        else if( source.parse_bl( "#=?'['" ) ) // c-style array
         {
             o.push_typespec( typespec_var, result_out );
             while( source.parse_bl( "#?'['" ) )
@@ -1752,7 +1783,7 @@ func (:s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func(:s) (er_t inspect_variable( m @* o, m bcore_source* source )) = (try)
+func(:s) (er_t inspect_expression( m @* o, m bcore_source* source )) = (try)
 {
     source.parse_em_fa( "\?\?" );
 
@@ -1867,7 +1898,7 @@ func (:s) (er_t trans_statement( m @* o, m bcore_source* source, m :result* resu
 
             case '?':
             {
-                o.inspect_variable( source );
+                o.inspect_expression( source );
             }
             break;
 

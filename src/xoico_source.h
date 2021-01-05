@@ -129,7 +129,7 @@ func (:s) xoico.parse = (try)
                 {
                     m st_s* embed_file = st_s!^;
                     source.parse_em_fa( " #string", embed_file );
-                    m bcore_source* include_source = NULL;
+                    d bcore_source* include_source = NULL;
                     xoico_embed_file_open( source, embed_file.sc, include_source.2 );
                     include_source.scope();
                     group.explicit_embeddings.push_st( embed_file );

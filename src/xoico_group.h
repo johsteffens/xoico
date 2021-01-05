@@ -28,7 +28,7 @@ XOILA_DEFINE_GROUP( xoico_group, xoico )
 
 include deferred "xoico_nested_group.h";
 
-signature er_t push_item_d( m @* o, m xoico* item );
+signature er_t push_item_d( m @* o, d xoico* item );
 signature er_t parse_name_recursive( c @* o, m bcore_source* source, m st_s* name );
 signature er_t expand_declaration(   c @* o, sz_t indent, m bcore_sink* sink );
 signature er_t expand_definition(    c @* o, sz_t indent, m bcore_sink* sink );

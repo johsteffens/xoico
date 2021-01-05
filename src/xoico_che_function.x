@@ -37,6 +37,8 @@ func (:s)
 
     tp_t transient_class = signature.typespec_ret.transient_class;
 
+    c xoico_transient_map_s* transient_map = NULL;
+
     if( signature.arg_o )
     {
         if( !result_object_expr )
@@ -49,13 +51,15 @@ func (:s)
             if( signature.args.size > 0 ) source.parse_em_fa( " ," );
         }
 
+        transient_map = ( typespec_object ) ? o.get_transient_map( typespec_object.type ) : NULL;
+
         m xoico_typespec_s* typespec_object_adapted = signature.arg_o.typespec.clone().scope();
-        typespec_object_adapted.type = object_type ? object_type : typespec_object.type;
-        typespec_object_adapted.flag_restrict = false;
+        //if( transient_map ) typespec_object_adapted.convert_transient_types( o.host, transient_map );
+        if( object_type   ) typespec_object_adapted.relent( o.host, object_type );
 
         if( typespec_object.type )
         {
-            if( transient_class && transient_return_type && ( transient_return_type.0 == 0 ) && ( signature.arg_o.typespec.transient_class == transient_class ) )
+            if( ( transient_class && transient_return_type && !transient_return_type.0 ) && ( signature.arg_o.typespec.transient_class == transient_class ) )
             {
                 transient_return_type.0 = typespec_object.type;
             }
@@ -68,29 +72,16 @@ func (:s)
         if( signature.args.size > 0 ) result.push_sc( "," );
     }
 
-    c xoico_transient_map_s* transient_map = ( typespec_object ) ? o.get_transient_map( typespec_object.type ) : NULL;
-
     if( transient_map && transient_class && transient_return_type )
     {
-        tp_t type = transient_map.get( transient_class );
-        if( type )
-        {
-            if( !transient_return_type.0 )
-            {
-                transient_return_type.0 = type;
-            }
-            else if( transient_return_type.0 != type )
-            {
-                return source.parse_error_fa( "Object type expected: '#<sc_t>'. Object type passed: '#<sc_t>'.", o.nameof( type ), o.nameof( transient_return_type.0 ) );
-            }
-        }
+        if( !transient_return_type.0 ) transient_return_type.0 = transient_map.get( transient_class );
     }
 
     foreach( c $* arg in signature.args )
     {
         if( arg.is_variadic() ) break;
 
-        m $* result_expr = :result_arr_s!^^;
+        m $* result_expr = :result_arr_s!^;
         m $* typespec_expr = xoico_typespec_s!^;
         source.parse_em_fa( " " );
 
@@ -112,15 +103,6 @@ func (:s)
                 if( transient_return_type && ( transient_return_type.0 == 0 ) && ( arg.typespec.transient_class == transient_class ) )
                 {
                     transient_return_type.0 = typespec_expr.type;
-                }
-
-                if( transient_map )
-                {
-                    tp_t type = transient_map.get( arg.typespec.transient_class );
-                    if( type && typespec_expr.type != type )
-                    {
-                        return source.parse_error_fa( "Function argument '#<sc_t>': Type expected: '#<sc_t>'. Type passed: '#<sc_t>'.", o.nameof( arg.name ), o.nameof( type ), o.nameof( typespec_expr.type ) );
-                    }
                 }
             }
 

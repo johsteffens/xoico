@@ -416,6 +416,19 @@ func (:s)( er_t trans_control_return( m @* o, m bcore_source* source, m :result*
     m $* result_expr_adapted = :result_create_arr().scope();
     if( o.returns_a_value() && typespec_expr.type )
     {
+        if( typespec_expr.flag_discardable != typespec_ret.flag_discardable )
+        {
+            if( typespec_expr.flag_discardable )
+            {
+                return source.parse_error_fa( "return: Conversion 'discardable' to 'mutable' without a cast." );
+            }
+
+            if( typespec_ret.flag_discardable )
+            {
+                return source.parse_error_fa( "return: Conversion 'mutable' to 'discardable' without a cast." );
+            }
+        }
+
         o.adapt_expression( source, typespec_expr, typespec_ret, result_expr, result_expr_adapted );
     }
     else
