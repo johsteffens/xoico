@@ -69,53 +69,8 @@ func (:s) xoico.parse = (try)
         o.name = compiler.entypeof( name_buf.sc );
 
         source.parse_em_fa( " (" );
-        if( source.parse_bl(  " #?'plain' " ) ) source.parse_error_fa( "Use of 'plain' is deprecated. Simply omit this argument." );
 
-        sz_t index = source.get_index();
-
-        tp_t transient_class = 0;
-        if( source.parse_bl( "#?'(' " ) )
-        {
-            m st_s* s = st_s!^^;
-            source.parse_em_fa( "#name ", s );
-            if( s->size == 0 ) source.parse_error_fa( "Transient class: Identifier expected." );
-            transient_class = compiler.entypeof( s->sc );
-            source.parse_em_fa( " ) " );
-        }
-
-        tp_t tp_arg_o = 0;
-        if( source.parse_bl( " #?'mutable' " ) )
-        {
-            tp_arg_o = TYPEOF_mutable;
-        }
-        else if( source.parse_bl( " #=?'const'" ) )
-        {
-            source.parse_em_fa( "const " );
-            if( source.parse_bl( "#?([0]==','||[0]==')')" ) )
-            {
-                tp_arg_o = TYPEOF_const;
-            }
-            else
-            {
-                // reset index (non-member functions)
-                source.set_index( index );
-            }
-        }
-
-        if( tp_arg_o )
-        {
-            source.parse_error_fa( "Please use explicit object syntax." );
-
-            if( !source.parse_bl( " #=?')'" ) ) source.parse_em_fa( ", " );
-            o.arg_o =< xoico_arg_s!;
-            o.arg_o.typespec.type = TYPEOF_type_object;
-            o.arg_o.typespec.flag_const = ( tp_arg_o == TYPEOF_const );
-            o.arg_o.typespec.indirection = 1;
-            o.arg_o.typespec.transient_class = transient_class;
-            o.arg_o.name = TYPEOF_o;
-            o.args.parse( host, source );
-        }
-        else if( !source.parse_bl( " #=?')'" ) )
+        if( !source.parse_bl( " #=?')'" ) )
         {
             m xoico_arg_s* arg = xoico_arg_s!^;
             arg.parse( host, source );
@@ -137,6 +92,19 @@ func (:s) xoico.parse = (try)
         }
 
         source.parse_em_fa( " )" );
+    }
+
+    /// if return type is a name in the argument list, copy argument typespec to return typespec
+    c xoico_arg_s* ret_arg = ( o.typespec_ret.indirection == 0 ) ? o.get_arg_by_name( o.typespec_ret.type ) : NULL;
+
+    if( ret_arg )
+    {
+        if( o.typespec_ret.access_class != 0  || o.typespec_ret.transient )
+        {
+            return source.parse_error_fa( "Return typespec: Argument name used as type." );
+        }
+        o.typespec_ret.copy( ret_arg.typespec );
+        o.typespec_ret.transient!.cast_to_var = ret_arg.name;
     }
 
     o.set_global_name( host );

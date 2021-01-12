@@ -150,7 +150,7 @@ func (:s)( er_t trans_control_foreach( m @* o, m bcore_source* source, m :result
 
     m xoico_typespec_s* typespec_arr = scope( typespec_arr_expr.clone() );
     typespec_arr.indirection = 1;
-    typespec_arr.flag_const = true;
+    typespec_arr.access_class = TYPEOF_const;
 
     m xoico_typespec_s* typespec_idx = scope( xoico_typespec_s! );
     typespec_idx.type = TYPEOF_sz_t;
@@ -399,7 +399,7 @@ func (:s)( er_t trans_control_return( m @* o, m bcore_source* source, m :result*
     m $* result_expr = :result_create_arr().scope();
 
     m xoico_typespec_s* typespec_expr = scope( xoico_typespec_s! );
-    c xoico_typespec_s* typespec_ret = o.typespec_ret;
+    c xoico_typespec_s* typespec_ret = o.signature.typespec_ret;
 
     o.trans_expression( source, result_expr, typespec_expr );
     o.trans_whitespace( source, result_expr );
@@ -416,16 +416,16 @@ func (:s)( er_t trans_control_return( m @* o, m bcore_source* source, m :result*
     m $* result_expr_adapted = :result_create_arr().scope();
     if( o.returns_a_value() && typespec_expr.type )
     {
-        if( typespec_expr.flag_discardable != typespec_ret.flag_discardable )
+        if( typespec_expr.access_class != typespec_ret.access_class )
         {
-            if( typespec_expr.flag_discardable )
+            if( typespec_expr.access_class == TYPEOF_discardable )
             {
-                return source.parse_error_fa( "return: Conversion 'discardable' to 'mutable' without a cast." );
+                return source.parse_error_fa( "return: Conversion discards typespe 'discardable'." );
             }
 
-            if( typespec_ret.flag_discardable )
+            if( typespec_ret.access_class == TYPEOF_discardable )
             {
-                return source.parse_error_fa( "return: Conversion 'mutable' to 'discardable' without a cast." );
+                return source.parse_error_fa( "return: Conversion requires typespec 'discardable'." );
             }
         }
 

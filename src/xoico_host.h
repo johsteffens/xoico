@@ -46,8 +46,9 @@ feature 'a' er_t parse_name_tp( c @* o, m bcore_source* source, m tp_t* name ) =
 
 feature 'a' m xoico_compiler_s* compiler( c @* o ) = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return NULL; };
 feature 'a' m xoico_cengine* cengine( c @* o )     = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return NULL; };
-feature 'a' tp_t obj_type( c @* o )              = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return 0; };
+feature 'a' tp_t obj_type( c @* o )                = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return 0; };
 feature 'a' d st_s* create_spect_name( c @* o )    = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return NULL; };
+
 feature 'a' c xoico_transient_map_s* transient_map( c @* o );
 
 feature 'a' sc_t nameof( c @* o, tp_t type ) =

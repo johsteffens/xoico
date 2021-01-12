@@ -188,10 +188,10 @@ func (:s)
         has_arg = source.parse_bl( "#?','" );
     }
 
-    if(  typespec_expr.type        == 0 ) return source.parse_error_fa( "scope: Expression not tractable." );
-    if( !typespec_expr.flag_discardable ) return source.parse_error_fa( "scope: Expression is not discardable." );
+    if( typespec_expr.type == 0 ) return source.parse_error_fa( "scope: Expression not tractable." );
+    if( typespec_expr.access_class != TYPEOF_discardable ) return source.parse_error_fa( "scope: Expression is not discardable." );
     m xoico_typespec_s* typespec_scope = typespec_expr.clone().scope();
-    typespec_scope.flag_discardable = false;
+    typespec_scope.access_class = TYPEOF_mutable;
 
     result_out.push_sc( "((" );
 
@@ -280,7 +280,7 @@ func (:s)
     }
 
     m xoico_typespec_s* typespec_fork = typespec_expr.clone().scope();
-    typespec_fork.flag_discardable = true;
+    typespec_fork.access_class = TYPEOF_discardable;
 
     result_out.push_sc( "((" );
 
@@ -314,7 +314,7 @@ func (:s)
     )
 ) = (try)
 {
-    if( o.typespec_ret.type != TYPEOF_er_t || o.typespec_ret.indirection != 0 )
+    if( o.signature.typespec_ret.type != TYPEOF_er_t || o.signature.typespec_ret.indirection != 0 )
     {
         return source.parse_error_fa( "Operator 'try': This operator can only be used in functions returning 'er_t'." );
     }

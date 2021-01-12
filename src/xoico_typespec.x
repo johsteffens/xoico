@@ -53,7 +53,7 @@ func (:s) :.parse = (try)
         m st_s* s = st_s!^^;
         source.parse_em_fa( "#name ", s );
         if( s.size == 0 ) source.parse_error_fa( "Transient class: Identifier expected." );
-        o.transient_class = compiler.entypeof( s.sc );
+        o.transient!.class = compiler.entypeof( s.sc );
         source.parse_em_fa( " ) " );
     }
 
@@ -92,33 +92,12 @@ func (:s) :.parse = (try)
 
     if( source.parse_bl( " #?'restrict' " ) ) o.flag_restrict = true;
 
-    switch( access_class )
+    if( o.indirection > 0 && access_class == 0 )
     {
-        case TYPEOF_const:
-        {
-            o->flag_const = true;
-        }
-        break;
-
-        case TYPEOF_mutable:
-        {
-            o->flag_const = false;
-        }
-        break;
-
-        case TYPEOF_discardable:
-        {
-            o->flag_const = false;
-            o->flag_discardable = true;
-        }
-        break;
-
-        default:
-        {
-            if( o.indirection > 0 ) source.parse_error_fa( "Access-class missing: (c|const) | (m|mutable) | (d|discardable)" );
-        }
+        source.parse_error_fa( "Access-class missing: (c|const) | (m|mutable) | (d|discardable)" );
     }
 
+    o.access_class = access_class;
     return 0;
 };
 
@@ -127,12 +106,13 @@ func (:s) :.parse = (try)
 func (:s) xoico.get_hash =
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
-    hash = bcore_tp_fold_bl( hash, o.flag_const );
+    hash = bcore_tp_fold_tp( hash, o.type );
+    hash = bcore_tp_fold_tp( hash, o.access_class );
+    hash = bcore_tp_fold_tp( hash, o.transient ? o.transient.get_hash() : 0 );
     hash = bcore_tp_fold_bl( hash, o.flag_static );
     hash = bcore_tp_fold_bl( hash, o.flag_volatile );
     hash = bcore_tp_fold_bl( hash, o.flag_restrict );
     hash = bcore_tp_fold_bl( hash, o.flag_scope );
-    hash = bcore_tp_fold_tp( hash, o.type );
     hash = bcore_tp_fold_u3( hash, o.indirection );
     return hash;
 };
@@ -165,7 +145,7 @@ func (:s) :.expand = (try)
 
     sc_t sc_type = st_type.sc;
     if( o.flag_static   ) sink.push_fa( "static " );
-    if( o.flag_const    ) sink.push_fa( "const " );
+    if( o.access_class == TYPEOF_const ) sink.push_fa( "const " );
     if( o.flag_volatile ) sink.push_fa( "volatile " );
     sink.push_fa( "#<sc_t>", sc_type );
 
@@ -201,20 +181,12 @@ func (:s) :.expand_x = (try)
 
     m st_s* st_type = st_s_create_sc( compiler.nameof( type ) ).scope();
 
-    if( o.indirection > 0 )
+    switch( o.access_class )
     {
-        if( o.flag_const )
-        {
-            sink.push_fa( "c " );
-        }
-        else if( o.flag_discardable )
-        {
-            sink.push_fa( "d " );
-        }
-        else
-        {
-            sink.push_fa( "m " );
-        }
+        case TYPEOF_const:       sink.push_fa( "c " ); break;
+        case TYPEOF_mutable:     sink.push_fa( "m " ); break;
+        case TYPEOF_discardable: sink.push_fa( "d " ); break;
+        default: break;
     }
 
     if( o.flag_static   ) sink.push_fa( "static " );
@@ -263,9 +235,9 @@ func (:s) :.converts_to =
     {
         if( o.indirection == b.indirection )
         {
-            if( o.flag_const )
+            if( o.access_class == TYPEOF_const )
             {
-                return b.flag_const;
+                return ( b.access_class == TYPEOF_const );
             }
             else
             {
@@ -307,7 +279,7 @@ func (:s) :.converts_to =
         }
         else if( b.type == TYPEOF_vd_t && b.indirection == 0 )
         {
-            if( o.indirection == 1 && !o.flag_const )
+            if( o.indirection == 1 && ( o.access_class != TYPEOF_const ) )
             {
                 return true;
             }

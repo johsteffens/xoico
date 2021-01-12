@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2021-01-05T15:26:02Z
+ *  Last File Update: 2021-01-12T17:14:05Z
  *
  *  Copyright and License of this File:
  *
@@ -54,7 +54,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xo 0xC9B8ED16159906D0ull
+#define HKEYOF_xoico_xo 0x3A9CE19BEBCDBB5Bull
 
 #define TYPEOF_xoico_xo 0x798A9BCF8377232Full
 
@@ -365,16 +365,24 @@
 #define TYPEOF_c 0xAF63DE4C8601EFF2ull
 #define TYPEOF_m 0xAF63E04C8601F358ull
 #define TYPEOF_d 0xAF63D94C8601E773ull
+#define TYPEOF_xoico_typespec_transient_s 0x290198887A2FE936ull
+#define BETH_EXPAND_ITEM_xoico_typespec_transient_s \
+  BCORE_DECLARE_OBJECT( xoico_typespec_transient_s ) \
+  { \
+      aware_t _; \
+      tp_t class; \
+      tp_t cast_to_var; \
+  }; \
+  tp_t xoico_typespec_transient_s_get_hash( const xoico_typespec_transient_s* o );
 #define TYPEOF_xoico_typespec_s 0x9BEEEFCA6BCF163Bull
 #define BETH_EXPAND_ITEM_xoico_typespec_s \
   BCORE_DECLARE_OBJECT( xoico_typespec_s ) \
   { \
       aware_t _; \
       tp_t type; \
-      tp_t transient_class; \
+      tp_t access_class; \
+      xoico_typespec_transient_s* transient; \
       sz_t indirection; \
-      bl_t flag_const; \
-      bl_t flag_discardable; \
       bl_t flag_static; \
       bl_t flag_volatile; \
       bl_t flag_restrict; \
@@ -392,9 +400,10 @@
   er_t xoico_typespec_s_expand( const xoico_typespec_s* o, const xoico_host* host, bcore_sink* sink ); \
   er_t xoico_typespec_s_expand_x( const xoico_typespec_s* o, const xoico_host* host, bcore_sink* sink ); \
   bl_t xoico_typespec_s_converts_to( const xoico_typespec_s* o, const xoico_typespec_s* b ); \
-  static inline bl_t xoico_typespec_s_is_void( const xoico_typespec_s* o ){ return  o->type == TYPEOF_void && o->indirection == 0;}
+  static inline bl_t xoico_typespec_s_is_void( const xoico_typespec_s* o ){ return  (o->type == 0 || o->type == TYPEOF_void) && o->indirection == 0;}
 #define BETH_EXPAND_GROUP_xoico_typespec \
   BCORE_FORWARD_OBJECT( xoico_typespec ); \
+  BCORE_FORWARD_OBJECT( xoico_typespec_transient_s ); \
   BCORE_FORWARD_OBJECT( xoico_typespec_s ); \
   bl_t xoico_typespec_is_numeric( tp_t type ); \
   XOILA_DECLARE_SPECT( xoico_typespec ) \
@@ -402,6 +411,7 @@
       bcore_spect_header_s header; \
   }; \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_typespec ) \
+  BETH_EXPAND_ITEM_xoico_typespec_transient_s \
   BETH_EXPAND_ITEM_xoico_typespec_s
 
 /**********************************************************************************************************************/
@@ -499,6 +509,7 @@
   er_t xoico_args_s_expand_x( const xoico_args_s* o, const xoico_host* host, bl_t first, bcore_sink* sink ); \
   er_t xoico_args_s_expand_name( const xoico_args_s* o, const xoico_host* host, bl_t first, bcore_sink* sink ); \
   tp_t xoico_args_s_get_hash( const xoico_args_s* o ); \
+  const xoico_arg_s* xoico_args_s_get_arg_by_name( const xoico_args_s* o, tp_t name ); \
   static inline bl_t xoico_args_s_is_variadic( const xoico_args_s* o ){ return  ( o->size > 0 && xoico_arg_s_is_variadic(o->data[ o->size - 1 ]) );} \
   static inline er_t xoico_args_s_parse( xoico_args_s* o, const xoico_host* host, bcore_source* source ){ ((xoico_args_s*)(x_array_clear(((x_array*)(o))))); return  xoico_args_s_append(o,host, source );}
 #define BETH_EXPAND_GROUP_xoico_args \
@@ -540,6 +551,7 @@
   static inline bl_t xoico_signature_s_returns_a_value( const xoico_signature_s* o ); \
   er_t xoico_signature_s_expand_ret( const xoico_signature_s* o, const xoico_host* host, bcore_sink* sink ); \
   er_t xoico_signature_s_expand_ret_x( const xoico_signature_s* o, const xoico_host* host, bcore_sink* sink ); \
+  const xoico_arg_s* xoico_signature_s_get_arg_by_name( const xoico_signature_s* o, tp_t name ); \
   tp_t xoico_signature_s_get_hash( const xoico_signature_s* o ); \
   er_t xoico_signature_s_set_global_name( xoico_signature_s* o, const xoico_host* host ); \
   er_t xoico_signature_s_parse( xoico_signature_s* o, const xoico_host* host, bcore_source* source ); \
@@ -1282,14 +1294,13 @@
       aware_t _; \
       bl_t verbose; \
       bl_t insert_source_reference; \
-      bl_t waive_non_member_variable; \
-      bl_t waive_non_member_function; \
+      bl_t waive_unknown_member_variable; \
+      bl_t waive_unknown_member_function; \
       bl_t waive_function_in_untraced_context; \
       bl_t waive_unknown_identifier; \
       xoico_host* host; \
       xoico_compiler_s* compiler; \
-      xoico_typespec_s typespec_ret; \
-      tp_t member_obj_type; \
+      xoico_signature_s* signature; \
       sz_t level; \
       sz_t try_block_level; \
       xoico_che_stack_var_s stack_var; \
@@ -1316,7 +1327,7 @@
   static inline xoico_stamp_s* xoico_che_s_get_stamp( xoico_che_s* o, tp_t name ); \
   static inline xoico_func_s* xoico_che_s_get_func( xoico_che_s* o, tp_t name ); \
   static inline xoico_transient_map_s* xoico_che_s_get_transient_map( xoico_che_s* o, tp_t type ); \
-  bl_t xoico_che_s_returns_a_value( const xoico_che_s* o ); \
+  static inline bl_t xoico_che_s_returns_a_value( const xoico_che_s* o ); \
   er_t xoico_che_s_trans( const xoico_che_s* o, bcore_source* source, sc_t format, xoico_che_result* result ); \
   tp_t xoico_che_s_get_identifier( xoico_che_s* o, bcore_source* source, bl_t take_from_source ); \
   er_t xoico_che_s_trans_identifier( xoico_che_s* o, bcore_source* source, xoico_che_result* result, tp_t* tp_identifier ); \
@@ -1358,7 +1369,7 @@
   void xoico_che_s_remove_indentation( st_s* string, sz_t indentation ); \
   er_t xoico_che_s_translate_mutable( xoico_che_s* o, const xoico_host* host, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink ); \
   er_t xoico_che_s_translate( const xoico_che_s* o, const xoico_host* host, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink ); \
-  er_t xoico_che_s_trans_function_args( xoico_che_s* o, bcore_source* source, tp_t object_type, const xoico_signature_s* signature, const xoico_che_result* result_object_expr, const xoico_typespec_s* typespec_object, xoico_che_result* result, tp_t* transient_return_type ); \
+  er_t xoico_che_s_trans_function_args( xoico_che_s* o, bcore_source* source, const xoico_func_s* func, const xoico_che_result* result_object_expr, const xoico_typespec_s* typespec_object, xoico_che_result* result, xoico_typespec_s* typespec_return ); \
   er_t xoico_che_s_trans_function( xoico_che_s* o, bcore_source* source, const xoico_func_s* func, const xoico_che_result* result_object_expr, const xoico_typespec_s* typespec_object, xoico_che_result* result, xoico_typespec_s* return_typespec ); \
   bl_t xoico_che_s_is_builtin_func( const xoico_che_s* o, tp_t tp_identifier ); \
   er_t xoico_che_s_trans_builtin( xoico_che_s* o, tp_t tp_builtin, bcore_source* source, const xoico_che_result* result_expr, const xoico_typespec_s* typespec_expr, xoico_che_result* result_out, xoico_typespec_s* typespec_out ); \
@@ -1388,7 +1399,8 @@
   static inline xoico_group_s* xoico_che_s_get_group( xoico_che_s* o, tp_t name ){ return  xoico_compiler_s_get_group(o->compiler,name );} \
   static inline xoico_stamp_s* xoico_che_s_get_stamp( xoico_che_s* o, tp_t name ){ return  xoico_compiler_s_get_stamp(o->compiler,name );} \
   static inline xoico_func_s* xoico_che_s_get_func( xoico_che_s* o, tp_t name ){ return  xoico_compiler_s_get_func(o->compiler,name );} \
-  static inline xoico_transient_map_s* xoico_che_s_get_transient_map( xoico_che_s* o, tp_t type ){ return  xoico_compiler_s_get_transient_map(o->compiler,type );}
+  static inline xoico_transient_map_s* xoico_che_s_get_transient_map( xoico_che_s* o, tp_t type ){ return  xoico_compiler_s_get_transient_map(o->compiler,type );} \
+  static inline bl_t xoico_che_s_returns_a_value( const xoico_che_s* o ){ return  xoico_signature_s_returns_a_value(o->signature);}
 #define TYPEOF_xoico_che_result_break_s 0x35650767E6F06C8Eull
 #define BETH_EXPAND_ITEM_xoico_che_result_break_s \
   BCORE_DECLARE_OBJECT( xoico_che_result_break_s ) \
@@ -1781,4 +1793,4 @@
 vd_t xoico_xo_signal_handler( const bcore_signal_s* o );
 
 #endif // __xoico_xo_H
-// XOILA_OUT_SIGNATURE 0x64B60676EA0C574Cull
+// XOILA_OUT_SIGNATURE 0x0EC2F27BE0C58D3Aull

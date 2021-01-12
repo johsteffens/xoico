@@ -24,18 +24,24 @@ func (:s)
     (
         m @* o,
         m bcore_source* source,
-        tp_t object_type,
-        c xoico_signature_s* signature,
+        c xoico_func_s* func,
         c :result* result_object_expr,
         c xoico_typespec_s* typespec_object,
         m :result* result,
-        m tp_t* transient_return_type
+        m xoico_typespec_s* typespec_return
     )
 ) = (try)
 {
+    tp_t transient_return_type = 0;
+
+    tp_t object_type = func.obj_type;
+    c xoico_signature_s* signature = func.signature;
+    typespec_return.type = 0;
     o.trans( source, "(", result );
 
-    tp_t transient_class = signature.typespec_ret.transient_class;
+    tp_t cast_to_var = signature.typespec_ret.transient ? signature.typespec_ret.transient.cast_to_var : 0;
+
+    tp_t transient_class = signature.typespec_ret.transient ? signature.typespec_ret.transient.class : 0;
 
     c xoico_transient_map_s* transient_map = NULL;
 
@@ -54,14 +60,18 @@ func (:s)
         transient_map = ( typespec_object ) ? o.get_transient_map( typespec_object.type ) : NULL;
 
         m xoico_typespec_s* typespec_object_adapted = signature.arg_o.typespec.clone().scope();
-        //if( transient_map ) typespec_object_adapted.convert_transient_types( o.host, transient_map );
-        if( object_type   ) typespec_object_adapted.relent( o.host, object_type );
+
+        if( object_type ) typespec_object_adapted.relent( o.host, object_type );
 
         if( typespec_object.type )
         {
-            if( ( transient_class && transient_return_type && !transient_return_type.0 ) && ( signature.arg_o.typespec.transient_class == transient_class ) )
+            if
+            (
+                ( transient_class && transient_return_type ) &&
+                ( signature.arg_o.typespec.transient && signature.arg_o.typespec.transient.class == transient_class )
+            )
             {
-                transient_return_type.0 = typespec_object.type;
+                transient_return_type = typespec_object.type;
             }
             o.adapt_expression( source, typespec_object, typespec_object_adapted, result_object_expr, result );
         }
@@ -70,11 +80,16 @@ func (:s)
             result.push_result_c( result_object_expr );
         }
         if( signature.args.size > 0 ) result.push_sc( "," );
+
+        if( cast_to_var == signature.arg_o.name )
+        {
+            typespec_return.copy( typespec_object );
+        }
     }
 
-    if( transient_map && transient_class && transient_return_type )
+    if( transient_map && transient_class )
     {
-        if( !transient_return_type.0 ) transient_return_type.0 = transient_map.get( transient_class );
+        if( !transient_return_type ) transient_return_type = transient_map.get( transient_class );
     }
 
     foreach( c $* arg in signature.args )
@@ -98,11 +113,11 @@ func (:s)
 
         if( typespec_expr.type )
         {
-            if( arg.typespec.transient_class )
+            if( arg.typespec.transient )
             {
-                if( transient_return_type && ( transient_return_type.0 == 0 ) && ( arg.typespec.transient_class == transient_class ) )
+                if( transient_return_type == 0 && arg.typespec.transient.class == transient_class )
                 {
-                    transient_return_type.0 = typespec_expr.type;
+                    transient_return_type = typespec_expr.type;
                 }
             }
 
@@ -112,6 +127,8 @@ func (:s)
         {
             result.push_result_d( result_expr.fork() );
         }
+
+        if( cast_to_var == arg.name ) typespec_return.copy( typespec_expr );
     }
 
     if( signature.args.is_variadic() )
@@ -126,6 +143,13 @@ func (:s)
 
     source.parse_em_fa( " " );
     o.trans( source, ")", result );
+
+
+    if( typespec_return.type == 0 )
+    {
+        typespec_return.copy( signature.typespec_ret );
+        if( transient_return_type != 0 ) typespec_return.type = transient_return_type;
+    }
     return 0;
 };
 
@@ -145,28 +169,15 @@ func (:s)
     )
 ) = (try)
 {
-    c $* signature = func.signature;
+    m $* typespec_ret = xoico_typespec_s!^;
+    m $* result_args = :result_arr_s!^;
 
-    m $* typespec_ret = signature.typespec_ret.clone().scope( scope_local );
-    tp_t transient_return_type = 0;
+    o.trans_function_args( source, func, result_object_expr, typespec_object, result_args, typespec_ret );
 
-    m $* result_args = :result_arr_s!^^;
-    o.trans_function_args
-    (
-        source,
-        func.obj_type,
-        signature,
-        result_object_expr,
-        typespec_object,
-        result_args,
-        &transient_return_type
-    );
-
-    bl_t cast_return_type = ( transient_return_type != 0 && transient_return_type != typespec_ret.type );
+    bl_t cast_return_type = ( typespec_ret.get_hash() != func.signature.typespec_ret.get_hash() );
 
     if( cast_return_type )
     {
-        typespec_ret.type = transient_return_type;
         result.push_sc( "((" );
         o.push_typespec( typespec_ret, result );
         result.push_sc( ")(" );

@@ -483,12 +483,12 @@ func (:s)
     if( typespec_expr.type == TYPEOF_type_object ) return source.parse_error_fa( "adapt_expression: typespec_expr is 'type_object'" );
 
     bl_t discarding_const =
-        ( typespec_expr.flag_const && !typespec_target.flag_const ) &&
-        ( typespec_expr.indirection > 0 || typespec_target.indirection > 0 );
+        ( typespec_expr.access_class == TYPEOF_const && typespec_expr.access_class != typespec_target.access_class ) &&
+        ( typespec_expr.indirection > 0 && typespec_target.indirection > 0 );
 
     if( discarding_const ) return source.parse_error_fa( "Discarding 'const' qualifier." );
 
-    if( typespec_target.flag_discardable && !typespec_expr.flag_discardable )
+    if( typespec_target.access_class == TYPEOF_discardable && typespec_expr.access_class != TYPEOF_discardable )
     {
         return source.parse_error_fa( "Discardable expression expected." );
     }
@@ -691,7 +691,7 @@ func (:s)
         }
         else if( source.parse_bl( "#?'('" ) ) // untraced member function
         {
-            if( !o.waive_non_member_function ) return source.parse_error_fa( "'#<sc_t>' has no member function '#<sc_t>'.", o.nameof( in_typespec.type ), o.nameof( tp_identifier ) );
+            if( !o.waive_unknown_member_function ) return source.parse_error_fa( "'#<sc_t>' has no member function '#<sc_t>'.", o.nameof( in_typespec.type ), o.nameof( tp_identifier ) );
             m $* result_arg_obj = result.clone().scope();
             result.clear();
 
@@ -743,7 +743,7 @@ func (:s)
         }
         else // untraced member element
         {
-            if( !o.waive_non_member_variable ) return source.parse_error_fa( "'#<sc_t>' has no member '#<sc_t>'.", o.nameof( in_typespec.type ), o.nameof( tp_identifier ) );
+            if( !o.waive_unknown_member_variable ) return source.parse_error_fa( "'#<sc_t>' has no member '#<sc_t>'.", o.nameof( in_typespec.type ), o.nameof( tp_identifier ) );
             result.push_fa( "#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : "." );
             result.push_result_d( result_local.fork() );
             o.trans_expression( source, result, NULL );
@@ -934,7 +934,7 @@ func (:s)
             return source.parse_error_fa( "Attach operator: rvalue with indirection '1' expected." );
         }
 
-        if( !typespec_rval.flag_discardable )
+        if( typespec_rval.access_class != TYPEOF_discardable )
         {
             return source.parse_error_fa( "Attach operator: Discardable rvalue expected." );
         }
@@ -1217,32 +1217,8 @@ func (:s)
 
     if( source.parse_bl( " #?w'restrict'") ) typespec.flag_restrict = true;
 
-    switch( access_class )
-    {
-        case TYPEOF_const:
-        {
-            typespec.flag_const = true;
-        }
-        break;
-
-        case TYPEOF_mutable:
-        {
-            typespec.flag_const = false;
-        }
-        break;
-
-        case TYPEOF_discardable:
-        {
-            typespec.flag_const = false;
-            typespec.flag_discardable = true;
-        }
-        break;
-
-        default:
-        {
-            if( typespec.indirection > 0 ) source.parse_error_fa( "Declaration with indirection: access-class missing: (c|const) | (m|mutable) | (d|discardable)" );
-        }
-    }
+    typespec.access_class = access_class;
+    if( typespec.indirection > 0 && access_class == 0 ) source.parse_error_fa( "Declaration with indirection: access-class missing: (c|const) | (m|mutable) | (d|discardable)" );
 
     if( literal_const_used ) source.parse_error_fa( "Abbreviate 'const' to 'c'." );
 
@@ -1309,7 +1285,7 @@ func (:s) :.push_typespec  = (try)
 
     sc_t sc_type = st_type.sc;
     if( typespec.flag_static   ) result.push_fa( "static " );
-    if( typespec.flag_const    ) result.push_fa( "const " );
+    if( typespec.access_class == TYPEOF_const ) result.push_fa( "const " );
     if( typespec.flag_volatile ) result.push_fa( "volatile " );
     result.push_fa( "#<sc_t>", sc_type );
 
@@ -1349,12 +1325,12 @@ func (:s)
         typespec.type = tp_identifier;
         typespec.indirection = 1;
         typespec.flag_addressable = false;
-        typespec.flag_discardable = true;
+        typespec.access_class = TYPEOF_discardable;
 
         if( source.parse_bl( "#=?'^'" ) )
         {
             o.trans_builtin_scope( source, result_local, typespec, result, NULL );
-            typespec.flag_discardable = false;
+            typespec.access_class = TYPEOF_mutable;
         }
         else
         {
@@ -1718,16 +1694,16 @@ func (:s)
 
             if( typespec_expr.type )
             {
-                if( typespec_expr.flag_discardable != typespec_var.flag_discardable )
+                if( typespec_expr.access_class != typespec_var.access_class )
                 {
-                    if( typespec_expr.flag_discardable )
+                    if( typespec_expr.access_class == TYPEOF_discardable )
                     {
-                        return source.parse_error_fa( "Declaration-syntax: Assignment: Conversion 'discardable' to 'mutable' without a cast." );
+                        return source.parse_error_fa( "Declaration-syntax: Assignment: Conversion discards typespec 'discardable'." );
                     }
 
-                    if( typespec_var.flag_discardable )
+                    if( typespec_var.access_class == TYPEOF_discardable )
                     {
-                        return source.parse_error_fa( "Declaration-syntax: Assignment: Conversion 'mutable' to 'discardable' without a cast." );
+                        return source.parse_error_fa( "Declaration-syntax: Assignment: Conversion requires typespec 'discardable'." );
                     }
                 }
                 o.adapt_expression( source, typespec_expr, typespec_var, result_expr, result_var );
@@ -1806,9 +1782,9 @@ func(:s) (er_t inspect_expression( m @* o, m bcore_source* source )) = (try)
         if( typespec.type )
         {
             bcore_msg_fa( "Expression yields typespec:\n" );
-            bcore_msg_fa( "  const      : #<bl_t>\n", typespec.flag_const );
-            bcore_msg_fa( "  type       : #<sc_t>\n", o.nameof( typespec.type ) );
-            bcore_msg_fa( "  indirection: #<sz_t>\n", typespec.indirection );
+            bcore_msg_fa( "  access_class : #<sc_t>\n",  ifnameof( typespec.access_class ) );
+            bcore_msg_fa( "  type         : #<sc_t>\n", o.nameof( typespec.type ) );
+            bcore_msg_fa( "  indirection  : #<sz_t>\n", typespec.indirection );
         }
         else
         {
@@ -2064,38 +2040,30 @@ func (:s) (er_t trans_block_inside_verbatim_c( m @* o, m bcore_source* source, m
 
 func (:s) (er_t setup( m @* o, c xoico_host* host, c xoico_signature_s* signature )) = (try)
 {
-    tp_t host_obj_type = host.obj_type();
-
-    c xoico_args_s* args = signature.args;
-
-    tp_t tp_member_obj_type  = ( signature.arg_o ) ? host_obj_type : 0;
-    bl_t member_obj_const    = ( signature.arg_o ) ? signature.arg_o.typespec.flag_const : false;
-
-    o.typespec_ret.copy( signature.typespec_ret );
+    o.signature =< signature.clone();
+    //if( host.defines_transient_map() ) o.signature.convert_transient_types( host, host.transient_map() );
+    o.signature.relent( host, host.obj_type() );
 
     o.host     = host.cast( m $* );
     o.compiler = host.compiler();
-    o.member_obj_type = tp_member_obj_type;
     o.level    = 0;
     o.try_block_level = 0;
     o.stack_var.clear();
     o.init_level0();
 
-    if( tp_member_obj_type )
+    if( o.signature.arg_o )
     {
         m $* unit = xoico_che_stack_var_unit_s!^^;
         tp_t tp_member_obj_name  = o.entypeof( "o" );
-        unit.typespec.flag_const = member_obj_const;
-        unit.typespec.type = tp_member_obj_type;
-        unit.typespec.indirection = 1;
+        unit.typespec.copy( o.signature.arg_o.typespec );
         unit.name = tp_member_obj_name;
         unit.level = o.level;
         o.stack_var.push_unit( unit );
-        o.hmap_name.set_sc( o.compiler.nameof( tp_member_obj_type ) );
+        o.hmap_name.set_sc( o.compiler.nameof( o.signature.arg_o.typespec.type ) );
         o.hmap_name.set_sc( o.compiler.nameof( tp_member_obj_name ) );
     }
 
-    foreach( m $* arg in args )
+    foreach( m $* arg in o.signature.args )
     {
         if( arg.typespec.type && arg.name )
         {
@@ -2171,7 +2139,7 @@ func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* b
         {
             if( source.parse_bl( " #?w'try'" ) )
             {
-                if( o.typespec_ret.type != TYPEOF_er_t || o.typespec_ret.indirection != 0 )
+                if( o.signature.typespec_ret.type != TYPEOF_er_t || o.signature.typespec_ret.indirection != 0 )
                 {
                     return source.parse_error_fa( "Operator 'try': This operator can only be used in functions returning 'er_t'." );
                 }

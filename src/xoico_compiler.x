@@ -286,16 +286,17 @@ func (:s) :.get_type_element_info =
             }
             else if( bcore_flect_caps_is_array_fix( self_item.caps ) )
             {
-                info.type_info.typespec.flag_const = false;
+                info.type_info.typespec.access_class = TYPEOF_mutable;
                 info.type_info.typespec.type = self_item.type;
                 info.type_info.typespec.indirection = 1;
                 success = true;
             }
             else if( !bcore_flect_caps_is_array_dyn( self_item.caps ) ) // dynamic arrays are handled separately
             {
-                info.type_info.typespec.flag_const = false;
+                sz_t indirection = bcore_flect_caps_get_indirection( self_item.caps );
                 info.type_info.typespec.type = self_item.type;
-                info.type_info.typespec.indirection = bcore_flect_caps_get_indirection( self_item.caps );
+                info.type_info.typespec.indirection = indirection;
+                info.type_info.typespec.access_class = ( indirection > 0 ) ? TYPEOF_mutable : 0;
                 success = true;
             }
         }
@@ -307,21 +308,21 @@ func (:s) :.get_type_element_info =
         {
             if( name == TYPEOF_size )
             {
-                info.type_info.typespec.flag_const = false;
                 info.type_info.typespec.type = TYPEOF_uz_t;
                 info.type_info.typespec.indirection = 0;
+                info.type_info.typespec.access_class = 0;
                 success = true;
             }
             else if( name == TYPEOF_space )
             {
-                info.type_info.typespec.flag_const = false;
                 info.type_info.typespec.type = TYPEOF_uz_t;
                 info.type_info.typespec.indirection = 0;
+                info.type_info.typespec.access_class = 0;
                 success = true;
             }
             else if( name == TYPEOF_data )
             {
-                info.type_info.typespec.flag_const = false;
+                info.type_info.typespec.access_class = TYPEOF_mutable;
                 info.type_info.typespec.type = self_item.type ? self_item.type : TYPEOF_x_inst;
                 info.type_info.typespec.indirection = bcore_flect_caps_get_indirection( self_item.caps ) + 1;
                 success = true;
@@ -330,9 +331,9 @@ func (:s) :.get_type_element_info =
             {
                 if( bcore_flect_caps_is_typed( self_item.caps ) )
                 {
-                    info.type_info.typespec.flag_const = false;
                     info.type_info.typespec.type = TYPEOF_tp_t;
                     info.type_info.typespec.indirection = 0;
+                    info.type_info.typespec.access_class = 0;
                     success = true;
                 }
             }

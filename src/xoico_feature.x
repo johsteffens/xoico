@@ -126,7 +126,7 @@ func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) = (try)
 //    o.signature.expand_ret( host, st_ret_typespec );
 
     sc_t sc_ret_typespec = st_ret_typespec.sc;
-    bl_t flag_const = o->signature.arg_o.typespec.flag_const;
+    bl_t flag_const = o.signature.arg_o.typespec.access_class == TYPEOF_const;
 
     bl_t always_defined = ( o.strict || o.default_body || o.st_default_func_name.size > 0 );
 

@@ -52,12 +52,16 @@ stamp :s = aware :
     {
         if( o.arg_o )
         {
-            if( o.arg_o.typespec.transient_class && o.arg_o.typespec.transient_class == o.typespec_ret.transient_class )
+            o.arg_o.convert_transient_types( host, map );
+            if
+            (
+                o.arg_o.typespec.transient &&
+                o.typespec_ret.transient &&
+                o.arg_o.typespec.transient.class == o.typespec_ret.transient.class
+            )
             {
                 o.typespec_ret.type = host.obj_type();
-                o.typespec_ret.transient_class = 0;
             }
-            o.arg_o.typespec.transient_class = 0;
         }
 
         o.args.convert_transient_types( host, map );
@@ -67,10 +71,11 @@ stamp :s = aware :
 
     func xoico.get_global_name_tp = { return o.global_name; };
 
-    func :.relent =
+    func :.relent = (try)
     {
-        o.args.relent( host, tp_obj_type ).try();
-        o.typespec_ret.relent( host, tp_obj_type ).try();
+        if( o.arg_o ) o.arg_o.relent( host, tp_obj_type );
+        o.args.relent( host, tp_obj_type );
+        o.typespec_ret.relent( host, tp_obj_type );
         return 0;
     };
 
@@ -93,6 +98,12 @@ stamp :s = aware :
         o.typespec_ret.expand_x( host, sink );
         return 0;
     };
+
+    func (c xoico_arg_s* get_arg_by_name( c @* o, tp_t name )) =
+    {
+        return ( o.arg_o && o.arg_o.name == name ) ? o.arg_o : o.args.get_arg_by_name( name );
+    };
+
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

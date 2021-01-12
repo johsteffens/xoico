@@ -44,14 +44,28 @@ name c;
 name m;
 name d;
 
+stamp :transient_s = aware :
+{
+    tp_t class;
+    tp_t cast_to_var; // cast to typespec of variable with given name (typically a return typespec of a function)
+
+    func xoico.get_hash =
+    {
+        tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
+        hash = bcore_tp_fold_tp( hash, o.class );
+        return hash;
+    };
+};
+
 stamp :s = aware :
 {
     tp_t type; // possible variable types are TYPEOF_type_deduce and TYPEOF_type_object
-    tp_t transient_class;
+    tp_t access_class; // 'const|mutable|discardable'
+
+    :transient_s => transient;
+
     sz_t indirection;
 
-    bl_t flag_const;
-    bl_t flag_discardable;
     bl_t flag_static;
     bl_t flag_volatile;
     bl_t flag_restrict;
@@ -70,11 +84,10 @@ stamp :s = aware :
 
     func xoico.convert_transient_types =
     {
-        if( o.transient_class )
+        if( o.transient )
         {
-            tp_t type = map.get( o.transient_class );
+            tp_t type = map.get( o.transient.class );
             if( type ) o.type = type;
-            o.transient_class = 0;
         }
         return 0;
     };
@@ -85,19 +98,19 @@ stamp :s = aware :
 
     func :.reset =
     {
-        o->type = 0;
-        o->indirection = 0;
-        o->flag_const    = false;
-        o->flag_discardable = false;
-        o->flag_static   = false;
-        o->flag_volatile = false;
-        o->flag_restrict = false;
-        o->flag_unaware  = false;
-        o->flag_scope    = false;
-        o->flag_addressable = true;  // object can have a pointer ('false' for objects returned by a function)
+        o.access_class = 0;
+        o.transient =< NULL;
+        o.type = 0;
+        o.indirection = 0;
+        o.flag_static   = false;
+        o.flag_volatile = false;
+        o.flag_restrict = false;
+        o.flag_unaware  = false;
+        o.flag_scope    = false;
+        o.flag_addressable = true;  // object can have a pointer ('false' for objects returned by a function)
     };
 
-    func ( bl_t is_void( c @* o )) = { return o.type == TYPEOF_void && o.indirection == 0; };
+    func ( bl_t is_void( c @* o )) = { return (o.type == 0 || o.type == TYPEOF_void) && o.indirection == 0; };
 };
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -60,8 +60,7 @@ stamp :s = aware :
         c xoico_func_s* func = group.get_func( o.func_name );
         if( !func ) o.source_point.parse_error_fa( "Wrap: '#<sc_t>' is not a function in group '#<sc_t>'.", compiler.nameof( o.func_name ), compiler.nameof( o.group_name ) );
 
-        o.signature!;
-        o.signature.copy( func.signature );
+        o.signature =< compiler.get_signature( func.signature.global_name ).clone();
         o.signature.set_global_name( host );
         o.signature.convert_transient_types( host, host.transient_map() );
         compiler.register_item( o.signature );

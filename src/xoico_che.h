@@ -393,10 +393,10 @@ stamp :s = aware :
     /// purity-control:
 
     // Condition: identifier specifies an undeclared member variable
-    bl_t waive_non_member_variable = true;
+    bl_t waive_unknown_member_variable = true;
 
     // Condition: identifier specifies an undeclared member function
-    bl_t waive_non_member_function = true;
+    bl_t waive_unknown_member_function = true;
 
     // Condition: trans_expression: function identifier is not used in a tractable way (e.g. not as function call).
     bl_t waive_function_in_untraced_context = true;
@@ -407,10 +407,9 @@ stamp :s = aware :
     /// runtime data
     hidden xoico_host*       host;
     hidden xoico_compiler_s* compiler;
-    xoico_typespec_s typespec_ret;
+    xoico_signature_s => signature;
 
     /// runtime state
-    tp_t member_obj_type; // 0 in case function has no arg_o
 
     sz_t level;
     sz_t try_block_level;
@@ -505,10 +504,7 @@ stamp :s = aware :
     func xoico_compiler.get_func  = { return o.compiler.get_func( name ); };
     func xoico_compiler.get_transient_map = { return o.compiler.get_transient_map( type ); };
 
-    func (bl_t returns_a_value( c @* o )) =
-    {
-        return ( !( ( o.typespec_ret.type == 0 ) || ( o.typespec_ret.type == TYPEOF_void ) ) ) || ( o.typespec_ret.indirection > 0 );
-    };
+    func (bl_t returns_a_value( c @* o )) = { return o.signature.returns_a_value(); };
 
     func (er_t trans( c @* o, m bcore_source* source, sc_t format, m :result* result )) =
     {
