@@ -356,18 +356,18 @@ TODO:
    (done) adaptations
    (done) returns
 - (fixed) bug: function argument: resolving transient type: is target type is a group, no automatic conversion from stamp (cast required)
-
-
+- (done) transient argument: signature return may optionally state an argument name instead of return-typespec. This makes the entire typespec of the corresponding argument transient.
+- (done via transient argument) typespec: optionally tie access-class to a transient type
+- (done) typespec: convert access-class flags to tp_t access-class
+- (done) che_s: copy signature as state variable; remove typespec_ret, member_obj_type, etc
+- (rejected (alternative via transient argument)) introduce transient 'const' in connection with a transient type: eg.: ((const)TO) x_inst* arg
+- (done) disallow signature repetition for same function (use plain name solution below)
+- (done) func declaration/definition: function name without preceding *. assumes that the signature-name is <host-name>_func_name.
 
 - bug: binary operator not recognized after unregistered member function
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
 - declaration: scope instances on stack using ^ type specifier. example: st_s^ st;
-- introduce transient 'const' in connection with a transient type: eg.: ((const)TO) x_inst* arg
 - make 'fork' a transient function in x_inst rather than a builtin function
-- che_s: copy signature as state variable; remove typespec_ret, member_obj_type, etc
-- typespec: convert access-class flags to tp_t access-class
-- typespec: optionally tie access-class to a transient type
-
 
 ===================================================================
 

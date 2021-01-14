@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2021-01-12T17:14:05Z
+ *  Last File Update: 2021-01-14T10:37:17Z
  *
  *  Copyright and License of this File:
  *
@@ -4623,7 +4623,7 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
     const xoico* xoico_item = xoico_compiler_s_get_const_item(o,type );
     if( !xoico_item )
     {
-        xoico_item = ((const xoico*)(xoico_compiler_s_get_group(((xoico_compiler_s*)(o)),type )));
+        xoico_item =((const xoico*)( xoico_compiler_s_get_group(((xoico_compiler_s*)(o)),type )));
         if( !xoico_item ) return  false;
     }
     
@@ -9026,4 +9026,4 @@ vd_t xoico_xo_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0x5263A2E2FDB86C51ull
+// XOILA_OUT_SIGNATURE 0xA29403A303817DCAull

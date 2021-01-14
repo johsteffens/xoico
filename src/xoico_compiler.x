@@ -262,7 +262,7 @@ func (:s) :.get_type_element_info =
     c xoico* xoico_item = o.get_const_item( type );
     if( !xoico_item )
     {
-        xoico_item = o.cast( m $* ).get_group( type ).cast( c xoico* );
+        xoico_item = o.cast( m $* ).get_group( type );
         if( !xoico_item ) return false;
     }
 
@@ -367,7 +367,7 @@ func (:s) :.get_type_array_element_info =
     c xoico* xoico_item = o.get_const_item( type );
     if( !xoico_item ) return false;
     bl_t success = false;
-    info.type_info.item = xoico_item.cast( m xoico* );
+    info.type_info.item = xoico_item.cast( m $* );
 
     if( xoico_item->_ == TYPEOF_xoico_stamp_s )
     {
