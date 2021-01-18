@@ -131,7 +131,7 @@ func (:s) xoico.parse = (try)
                     source.parse_em_fa( " #string", embed_file );
                     d bcore_source* include_source = NULL;
                     xoico_embed_file_open( source, embed_file.sc, include_source.2 );
-                    include_source.scope();
+                    include_source^^;
                     group.explicit_embeddings.push_st( embed_file );
                     group.parse( o, include_source );
                 }

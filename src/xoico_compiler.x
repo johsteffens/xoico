@@ -85,7 +85,7 @@ func (:s) :.register_func =
 /// returns true if correct signature could be verified
 func (bl_t is_signed( sc_t file )) =
 {
-    m bcore_source* source = bcore_file_open_source( file ).scope();
+    m bcore_source* source = bcore_file_open_source( file )^^;
     m st_s* data = st_s!^^;
     while( !source.eos() ) data.push_char( source.get_u0() );
 
@@ -140,8 +140,8 @@ func (:s) :.check_overwrite =
 
 func (:s) :.parse = (try)
 {
-    m st_s* source_folder_path = bcore_file_folder_path( source_path ).scope();
-    m st_s* target_path        = st_s_create_fa( "#<sc_t>/#<sc_t>.#<sc_t>", source_folder_path->sc, target_name, target_ext ).scope();
+    m st_s* source_folder_path = bcore_file_folder_path( source_path )^^;
+    m st_s* target_path        = st_s_create_fa( "#<sc_t>/#<sc_t>.#<sc_t>", source_folder_path->sc, target_name, target_ext )^^;
 
     sz_t target_index = -1;
     for( sz_t i = 0; i < o->size; i++ )

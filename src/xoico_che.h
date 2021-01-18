@@ -488,9 +488,9 @@ stamp :s = aware :
     func :.push_typespec;
     func :.typespec_to_sink =
     {
-        m $* result = :result_create_arr().scope();
+        m $* result = :result_create_arr()^^;
         o.push_typespec( typespec, result );
-        sink.push_sc( result.create_st().scope().sc );
+        sink.push_sc( result.create_st()^^.sc );
     };
 
     func xoico_compiler.is_type  = { return o.compiler.is_type( name ); };
@@ -516,6 +516,7 @@ stamp :s = aware :
 };
 
 embed "xoico_che.x";
+embed "xoico_che_trans_typespec.x";
 embed "xoico_che_function.x";
 embed "xoico_che_builtin.x";
 embed "xoico_che_control.x";

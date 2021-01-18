@@ -92,7 +92,7 @@ func (er_t parse_f( m bcore_source* source, sc_t format )) =
 /// opens an include file from an include directive in parent
 func (er_t embed_file_open( m bcore_source* parent, sc_t file_name, m bcore_source** include_source )) = (try)
 {
-    m st_s* folder = bcore_file_folder_path( parent.get_file() ).scope();
+    m st_s* folder = bcore_file_folder_path( parent.get_file() )^^;
     if( folder.size == 0 ) folder.push_char( '.' );
 
     m st_s* path = st_s!^^;
@@ -118,7 +118,7 @@ func (er_t embed_file_open( m bcore_source* parent, sc_t file_name, m bcore_sour
 
 func :.parse_sc =
 {
-    return o.parse( host, bcore_source_string_s_create_sc( sc ).scope() );
+    return o.parse( host, bcore_source_string_s_create_sc( sc )^^ );
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -127,7 +127,7 @@ func :.parse_fa =
 {
     va_list args;
     va_start( args, format );
-    er_t ret = o.parse( host, bcore_source_string_s_create_fv( format, args ).scope() );
+    er_t ret = o.parse( host, bcore_source_string_s_create_fv( format, args )^^ );
     va_end( args );
     return ret;
 };

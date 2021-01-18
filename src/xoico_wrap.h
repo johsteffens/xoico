@@ -88,7 +88,7 @@ stamp :s = aware :
         st.push_fa( ");};" );
 
         o.func.body!;
-        o.func.body.parse( host, bcore_source_string_s_create_from_sc( st.sc ).scope() );
+        o.func.body.parse( host, bcore_source_string_s_create_from_sc( st.sc )^^ );
 
         return 0;
     };

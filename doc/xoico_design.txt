@@ -363,11 +363,14 @@ TODO:
 - (rejected (alternative via transient argument)) introduce transient 'const' in connection with a transient type: eg.: ((const)TO) x_inst* arg
 - (done) disallow signature repetition for same function (use plain name solution below)
 - (done) func declaration/definition: function name without preceding *. assumes that the signature-name is <host-name>_func_name.
+- (done) generalize operators '^, ^^': if l-value is discardable, scope it.  (substitute of builtin function 'scope')
+- (done) on stack declaration: scope instances on stack using ^ type specifier. example: st_s^ st;
+- (done) on stack declaration: allow subsequent typespec expression in case a stack expression was properly scoped: example: st_s^ st.push_sc( "abc" );
 
 - bug: binary operator not recognized after unregistered member function
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
-- declaration: scope instances on stack using ^ type specifier. example: st_s^ st;
 - make 'fork' a transient function in x_inst rather than a builtin function
+
 
 ===================================================================
 

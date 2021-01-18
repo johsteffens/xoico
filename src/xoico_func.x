@@ -37,7 +37,7 @@ func (:s) (er_t freeze_global_name( m @* o, c xoico_host* host )) = (try)
 {
     if( o.global_name ) return 0;
     m $* compiler = host.compiler();
-    o.global_name = compiler.entypeof( st_s_create_fa( "#<sc_t>_#<sc_t>", compiler.nameof( host.obj_type() ), compiler.nameof( o.name ) ).scope().sc );
+    o.global_name = compiler.entypeof( st_s_create_fa( "#<sc_t>_#<sc_t>", compiler.nameof( host.obj_type() ), compiler.nameof( o.name ) )^^.sc );
     return 0;
 };
 
@@ -106,7 +106,7 @@ func (:s) xoico.parse = (try)
             o.name = compiler.entypeof( st_name.sc );
         }
 
-        o.signature_global_name = compiler.entypeof( st_s_create_fa( "#<sc_t>_#<sc_t>", compiler.nameof( tp_signature_base_name ), compiler.nameof( o.name ) ).scope().sc );
+        o.signature_global_name = compiler.entypeof( st_s_create_fa( "#<sc_t>_#<sc_t>", compiler.nameof( tp_signature_base_name ), compiler.nameof( o.name ) )^^.sc );
 
     }
 

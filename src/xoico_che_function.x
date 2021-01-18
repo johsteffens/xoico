@@ -41,7 +41,7 @@ func (:s)
 
     tp_t cast_to_var = signature.typespec_ret.transient ? signature.typespec_ret.transient.cast_to_var : 0;
 
-    tp_t transient_class = signature.typespec_ret.transient ? signature.typespec_ret.transient.class : 0;
+    tp_t ret_transient_class = signature.typespec_ret.transient ? signature.typespec_ret.transient.class : 0;
 
     c xoico_transient_map_s* transient_map = NULL;
 
@@ -49,7 +49,7 @@ func (:s)
     {
         if( !result_object_expr )
         {
-            m $* result_expr   = :result_create_arr().scope();
+            m $* result_expr   = :result_create_arr()^^;
             m $* typespec_expr = xoico_typespec_s!^^;
             o.trans_expression( source, result_expr, typespec_expr );
             result_object_expr = result_expr;
@@ -59,7 +59,7 @@ func (:s)
 
         transient_map = ( typespec_object ) ? o.get_transient_map( typespec_object.type ) : NULL;
 
-        m xoico_typespec_s* typespec_object_adapted = signature.arg_o.typespec.clone().scope();
+        m xoico_typespec_s* typespec_object_adapted = signature.arg_o.typespec.clone()^^;
 
         if( object_type ) typespec_object_adapted.relent( o.host, object_type );
 
@@ -67,8 +67,9 @@ func (:s)
         {
             if
             (
-                ( transient_class && transient_return_type ) &&
-                ( signature.arg_o.typespec.transient && signature.arg_o.typespec.transient.class == transient_class )
+                ret_transient_class &&
+                signature.arg_o.typespec.transient &&
+                signature.arg_o.typespec.transient.class == ret_transient_class
             )
             {
                 transient_return_type = typespec_object.type;
@@ -87,9 +88,9 @@ func (:s)
         }
     }
 
-    if( transient_map && transient_class )
+    if( transient_map && ret_transient_class )
     {
-        if( !transient_return_type ) transient_return_type = transient_map.get( transient_class );
+        if( !transient_return_type ) transient_return_type = transient_map.get( ret_transient_class );
     }
 
     foreach( c $* arg in signature.args )
@@ -115,7 +116,7 @@ func (:s)
         {
             if( arg.typespec.transient )
             {
-                if( transient_return_type == 0 && arg.typespec.transient.class == transient_class )
+                if( transient_return_type == 0 && arg.typespec.transient.class == ret_transient_class )
                 {
                     transient_return_type = typespec_expr.type;
                 }

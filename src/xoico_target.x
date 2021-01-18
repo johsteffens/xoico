@@ -19,10 +19,10 @@
 
 func (:s) :.parse_from_path = (try)
 {
-    m st_s* source_name        = bcore_file_strip_extension( bcore_file_name( source_path ) ).scope();
-    m st_s* source_folder_path = bcore_file_folder_path( source_path ).scope();
-    m st_s* source_path_n      = st_s_create_fa( "#<sc_t>/#<sc_t>", source_folder_path->sc, source_name->sc ).scope();
-    m st_s* source_path_h      = st_s_create_fa( "#<sc_t>.h", source_path_n->sc ).scope();
+    m st_s* source_name        = bcore_file_strip_extension( bcore_file_name( source_path ) )^^;
+    m st_s* source_folder_path = bcore_file_folder_path( source_path )^^;
+    m st_s* source_path_n      = st_s_create_fa( "#<sc_t>/#<sc_t>", source_folder_path->sc, source_name->sc )^^;
+    m st_s* source_path_h      = st_s_create_fa( "#<sc_t>.h", source_path_n->sc )^^;
 
     bl_t source_exists = false;
 
@@ -45,7 +45,7 @@ func (:s) :.parse_from_path = (try)
 
         if( bcore_file_exists( source_path_h.sc ) )
         {
-            xsource.parse( o, bcore_file_open_source( source_path_h->sc ).scope() );
+            xsource.parse( o, bcore_file_open_source( source_path_h->sc )^^ );
         }
 
         o.push_d( xsource.fork() );
@@ -114,7 +114,7 @@ func (:s) :.set_dependencies = (try)
     /// sort, remove duplicates, copy
     m bcore_arr_sz_s* dst = o.dependencies;
     dst.set_size( 0 );
-    m bcore_arr_sz_s* src = dependencies.clone().scope().sort( 1 );
+    m bcore_arr_sz_s* src = dependencies.clone()^^.sort( 1 );
     for( sz_t i = 0; i < src.size; i++ )
     {
         if( i == 0 || src.[ i ] != src.[ i - 1 ] )
@@ -299,11 +299,11 @@ func (:s) :.to_be_modified =
 
     tp_t target_hash = o.get_hash();
 
-    m st_s* file_h = st_s_create_fa( "#<sc_t>.h", o->path.sc ).scope();
+    m st_s* file_h = st_s_create_fa( "#<sc_t>.h", o->path.sc )^^;
     if( bcore_file_exists( file_h.sc ) )
     {
-        m st_s* key_defined = st_s_create_fa( "##?'define HKEYOF_#<sc_t>'", o.name.sc ).scope();
-        m bcore_source* source = bcore_file_open_source( file_h->sc ).scope();
+        m st_s* key_defined = st_s_create_fa( "##?'define HKEYOF_#<sc_t>'", o.name.sc )^^;
+        m bcore_source* source = bcore_file_open_source( file_h->sc )^^;
         while( !source.eos() )
         {
             char c = source.get_u0();
@@ -361,7 +361,7 @@ func (:s) :.expand_phase1 = (try)
 func (er_t write_with_signature( sc_t file, c st_s* data )) = (try)
 {
     tp_t hash = bcore_tp_fold_sc( bcore_tp_init(), data.sc );
-    m bcore_sink* sink = bcore_file_open_sink( file ).scope();
+    m bcore_sink* sink = bcore_file_open_sink( file )^^;
     sink.push_data( ( vc_t )data.data, data.size );
     sink.push_fa( "// XOILA_OUT_SIGNATURE 0x#pl16'0'{#X<tp_t>}ull\n", hash );
     return 0;
@@ -381,8 +381,8 @@ func (:s) :.expand_phase2 = (try)
     ASSERT( o.target_h );
     ASSERT( o.target_c );
 
-    m st_s* file_h = st_s_create_fa( "#<sc_t>.h", o.path.sc ).scope();
-    m st_s* file_c = st_s_create_fa( "#<sc_t>.c", o.path.sc ).scope();
+    m st_s* file_h = st_s_create_fa( "#<sc_t>.h", o.path.sc )^^;
+    m st_s* file_c = st_s_create_fa( "#<sc_t>.c", o.path.sc )^^;
 
     if( o.readonly )
     {

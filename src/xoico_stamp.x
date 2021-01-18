@@ -284,7 +284,7 @@ func (:s) (er_t parse_extend( m @* o, m bcore_source* source )) = (try)
             }
 
             m $* item = bcore_self_item_s!^;
-            er_t er = bcore_self_item_s_parse_src( item, sr_awc( bcore_source_string_s_create_from_string( buf ).scope( scope_local ) ), self, false );
+            er_t er = bcore_self_item_s_parse_src( item, sr_awc( bcore_source_string_s_create_from_string( buf )^^ ), self, false );
             if( bcore_flect_caps_is_array( item->caps ) && !o.first_array_item ) o.first_array_item = item.clone();
 
             if( er )
@@ -436,7 +436,7 @@ func (:s) xoico.finalize = (try)
     o.self_source.push_fa( "{#<st_s*>}", o.self_buf );
     o.self_buf =< NULL;
 
-    o.self =< bcore_self_s_parse_source( bcore_source_string_s_create_from_string( o.self_source ).scope().cast( m bcore_source* ), 0, 0, o.group.st_name.sc, false );
+    o.self =< bcore_self_s_parse_source( bcore_source_string_s_create_from_string( o.self_source )^^.cast( m bcore_source* ), 0, 0, o.group.st_name.sc, false );
 
     // checking for repetitions in o.self (non-functions)
     m $* hmap_name = bcore_hmap_tp_s!^;
@@ -491,7 +491,7 @@ func (:s) xoico.expand_declaration = (try)
 
 func (:s) xoico.expand_definition = (try)
 {
-    m st_s* embedded_string = o.create_embedded_string( o.self_source ).scope();
+    m st_s* embedded_string = o.create_embedded_string( o.self_source )^^;
 
     // 4095 is the C99-limit for string literals
     if( embedded_string.size > 4095 )
@@ -514,7 +514,7 @@ func (:s) xoico.expand_definition = (try)
     sink.push_fa( "\n" );
     sink.push_fa( "#rn{ }BCORE_DEFINE_OBJECT_INST_P( #<sc_t> )\n", indent, o.st_name.sc );
 
-    m st_s* multiline_string = xoico_stamp_create_structured_multiline_string( self_def, indent ).scope();
+    m st_s* multiline_string = xoico_stamp_create_structured_multiline_string( self_def, indent )^^;
     sink.push_fa( "#<sc_t>;\n", multiline_string.sc );
 
     foreach( m $* func in o.funcs ) func.expand_definition( o, indent, sink );

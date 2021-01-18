@@ -211,7 +211,7 @@ func (:s) xoico.parse = (try)
 
     o.parse_expression( host, source );
 
-    o.global_name = host.entypeof( st_s_create_fa( "#<sc_t>_#<sc_t>", compiler.nameof( host.obj_type() ), compiler.nameof( o.name ) ).scope().sc );
+    o.global_name = host.entypeof( st_s_create_fa( "#<sc_t>_#<sc_t>", compiler.nameof( host.obj_type() ), compiler.nameof( o.name ) )^^.sc );
     return 0;
 };
 

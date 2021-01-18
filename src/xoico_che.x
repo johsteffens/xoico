@@ -518,17 +518,17 @@ func (:s)
                     }
                     else
                     {
-                        fail_msg = st_s_create_fa( "'#<sc_t>' is unaware but the target typespec does not explicitly tolerate unaware objects.", o.nameof( typespec_expr.type ) ).scope();
+                        fail_msg = st_s_create_fa( "'#<sc_t>' is unaware but the target typespec does not explicitly tolerate unaware objects.", o.nameof( typespec_expr.type ) )^^;
                     }
                 }
                 else
                 {
-                    fail_msg = st_s_create_fa( "Source type cannot be classified." ).scope();
+                    fail_msg = st_s_create_fa( "Source type cannot be classified." )^^;
                 }
             }
             else
             {
-                fail_msg = st_s_create_fa( "Target is not a group or target indirection is != 1." ).scope();
+                fail_msg = st_s_create_fa( "Target is not a group or target indirection is != 1." )^^;
             }
         }
 
@@ -553,508 +553,6 @@ func (:s)
         o.adapt_expression_indirection( source, typespec_expr, typespec_target.indirection, result_expr, result );
         if( implicit_cast ) result.push_sc( "))" );
     }
-    return 0;
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
-func (:s)
-(
-    er_t trans_typespec_member
-    (
-        m @* o,
-        m bcore_source* source,
-        m :result* result,
-        c xoico_typespec_s*  in_typespec, // required
-        m xoico_typespec_s* out_typespec  // optional
-    )
-) = (try)
-{
-    if( source.parse_bl( "#?'->'" ) )
-    {
-        if( in_typespec.indirection != 1 )
-        {
-            return source.parse_error_fa( "Given indirection is '#<sz_t>'. '->' can only be used at indirection '1'.", in_typespec.indirection );
-        }
-    }
-    else
-    {
-        source.parse_em_fa( "." );
-    }
-    source.parse_em_fa( " " );
-    m xoico_compiler_element_info_s* info = xoico_compiler_element_info_s!^^;
-
-    char c = source.inspect_char();
-
-    if( c == '*' || c == '&' )
-    {
-        return source.parse_error_fa( "Postfix operators '&' and '*' are deprecated. Use numeric indirection level.\n" );
-    }
-
-    if( c >= '0' && c <= '9' )
-    {
-        m $* typespec_adapted = in_typespec.clone().scope();
-        sz_t adapted_indirection = 0;
-        source.parse_em_fa( "#<sz_t*>", &adapted_indirection );
-
-        typespec_adapted.indirection = adapted_indirection;
-
-        m $* result_adapted = :result_arr_s!^^;
-        result_adapted.push_sc( "(" );
-        o.adapt_expression( source, in_typespec, typespec_adapted, result, result_adapted );
-        result_adapted.push_sc( ")" );
-        result.clear();
-        result.push_result_d( result_adapted.fork() );
-        o.trans_typespec_expression( source, result, typespec_adapted, out_typespec );
-        return 0;
-    }
-
-    if( source.parse_bl( "#=?'['" ) || source.parse_bl( "#=?'?['" ) ) // array subscript
-    {
-        bl_t bounds_check = false;
-        if( source.parse_bl( "#=?'?'" ) )
-        {
-            source.parse_em_fa( "?[" );
-            bounds_check = true;
-        }
-        else
-        {
-            source.parse_em_fa( "[" );
-        }
-
-        if( bounds_check ) return source.parse_error_fa( "Bounds check not yet available." );
-
-        if( in_typespec.indirection > 1 )
-        {
-            return source.parse_error_fa
-            (
-                "Resolving subscript: Indirection '#<sz_t>' is too large.",
-                in_typespec.indirection
-            );
-        }
-
-        result.push_fa( "#<sc_t>data[", ( in_typespec.indirection == 1 ) ? "->" : "." );
-        o.trans_expression( source, result, NULL );
-        source.parse_em_fa( "]" );
-        result.push_sc( "]" );
-
-        if( o.compiler.get_type_array_element_info( in_typespec.type, info ) )
-        {
-            o.trans_typespec_expression( source, result, info.type_info.typespec, out_typespec );
-        }
-        else
-        {
-            o.trans_expression( source, result, NULL );
-        }
-    }
-    else // member (object or function)
-    {
-        m $* result_local = :result_create_arr().scope();
-        tp_t tp_identifier = 0;
-        o.trans_identifier( source, result_local, tp_identifier );
-        o.trans_whitespace( source, result_local );
-
-        // builtin functions ...
-        if( o.is_builtin_func( tp_identifier ) )
-        {
-            m xoico_typespec_s* typespec_builtin = xoico_typespec_s!^^;
-            o.trans_builtin( tp_identifier, source, result, in_typespec, result_local, typespec_builtin );
-            result.copy( result_local );
-            o.trans_typespec_expression( source, result, typespec_builtin, out_typespec );
-        }
-        else if( o.compiler.get_type_element_info( in_typespec.type, tp_identifier, info ) )
-        {
-            if( info.func ) // member function
-            {
-                m $* typespec_ret = xoico_typespec_s!^^;
-                m $* result_object_expr = result.clone().scope();
-                result.clear();
-                o.trans_function( source, info.func, result_object_expr, in_typespec, result, typespec_ret );
-                o.trans_typespec_expression( source, result, typespec_ret, out_typespec );
-            }
-            else // traced member element
-            {
-                if( in_typespec.indirection > 1 )
-                {
-                    return source.parse_error_fa
-                    (
-                        "Dereferencing #<sc_t>: Indirection '#<sz_t>' is too large.",
-                        o.nameof( tp_identifier ),
-                        in_typespec.indirection
-                    );
-                }
-                result.push_fa( "#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : "." );
-                result.push_result_d( result_local.fork() );
-
-                o.trans_typespec_expression( source, result, info.type_info.typespec, out_typespec );
-            }
-        }
-        else if( source.parse_bl( "#?'('" ) ) // untraced member function
-        {
-            if( !o.waive_unknown_member_function ) return source.parse_error_fa( "'#<sc_t>' has no member function '#<sc_t>'.", o.nameof( in_typespec.type ), o.nameof( tp_identifier ) );
-            m $* result_arg_obj = result.clone().scope();
-            result.clear();
-
-            /// Untraced member functions of a group are always treated as 'aware'
-            if( o.is_group( in_typespec.type ) )
-            {
-                result.copy_fa
-                (
-                    "#<sc_t>_a_#<sc_t>( ",
-                    o.nameof( in_typespec.type ),
-                    o.nameof( tp_identifier )
-                );
-            }
-            else
-            {
-                result.copy_fa
-                (
-                    "#<sc_t>_#<sc_t>( ",
-                    o.nameof( in_typespec.type ),
-                    o.nameof( tp_identifier )
-                );
-            }
-
-            {
-                m xoico_typespec_s* typespec_obj = in_typespec.clone().scope();
-                typespec_obj.indirection = 1; // first argument of member functions
-                o.adapt_expression( source, in_typespec, typespec_obj, result_arg_obj, result );
-            }
-
-            bl_t first = true;
-            o.trans_whitespace( source, result_local );
-            while( !source.eos() )
-            {
-                if( source.parse_bl( "#=?')'" ) ) break;
-
-                m $* result_expr = :result_create_arr().scope();
-                if( !first ) source.parse_em_fa( "," );
-                o.trans_expression( source, result_expr, NULL );
-                o.trans_whitespace( source, result_expr );
-                result.push_fa( "," );
-                result.push_result_d( result_expr.fork() );
-                first = false;
-            }
-
-            source.parse_em_fa( ")" );
-            result.push_sc( ")" );
-
-            o.trans_expression( source, result, NULL );
-        }
-        else // untraced member element
-        {
-            if( !o.waive_unknown_member_variable ) return source.parse_error_fa( "'#<sc_t>' has no member '#<sc_t>'.", o.nameof( in_typespec.type ), o.nameof( tp_identifier ) );
-            result.push_fa( "#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : "." );
-            result.push_result_d( result_local.fork() );
-            o.trans_expression( source, result, NULL );
-        }
-    }
-    return 0;
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
-func (:s)
-(
-    er_t trans_typespec_array_subscript
-    (
-        m @* o,
-        m bcore_source* source,
-        m :result* result,
-        c xoico_typespec_s*  in_typespec, // required
-        m xoico_typespec_s* out_typespec  // optional
-    )
-) = (try)
-{
-    source.parse_em_fa( "[" );
-
-    result.push_sc( "[" );
-    o.trans_expression( source, result, NULL );
-    source.parse_em_fa( "]" );
-    result.push_sc( "]" );
-
-    m xoico_typespec_s* typespec = in_typespec.clone().scope();
-
-    if( typespec.indirection == 0 )
-    {
-        if( in_typespec.type == TYPEOF_sc_t || in_typespec.type == TYPEOF_sd_t )
-        {
-            typespec.type = TYPEOF_u0_t;
-        }
-        else
-        {
-            return source.parse_error_fa( "Array subscript requires indirection >= 1." );
-        }
-    }
-    else
-    {
-        typespec.indirection--;
-    }
-
-    o.trans_typespec_expression( source, result, typespec, out_typespec );
-
-    return 0;
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
-func (:s)
-(
-    er_t trans_typespec_create
-    (
-        m @* o,
-        m bcore_source* source,
-        m :result* result,
-        c xoico_typespec_s*  in_typespec, // required
-        m xoico_typespec_s* out_typespec  // optional
-    )
-) = (try)
-{
-    source.parse_em_fa( "!" );
-
-    //ignore in case indirection is 0;
-    if( in_typespec.indirection > 0 )
-    {
-        if( !( in_typespec.indirection == 1 && in_typespec.flag_addressable ) )
-        {
-            return source.parse_error_fa( "Create-Operator requires lvalue with addressable indirection of 1." );
-        }
-
-        if( xoico_che_s_is_group( o, in_typespec.type ) )
-        {
-            return source.parse_error_fa( "Create-Operator: lvalue is a group." );
-        }
-
-        m $* result_arg_obj = result.clone().scope();
-        result.clear();
-
-        sc_t sc_type = o.nameof( in_typespec.type );
-        result.push_fa( "BCORE_PASS_CREATE(#<sc_t>,", sc_type );
-        result.push_result_d( result_arg_obj.fork() );
-        result.push_sc( ")" );
-    }
-
-    o.trans_typespec_expression( source, result, in_typespec, out_typespec );
-    return 0;
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
-func (:s)
-(
-    er_t trans_typespec_test_presence
-    (
-        m @* o,
-        m bcore_source* source,
-        m :result* result,
-        c xoico_typespec_s*  in_typespec, // required
-        m xoico_typespec_s* out_typespec  // optional
-    )
-) = (try)
-{
-    source.parse_em_fa( "?" );
-
-    //ignore in case indirection is 0;
-    if( in_typespec.indirection > 0 )
-    {
-        if( in_typespec.indirection != 1 )
-        {
-            return source.parse_error_fa( "Test-Operator requires lvalue with indirection of 1." );
-        }
-
-        m $* result_arg_obj = result.clone().scope();
-        result.clear();
-
-        sc_t sc_type = o.nameof( in_typespec.type );
-        result.push_fa( "BCORE_PASS_TEST(#<sc_t>,", sc_type );
-        result.push_result_d( result_arg_obj.fork() );
-        result.push_sc( ")" );
-    }
-
-    o.trans_typespec_expression( source, result, in_typespec, out_typespec );
-    return 0;
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
-func (:s)
-(
-    er_t trans_typespec_attach
-    (
-        m @* o,
-        m bcore_source* source,
-        m :result* result,
-        c xoico_typespec_s*  in_typespec, // required
-        m xoico_typespec_s* out_typespec  // optional
-    )
-) = (try)
-{
-    if( in_typespec.indirection != 1 )
-    {
-        return source.parse_error_fa( "Attach-Operator: lvalue with indirection of 1 expected." );
-    }
-
-    if( !in_typespec.flag_addressable )
-    {
-        return source.parse_error_fa( "Attach-Operator: Addressable lvalue expected." );
-    }
-
-    source.parse_em_fa( "=<" );
-
-    m $* result_arg_obj = result.clone().scope();
-    result.clear();
-
-    sc_t sc_type = o.nameof( in_typespec.type );
-    result.push_fa( "#<sc_t>", sc_type );
-
-    m xoico_typespec_s* typespec_rval = xoico_typespec_s!^^;
-    if( o.is_group( in_typespec.type ) )
-    {
-        result.push_sc( "_a" );
-        result.push_sc( "_attach( &(" );
-        result.push_result_d( result_arg_obj.fork() );
-        result.push_fa( "), (#<sc_t>*)", sc_type );
-        result.push_sc( "(" );
-        o.trans_expression( source, result, typespec_rval );
-        result.push_sc( "))" );
-    }
-    else
-    {
-        result.push_sc( "_attach( &(" );
-        result.push_result_d( result_arg_obj.fork() );
-        result.push_sc( "), " );
-        o.trans_expression( source, result, typespec_rval );
-        result.push_sc( ")" );
-    }
-
-    if( typespec_rval.type )
-    {
-        if( typespec_rval.indirection != 1 )
-        {
-            return source.parse_error_fa( "Attach operator: rvalue with indirection '1' expected." );
-        }
-
-        if( typespec_rval.access_class != TYPEOF_discardable )
-        {
-            return source.parse_error_fa( "Attach operator: Discardable rvalue expected." );
-        }
-    }
-
-    if( out_typespec ) out_typespec.copy( in_typespec );
-    return 0;
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
-func (:s)
-(
-    er_t trans_typespec_assign
-    (
-        m @* o,
-        m bcore_source* source,
-        m :result* result,
-        c xoico_typespec_s*  in_typespec, // required
-        m xoico_typespec_s* out_typespec  // optional
-    )
-) = (try)
-{
-    source.parse_em_fa( "=" );
-    result.push_sc( "=" );
-
-    if( in_typespec.indirection > 0 && o.is_group( in_typespec.type ) )
-    {
-        m $* typespec_rval = xoico_typespec_s!^^;
-        m $* result_rval = :result_arr_s!^;
-        o.trans_expression( source, result_rval, typespec_rval );
-
-        if( o.is_group( typespec_rval.type ) || o.is_stamp( typespec_rval.type ) )
-        {
-            if( typespec_rval.indirection != in_typespec.indirection )
-            {
-                return source.parse_error_fa( "Non declarative assignment: Indirection mismatch." );
-            }
-
-            if( typespec_rval.type != in_typespec.type )
-            {
-                o.adapt_expression( source, typespec_rval, in_typespec, result_rval, result );
-            }
-            else
-            {
-                result.push_result_d( result_rval.fork() );
-            }
-        }
-        else
-        {
-            result.push_result_d( result_rval.fork() );
-        }
-    }
-    else
-    {
-        o.trans_expression( source, result, NULL );
-    }
-
-    if( out_typespec ) out_typespec.copy( in_typespec );
-    return 0;
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
-func (:s)
-(
-    er_t trans_typespec_expression
-    (
-        m @* o,
-        m bcore_source* source,
-        m :result* result,
-        c xoico_typespec_s*  in_typespec, // required
-        m xoico_typespec_s* out_typespec  // optional
-    )
-) = (try)
-{
-    if( out_typespec ) out_typespec.type = 0;
-    o.trans_whitespace( source, result );
-
-    u0_t c[ 2 ];
-    source.inspect_data( c, sizeof( c ) );
-
-    if( c[0] == '.' || ( c[0] == '-' && c[1] == '>' ) )
-    {
-        o.trans_typespec_member( source, result, in_typespec, out_typespec );
-    }
-    else if( c[0] == '[' )
-    {
-        o.trans_typespec_array_subscript( source, result, in_typespec, out_typespec );
-    }
-    // create if not present
-    else if( c[0] =='!' && c[1] != '=' )
-    {
-        o.trans_typespec_create( source, result, in_typespec, out_typespec );
-    }
-    // test for presence
-    else if( c[0] == '?' && c[1] == '.' )
-    {
-        o.trans_typespec_test_presence( source, result, in_typespec, out_typespec );
-    }
-    // attach (detach)
-    else if( c[0] == '=' && c[1] == '<' )
-    {
-        o.trans_typespec_attach( source, result, in_typespec, out_typespec );
-    }
-    // assign
-    else if( c[0] == '=' && c[1] != '=' )
-    {
-        o.trans_typespec_assign( source, result, in_typespec, out_typespec );
-    }
-    // ternary branch operator
-    else if( c[0] == '?' )
-    {
-        o.trans_ternary_branch( source, result, out_typespec );
-    }
-    else if( out_typespec )
-    {
-        out_typespec.copy( in_typespec );
-    }
-
     return 0;
 };
 
@@ -1215,6 +713,8 @@ func (:s)
         }
     }
 
+    if( source.parse_bl( " #?'^'") ) typespec.flag_scope = true;
+
     if( source.parse_bl( " #?w'restrict'") ) typespec.flag_restrict = true;
 
     typespec.access_class = access_class;
@@ -1276,7 +776,7 @@ func (:s) :.push_typespec  = (try)
         ERR_fa( "Type is 0." );
     }
 
-    m st_s* st_type = st_s_create_sc( o.nameof( type ) ).scope();
+    m st_s* st_type = st_s_create_sc( o.nameof( type ) )^^;
 
     if( st_type.size == 0 )
     {
@@ -1308,7 +808,7 @@ func (:s)
     )
 ) = (try)
 {
-    m $* result_local = :result_create_arr().scope();
+    m $* result_local = :result_create_arr()^^;
     tp_t tp_identifier;
     o.trans_identifier( source, result_local, tp_identifier );
     o.trans_whitespace( source, result_local );
@@ -1466,7 +966,7 @@ func (:s)
 
     o.trans_whitespace( source, result_out );
 
-    m $* result = :result_create_arr().scope();
+    m $* result = :result_create_arr()^^;
     bl_t continuation = true;
 
     if( out_typespec ) out_typespec.reset();
@@ -1601,7 +1101,7 @@ func (:s)
     // unhandled
     else
     {
-        return source.parse_error_fa( "Syntax error after '#<sc_t>'", result.create_st().scope().sc );
+        return source.parse_error_fa( "Syntax error after '#<sc_t>'", result.create_st()^^.sc );
     }
 
     if( continuation )
@@ -1646,7 +1146,7 @@ func (:s)
 
     sz_t index = source.get_index();
 
-    m $* result_var = :result_create_arr().scope();
+    m $* result_var = :result_create_arr()^^;
 
     bl_t success_take_typespec = false;
     o.try_take_typespec( source, typespec_var, true, success_take_typespec.1 );
@@ -1671,6 +1171,7 @@ func (:s)
 
         if( source.parse_bl( "#?'='" ) ) // assignment
         {
+            if( typespec_var.flag_scope ) return source.parse_error_fa( "Declaration-syntax: Stack-scope requested with subsequent assignment." );
             bl_t pushed_typedecl = false;
             if( typespec_var.type != TYPEOF_type_deduce )
             {
@@ -1680,7 +1181,7 @@ func (:s)
 
             result_var.push_sc( "=" );
             m xoico_typespec_s* typespec_expr = xoico_typespec_s!^^;
-            m $* result_expr = :result_create_arr().scope();
+            m $* result_expr = :result_create_arr()^^;
             o.trans_expression( source, result_expr, typespec_expr );
 
             if( typespec_var.type == TYPEOF_type_deduce )
@@ -1723,6 +1224,7 @@ func (:s)
         }
         else if( source.parse_bl( "#=?'['" ) ) // c-style array
         {
+            if( typespec_var.flag_scope ) return source.parse_error_fa( "Declaration-syntax: Stack-scope requested on C-style array." );
             o.push_typespec( typespec_var, result_out );
             while( source.parse_bl( "#?'['" ) )
             {
@@ -1742,6 +1244,22 @@ func (:s)
             result_out.push_char( ' ' );
             result_out.push_result_d( result_var.fork() );
             o.push_typedecl( typespec_var, tp_identifier );
+
+            if( typespec_var.flag_scope )
+            {
+                result_out.push_char( ';' );
+                result_out.push_fa( "BLM_T_INIT_SPUSH(#<sc_t>, &#<sc_t>);", o.nameof( typespec_var.type ), o.nameof( tp_identifier ) );
+                o.stack_block.adl.[ o.level ].use_blm = true;
+
+                // debug
+                if( !source.parse_bl( " #=?';'" ) )
+                {
+                    m $* result_local = :result_arr_s!^;
+                    result_local.push_fa( "#<sc_t>", o.nameof( tp_identifier ) );
+                    o.trans_typespec_expression( source, result_local, typespec_var, NULL );
+                    result_out.push_result_d( result_local.fork() );
+                }
+            }
         }
 
         if( success ) success.0 = true;
@@ -1764,12 +1282,12 @@ func(:s) (er_t inspect_expression( m @* o, m bcore_source* source )) = (try)
     source.parse_em_fa( "\?\?" );
 
     m $* st = st_s!^^;
-    m $* result_local = :result_create_arr().scope();
+    m $* result_local = :result_create_arr()^^;
     m xoico_typespec_s* typespec = xoico_typespec_s!^^;
     source.parse_em_fa( " #until';' ", st );
     source.parse_em_fa( ";" );
     bcore_msg_fa( " \?? #<sc_t>;\n", st.sc );
-    if( o.trans_expression( bcore_source_string_s_create_fa( "#<st_s*>;", st ).scope(), result_local, typespec ) )
+    if( o.trans_expression( bcore_source_string_s_create_fa( "#<st_s*>;", st )^^, result_local, typespec ) )
     {
         bcore_error_pop_to_sink( BCORE_STDOUT );
         bcore_msg_fa( "\n" );
@@ -1777,7 +1295,7 @@ func(:s) (er_t inspect_expression( m @* o, m bcore_source* source )) = (try)
     else
     {
         if( st.size == 0 ) return source.parse_error_fa( "Variable name expected." );
-        bcore_msg_fa( "--> #<sc_t>;\n", result_local.create_st().scope().sc );
+        bcore_msg_fa( "--> #<sc_t>;\n", result_local.create_st()^^.sc );
 
         if( typespec.type )
         {
@@ -1801,7 +1319,7 @@ func (:s) (er_t trans_statement_expression( m @* o, m bcore_source* source, m :r
     if( o.try_block_level > 0 )
     {
         m xoico_typespec_s* typespec = xoico_typespec_s!^^;
-        m $* result_expr = :result_create_arr().scope();
+        m $* result_expr = :result_create_arr()^^;
         o.trans_expression( source, result_expr, typespec );
         if
         (
@@ -1916,7 +1434,7 @@ func (:s) (er_t trans_statement( m @* o, m bcore_source* source, m :result* resu
 
 func (:s) (er_t trans_block_inside( m @* o, m bcore_source* source, m :result* result_out )) = (try)
 {
-    m $* result = :result_create_arr().scope();
+    m $* result = :result_create_arr()^^;
 
     while( !source.parse_bl( "#=?'}'" ) && !source.eos() )
     {
@@ -1925,7 +1443,7 @@ func (:s) (er_t trans_block_inside( m @* o, m bcore_source* source, m :result* r
 
     if( o.stack_block_get_top_unit().use_blm )
     {
-        m $* result_block = :result_create_block( o.level, true ).scope();
+        m $* result_block = :result_create_block( o.level, true )^^;
 
         result_block.push_result_d( :result_create_blm_init( o.level ) );
         result_block.push_result_d( result.fork() );
@@ -1950,7 +1468,7 @@ func (:s) (er_t trans_block_inside( m @* o, m bcore_source* source, m :result* r
 func (:s) (er_t trans_block( m @* o, m bcore_source* source, m :result* result_out, bl_t is_break_ledge )) = (try)
 {
     o.inc_block();
-    m $* result = :result_create_arr().scope();
+    m $* result = :result_create_arr()^^;
     o.stack_block_get_top_unit().break_ledge = is_break_ledge;
     o.trans_whitespace( source, result );
     o.trans( source, "{", result );
@@ -1966,7 +1484,7 @@ func (:s) (er_t trans_block( m @* o, m bcore_source* source, m :result* result_o
 
 func (:s) (er_t trans_statement_as_block( m @* o, m bcore_source* source, m :result* result_out, bl_t is_break_ledge )) = (try)
 {
-    m $* result = :result_create_arr().scope();
+    m $* result = :result_create_arr()^^;
 
     o.inc_block();
     o.stack_block_get_top_unit().break_ledge = is_break_ledge;
@@ -1977,7 +1495,7 @@ func (:s) (er_t trans_statement_as_block( m @* o, m bcore_source* source, m :res
 
     if( o.stack_block_get_top_unit().use_blm )
     {
-        m $* result_block = :result_create_block( o.level, true ).scope();
+        m $* result_block = :result_create_block( o.level, true )^^;
         result_block.push_result_d( :result_create_blm_init( o.level ) );
         result_block.push_result_d( result.fork() );
         result_block.push_result_d( :result_create_blm_down() );
@@ -2126,9 +1644,9 @@ func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* b
 {
     o.setup( host, signature );
 
-    m bcore_source* source = body.code.source_point.clone_source().scope();
+    m bcore_source* source = body.code.source_point.clone_source()^^;
 
-    m $* result = :result_create_arr().scope();
+    m $* result = :result_create_arr()^^;
 
     bl_t flag_verbatim_c = false;
     bl_t flag_try = false;
@@ -2172,7 +1690,7 @@ func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* b
     }
     source.parse_em_fa( " }" );
 
-    m $* result_block = :result_create_block( o.level, o.stack_block_get_bottom_unit().use_blm ).scope();
+    m $* result_block = :result_create_block( o.level, o.stack_block_get_bottom_unit().use_blm )^^;
     result_block.cast( m :result_block_s* ).is_root = true;
     result_block.push_result_d( result.fork() );
 
@@ -2211,7 +1729,7 @@ func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* b
 
 func (:s) xoico_cengine.translate =
 {
-    er_t er = o.clone().scope().translate_mutable( host, body, signature, sink );
+    er_t er = o.clone()^^.translate_mutable( host, body, signature, sink );
     return er;
 };
 

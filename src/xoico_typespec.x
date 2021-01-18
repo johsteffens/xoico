@@ -141,7 +141,7 @@ func (:s) :.expand = (try)
         ERR_fa( "Cannot resolve 'type_deduce' at this point." );
     }
 
-    m st_s* st_type = st_s_create_sc( compiler.nameof( type ) ).scope();
+    m st_s* st_type = st_s_create_sc( compiler.nameof( type ) )^^;
 
     sc_t sc_type = st_type.sc;
     if( o.flag_static   ) sink.push_fa( "static " );
@@ -179,7 +179,7 @@ func (:s) :.expand_x = (try)
         ERR_fa( "Cannot resolve 'type_deduce' at this point." );
     }
 
-    m st_s* st_type = st_s_create_sc( compiler.nameof( type ) ).scope();
+    m st_s* st_type = st_s_create_sc( compiler.nameof( type ) )^^;
 
     switch( o.access_class )
     {

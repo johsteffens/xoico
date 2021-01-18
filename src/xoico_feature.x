@@ -117,7 +117,7 @@ func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) = (try)
     m $* compiler = host.compiler();
     sc_t sc_name = compiler.nameof( o.signature.name );
     sc_t sc_obj_type = compiler.nameof( host.obj_type() );
-    sc_t sc_spect_name = host.create_spect_name().scope().sc;
+    sc_t sc_spect_name = host.create_spect_name()^^.sc;
 
     m st_s* st_ret_typespec = st_s!^^;
 

@@ -81,7 +81,7 @@ func (:s)
     else // direct call
     {
         source.parse_em_fa( "cast ( " );
-        m $* result = :result_create_arr().scope();
+        m $* result = :result_create_arr()^^;
         m $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
         source.parse_em_fa( " , " );
@@ -180,7 +180,7 @@ func (:s)
     else // direct call
     {
         source.parse_em_fa( "scope ( " );
-        m $* result = :result_create_arr().scope();
+        m $* result = :result_create_arr()^^;
         m $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
         typespec_expr = typespec;
@@ -190,7 +190,7 @@ func (:s)
 
     if( typespec_expr.type == 0 ) return source.parse_error_fa( "scope: Expression not tractable." );
     if( typespec_expr.access_class != TYPEOF_discardable ) return source.parse_error_fa( "scope: Expression is not discardable." );
-    m xoico_typespec_s* typespec_scope = typespec_expr.clone().scope();
+    m xoico_typespec_s* typespec_scope = typespec_expr.clone()^^;
     typespec_scope.access_class = TYPEOF_mutable;
 
     result_out.push_sc( "((" );
@@ -272,14 +272,14 @@ func (:s)
     else // direct call
     {
         source.parse_em_fa( "fork ( " );
-        m $* result = :result_create_arr().scope();
+        m $* result = :result_create_arr()^^;
         m $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
         typespec_expr = typespec;
         result_expr = result;
     }
 
-    m xoico_typespec_s* typespec_fork = typespec_expr.clone().scope();
+    m xoico_typespec_s* typespec_fork = typespec_expr.clone()^^;
     typespec_fork.access_class = TYPEOF_discardable;
 
     result_out.push_sc( "((" );
@@ -339,7 +339,7 @@ func (:s)
         }
 
         source.parse_em_fa( "( " );
-        m $* result = :result_create_arr().scope();
+        m $* result = :result_create_arr()^^;
         m $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
         typespec_expr = typespec;

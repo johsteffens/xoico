@@ -26,10 +26,10 @@ func (:target_s) :.load = (try)
     {
         m st_s* current_folder = st_s!^^;
         bcore_folder_get_current( current_folder );
-        st_path = st_s_create_fa( "#<sc_t>/#<sc_t>", current_folder.sc, st_path.sc ).scope();
+        st_path = st_s_create_fa( "#<sc_t>/#<sc_t>", current_folder.sc, st_path.sc )^^;
     }
 
-    st_path = bcore_file_path_minimized( st_path.sc ).scope();
+    st_path = bcore_file_path_minimized( st_path.sc )^^;
 
     bcore_txt_ml_a_from_file( o, st_path.sc );
     o->full_path_.copy( st_path );
@@ -66,7 +66,7 @@ func (:target_s) :.load = (try)
 
         bl_t dep_readonly = o.readonly;
 
-        m bcore_source* source = bcore_source_string_s_create_sc( e.sc ).scope( scope_local );
+        m bcore_source* source = bcore_source_string_s_create_sc( e.sc )^^;
         source.parse_em_fa( " #:until':'", file_path );
 
         /// remove trailing spaces
@@ -164,7 +164,7 @@ func (:target_s) :.build = (try)
         m xoico_target_s* target = o.compiler.[ o.target_index_ ];
 
         target.set_dependencies( dependencies );
-        m st_s* signal_handler = st_s_create_fa( "#<sc_t>_general_signal_handler", o.name.sc ).scope();
+        m st_s* signal_handler = st_s_create_fa( "#<sc_t>_general_signal_handler", o.name.sc )^^;
         if( o.signal_handler ) signal_handler.copy( o.signal_handler );
         target.signal_handler_name.copy_sc( signal_handler.sc );
         target.readonly = o.readonly;

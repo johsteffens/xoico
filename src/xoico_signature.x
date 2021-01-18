@@ -32,7 +32,7 @@ func (:s) xoico.get_hash =
 func (:s) :.set_global_name = (try)
 {
     o.base_name = host.obj_type();
-    o.global_name = host.entypeof( st_s_create_fa( "#<sc_t>_#<sc_t>", host.nameof( o.base_name ), host.nameof( o.name ) ).scope().sc );
+    o.global_name = host.entypeof( st_s_create_fa( "#<sc_t>_#<sc_t>", host.nameof( o.base_name ), host.nameof( o.name ) )^^.sc );
     return 0;
 };
 

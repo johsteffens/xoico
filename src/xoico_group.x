@@ -120,7 +120,7 @@ func (:s) (er_t push_default_feature_from_sc( m @* o, sc_t sc )) = (try)
     m $* compiler = o.compiler;
     m $* feature = xoico_feature_s!^^;
     feature.expandable = false;
-    feature.parse( o, bcore_source_string_s_create_from_sc( sc ).scope() );
+    feature.parse( o, bcore_source_string_s_create_from_sc( sc )^^ );
 
     if( !compiler.is_item( feature.get_global_name_tp() ) )
     {
@@ -140,7 +140,7 @@ func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc )) = (try)
 {
     m $* func = xoico_func_s!^^;
     func.expandable = false;
-    func.parse( o, bcore_source_string_s_create_from_sc( sc ).scope() );
+    func.parse( o, bcore_source_string_s_create_from_sc( sc )^^ );
     o.push_func_d( func.fork() );
     return 0;
 };
@@ -417,7 +417,7 @@ func (:s) xoico.parse = (try)
         }
         else if( source.parse_bl( " #?w'embed' " ) )
         {
-            m st_s* folder = bcore_file_folder_path( bcore_source_a_get_file( source ) ).scope( scope_local );
+            m st_s* folder = bcore_file_folder_path( bcore_source_a_get_file( source ) )^^;
             if( folder.size == 0 ) folder.push_char( '.' );
             m st_s* embed_file = st_s!^;
             source.parse_em_fa( " #string" , embed_file );
@@ -552,7 +552,7 @@ func (:s) :.expand_declaration = (try)
     sink.push_fa( "\n" );
     sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o.st_name.sc, btypeof( o.st_name.sc ) );
 
-    m st_s* st_spect_name = xoico_group_s_create_spect_name( o ).scope();
+    m st_s* st_spect_name = xoico_group_s_create_spect_name( o )^^;
     sc_t  sc_spect_name = st_spect_name->sc;
 
     sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, sc_spect_name, btypeof( sc_spect_name ) );
