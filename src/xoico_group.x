@@ -441,11 +441,24 @@ func (:s) xoico.parse = (try)
         }
         else if( source.parse_bl( " #?w'include' " ) )
         {
-            bl_t deferred = source.parse_bl( " #?w'deferred' " );
+            bl_t in_definition = false;
+            if( source.parse_bl( " #?([0]==''')" ) )
+            {
+                char c = 0;
+                source.parse_fa( "'#<char*>'", &c );
+                if     ( c == 'c' ) in_definition = true;
+                else if( c == 'h' ) in_definition = false;
+                else return source.parse_error_fa( "include: 'c' or 'h' expected." );
+            }
+            else if( source.parse_bl( " #?w'deferred' " ) )
+            {
+                return source.parse_error_fa( "Syntax \"include deferred\" is deprecated. Use \"include 'c'\" instead." );
+            }
+
             m st_s* include_file = st_s!^;
             source.parse_em_fa( " #string" , include_file );
             source.parse_em_fa( " ;" );
-            if( deferred )
+            if( in_definition )
             {
                 o.includes_in_definition.push_st( include_file );
             }

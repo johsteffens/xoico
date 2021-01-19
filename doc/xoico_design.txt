@@ -370,6 +370,8 @@ TODO:
 - bug: binary operator not recognized after unregistered member function
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
 - make 'fork' a transient function in x_inst rather than a builtin function
+- include syntax: use include 'h' and include 'c' instead of include [deferred]
+- bug: transient argument: returned typespec is derived from the unadapted indirection (fix: take indirection from the adapted typespec)
 
 ===================================================================
 

@@ -78,7 +78,7 @@ func (:s)( er_t trans_control_for( m @* o, m bcore_source* source, m :result* re
     o.trans( source, "for", result );
     o.trans_whitespace( source, result );
     o.trans( source, "(", result );
-    o.trans_statement( source, result ); // def
+    if( !source.parse_bl( " #=?';'" ) ) o.trans_statement( source, result ); // def
     o.trans( source, ";", result );
     o.trans_expression( source, result, NULL ); // cond
     o.trans( source, ";", result );

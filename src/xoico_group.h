@@ -26,7 +26,7 @@
 XOILA_DEFINE_GROUP( xoico_group, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-include deferred "xoico_nested_group.h";
+include 'c' "xoico_nested_group.h";
 
 signature er_t push_item_d( m @* o, d xoico* item );
 signature er_t parse_name_recursive( c @* o, m bcore_source* source, m st_s* name );

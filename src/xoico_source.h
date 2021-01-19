@@ -120,7 +120,7 @@ func (:s) xoico.parse = (try)
             group.compiler = compiler;
 
             m st_s* st_trait_name = st_s!^^;
-            source.parse_em_fa( " ( #name, #name", group.st_name.1, st_trait_name.1 );
+            source.parse_em_fa( " ( #name , #name", group.st_name.1, st_trait_name.1 );
             group.trait_name = compiler.entypeof( st_trait_name.sc );
 
             if( source.parse_bl( " #=?','" ) )

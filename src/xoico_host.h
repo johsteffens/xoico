@@ -29,7 +29,7 @@
 XOILA_DEFINE_GROUP( xoico_host, bcore_inst )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-include deferred "xoico_compiler.h";
+include 'c' "xoico_compiler.h";
 
 // parses an identifier with namespace-syntax
 feature 'a' er_t parse_name_st( c @* o, m bcore_source* source, m st_s* name ) = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return 0; };

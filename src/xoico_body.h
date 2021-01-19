@@ -25,8 +25,8 @@
 XOILA_DEFINE_GROUP( xoico_body, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-include deferred "xoico_stamp.h";
-include deferred "xoico_cengine.h";
+include 'c' "xoico_stamp.h";
+include 'c' "xoico_cengine.h";
 
 signature er_t parse_expression( m @* o, c xoico_host* host, m bcore_source* source );
 signature er_t finalize( m @* o, c xoico_host* host );

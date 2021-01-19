@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2021-01-18T14:32:46Z
+ *  Last File Update: 2021-01-19T18:42:06Z
  *
  *  Copyright and License of this File:
  *
@@ -515,7 +515,7 @@ er_t xoico_typespec_s_expand( const xoico_typespec_s* o, const xoico_host* host,
     if( o->flag_volatile ) bcore_sink_a_push_fa(sink,"volatile " );
     bcore_sink_a_push_fa(sink,"#<sc_t>", sc_type );
     
-    for( sz_t i = 0; i < o->indirection; i++ ) bcore_sink_a_push_fa(sink,"*" );
+    for(sz_t i = 0; i < o->indirection; i++ ) bcore_sink_a_push_fa(sink,"*" );
     if( o->flag_restrict ) bcore_sink_a_push_fa(sink," restrict " );
     
     BLM_RETURNV(er_t, 0)
@@ -1400,7 +1400,7 @@ er_t xoico_body_s_expand( const xoico_body_s* o, const xoico_host* host, const x
     else
     {
         bcore_sink_a_push_fa(sink,"{\n#rn{ }", indent + 4 );
-        for( sz_t i = 0; i < final_code->size; i++ )
+        for(sz_t i = 0; i < final_code->size; i++ )
         {
             char c = final_code->sc[ i ];
             bcore_sink_a_push_char(sink,c );
@@ -1482,7 +1482,7 @@ er_t xoico_feature_s_parse( xoico_feature_s* o, const xoico_host* host, bcore_so
     {
         st_s* flags = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,st_s_create()));
         BLM_TRY(bcore_source_a_parse_em_fa(source," #until'''", flags ))
-        for( sz_t i = 0; i < flags->size; i++ )
+        for(sz_t i = 0; i < flags->size; i++ )
         {
             switch( flags->data[ i ] )
             {
@@ -2182,7 +2182,7 @@ er_t xoico_funcs_s_replace_fork( xoico_funcs_s* o, sz_t idx, xoico_func_s* func 
     
     ASSERT( idx >= 0 && idx < o->size );
     xoico_func_s_attach( &(o->data[ idx ] ),  NULL);
-    for( sz_t i = idx + 1; i < o->size; i++ ) o->data[ i - 1 ] = o->data[ i ];
+    for(sz_t i = idx + 1; i < o->size; i++ ) o->data[ i - 1 ] = o->data[ i ];
     o->data[ o->size - 1 ] = ((xoico_func_s*)bcore_fork(func));
     return  0;
 }
@@ -2725,11 +2725,24 @@ er_t xoico_group_s_parse( xoico_group_s* o, const xoico_host* host, bcore_source
         BLM_DOWN();}
         else if( bcore_source_a_parse_bl(source," #?w'include' " ) )
         {BLM_INIT_LEVEL(3);
-            bl_t deferred = bcore_source_a_parse_bl(source," #?w'deferred' " );
+            bl_t in_definition = false;
+            if( bcore_source_a_parse_bl(source," #?([0]==''')" ) )
+            {
+                char c = 0;
+                bcore_source_a_parse_fa(source,"'#<char*>'", &c );
+                if     ( c == 'c' ) in_definition = true;
+                else if( c == 'h' ) in_definition = false;
+                else BLM_RETURNV(er_t, bcore_source_a_parse_error_fa(source,"include: 'c' or 'h' expected." ))
+            }
+            else if( bcore_source_a_parse_bl(source," #?w'deferred' " ) )
+            {
+                BLM_RETURNV(er_t, bcore_source_a_parse_error_fa(source,"Syntax \"include deferred\" is deprecated. Use \"include 'c'\" instead." ))
+            }
+    
             st_s* include_file = ((st_s*)BLM_LEVEL_T_PUSH(3,st_s,st_s_create()));
             BLM_TRY(bcore_source_a_parse_em_fa(source," #string" , include_file ))
             BLM_TRY(bcore_source_a_parse_em_fa(source," ;" ))
-            if( deferred )
+            if( in_definition )
             {
                 bcore_arr_st_s_push_st(&(o->includes_in_definition),include_file );
             }
@@ -2756,7 +2769,7 @@ er_t xoico_group_s_parse( xoico_group_s* o, const xoico_host* host, bcore_source
 
 er_t xoico_group_s_finalize( xoico_group_s* o, const xoico_host* host )
 {
-    // xoico_group.x:475:28
+    // xoico_group.x:488:28
     
     /// default features
     BLM_TRY(xoico_group_s_push_default_feature_from_sc(o,"d @* clone( c @* o );" ))
@@ -2776,7 +2789,7 @@ er_t xoico_group_s_finalize( xoico_group_s* o, const xoico_host* host )
 
 er_t xoico_group_s_expand_forward( const xoico_group_s* o, sz_t indent, bcore_sink* sink )
 {
-    // xoico_group.x:495:78
+    // xoico_group.x:508:78
     
     if( !o->expandable ) return  0;
     bcore_sink_a_push_fa(sink," \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o->st_name.sc );
@@ -2787,7 +2800,7 @@ er_t xoico_group_s_expand_forward( const xoico_group_s* o, sz_t indent, bcore_si
 
 er_t xoico_group_s_expand_spect_declaration( const xoico_group_s* o, sz_t indent, bcore_sink* sink )
 {
-    // xoico_group.x:506:88
+    // xoico_group.x:519:88
     
     if( !o->expandable ) return  0;
     if( o->short_spect_name )
@@ -2815,7 +2828,7 @@ er_t xoico_group_s_expand_spect_declaration( const xoico_group_s* o, sz_t indent
 
 er_t xoico_group_s_expand_declaration( const xoico_group_s* o, sz_t indent, bcore_sink* sink )
 {
-    // xoico_group.x:536:34
+    // xoico_group.x:549:34
     BLM_INIT_LEVEL(0);
     if( !o->expandable ) BLM_RETURNV(er_t, 0)
     
@@ -2856,7 +2869,7 @@ er_t xoico_group_s_expand_declaration( const xoico_group_s* o, sz_t indent, bcor
 
 er_t xoico_group_s_expand_spect_definition( const xoico_group_s* o, sz_t indent, bcore_sink* sink )
 {
-    // xoico_group.x:577:87
+    // xoico_group.x:590:87
     
     xoico_compiler_s* compiler = o->compiler;
     if( !o->expandable ) return  0;
@@ -2879,7 +2892,7 @@ er_t xoico_group_s_expand_spect_definition( const xoico_group_s* o, sz_t indent,
 
 er_t xoico_group_s_expand_definition( const xoico_group_s* o, sz_t indent, bcore_sink* sink )
 {
-    // xoico_group.x:600:33
+    // xoico_group.x:613:33
     
     if( !o->expandable ) return  0;
     bcore_sink_a_push_fa(sink,"\n" );
@@ -2909,7 +2922,7 @@ er_t xoico_group_s_expand_definition( const xoico_group_s* o, sz_t indent, bcore
 
 er_t xoico_group_s_expand_init1( const xoico_group_s* o, sz_t indent, bcore_sink* sink )
 {
-    // xoico_group.x:630:28
+    // xoico_group.x:643:28
     
     if( !o->expandable ) return  0;
     bcore_sink_a_push_fa(sink,"\n" );
@@ -3321,7 +3334,7 @@ er_t xoico_stamp_s_finalize( xoico_stamp_s* o, const xoico_host* host )
     // checking for repetitions in o.self (non-functions)
     bcore_hmap_tp_s* hmap_name = ((bcore_hmap_tp_s*)BLM_LEVEL_T_PUSH(0,bcore_hmap_tp_s,bcore_hmap_tp_s_create()));
     sz_t self_items = bcore_self_s_items_size( o->self );
-    for( sz_t i = 0; i < self_items; i++ )
+    for(sz_t i = 0; i < self_items; i++ )
     {
         const bcore_self_item_s* item = bcore_self_s_get_item(o->self,i );
         if( item->name && ( item->caps != BCORE_CAPS_EXTERNAL_FUNC ) )
@@ -3433,7 +3446,7 @@ st_s* xoico_stamp_create_embedded_string( const st_s* s )
     // xoico_stamp.x:22:1
     
     st_s* out = st_s_create();
-    for( sz_t i = 0; i < s->size; i++ )
+    for(sz_t i = 0; i < s->size; i++ )
     {
         if( s->data[ i ] == '/' && s->data[ i + 1 ] == '/' )
         {
@@ -3496,7 +3509,7 @@ st_s* xoico_stamp_create_structured_multiline_string( const sc_t s, sz_t indent 
     st_s* out = st_s_create();
     sz_t ind = indent;
     bl_t newline = true;
-    for( sz_t i = 0; s[ i ] != 0; i++ )
+    for(sz_t i = 0; s[ i ] != 0; i++ )
     {
         char c = s[ i ];
         if( c == ';' )
@@ -3727,7 +3740,7 @@ er_t xoico_source_s_parse( xoico_source_s* o, const xoico_host* host, bcore_sour
             group->compiler = compiler;
     
             st_s* st_trait_name = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,st_s_create()));
-            BLM_TRY(bcore_source_a_parse_em_fa(source," ( #name, #name", (&(group->st_name)), (st_trait_name) ))
+            BLM_TRY(bcore_source_a_parse_em_fa(source," ( #name , #name", (&(group->st_name)), (st_trait_name) ))
             group->trait_name = xoico_compiler_s_entypeof(compiler,st_trait_name->sc );
     
             if( bcore_source_a_parse_bl(source," #=?','" ) )
@@ -3922,7 +3935,7 @@ er_t xoico_target_s_set_dependencies( xoico_target_s* o, const bcore_arr_sz_s* d
     bcore_arr_sz_s* dst =&( o->dependencies);
     bcore_arr_sz_s_set_size(dst,0 );
     bcore_arr_sz_s* src = bcore_arr_sz_s_sort(((bcore_arr_sz_s*)BLM_LEVEL_T_PUSH(0,bcore_arr_sz_s,bcore_arr_sz_s_clone(dependencies))),1 );
-    for( sz_t i = 0; i < src->size; i++ )
+    for(sz_t i = 0; i < src->size; i++ )
     {
         if( i == 0 || src->data[ i ] != src->data[ i - 1 ] )
         {
@@ -4508,7 +4521,7 @@ er_t xoico_compiler_s_parse( xoico_compiler_s* o, sc_t target_name, sc_t target_
     st_s* target_path        = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,st_s_create_fa("#<sc_t>/#<sc_t>.#<sc_t>", source_folder_path->sc, target_name, target_ext )));
     
     sz_t target_index = -1;
-    for( sz_t i = 0; i < o->size; i++ )
+    for(sz_t i = 0; i < o->size; i++ )
     {
         if( st_s_equal_st(target_path,&(o->data[ i ]->path )) )
         {
@@ -4547,7 +4560,7 @@ er_t xoico_compiler_s_expand_setup( xoico_compiler_s* o, const xoico_host* host 
 {
     // xoico_compiler.x:184:32
     
-    for( sz_t i = 0; i < o->size; i++ ) BLM_TRY(xoico_target_s_expand_setup(o->data[ i ],((const xoico_host*)(o ))))
+    for(sz_t i = 0; i < o->size; i++ ) BLM_TRY(xoico_target_s_expand_setup(o->data[ i ],((const xoico_host*)(o ))))
     
     /* We obtain all names from the global map.
      * This is necessary because names of reflection elements are parsed outside
@@ -4562,7 +4575,7 @@ bl_t xoico_compiler_s_to_be_modified( const xoico_compiler_s* o )
 {
     // xoico_compiler.x:201:1
     
-    for( sz_t i = 0; i < o->size; i++ )
+    for(sz_t i = 0; i < o->size; i++ )
     {
         if( xoico_target_s_to_be_modified(o->data[ i ]) ) return  true;
     }
@@ -4576,8 +4589,8 @@ er_t xoico_compiler_s_expand( xoico_compiler_s* o, bl_t* p_modified )
     bl_t modified = false;
     
     BLM_TRY(xoico_compiler_s_expand_setup(o,((const xoico_host*)(o ))))
-    for( sz_t i = 0; i < o->size; i++ ) BLM_TRY(xoico_target_s_expand_phase1(o->data[i],(&(modified)) ))
-    for( sz_t i = 0; i < o->size; i++ ) BLM_TRY(xoico_target_s_expand_phase2(o->data[i],(&(modified)) ))
+    for(sz_t i = 0; i < o->size; i++ ) BLM_TRY(xoico_target_s_expand_phase1(o->data[i],(&(modified)) ))
+    for(sz_t i = 0; i < o->size; i++ ) BLM_TRY(xoico_target_s_expand_phase2(o->data[i],(&(modified)) ))
     
     if( p_modified ) (*(p_modified)) = modified;
     return  0;
@@ -5636,7 +5649,7 @@ er_t xoico_che_s_adapt_expression_indirection( xoico_che_s* o, bcore_source* sou
     }
     else if( target_indirection < typespec_expr->indirection )
     {
-        for( sz_t ind = typespec_expr->indirection; ind > target_indirection; ind-- ) BLM_TRY(xoico_che_result_a_push_sc(result,"*" ))
+        for(sz_t ind = typespec_expr->indirection; ind > target_indirection; ind-- ) BLM_TRY(xoico_che_result_a_push_sc(result,"*" ))
         BLM_TRY(xoico_che_result_a_push_sc(result,"(" ))
         xoico_che_result_a_push_result_c(result,result_expr );
         BLM_TRY(xoico_che_result_a_push_sc(result,")" ))
@@ -5961,7 +5974,7 @@ er_t xoico_che_s_push_typespec( xoico_che_s* o, const xoico_typespec_s* typespec
     if( typespec->flag_volatile ) BLM_TRY(xoico_che_result_push_fa(result,"volatile " ))
     BLM_TRY(xoico_che_result_push_fa(result,"#<sc_t>", sc_type ))
     
-    for( sz_t i = 0; i < typespec->indirection; i++ ) BLM_TRY(xoico_che_result_push_fa(result,"*" ))
+    for(sz_t i = 0; i < typespec->indirection; i++ ) BLM_TRY(xoico_che_result_push_fa(result,"*" ))
     if( typespec->flag_restrict ) BLM_TRY(xoico_che_result_push_fa(result,"restrict " ))
     
     BLM_RETURNV(er_t, 0)
@@ -6730,13 +6743,13 @@ void xoico_che_s_remove_indentation( st_s* string, sz_t indentation )
     ASSERT( string->space >= string->size );
     
     sz_t j = 0;
-    for( sz_t i = 0; i < string->size; i++ )
+    for(sz_t i = 0; i < string->size; i++ )
     {
         char c = string->data[ i ];
         string->data[ j++ ] = c;
         if( c == '\n' )
         {
-            for( sz_t k = 0; k < indentation; k++ )
+            for(sz_t k = 0; k < indentation; k++ )
             {
                 if( string->data[ i + 1 ] != ' ' ) break;
                 i++;
@@ -6808,7 +6821,7 @@ er_t xoico_che_s_translate_mutable( xoico_che_s* o, const xoico_host* host, cons
     BLM_TRY(xoico_che_result_a_to_sink(result_block,((bcore_sink*)(buf ))))
     
     //remove trailing whitespaces
-    for( sz_t i = buf->size - 1; i >= 0; i-- )
+    for(sz_t i = buf->size - 1; i >= 0; i-- )
     {
         if( buf->data[ i ] != ' ' && buf->data[ i ] != '\t' && buf->data[ i ] != '\n' ) break;
         buf->data[ i ] = 0;
@@ -7792,7 +7805,7 @@ er_t xoico_che_s_trans_control_for( xoico_che_s* o, bcore_source* source, xoico_
     BLM_TRY(xoico_che_s_trans(o,source, "for", result ))
     BLM_TRY(xoico_che_s_trans_whitespace(o,source, result ))
     BLM_TRY(xoico_che_s_trans(o,source, "(", result ))
-    BLM_TRY(xoico_che_s_trans_statement(o,source, result )) // def
+    if( !bcore_source_a_parse_bl(source," #=?';'" ) ) BLM_TRY(xoico_che_s_trans_statement(o,source, result )) // def
     BLM_TRY(xoico_che_s_trans(o,source, ";", result ))
     BLM_TRY(xoico_che_s_trans_expression(o,source, result, NULL )) // cond
     BLM_TRY(xoico_che_s_trans(o,source, ";", result ))
@@ -8033,7 +8046,7 @@ er_t xoico_che_s_trans_control_break( xoico_che_s* o, bcore_source* source, xoic
     sz_t ledge_level = -1;
     bl_t use_blm = false;
     
-    for( sz_t i = o->stack_block.adl.size - 1; i >= 0; i-- )
+    for(sz_t i = o->stack_block.adl.size - 1; i >= 0; i-- )
     {
         const xoico_che_stack_block_unit_s* unit = o->stack_block.adl.data[ i ];
         use_blm = use_blm || unit->use_blm;
@@ -8411,7 +8424,7 @@ void xoico_che_stack_var_s_rehash_names( xoico_che_stack_var_s* o )
     // xoico_che.h:256:9
     
     bcore_hmap_tpuz_s_clear(&(o->hmap_name));
-    for( sz_t i = 0; i < o->adl.size; i++ ) bcore_hmap_tpuz_s_set(&(o->hmap_name),o->adl.data[i]->name, i );
+    for(sz_t i = 0; i < o->adl.size; i++ ) bcore_hmap_tpuz_s_set(&(o->hmap_name),o->adl.data[i]->name, i );
 }
 
 xoico_che_stack_var_s* xoico_che_stack_var_s_push_unit( xoico_che_stack_var_s* o, const xoico_che_stack_var_unit_s* unit )
@@ -9057,4 +9070,4 @@ vd_t xoico_xo_signal_handler( const bcore_signal_s* o )
     }
     return NULL;
 }
-// XOILA_OUT_SIGNATURE 0xB787991CB93C8254ull
+// XOILA_OUT_SIGNATURE 0x8122A518E28EDB4Dull

@@ -26,7 +26,7 @@
 XOILA_DEFINE_GROUP( xoico_signature, xoico )
 #ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-include deferred "xoico_stamp.h";
+include 'c' "xoico_stamp.h";
 
 signature er_t relent( m @* o, c xoico_host* host, tp_t tp_obj_type );
 signature er_t expand_declaration( c @* o, c xoico_host* host, sc_t sc_func_global_name, sz_t indent, m bcore_sink* sink );
