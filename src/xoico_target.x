@@ -21,8 +21,8 @@ func (:s) :.parse_from_path = (try)
 {
     m st_s* source_name        = bcore_file_strip_extension( bcore_file_name( source_path ) )^^;
     m st_s* source_folder_path = bcore_file_folder_path( source_path )^^;
-    m st_s* source_path_n      = st_s_create_fa( "#<sc_t>/#<sc_t>", source_folder_path->sc, source_name->sc )^^;
-    m st_s* source_path_h      = st_s_create_fa( "#<sc_t>.h", source_path_n->sc )^^;
+    m st_s* source_path_n      = st_s_create_fa( "#<sc_t>/#<sc_t>", source_folder_path.sc, source_name.sc )^^;
+    m st_s* source_path_h      = st_s_create_fa( "#<sc_t>.h", source_path_n.sc )^^;
 
     bl_t source_exists = false;
 
@@ -45,7 +45,7 @@ func (:s) :.parse_from_path = (try)
 
         if( bcore_file_exists( source_path_h.sc ) )
         {
-            xsource.parse( o, bcore_file_open_source( source_path_h->sc )^^ );
+            xsource.parse( o, bcore_file_open_source( source_path_h.sc )^^ );
         }
 
         o.push_d( xsource.fork() );
@@ -63,6 +63,8 @@ func (:s) (tp_t get_hash( c @* o )) =
     hash = bcore_tp_fold_tp( hash, o.compiler.target_pre_hash );
     hash = bcore_tp_fold_tp( hash, o._ );
     hash = bcore_tp_fold_sc( hash, o.name.sc );
+    hash = bcore_tp_fold_sc( hash, o.ext.sc );
+    hash = bcore_tp_fold_bl( hash, o.define_signal_handler );
 
     if( o.cengine ) hash = bcore_tp_fold_tp( hash, o.cengine.get_hash() );
 
@@ -184,30 +186,30 @@ func (:s) (er_t expand_h( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
     tp_t target_hash = o.get_hash();
 
     sink.push_fa( "\n" );
-    sink.push_fa( "#rn{ }##ifndef __#<sc_t>_H\n", indent, o.name.sc );
-    sink.push_fa( "#rn{ }##define __#<sc_t>_H\n", indent, o.name.sc );
+    sink.push_fa( "#rn{ }##ifndef __#<sc_t>_#<sc_t>_H\n", indent, o.name.sc, o.ext.sc );
+    sink.push_fa( "#rn{ }##define __#<sc_t>_#<sc_t>_H\n", indent, o.name.sc, o.ext.sc );
 
     sink.push_fa( "\n" );
     sink.push_fa( "#rn{ }##include \"bcore_control.h\"\n", indent );
 
     sink.push_fa( "\n" );
 
-    sink.push_fa( "#rn{ }//To force a rebuild of this target by xoico, reset the hash key value below to 0.\n", indent, o->name.sc, target_hash );
-    sink.push_fa( "#rn{ }##define HKEYOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o->name.sc, target_hash );
+    sink.push_fa( "#rn{ }//To force a rebuild of this target by xoico, reset the hash key value below to 0.\n", indent );
+    sink.push_fa( "#rn{ }##define HKEYOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o.name.sc, target_hash );
 
     sink.push_fa( "\n" );
 
-    sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o->name.sc, typeof( o->name.sc ) );
+    sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o.name.sc, typeof( o.name.sc ) );
 
     foreach( m $* e in o ) e.expand_declaration( o, indent, sink );
 
     sink.push_fa( "\n" );
     sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
     sink.push_fa( "\n" );
-    sink.push_fa( "#rn{ }vd_t #<sc_t>_signal_handler( const bcore_signal_s* o );\n", indent, o.name.sc );
+    sink.push_fa( "#rn{ }vd_t #<sc_t>_#<sc_t>_signal_handler( const bcore_signal_s* o );\n", indent, o.name.sc, o.ext.sc );
 
     sink.push_fa( "\n" );
-    sink.push_fa( "#rn{ }##endif // __#<sc_t>_H\n", indent, o.name.sc );
+    sink.push_fa( "#rn{ }##endif // __#<sc_t>_#<sc_t>_H\n", indent, o.name.sc, o.ext.sc );
 
     return 0;
 };
@@ -226,7 +228,7 @@ func (:s) (er_t expand_c( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
     o.expand_heading( indent, sink );
 
     sink.push_fa( "\n" );
-    sink.push_fa( "#rn{ }##include \"#<sc_t>.h\"\n", indent, o->include_path.sc );
+    sink.push_fa( "#rn{ }##include \"#<sc_t>.h\"\n", indent, o.include_path.sc );
     sink.push_fa( "#rn{ }##include \"bcore_spect.h\"\n", indent );
     sink.push_fa( "#rn{ }##include \"bcore_spect_inst.h\"\n", indent );
     sink.push_fa( "#rn{ }##include \"bcore_sr.h\"\n", indent );
@@ -242,7 +244,7 @@ func (:s) (er_t expand_c( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
     sink.push_fa( "\n" );
 
     /// prototypes of signal handlers this target depends on
-    foreach( sz_t target_idx in o->dependencies )
+    foreach( sz_t target_idx in o.dependencies )
     {
         c xoico_target_s* target = o.compiler.data[ target_idx ];
         if( target.signal_handler_name.size > 0 )
@@ -252,9 +254,9 @@ func (:s) (er_t expand_c( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
     }
 
     sink.push_fa( "\n" );
-    sink.push_fa( "#rn{ }vd_t #<sc_t>_signal_handler( const bcore_signal_s* o )\n", indent, o.name.sc );
+    sink.push_fa( "#rn{ }vd_t #<sc_t>_#<sc_t>_signal_handler( const bcore_signal_s* o )\n", indent, o.name.sc, o.ext.sc );
     sink.push_fa( "#rn{ }{\n", indent );
-    sink.push_fa( "#rn{ }    switch( bcore_signal_s_handle_type( o, typeof( \"#<sc_t>\" ) ) )\n", indent, o.name.sc );
+    sink.push_fa( "#rn{ }    switch( bcore_signal_s_handle_type( o, typeof( \"#<sc_t>_#<sc_t>\" ) ) )\n", indent, o.name.sc, o.ext.sc );
     sink.push_fa( "#rn{ }    {\n", indent );
 
     sink.push_fa( "#rn{ }        case TYPEOF_init1:\n", indent );
@@ -286,6 +288,12 @@ func (:s) (er_t expand_c( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
     sink.push_fa( "#rn{ }    }\n", indent );
     sink.push_fa( "#rn{ }    return NULL;\n", indent );
     sink.push_fa( "#rn{ }}\n", indent );
+
+    if( o.define_signal_handler )
+    {
+        sink.push_fa( "#rn{ }BETH_SIGNAL_DEFINE( #<sc_t> )\n", indent, o.name.sc );
+    }
+
     return 0;
 };
 
@@ -299,11 +307,11 @@ func (:s) :.to_be_modified =
 
     tp_t target_hash = o.get_hash();
 
-    m st_s* file_h = st_s_create_fa( "#<sc_t>.h", o->path.sc )^^;
+    m st_s* file_h = st_s_create_fa( "#<sc_t>.h", o.path.sc )^^;
     if( bcore_file_exists( file_h.sc ) )
     {
-        m st_s* key_defined = st_s_create_fa( "##?'define HKEYOF_#<sc_t>'", o.name.sc )^^;
-        m bcore_source* source = bcore_file_open_source( file_h->sc )^^;
+        m st_s* key_defined = st_s_create_fa( "##?w'define HKEYOF_#<sc_t>'", o.name.sc )^^;
+        m bcore_source* source = bcore_file_open_source( file_h.sc )^^;
         while( !source.eos() )
         {
             char c = source.get_u0();

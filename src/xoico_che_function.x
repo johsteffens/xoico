@@ -85,6 +85,7 @@ func (:s)
         if( cast_to_var == signature.arg_o.name )
         {
             typespec_return.copy( typespec_object );
+            typespec_return.indirection = typespec_object_adapted.indirection;
         }
     }
 
@@ -129,7 +130,11 @@ func (:s)
             result.push_result_d( result_expr.fork() );
         }
 
-        if( cast_to_var == arg.name ) typespec_return.copy( typespec_expr );
+        if( cast_to_var == arg.name )
+        {
+            typespec_return.copy( typespec_expr );
+            typespec_return.indirection = arg.typespec.indirection;
+        }
     }
 
     if( signature.args.is_variadic() )

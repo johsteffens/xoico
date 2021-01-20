@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2021-01-19T18:42:06Z
+ *  Last File Update: 2021-01-20T12:31:29Z
  *
  *  Copyright and License of this File:
  *
@@ -55,9 +55,9 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico_xo 0x45AD3885A1C845A4ull
+#define HKEYOF_xoico 0xAD12241C296CCA3Eull
 
-#define TYPEOF_xoico_xo 0x798A9BCF8377232Full
+#define TYPEOF_xoico 0x21E8B04DB3E31F5Dull
 
 /**********************************************************************************************************************/
 // source: xoico.h
@@ -997,10 +997,12 @@
   { \
       aware_t _; \
       st_s name; \
+      st_s ext; \
       st_s include_path; \
       st_s path; \
       BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_source_s, ); \
       st_s signal_handler_name; \
+      bl_t define_signal_handler; \
       bcore_arr_sz_s dependencies; \
       bl_t flag; \
       bl_t modified; \
@@ -1177,6 +1179,7 @@
       bcore_arr_st_s dependencies; \
       bcore_arr_st_s sources; \
       st_s* signal_handler; \
+      bl_t define_signal_handler; \
       xoico_cengine* cengine; \
       xoico_compiler_s* compiler; \
       xoico_builder_target_s* parent_; \
@@ -1794,4 +1797,4 @@
 vd_t xoico_xo_signal_handler( const bcore_signal_s* o );
 
 #endif // __xoico_xo_H
-// XOILA_OUT_SIGNATURE 0x39A88720F8484D07ull
+// XOILA_OUT_SIGNATURE 0x084870B3181E5CB4ull

@@ -167,6 +167,7 @@ func (:target_s) :.build = (try)
         m st_s* signal_handler = st_s_create_fa( "#<sc_t>_general_signal_handler", o.name.sc )^^;
         if( o.signal_handler ) signal_handler.copy( o.signal_handler );
         target.signal_handler_name.copy_sc( signal_handler.sc );
+        target.define_signal_handler = o.define_signal_handler;
         target.readonly = o.readonly;
         target.cengine =< o.cengine.fork();
     }

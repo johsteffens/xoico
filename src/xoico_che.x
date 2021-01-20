@@ -1559,7 +1559,6 @@ func (:s) (er_t trans_block_inside_verbatim_c( m @* o, m bcore_source* source, m
 func (:s) (er_t setup( m @* o, c xoico_host* host, c xoico_signature_s* signature )) = (try)
 {
     o.signature =< signature.clone();
-    //if( host.defines_transient_map() ) o.signature.convert_transient_types( host, host.transient_map() );
     o.signature.relent( host, host.obj_type() );
 
     o.host     = host.cast( m $* );

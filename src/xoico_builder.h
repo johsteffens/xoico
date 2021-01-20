@@ -52,6 +52,9 @@ stamp :target_s = aware :
      */
     st_s => signal_handler;
 
+    /// implements <name>_general_signal_handler in xo.c
+    bl_t define_signal_handler;
+
     /// Optional cengine that is to be used in all bodies of this target
     aware xoico_cengine => cengine = xoico_che_s;
 

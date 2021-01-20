@@ -366,12 +366,17 @@ TODO:
 - (done) generalize operators '^, ^^': if l-value is discardable, scope it.  (substitute of builtin function 'scope')
 - (done) on stack declaration: scope instances on stack using ^ type specifier. example: st_s^ st;
 - (done) on stack declaration: allow subsequent typespec expression in case a stack expression was properly scoped: example: st_s^ st.push_sc( "abc" );
+- (done) include syntax: use include 'h' and include 'c' instead of include [deferred]
+- (done) bug: transient argument: returned typespec is derived from the unadapted indirection (fix: take indirection from the adapted typespec)
+- (done) add target flag: define_signal_handler: implements the signal handler in *_xo.c
 
 - bug: binary operator not recognized after unregistered member function
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
 - make 'fork' a transient function in x_inst rather than a builtin function
-- include syntax: use include 'h' and include 'c' instead of include [deferred]
-- bug: transient argument: returned typespec is derived from the unadapted indirection (fix: take indirection from the adapted typespec)
+- x_inst: add transient functions for reflection access
+- where possible switch projects to define signal handler in *_xo.c
+- set target flag 'define_signal_handler' true by default.
+
 
 ===================================================================
 

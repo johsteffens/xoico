@@ -38,17 +38,22 @@ signature er_t set_dependencies( m @* o, c bcore_arr_sz_s* dependencies );
 stamp :s = aware :
 {
     st_s name; // target name (e.g. "bcore")
+    st_s ext;  // target extension (e.g. "xo")
+
     st_s include_path; // (local) path used in generated '#include' directives
     st_s path; // full path excluding extension *.h or *.c
     xoico_source_s => [];
 
-    st_s signal_handler_name;    // name of governing signal handler
+    st_s signal_handler_name;   // name of governing signal handler
+    bl_t define_signal_handler; // implements <name>_general_signal_handler in xo.c
+
     bcore_arr_sz_s dependencies; // index array to dependent targets
     bl_t flag; // general purpose flag
     bl_t modified;    // target is to be modified
     bl_t readonly;    // target is readonly (affects writing in phase2)
     st_s => target_h; // target header file
     st_s => target_c; // target c file
+
 
     /// Optional cengine that is to be used in all bodies of this target
     aware xoico_cengine -> cengine;
