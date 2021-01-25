@@ -634,16 +634,11 @@ func (:s)
     }
 
     tp_t access_class = 0;
-    bl_t literal_const_used = false;
 
     switch( tp_identifier )
     {
-        case TYPEOF_const:
-            access_class = TYPEOF_const;
-            literal_const_used = true;
-            break;
-
         case TYPEOF_c:
+        case TYPEOF_const:
             access_class = TYPEOF_const;
             break;
 
@@ -719,8 +714,6 @@ func (:s)
 
     typespec.access_class = access_class;
     if( typespec.indirection > 0 && access_class == 0 ) source.parse_error_fa( "Declaration with indirection: access-class missing: (c|const) | (m|mutable) | (d|discardable)" );
-
-    if( literal_const_used ) source.parse_error_fa( "Abbreviate 'const' to 'c'." );
 
     if( success ) success.0 = true;
     return 0;
@@ -962,7 +955,7 @@ func (:s)
     )
 ) = (try)
 {
-    sc_t sc_bl_end_of_expression = "#?([0]==';'||[0]=='{'||[0]=='}'||[0]==')'||[0]==']'||[0]==','||([0]==':'&&([1]==' '||[1]=='\t'||[1]=='\n'||[1]=='/')))";
+    sc_t sc_bl_end_of_expression = "#?([0]==';'||[0]=='{'||[0]=='}'||[0]==')'||[0]==']'||[0]==','||([0]=='.'&&[1]=='.')||([0]==':'&&([1]==' '||[1]=='\t'||[1]=='\n'||[1]=='/')))";
 
     o.trans_whitespace( source, result_out );
 
@@ -1058,6 +1051,12 @@ func (:s)
         }
     }
 
+    // end of expression...
+    else if( source.parse_bl( sc_bl_end_of_expression ) )
+    {
+        continuation = false;
+    }
+
     // literals and members
     else if( source.parse_bl( "#?([0]>='0'&&[0]<='9')" ) ) o.trans_number_literal( source, result );
     else if( source.parse_bl( "#=?'\"'" )                ) o.trans_string_literal( source, result );
@@ -1090,12 +1089,6 @@ func (:s)
     else if( source.parse_bl( "#=?'['" ) )
     {
         o.trans_array_subscript( source, result, out_typespec );
-    }
-
-    // end of expression...
-    else if( source.parse_bl( sc_bl_end_of_expression ) )
-    {
-        continuation = false;
     }
 
     // unhandled

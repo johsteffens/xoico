@@ -626,12 +626,12 @@ func (:s) :.expand_definition = (try)
     foreach( m $* e in o.includes_in_definition ) sink.push_fa( "##include \"#<sc_t>\"\n", e.sc );
 
     // non-features
-    foreach( m $* e in o ) if( e._ != TYPEOF_xoico_feature_s ) e.expand_definition( o, indent, sink );
+    foreach( m $* e in o; e._ != TYPEOF_xoico_feature_s ) e.expand_definition( o, indent, sink );
 
     o.expand_spect_definition( indent, sink );
 
     // just-features
-    foreach( m $* e in o ) if( e._ == TYPEOF_xoico_feature_s ) e.expand_definition( o, indent, sink );
+    foreach( m $* e in o; e._ == TYPEOF_xoico_feature_s ) e.expand_definition( o, indent, sink );
 
     foreach( m $* func in o->funcs ) func.expand_definition( o, indent, sink );
 
@@ -658,12 +658,9 @@ func (:s) :.expand_init1 = (try)
 
     if( o.retrievable )
     {
-        foreach( m $* e in o )
+        foreach( m $* e in o; e._ == TYPEOF_xoico_stamp_s )
         {
-            if( e._ == TYPEOF_xoico_stamp_s )
-            {
-                sink.push_fa( "#rn{ }bcore_inst_s_get_typed( TYPEOF_#<sc_t> );\n", indent, e.cast( m xoico_stamp_s* ).st_name.sc );
-            }
+            sink.push_fa( "#rn{ }bcore_inst_s_get_typed( TYPEOF_#<sc_t> );\n", indent, e.cast( m xoico_stamp_s* ).st_name.sc );
         }
     }
     return 0;

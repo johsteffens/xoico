@@ -476,7 +476,7 @@ func (:s)
     u0_t c[ 2 ];
     source.inspect_data( c, sizeof( c ) );
 
-    if( c[0] == '.' || ( c[0] == '-' && c[1] == '>' ) )
+    if( ( c[0] == '.' && c[1] != '.' ) || ( c[0] == '-' && c[1] == '>' ) )
     {
         o.trans_typespec_member( source, result, in_typespec, out_typespec );
     }

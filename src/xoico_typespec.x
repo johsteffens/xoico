@@ -30,9 +30,9 @@ func (:s) :.parse = (try)
 
     tp_t access_class = 0;
 
-    if( source.parse_bl( " #?w'const'" ) ) source.parse_error_fa( "Abbreviate 'const' to 'c'." );
+    //if( source.parse_bl( " #?w'const'" ) ) source.parse_error_fa( "Abbreviate 'const' to 'c'." );
 
-    if(      source.parse_bl( " #?w'c'" )                                           ) access_class = TYPEOF_const;
+    if(      source.parse_bl( " #?w'c'" ) || source.parse_bl( " #?w'const'"       ) ) access_class = TYPEOF_const;
     else if( source.parse_bl( " #?w'm'" ) || source.parse_bl( " #?w'mutable'"     ) ) access_class = TYPEOF_mutable;
     else if( source.parse_bl( " #?w'd'" ) || source.parse_bl( " #?w'discardable'" ) ) access_class = TYPEOF_discardable;
 

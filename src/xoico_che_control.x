@@ -100,9 +100,9 @@ func (:s)( er_t trans_control_for( m @* o, m bcore_source* source, m :result* re
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/** foreach( <typespec> var in <arr_expr> ) <foreach-statement>
+/** foreach( <typespec> var in <arr_expr>[..<sub_element_path>] [; <condition> ] ) <foreach-statement>
  *  -->
- * { <typespec> __a = (match)<arr_expr>; for( sz_t __i = 0; __i < __a->size; __i++ ) { <typespec> var = (match)__a->data[ __i ]; <foreach-statement> }  }
+ * { <typespec> __a = (match)<arr_expr>; for( sz_t __i = 0; __i < __a->size; __i++ ) [if( <condition> ) ] { <typespec> var = (match)__a->data[ __i ][.element_path]; <foreach-statement> }  }
  */
 func (:s)( er_t trans_control_foreach( m @* o, m bcore_source* source, m :result* result ) ) = (try)
 {
@@ -126,8 +126,8 @@ func (:s)( er_t trans_control_foreach( m @* o, m bcore_source* source, m :result
 
     source.parse_em_fa( " in " );
 
-    m xoico_typespec_s* typespec_arr_expr = scope( xoico_typespec_s! );
-    m $* result_arr_expr = :result_create_arr()^^;
+    m xoico_typespec_s* typespec_arr_expr = xoico_typespec_s!^;
+    m $* result_arr_expr = :result_create_arr()^;
     o.trans_expression( source, result_arr_expr, typespec_arr_expr );
 
     if( !typespec_arr_expr.type )
@@ -135,18 +135,32 @@ func (:s)( er_t trans_control_foreach( m @* o, m bcore_source* source, m :result
         return source.parse_error_fa( "Array expression not tractable." );
     }
 
-    m xoico_compiler_element_info_s* info = scope( xoico_compiler_element_info_s! );
+    m xoico_compiler_element_info_s* array_element_info = xoico_compiler_element_info_s!^;
 
-    if( !o.compiler.get_type_array_element_info( typespec_arr_expr.type, info ) )
+    if( !o.compiler.get_type_array_element_info( typespec_arr_expr.type, array_element_info ) )
     {
         return source.parse_error_fa( "Expression does not evaluate to an array." );
     }
 
-    m xoico_typespec_s* typespec_element = info.type_info.typespec;
+    c xoico_typespec_s* typespec_array_element = array_element_info.type_info.typespec;
+    m xoico_typespec_s* typespec_access_element = xoico_typespec_s!^;
 
-    if( typespec_var.type == TYPEOF_type_deduce ) typespec_var.type = typespec_element.type;
+    m $* result_element_expr = :result_create_from_sc( "__a->data[__i]" )^;
 
-    source.parse_em_fa( " )" );
+    /// sub-element
+    if( source.parse_bl( " #=?'..'" ) )
+    {
+        source.parse_fa( "." );
+        o.trans_typespec_expression( source, result_element_expr, typespec_array_element, typespec_access_element );
+    }
+    else
+    {
+        typespec_access_element.copy( typespec_array_element );
+    }
+
+    if( typespec_var.type == TYPEOF_type_deduce ) typespec_var.type = typespec_access_element.type;
+
+    m :result* condition_expr = NULL;
 
     m xoico_typespec_s* typespec_arr = scope( typespec_arr_expr.clone() );
     typespec_arr.indirection = 1;
@@ -159,7 +173,17 @@ func (:s)( er_t trans_control_foreach( m @* o, m bcore_source* source, m :result
     o.push_typedecl( typespec_arr, o.entypeof( "__a" ) );
     o.push_typedecl( typespec_idx, o.entypeof( "__i" ) );
 
-    m $* result_statement = :result_create_arr()^^;
+    /// condition
+    if( source.parse_bl( " #=?';'" ) )
+    {
+        source.parse_fa( " ; " );
+        condition_expr = :result_arr_s!^^;
+        o.trans_expression( source, condition_expr, NULL );
+    }
+
+    source.parse_em_fa( " )" );
+
+    m $* result_statement = :result_arr_s!^;
     if( source.parse_bl( "#=?'{'" ) )
     {
         o.trans_block( source, result_statement, false );
@@ -180,12 +204,21 @@ func (:s)( er_t trans_control_foreach( m @* o, m bcore_source* source, m :result
     o.push_typespec( typespec_var, result );
     result.push_fa( " #<sc_t>=", xoico_che_s_nameof( o, tp_var_name ) );
 
-    m $* result_element_expr = :result_create_from_sc( "__a->data[__i]" )^^;
-
-    o.adapt_expression( source, typespec_element, typespec_var, result_element_expr, result );
+    o.adapt_expression( source, typespec_access_element, typespec_var, result_element_expr, result );
     result.push_fa( ";" );
 
-    result.push_result_d( result_statement.fork() );
+    if( condition_expr )
+    {
+        result.push_sc( "if(" );
+        result.push_result_d( condition_expr.fork() );
+        result.push_sc( "){" );
+        result.push_result_d( result_statement.fork() );
+        result.push_sc( "}" );
+    }
+    else
+    {
+        result.push_result_d( result_statement.fork() );
+    }
 
     result.push_fa( "}}" );
     o.dec_block();

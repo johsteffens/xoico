@@ -376,6 +376,7 @@ TODO:
 - x_inst: add transient functions for reflection access
 - where possible switch projects to define signal handler in *_xo.c
 - set target flag 'define_signal_handler' true by default.
+- foreach: extend syntax: foreach( <decl> in <arr>[..<sub_element_path>] [;<condition>] ) <statement>;
 
 
 ===================================================================
