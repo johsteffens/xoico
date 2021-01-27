@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2021-01-25T17:27:21Z
+ *  Last File Update: 2021-01-27T11:31:00Z
  *
  *  Copyright and License of this File:
  *
@@ -752,6 +752,11 @@ er_t xoico_arg_s_parse( xoico_arg_s* o, const xoico_host* host, bcore_source* so
     bcore_source_point_s_set(&(o->source_point),source );
     BLM_TRY(xoico_typespec_s_parse(&(o->typespec),host, source ))
     
+    if( o->typespec.type == TYPEOF_type_deduce )
+    {
+        BLM_RETURNV(er_t, bcore_source_point_s_parse_error_fa(&(o->source_point),"'$' (type_deduce) can not be used in an argument." ))
+    }
+    
     if( o->typespec.flag_variadic ) BLM_RETURNV(er_t, 0)
     
     if( o->typespec.type == TYPEOF_void && o->typespec.indirection == 0 )
@@ -772,7 +777,7 @@ er_t xoico_arg_s_parse( xoico_arg_s* o, const xoico_host* host, bcore_source* so
 
 tp_t xoico_arg_s_get_hash( const xoico_arg_s* o )
 {
-    // xoico_arg.h:70:1
+    // xoico_arg.h:75:1
     
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
     hash = bcore_tp_fold_tp( hash, xoico_typespec_s_get_hash(&(o->typespec)) );
@@ -782,14 +787,14 @@ tp_t xoico_arg_s_get_hash( const xoico_arg_s* o )
 
 er_t xoico_arg_s_relent( xoico_arg_s* o, const xoico_host* host, tp_t tp_obj_type )
 {
-    // xoico_arg.h:80:1
+    // xoico_arg.h:85:1
     
     return  xoico_typespec_s_relent(&(o->typespec),host, tp_obj_type );
 }
 
 er_t xoico_arg_s_expand( const xoico_arg_s* o, const xoico_host* host, bcore_sink* sink )
 {
-    // xoico_arg.h:92:1
+    // xoico_arg.h:97:1
     
     BLM_TRY(xoico_typespec_s_expand(&(o->typespec),host, sink ) )
     if( o->name )
@@ -802,7 +807,7 @@ er_t xoico_arg_s_expand( const xoico_arg_s* o, const xoico_host* host, bcore_sin
 
 er_t xoico_arg_s_expand_x( const xoico_arg_s* o, const xoico_host* host, bcore_sink* sink )
 {
-    // xoico_arg.h:105:1
+    // xoico_arg.h:110:1
     
     BLM_TRY(xoico_typespec_s_expand_x(&(o->typespec),host, sink ) )
     if( o->name )
@@ -815,7 +820,7 @@ er_t xoico_arg_s_expand_x( const xoico_arg_s* o, const xoico_host* host, bcore_s
 
 er_t xoico_arg_s_expand_name( const xoico_arg_s* o, const xoico_host* host, bcore_sink* sink )
 {
-    // xoico_arg.h:118:1
+    // xoico_arg.h:123:1
     
     if( !o->name ) return  0;
     bcore_sink_a_push_fa(sink,"#<sc_t>", xoico_compiler_s_nameof(xoico_host_a_compiler(host),o->name ) );
@@ -9112,4 +9117,4 @@ vd_t xoico_xo_signal_handler( const bcore_signal_s* o )
     return NULL;
 }
 BETH_SIGNAL_DEFINE( xoico )
-// XOILA_OUT_SIGNATURE 0x61B101F84E86CEBBull
+// XOILA_OUT_SIGNATURE 0x1F7C409C6176C056ull

@@ -369,6 +369,8 @@ TODO:
 - (done) include syntax: use include 'h' and include 'c' instead of include [deferred]
 - (done) bug: transient argument: returned typespec is derived from the unadapted indirection (fix: take indirection from the adapted typespec)
 - (done) add target flag: define_signal_handler: implements the signal handler in *_xo.c
+- (done) foreach: extend syntax: foreach( <decl> in <arr>[..<sub_element_path>] [;<condition>] ) <statement>;
+- (done) parsing an argument should not tolerate 'deduce'
 
 - bug: binary operator not recognized after unregistered member function
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
@@ -376,8 +378,6 @@ TODO:
 - x_inst: add transient functions for reflection access
 - where possible switch projects to define signal handler in *_xo.c
 - set target flag 'define_signal_handler' true by default.
-- foreach: extend syntax: foreach( <decl> in <arr>[..<sub_element_path>] [;<condition>] ) <statement>;
-
 
 ===================================================================
 
