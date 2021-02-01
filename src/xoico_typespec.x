@@ -36,8 +36,11 @@ func (:s) :.parse = (try)
     else if( source.parse_bl( " #?w'm'" ) || source.parse_bl( " #?w'mutable'"     ) ) access_class = TYPEOF_mutable;
     else if( source.parse_bl( " #?w'd'" ) || source.parse_bl( " #?w'discardable'" ) ) access_class = TYPEOF_discardable;
 
-    if( source.parse_bl( " #?w'unaware'"  ) ) o.flag_unaware = true;
-    if( source.parse_bl( " #?w'scope'"    ) ) o.flag_scope = true;
+    if(      source.parse_bl( " #?w'unaware'" ) ) o.flag_unaware = true;
+    else if( source.parse_bl( " #?w'aware'"   ) ) o.flag_aware = true;
+
+
+    if( source.parse_bl( " #?w'scope'" ) ) o.flag_scope = true;
 
     while( !source.eos() )
     {

@@ -70,7 +70,8 @@ stamp :s = aware :
     bl_t flag_volatile;
     bl_t flag_restrict;
     bl_t flag_unaware; // unaware indicates that this type can reference unaware objects (extends range of implicit casts)
-    bl_t flag_scope;  // object is in scope
+    bl_t flag_aware;   // aware object is required (allows extended tests)
+    bl_t flag_scope;   // object is in scope
     bl_t flag_addressable = true;  // object can have a pointer ('false' for objects returned by a function)
     bl_t flag_variadic; // variadic arguments
 
