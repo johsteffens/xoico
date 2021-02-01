@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2021-02-01T18:25:06Z
+ *  Last File Update: 2021-02-01T18:31:34Z
  *
  *  Copyright and License of this File:
  *
@@ -3280,7 +3280,10 @@ er_t xoico_stamp_s_parse( xoico_stamp_s* o, const xoico_host* host, bcore_source
     else
     {BLM_INIT_LEVEL(1);
         st_s* st_trait_name = ((st_s*)BLM_LEVEL_T_PUSH(1,st_s,st_s_create()));
-        if( bcore_source_a_parse_bl(source," #?w'aware'" ) ) o->is_aware = true;
+        if      ( bcore_source_a_parse_bl(source," #?w'aware'" ) ) o->is_aware = true;
+        else if ( bcore_source_a_parse_bl(source," #?w'obliv'" ) ) o->is_aware = false;
+        else BLM_RETURNV(er_t, bcore_source_a_parse_error_fa(source,"Specify awareness: 'aware' or 'obliv'" ))
+    
         BLM_TRY(xoico_group_s_parse_name_st(o->group,source, st_trait_name ))
         if( st_trait_name->size == 0 ) BLM_RETURNV(er_t, bcore_source_a_parse_error_fa(source,"Trait name expected." ))
         o->trait_name = xoico_compiler_s_entypeof(compiler,st_trait_name->sc );
@@ -3299,7 +3302,7 @@ er_t xoico_stamp_s_parse( xoico_stamp_s* o, const xoico_host* host, bcore_source
 
 er_t xoico_stamp_s_finalize( xoico_stamp_s* o, const xoico_host* host )
 {
-    // xoico_stamp.x:402:28
+    // xoico_stamp.x:405:28
     BLM_INIT_LEVEL(0);
     xoico_compiler_s* compiler = o->group->compiler;
     
@@ -3367,7 +3370,7 @@ er_t xoico_stamp_s_finalize( xoico_stamp_s* o, const xoico_host* host )
 
 er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink )
 {
-    // xoico_stamp.x:470:38
+    // xoico_stamp.x:473:38
     
     sc_t sc_name = o->st_name.sc;
     
@@ -3389,7 +3392,7 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, const xoico_host*
 
 er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink )
 {
-    // xoico_stamp.x:492:37
+    // xoico_stamp.x:495:37
     BLM_INIT_LEVEL(0);
     st_s* embedded_string = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,xoico_stamp_create_embedded_string(o->self_source )));
     
@@ -3422,7 +3425,7 @@ er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, const xoico_host* 
 
 er_t xoico_stamp_s_expand_init1( const xoico_stamp_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink )
 {
-    // xoico_stamp.x:527:32
+    // xoico_stamp.x:530:32
     
     xoico_compiler_s* compiler = o->group->compiler;
     
@@ -9142,4 +9145,4 @@ vd_t xoico_xo_signal_handler( const bcore_signal_s* o )
     return NULL;
 }
 BETH_SIGNAL_DEFINE( xoico )
-// XOILA_OUT_SIGNATURE 0x3819A986883A3DAAull
+// XOILA_OUT_SIGNATURE 0x8372FFD29EE4113Eull
