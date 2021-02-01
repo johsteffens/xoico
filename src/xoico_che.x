@@ -1352,59 +1352,79 @@ func (:s) (er_t trans_statement( m @* o, m bcore_source* source, m :result* resu
 {
     o.trans_whitespace( source, result );
 
-    if( source.parse_bl( "#?([0]=='{'||[0]=='#'||[0]==';'||[0]==','||[0]==')'||[0]=='}'||([0]=='?'&&[1]=='?'))" ) )
+//    if( source.parse_bl( "#?([0]=='{'||[0]=='#'||[0]==';'||[0]==','||[0]=='.'||[0]==')'||[0]=='}'||([0]=='?'&&[1]=='?'))" ) )
+//    {
+
+    bl_t handled = true;
+
+    char c = source.inspect_char();
+    switch( c )
     {
-        char c = source.inspect_char();
-        switch( c )
+        case '{':
         {
-            case '{':
-            {
-                o.trans_block( source, result, false );
-            }
-            break;
+            o.trans_block( source, result, false );
+        }
+        break;
 
-            case '#':
-            {
-                o.trans_preprocessor( source, result );
-            }
-            break;
+        case '#':
+        {
+            o.trans_preprocessor( source, result );
+        }
+        break;
 
-            case ';':
-            {
-                source.get_char();
-                result.push_char( ';' );
-            }
-            break;
+        case ';': /// consume semicolon
+        {
+            source.get_char();
+            result.push_char( ';' );
+        }
+        break;
 
-            case ',':
-            {
-                source.get_char();
-                result.push_char( ',' );
-            }
-            break;
+        case ',':
+        {
+            source.get_char();
+            result.push_char( ',' );
+        }
+        break;
 
-            case '?':
+        case '?':
+        {
+            if( source.parse_bl( "#?([1]=='?')" ) )
             {
                 o.inspect_expression( source );
             }
-            break;
-
-            case ')':
+            else
             {
-                return source.parse_error_fa( "Unmatched closing bracket." );
+                handled = false;
             }
-            break;
-
-            case '}':
-            {
-                // nothing (caller is a block-handler)
-            }
-            break;
-
-            default: break;
         }
+        break;
+
+        case ')':
+        {
+            return source.parse_error_fa( "Unmatched closing bracket." );
+        }
+        break;
+
+        case '.':
+        {
+            return source.parse_error_fa( "Incorrect use of delimiter '.'." );
+        }
+        break;
+
+        case '}':
+        {
+            // nothing (caller is a block-handler)
+        }
+        break;
+
+        default:
+        {
+            handled = false;
+        }
+        break;
     }
-    else
+
+    if( !handled )
     {
         tp_t tp_identifier = o.get_identifier( source, false );
 
