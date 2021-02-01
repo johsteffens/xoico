@@ -371,6 +371,7 @@ TODO:
 - (done) add target flag: define_signal_handler: implements the signal handler in *_xo.c
 - (done) foreach: extend syntax: foreach( <decl> in <arr>[..<sub_element_path>] [;<condition>] ) <statement>;
 - (done) parsing an argument should not tolerate 'deduce'
+- (fixed) bug: using '..' out of context causes an endless loop (observed in expression: x_via_path_s!^.parse_sc( "[0]" ).c_get_in( zoo )..to_sink_txt_ml( x_inst_stdout() ); )
 
 - bug: binary operator not recognized after unregistered member function
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
@@ -378,6 +379,7 @@ TODO:
 - x_inst: add transient functions for reflection access
 - where possible switch projects to define signal handler in *_xo.c
 - set target flag 'define_signal_handler' true by default.
+- rename keyword 'unaware' -> 'obliv'
 
 ===================================================================
 

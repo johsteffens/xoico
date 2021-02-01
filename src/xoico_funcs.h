@@ -32,7 +32,7 @@ signature sz_t get_index_from_signature_global_name( c @* o, tp_t signature_glob
 signature sz_t get_index_from_name( c @* o, tp_t name ); // returns -1 if not found
 signature m xoico_func_s* get_func_from_signature_global_name( c @* o, tp_t signature_global_name ); // returns NULL if not found
 signature m xoico_func_s* get_func_from_name( c @* o, tp_t name ); // returns NULL if not found
-signature er_t replace_fork( m @* o, sz_t idx, m xoico_func_s* func );
+signature er_t replace_d( m @* o, sz_t idx, d xoico_func_s* func );
 signature tp_t get_hash( c @* o );
 
 stamp :s = aware x_array
@@ -73,12 +73,12 @@ stamp :s = aware x_array
         return ( idx >= 0 ) ? o.[ idx ] : NULL;
     };
 
-    func :.replace_fork =
+    func :.replace_d =
     {
         ASSERT( idx >= 0 && idx < o.size );
         o.[ idx ] =< NULL;
         for( sz_t i = idx + 1; i < o->size; i++ ) o.[ i - 1 ] = o.[ i ];
-        o.[ o->size - 1 ] = func.fork();
+        o.[ o->size - 1 ] = func;
         return 0;
     };
 

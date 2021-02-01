@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2021-01-27T11:31:00Z
+ *  Last File Update: 2021-02-01T18:15:59Z
  *
  *  Copyright and License of this File:
  *
@@ -55,7 +55,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico 0x43511679FE4F2056ull
+#define HKEYOF_xoico 0x9F0EE25A24A513AFull
 
 #define TYPEOF_xoico 0x21E8B04DB3E31F5Dull
 
@@ -388,6 +388,7 @@
       bl_t flag_volatile; \
       bl_t flag_restrict; \
       bl_t flag_unaware; \
+      bl_t flag_aware; \
       bl_t flag_scope; \
       bl_t flag_addressable; \
       bl_t flag_variadic; \
@@ -744,7 +745,7 @@
   bl_t xoico_funcs_s_exists_from_name( const xoico_funcs_s* o, tp_t name ); \
   xoico_func_s* xoico_funcs_s_get_func_from_signature_global_name( const xoico_funcs_s* o, tp_t signature_global_name ); \
   xoico_func_s* xoico_funcs_s_get_func_from_name( const xoico_funcs_s* o, tp_t name ); \
-  er_t xoico_funcs_s_replace_fork( xoico_funcs_s* o, sz_t idx, xoico_func_s* func ); \
+  er_t xoico_funcs_s_replace_d( xoico_funcs_s* o, sz_t idx, xoico_func_s* func ); \
   tp_t xoico_funcs_s_get_hash( const xoico_funcs_s* o );
 #define BETH_EXPAND_GROUP_xoico_funcs \
   BCORE_FORWARD_OBJECT( xoico_funcs ); \
@@ -1797,4 +1798,4 @@
 vd_t xoico_xo_signal_handler( const bcore_signal_s* o );
 
 #endif // __xoico_xo_H
-// XOILA_OUT_SIGNATURE 0x9B2AB55E892544F7ull
+// XOILA_OUT_SIGNATURE 0xD214912796B30612ull

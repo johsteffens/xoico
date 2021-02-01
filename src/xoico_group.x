@@ -178,7 +178,7 @@ func (:s) (er_t push_func_d( m @* o, d xoico_func_s* func )) = (try)
             }
             else
             {
-                o.funcs.replace_fork( idx, func );
+                o.funcs.replace_d( idx, func );
             }
         }
         else

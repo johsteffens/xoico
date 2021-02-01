@@ -186,16 +186,16 @@ func (:s) :.parse_func = (try)
             }
             else if( prex_func.body )
             {
-                return source.parse_error_fa( "Function '#<sc_t>' has already a body.", compiler.nameof( func.name ) );
+                return func.source_point.parse_error_fa( "Function '#<sc_t>' has already a body.", compiler.nameof( func.name ) );
             }
             else
             {
-                o.funcs.replace_fork( idx, func );
+                o.funcs.replace_d( idx, func.fork() );
             }
         }
         else if( prex_func.overloadable )
         {
-            o.funcs.replace_fork( idx, func );
+            o.funcs.replace_d( idx, func.fork() );
         }
         else
         {
