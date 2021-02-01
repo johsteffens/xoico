@@ -69,7 +69,7 @@ stamp :s = aware :
     bl_t flag_static;
     bl_t flag_volatile;
     bl_t flag_restrict;
-    bl_t flag_unaware; // unaware indicates that this type can reference unaware objects (extends range of implicit casts)
+    bl_t flag_obliv; // obliv indicates that this type can reference obliv objects (extends range of implicit casts)
     bl_t flag_aware;   // aware object is required (allows extended tests)
     bl_t flag_scope;   // object is in scope
     bl_t flag_addressable = true;  // object can have a pointer ('false' for objects returned by a function)
@@ -106,7 +106,8 @@ stamp :s = aware :
         o.flag_static   = false;
         o.flag_volatile = false;
         o.flag_restrict = false;
-        o.flag_unaware  = false;
+        o.flag_aware    = false;
+        o.flag_obliv    = false;
         o.flag_scope    = false;
         o.flag_addressable = true;  // object can have a pointer ('false' for objects returned by a function)
     };

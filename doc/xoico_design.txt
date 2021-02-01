@@ -372,6 +372,7 @@ TODO:
 - (done) foreach: extend syntax: foreach( <decl> in <arr>[..<sub_element_path>] [;<condition>] ) <statement>;
 - (done) parsing an argument should not tolerate 'deduce'
 - (fixed) bug: using '..' out of context causes an endless loop (observed in expression: x_via_path_s!^.parse_sc( "[0]" ).c_get_in( zoo )..to_sink_txt_ml( x_inst_stdout() ); )
+- (done) rename keyword 'unaware' -> 'obliv'
 
 - bug: binary operator not recognized after unregistered member function
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
@@ -379,7 +380,8 @@ TODO:
 - x_inst: add transient functions for reflection access
 - where possible switch projects to define signal handler in *_xo.c
 - set target flag 'define_signal_handler' true by default.
-- rename keyword 'unaware' -> 'obliv'
+- stamp: require keyword 'obliv' for unaware stamps.
+- stamp: make keyword aware optional. (aware is default)
 
 ===================================================================
 
@@ -387,5 +389,5 @@ Keywords (for syntax highlight)
 
 group stamp stump hidden private func name signature body aware feature extending verbatim
 mutable plain retrievable forward include deferred embed cast foreach in verbatim_C fork
-strict try deduce scope scope_local scope_func extern unaware wrap restrict
+strict try deduce scope scope_local scope_func extern obliv wrap restrict
 

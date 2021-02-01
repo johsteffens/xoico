@@ -512,13 +512,13 @@ func (:s)
                 else if( o.is_stamp( typespec_expr.type ) )
                 {
                     c xoico_stamp_s* stamp = o.get_stamp( typespec_expr.type );
-                    if( stamp.is_aware || typespec_target.flag_unaware )
+                    if( stamp.is_aware || typespec_target.flag_obliv )
                     {
                         implicit_cast = true;
                     }
                     else
                     {
-                        fail_msg = st_s_create_fa( "'#<sc_t>' is unaware but the target typespec does not explicitly tolerate unaware objects.", o.nameof( typespec_expr.type ) )^^;
+                        fail_msg = st_s_create_fa( "'#<sc_t>' is obliv but the target typespec does not explicitly tolerate obliv objects.", o.nameof( typespec_expr.type ) )^^;
                     }
                 }
                 else

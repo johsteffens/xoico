@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2021-02-01T18:15:59Z
+ *  Last File Update: 2021-02-01T18:25:06Z
  *
  *  Copyright and License of this File:
  *
@@ -337,7 +337,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_typespec_s )
     "bl_t flag_static;"
     "bl_t flag_volatile;"
     "bl_t flag_restrict;"
-    "bl_t flag_unaware;"
+    "bl_t flag_obliv;"
     "bl_t flag_aware;"
     "bl_t flag_scope;"
     "bl_t flag_addressable = true;"
@@ -377,7 +377,8 @@ void xoico_typespec_s_reset( xoico_typespec_s* o )
     o->flag_static   = false;
     o->flag_volatile = false;
     o->flag_restrict = false;
-    o->flag_unaware  = false;
+    o->flag_aware    = false;
+    o->flag_obliv    = false;
     o->flag_scope    = false;
     o->flag_addressable = true;  // object can have a pointer ('false' for objects returned by a function)
 }
@@ -403,8 +404,8 @@ er_t xoico_typespec_s_parse( xoico_typespec_s* o, const xoico_host* host, bcore_
     else if( bcore_source_a_parse_bl(source," #?w'm'" ) || bcore_source_a_parse_bl(source," #?w'mutable'"     ) ) access_class = TYPEOF_mutable;
     else if( bcore_source_a_parse_bl(source," #?w'd'" ) || bcore_source_a_parse_bl(source," #?w'discardable'" ) ) access_class = TYPEOF_discardable;
     
-    if(      bcore_source_a_parse_bl(source," #?w'unaware'" ) ) o->flag_unaware = true;
-    else if( bcore_source_a_parse_bl(source," #?w'aware'"   ) ) o->flag_aware = true;
+    if(      bcore_source_a_parse_bl(source," #?w'obliv'" ) ) o->flag_obliv = true;
+    else if( bcore_source_a_parse_bl(source," #?w'aware'" ) ) o->flag_aware = true;
     
     
     if( bcore_source_a_parse_bl(source," #?w'scope'" ) ) o->flag_scope = true;
@@ -5739,13 +5740,13 @@ er_t xoico_che_s_adapt_expression( xoico_che_s* o, bcore_source* source, const x
                 else if( xoico_che_s_is_stamp(o,typespec_expr->type ) )
                 {
                     const xoico_stamp_s* stamp = xoico_che_s_get_stamp(o,typespec_expr->type );
-                    if( stamp->is_aware || typespec_target->flag_unaware )
+                    if( stamp->is_aware || typespec_target->flag_obliv )
                     {
                         implicit_cast = true;
                     }
                     else
                     {
-                        fail_msg = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,st_s_create_fa("'#<sc_t>' is unaware but the target typespec does not explicitly tolerate unaware objects.", xoico_che_s_nameof(o,typespec_expr->type ) )));
+                        fail_msg = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,st_s_create_fa("'#<sc_t>' is obliv but the target typespec does not explicitly tolerate obliv objects.", xoico_che_s_nameof(o,typespec_expr->type ) )));
                     }
                 }
                 else
@@ -9141,4 +9142,4 @@ vd_t xoico_xo_signal_handler( const bcore_signal_s* o )
     return NULL;
 }
 BETH_SIGNAL_DEFINE( xoico )
-// XOILA_OUT_SIGNATURE 0x73612EA0B1D9E13Eull
+// XOILA_OUT_SIGNATURE 0x3819A986883A3DAAull
