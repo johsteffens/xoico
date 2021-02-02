@@ -346,7 +346,7 @@ func (:s) :.get_type_element_info =
         c $* group = xoico_item.cast( m xoico_group_s* );
         if( name == TYPEOF__ ) // group builtin element '_'
         {
-            info.type_info.typespec.type = TYPEOF_tp_t;
+            info.type_info.typespec.type = TYPEOF_aware_t;
             info.type_info.typespec.indirection = 0;
             success = true;
         }

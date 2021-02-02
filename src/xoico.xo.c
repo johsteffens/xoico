@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2021-02-01T18:31:34Z
+ *  Last File Update: 2021-02-02T12:11:23Z
  *
  *  Copyright and License of this File:
  *
@@ -573,7 +573,7 @@ er_t xoico_typespec_s_expand_x( const xoico_typespec_s* o, const xoico_host* hos
 
 bl_t xoico_typespec_s_converts_to( const xoico_typespec_s* o, const xoico_typespec_s* b )
 {
-    // xoico_typespec.x:236:1
+    // xoico_typespec.x:237:1
     
     if( o->type == b->type )
     {
@@ -678,6 +678,7 @@ bl_t xoico_typespec_is_numeric( tp_t type )
         case TYPEOF_sz_t: return  true;
         case TYPEOF_uz_t: return  true;
         case TYPEOF_tp_t: return  true;
+        case TYPEOF_aware_t: return  true;
         case TYPEOF_er_t: return  true;
         case TYPEOF_bl_t: return  true;
         case TYPEOF_char: return  true;
@@ -4741,7 +4742,7 @@ bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t typ
         const xoico_group_s* group = ((xoico_group_s*)(xoico_item));
         if( name == TYPEOF__ ) // group builtin element '_'
         {
-            info->type_info.typespec.type = TYPEOF_tp_t;
+            info->type_info.typespec.type = TYPEOF_aware_t;
             info->type_info.typespec.indirection = 0;
             success = true;
         }
@@ -9145,4 +9146,4 @@ vd_t xoico_xo_signal_handler( const bcore_signal_s* o )
     return NULL;
 }
 BETH_SIGNAL_DEFINE( xoico )
-// XOILA_OUT_SIGNATURE 0x8372FFD29EE4113Eull
+// XOILA_OUT_SIGNATURE 0x4F24AFB81118EF2Aull

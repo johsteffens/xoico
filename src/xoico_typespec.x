@@ -222,6 +222,7 @@ func (bl_t is_numeric( tp_t type )) =
         case TYPEOF_sz_t: return true;
         case TYPEOF_uz_t: return true;
         case TYPEOF_tp_t: return true;
+        case TYPEOF_aware_t: return true;
         case TYPEOF_er_t: return true;
         case TYPEOF_bl_t: return true;
         case TYPEOF_char: return true;
