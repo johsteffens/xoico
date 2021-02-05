@@ -373,6 +373,9 @@ TODO:
 - (done) parsing an argument should not tolerate 'deduce'
 - (fixed) bug: using '..' out of context causes an endless loop (observed in expression: x_via_path_s!^.parse_sc( "[0]" ).c_get_in( zoo )..to_sink_txt_ml( x_inst_stdout() ); )
 - (done) rename keyword 'unaware' -> 'obliv'
+- (done) stamp: require keyword 'obliv' for unaware stamps.
+- (done) stamp: make keyword 'aware' optional. (aware is default)
+- (done) typespec: make 'const' default and specifying 'const' optional
 
 - bug: binary operator not recognized after unregistered member function
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
@@ -380,8 +383,6 @@ TODO:
 - x_inst: add transient functions for reflection access
 - where possible switch projects to define signal handler in *_xo.c
 - set target flag 'define_signal_handler' true by default.
-- stamp: require keyword 'obliv' for unaware stamps.
-- stamp: make keyword aware optional. (aware is default)
 
 ===================================================================
 

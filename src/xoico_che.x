@@ -712,8 +712,12 @@ func (:s)
 
     if( source.parse_bl( " #?w'restrict'") ) typespec.flag_restrict = true;
 
+    if( typespec.indirection > 0 && access_class == 0 )
+    {
+        access_class = TYPEOF_const; // const is default
+    }
+
     typespec.access_class = access_class;
-    if( typespec.indirection > 0 && access_class == 0 ) source.parse_error_fa( "Declaration with indirection: access-class missing: (c|const) | (m|mutable) | (d|discardable)" );
 
     if( success ) success.0 = true;
     return 0;

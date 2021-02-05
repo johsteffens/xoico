@@ -40,10 +40,10 @@ signature c xoico_func_s* get_trait_line_func_from_name( c @* o, tp_t name ); //
 
 stamp :s = aware :
 {
-    st_s    st_name;
-    tp_t    tp_name; // typeof( st_name )
-    tp_t    trait_name;
-    bl_t    is_aware;
+    st_s st_name;
+    tp_t tp_name; // typeof( st_name )
+    tp_t trait_name;
+    bl_t is_aware = true;
 
     st_s => self_buf;
     st_s => self_source;

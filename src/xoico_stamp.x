@@ -380,9 +380,10 @@ func (:s) xoico.parse = (try)
     else
     {
         m $* st_trait_name = st_s!^;
-        if      ( source.parse_bl( " #?w'aware'" ) ) o.is_aware = true;
-        else if ( source.parse_bl( " #?w'obliv'" ) ) o.is_aware = false;
-        else return source.parse_error_fa( "Specify awareness: 'aware' or 'obliv'" );
+
+        /// 'is_aware' is true by default
+        if      ( source.parse_bl( " #?w'obliv'" ) ) o.is_aware = false;
+        else if ( source.parse_bl( " #?w'aware'" ) ) o.is_aware = true;
 
         o.group.parse_name_st( source, st_trait_name );
         if( st_trait_name.size == 0 ) return source.parse_error_fa( "Trait name expected." );
