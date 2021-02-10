@@ -28,6 +28,8 @@ XOILA_DEFINE_GROUP( xoico_group, xoico )
 
 include 'c' "xoico_nested_group.h";
 
+name x_inst_main;
+
 signature er_t push_item_d( m @* o, d xoico* item );
 signature er_t parse_name_recursive( c @* o, m bcore_source* source, m st_s* name );
 signature er_t expand_declaration(   c @* o, sz_t indent, m bcore_sink* sink );

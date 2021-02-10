@@ -207,6 +207,8 @@ func (:s) :.parse_func = (try)
         o.funcs.push_d( func.fork() );
     }
 
+    if( func.signature_global_name == TYPEOF_x_inst_main ) o.group.xoico_source.target.set_main_function( func );
+
     return 0;
 };
 

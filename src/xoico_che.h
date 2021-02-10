@@ -393,13 +393,13 @@ stamp :s = aware :
     /// purity-control:
 
     // Condition: identifier specifies an undeclared member variable
-    bl_t waive_unknown_member_variable = true;
+    bl_t waive_unknown_member_variable = false;
 
     // Condition: identifier specifies an undeclared member function
-    bl_t waive_unknown_member_function = true;
+    bl_t waive_unknown_member_function = false;
 
     // Condition: trans_expression: function identifier is not used in a tractable way (e.g. not as function call).
-    bl_t waive_function_in_untraced_context = true;
+    bl_t waive_function_in_untraced_context = false;
 
     // Condition: trans_expression encounters an unknown identifier
     bl_t waive_unknown_identifier = true;
@@ -524,8 +524,6 @@ embed "xoico_che_control.x";
 //----------------------------------------------------------------------------------------------------------------------
 
 #endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-//----------------------------------------------------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------------------------------------------------
 

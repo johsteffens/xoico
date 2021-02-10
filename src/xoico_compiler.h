@@ -96,6 +96,8 @@ stamp :s = aware :
     hidden bcore_hmap_tp_s   hmap_external_type; // externally registered types
     hidden bcore_hmap_name_s name_map;   // name manager
 
+    hidden bl_t has_main_function = false; // a main function was declared somewhere in the project
+
     // parameters
 
     /** target_pre_hash: Changing this value changes the hash of all targets.

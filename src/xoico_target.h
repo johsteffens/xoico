@@ -33,7 +33,8 @@ signature bl_t to_be_modified( c @* o );
 signature er_t expand_phase1( m @* o, m bl_t* p_modified );
 signature er_t expand_phase2( m @* o, m bl_t* p_modified );
 signature bl_t is_cyclic( m @* o ); // mutable because flag is used for cyclic test
-signature er_t set_dependencies( m @* o, c bcore_arr_sz_s* dependencies );
+signature er_t set_dependencies(  m @* o, c bcore_arr_sz_s* dependencies );
+signature er_t set_main_function( m @* o, c xoico_func_s* func );
 
 stamp :s = aware :
 {
@@ -54,11 +55,11 @@ stamp :s = aware :
     st_s => target_h; // target header file
     st_s => target_c; // target c file
 
-
     /// Optional cengine that is to be used in all bodies of this target
     aware xoico_cengine -> cengine;
 
     hidden aware xoico_compiler_s* compiler;
+    hidden xoico_func_s* main_function;
 
     func :.parse_from_path;
     func :.to_be_modified;
@@ -79,6 +80,13 @@ stamp :s = aware :
     func :.expand_phase2;
     func :.is_cyclic;
     func :.set_dependencies;
+    func :.set_main_function =
+    {
+        if( o.compiler.has_main_function ) return func.source_point.parse_error_fa( "A main function was already declared." );
+        o.compiler.has_main_function = true;
+        o.main_function = func.cast( m$* );
+        return 0;
+    };
 
     func (void push_d( m @* o, d xoico_source_s* source )) =
     {

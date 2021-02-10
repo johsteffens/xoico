@@ -376,6 +376,9 @@ TODO:
 - (done) stamp: require keyword 'obliv' for unaware stamps.
 - (done) stamp: make keyword 'aware' optional. (aware is default)
 - (done) typespec: make 'const' default; make declaring 'const' optional
+- (done) Define signature main in x_inst.
+     -   Defining a function with this signature generates the main function int main( int argc, char** argv ) of a program
+     -   Dependencies are automatically initialized
 
 - bug: binary operator not recognized after unregistered member function
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
@@ -384,6 +387,9 @@ TODO:
 - x_inst: add transient functions for reflection access
 - where possible switch projects to define signal handler in *_xo.c
 - set target flag 'define_signal_handler' true by default.
+- add registry for unspecific identifiers (allows disabling unknown identifier waiver)
+- che: disable as many waivers as possible
+- allow 'name'-identifier to be used literally -> translates into TYPEOF_<identifier>
 
 ===================================================================
 

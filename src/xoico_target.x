@@ -294,6 +294,21 @@ func (:s) (er_t expand_c( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
         sink.push_fa( "#rn{ }BETH_SIGNAL_DEFINE( #<sc_t> )\n", indent, o.name.sc );
     }
 
+    if( o.main_function )
+    {
+        sink.push_fa( "\n" );
+        sink.push_fa( "#rn{ }int main( int argc, char** argv )\n", indent );
+        sink.push_fa( "#rn{ }{\n", indent );
+        sink.push_fa( "#rn{ }    BETH_USE( #<sc_t> );\n", indent, o.name.sc );
+        sink.push_fa( "#rn{ }    bcore_arr_st_s* args = bcore_arr_st_s_create();\n", indent );
+        sink.push_fa( "#rn{ }    for( sz_t i = 0; i < argc; i++ ) bcore_arr_st_s_push_sc( args, argv[ i ] );\n", indent );
+        sink.push_fa( "#rn{ }    int retv = #<sc_t>( args );\n", indent, o.compiler.nameof( o.main_function.global_name ) );
+        sink.push_fa( "#rn{ }    bcore_arr_st_s_discard( args );\n", indent );
+        sink.push_fa( "#rn{ }    BETH_CLOSEV( 0 );\n", indent );
+        sink.push_fa( "#rn{ }    return retv;\n", indent );
+        sink.push_fa( "#rn{ }}\n", indent );
+    }
+
     return 0;
 };
 

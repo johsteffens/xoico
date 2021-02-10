@@ -152,6 +152,7 @@ func (:s) (er_t parse_func( m @* o, m bcore_source* source )) = (try)
     m $* func = xoico_func_s!^^;
     func.parse( o, source );
     o.push_func_d( func.fork() );
+    if( func.signature_global_name == TYPEOF_x_inst_main ) o.xoico_source.target.set_main_function( func );
     return 0;
 };
 

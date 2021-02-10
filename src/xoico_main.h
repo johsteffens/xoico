@@ -1,4 +1,4 @@
-/** Author and Copyright 2020 Johannes Bernhard Steffens
+/** Author and Copyright 2021 Johannes Bernhard Steffens
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,18 +13,23 @@
  *  limitations under the License.
  */
 
-#include "bcore_std.h"
-#include "xoico_builder.h"
-
 /**********************************************************************************************************************/
+
+#include "bcore_std.h"
+#include "xoico.xo.h"
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void help( bcore_sink* sink )
+XOILA_DEFINE_GROUP( xoico_main, x_inst )
+#ifdef XOILA_SECTION
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (void help( m bcore_sink* sink )) =
 {
-    bcore_sink_a_push_fa
+    sink.push_fa
     (
-        sink,
+
         "Xoila Compiler: (C) J.B.Steffens\n"
         "Usage:\n"
         "$ xoico [options] xoico <xoico-config-file> [<xoico-config-file> ...]   #normal operation\n"
@@ -36,77 +41,73 @@ void help( bcore_sink* sink )
         "-e : Always expand: Expands target files even if their hash has not changed.\n"
         "-f : Force overwrite target files. Use with care.\n"
     );
-}
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
-int main( int argc, char** argv )
+func x_inst.main =
 {
-    BETH_USE( xoico );
-
-    BLM_INIT();
-
-    xoico_builder_main_s* builder_main = BLM_CREATE( xoico_builder_main_s );
+    xoico_builder_main_s^ builder_main;
     er_t er = 0;
 
     sz_t arg_idx = 1;
 
-    if( argc > 1 )
+    if( args.size > 1 )
     {
-        if( sc_t_equal( argv[ arg_idx ], "--help" ) )
+        if( args.[ arg_idx ].equal_sc( "--help" ) )
         {
-            help( BCORE_STDOUT );
+            :help( BCORE_STDOUT );
         }
-        else if( sc_t_equal( argv[ arg_idx ], "--selftest" ) )
+        else if( args.[ arg_idx ].equal_sc( "--selftest" ) )
         {
             arg_idx++;
-            ASSERT( arg_idx < argc );
-            bcore_run_signal_selftest( btypeof( argv[ arg_idx ] ), NULL );
+            ASSERT( arg_idx < args.size );
+            bcore_run_signal_selftest( btypeof( args.[ arg_idx ].sc ), NULL );
         }
         else
         {
-            while( argv[ arg_idx ][ 0 ] == '-' )
+            while( args.[ arg_idx ].sc[ 0 ] == '-' )
             {
-                if( sc_t_equal( argv[ arg_idx ], "-d" ) )
+                if( args.[ arg_idx ].equal_sc( "-d" ) )
                 {
-                    xoico_builder_main_s_set_dry_run( builder_main, true );
+                    builder_main.set_dry_run( true );
                 }
-                else if( sc_t_equal( argv[ arg_idx ], "-e" ) )
+                else if( args.[ arg_idx ].equal_sc( "-e" ) )
                 {
-                    xoico_builder_main_s_set_always_expand( builder_main, true );
+                    builder_main.set_always_expand( true );
                 }
-                else if( sc_t_equal( argv[ arg_idx ], "-f" ) )
+                else if( args.[ arg_idx ].equal_sc( "-f" ) )
                 {
-                    xoico_builder_main_s_set_overwrite_unsigned_target_files( builder_main, true );
+                    builder_main.set_overwrite_unsigned_target_files( true );
                 }
                 else
                 {
-                    ERR_fa( "Invalid option: #<sc_t>\n", argv[ arg_idx ] );
+                    ERR_fa( "Invalid option: #<sc_t>\n", args.[ arg_idx ].sc );
                 }
                 arg_idx++;
             }
 
-            if( xoico_builder_main_s_get_dry_run( builder_main ) )
+            if( builder_main.get_dry_run() )
             {
-                bcore_sink_a_pushf( BCORE_STDOUT, "Dry run ...\n" );
+                bcore_sink_a_push_fa( BCORE_STDOUT, "Dry run ...\n" );
             }
 
-            if( xoico_builder_main_s_get_always_expand( builder_main ) )
+            if( builder_main.get_always_expand() )
             {
-                bcore_sink_a_pushf( BCORE_STDOUT, "Expanding all ...\n" );
+                bcore_sink_a_push_fa( BCORE_STDOUT, "Expanding all ...\n" );
             }
 
-            if( arg_idx >= argc ) help( BCORE_STDOUT );
+            if( arg_idx >= args.size ) :help( BCORE_STDOUT );
             clock_t time = clock();
 
-            for( sz_t i = arg_idx; i < argc; i++ )
+            for( sz_t i = arg_idx; i < args.size; i++ )
             {
-                if( ( er = xoico_builder_main_s_build_from_file( builder_main, argv[ i ] ) ) ) break;
+                if( ( er = builder_main.build_from_file( args.[ i ].sc ) ) ) break;
             }
 
-            if( !er && xoico_builder_main_s_update_required( builder_main ) )
+            if( !er && builder_main.update_required() )
             {
-                er = xoico_builder_main_s_update( builder_main );
+                er = builder_main.update();
             }
 
             if( !er )
@@ -120,19 +121,19 @@ int main( int argc, char** argv )
     else
     {
         er = 1;
-        st_s* st = BLM_CREATE( st_s );
-        help( ( bcore_sink* )st );
-        bcore_error_push_sc( er, st->sc );
+        st_s^ st;
+        :help( st );
+        bcore_error_push_sc( er, st.sc );
     }
 
     if( er ) bcore_error_pop_all_to_stderr();
 
-    BLM_DOWN();
-
-    BETH_CLOSEV( false );
-
     return ( er > 0 ) ? 1 : 0;
-}
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+#endif // XOILA_SECTION
 
 //----------------------------------------------------------------------------------------------------------------------
 

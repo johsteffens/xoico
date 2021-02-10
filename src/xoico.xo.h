@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens
- *  Last File Update: 2021-02-09T10:50:19Z
+ *  Last File Update: 2021-02-10T16:23:46Z
  *
  *  Copyright and License of this File:
  *
@@ -31,6 +31,7 @@
  *  xoico_che.h
  *  xoico_wrap.h
  *  xoico_wraps.h
+ *  xoico_main.h
  *  xoico_body.x
  *  xoico_builder.x
  *  xoico_che.x
@@ -55,7 +56,7 @@
 #include "bcore_control.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico 0xF0C9069502D2EE8Cull
+#define HKEYOF_xoico 0x19884C8BBED7608Full
 
 #define TYPEOF_xoico 0x21E8B04DB3E31F5Dull
 
@@ -765,6 +766,7 @@
 
 #define TYPEOF_xoico_group 0xF9A247075F113FF9ull
 #define TYPEOF_xoico_group_spect_s 0x3DE6C1C7D3A336F5ull
+#define TYPEOF_x_inst_main 0x0242B13DF94FA288ull
 #define TYPEOF_xoico_group_source_stack_s 0x753CECC8CE8A05B2ull
 #define BETH_EXPAND_ITEM_xoico_group_source_stack_s \
   BCORE_DECLARE_OBJECT( xoico_group_source_stack_s ) \
@@ -1012,9 +1014,11 @@
       st_s* target_c; \
       xoico_cengine* cengine; \
       xoico_compiler_s* compiler; \
+      xoico_func_s* main_function; \
   }; \
   er_t xoico_target_s_finalize( xoico_target_s* o, const xoico_host* host ); \
   er_t xoico_target_s_expand_setup( xoico_target_s* o, const xoico_host* host ); \
+  er_t xoico_target_s_set_main_function( xoico_target_s* o, const xoico_func_s* func ); \
   void xoico_target_s_push_d( xoico_target_s* o, xoico_source_s* source ); \
   void xoico_target_s_explicit_embeddings_push( const xoico_target_s* o, bcore_arr_st_s* arr ); \
   static inline xoico_compiler_s* xoico_target_s_compiler( const xoico_target_s* o ); \
@@ -1080,6 +1084,7 @@
       bcore_hmap_tpvd_s hmap_func; \
       bcore_hmap_tp_s hmap_external_type; \
       bcore_hmap_name_s name_map; \
+      bl_t has_main_function; \
       tp_t target_pre_hash; \
       bl_t work_build_time_into_pre_hash; \
       bl_t register_signatures; \
@@ -1794,8 +1799,26 @@
   BETH_EXPAND_ITEM_xoico_wraps_s
 
 /**********************************************************************************************************************/
+// source: xoico_main.h
+
+//----------------------------------------------------------------------------------------------------------------------
+// group: xoico_main
+
+#define TYPEOF_xoico_main 0x0F2D4E21194BC0AFull
+#define TYPEOF_xoico_main_spect_s 0x4497A3E2A38ECF1Full
+#define BETH_EXPAND_GROUP_xoico_main \
+  BCORE_FORWARD_OBJECT( xoico_main ); \
+  void xoico_main_help( bcore_sink* sink ); \
+  s2_t xoico_main_main( const bcore_arr_st_s* args ); \
+  XOILA_DECLARE_SPECT( xoico_main ) \
+  { \
+      bcore_spect_header_s header; \
+  }; \
+  BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_main )
+
+/**********************************************************************************************************************/
 
 vd_t xoico_xo_signal_handler( const bcore_signal_s* o );
 
 #endif // __xoico_xo_H
-// XOILA_OUT_SIGNATURE 0x004A04FB70530A29ull
+// XOILA_OUT_SIGNATURE 0xFCBD4126ADCCAE57ull
