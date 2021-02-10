@@ -375,10 +375,11 @@ TODO:
 - (done) rename keyword 'unaware' -> 'obliv'
 - (done) stamp: require keyword 'obliv' for unaware stamps.
 - (done) stamp: make keyword 'aware' optional. (aware is default)
-- (done) typespec: make 'const' default and specifying 'const' optional
+- (done) typespec: make 'const' default; make declaring 'const' optional
 
 - bug: binary operator not recognized after unregistered member function
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
+- make traitline of all groups end in x_inst
 - make 'fork' a transient function in x_inst rather than a builtin function
 - x_inst: add transient functions for reflection access
 - where possible switch projects to define signal handler in *_xo.c
