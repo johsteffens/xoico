@@ -97,7 +97,7 @@ func (:s)
     //o.take_typespec( source, typespec_cast, true );
 
 
-    if( typespec_cast.type == TYPEOF_type_object )
+    if( typespec_cast.type == type_object~ )
     {
         typespec_cast.type = o.host.obj_type();
     }

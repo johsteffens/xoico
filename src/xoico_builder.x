@@ -173,7 +173,7 @@ func (:target_s) :.load = (try)
     o->full_path_.copy( st_path );
     if( readonly ) o.readonly = true;
 
-    if( !o.name ) return bcore_error_push_fa( TYPEOF_general_error, "In target file: '#<sc_t>'\nTarget name must be specified.", st_path->sc );
+    if( !o.name ) return bcore_error_push_fa( general_error~, "In target file: '#<sc_t>'\nTarget name must be specified.", st_path->sc );
 
     /// check for dependency cycles
     if( o.parent_ )
@@ -183,11 +183,11 @@ func (:target_s) :.load = (try)
         {
             if( match.full_path_.equal_st( o.full_path_ ) )
             {
-                return bcore_error_push_fa( TYPEOF_general_error, "In target file: '#<sc_t>'\nCyclic dependency detected.", st_path.sc );
+                return bcore_error_push_fa( general_error~, "In target file: '#<sc_t>'\nCyclic dependency detected.", st_path.sc );
             }
             else
             {
-                return bcore_error_push_fa( TYPEOF_general_error, "Same target name '#<sc_t>' used in different target files:\n#<sc_t>\n#<sc_t>", o.name.sc, st_path.sc, match.full_path_.sc );
+                return bcore_error_push_fa( general_error~, "Same target name '#<sc_t>' used in different target files:\n#<sc_t>\n#<sc_t>", o.name.sc, st_path.sc, match.full_path_.sc );
             }
         }
     }
@@ -321,7 +321,7 @@ func (:target_s) :.build = (try)
         {
             return bcore_error_push_fa
             (
-                TYPEOF_general_error,
+                general_error~,
                 "Building source '#<sc_t>' in target '#<sc_t>':\n"
                 "Target index mismatch.\n"
                 "This problem occurs when a target defines sources from different directories.\n",

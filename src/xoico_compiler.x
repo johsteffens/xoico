@@ -28,6 +28,7 @@ signature bl_t is_func(  c @* o, tp_t name ); // checks if name represents the g
 signature bl_t is_stamp( c @* o, tp_t name ); // checks if name represents a registered stamp
 signature bl_t is_body(  c @* o, tp_t name ); // checks if name represents a registered body
 signature bl_t is_type(  c @* o, tp_t name ); // checks if name represents a registered type (either group, stamp, or external type)
+signature bl_t is_name(  c @* o, tp_t name ); // checks if name represents a registered name (declared with keyword 'name')
 signature bl_t is_signature( c @* o, tp_t name ); // checks if name represents a registered signature
 signature bl_t is_feature( c @* o, tp_t name ); // checks if name represents a registered feature
 signature bl_t is_signature_or_feature( c @* o, tp_t name ); // checks if name represents a registered signature or feature
@@ -92,8 +93,10 @@ stamp :s = aware :
     hidden bcore_hmap_tpvd_s hmap_group;
     hidden bcore_hmap_tpvd_s hmap_item;
     hidden bcore_hmap_tpvd_s hmap_func;  // maps the global name of a function to the func instance
-    hidden bcore_hmap_tp_s   hmap_external_type; // externally registered types
-    hidden bcore_hmap_name_s name_map;   // name manager
+    hidden bcore_hmap_tp_s hmap_external_type; // externally registered types
+    hidden bcore_hmap_tp_s hmap_declared_name; // declared names
+
+    hidden bcore_hmap_name_s name_map;   // general name manager
 
     hidden bl_t has_main_function = false; // a main function was declared somewhere in the project
 
@@ -130,6 +133,12 @@ stamp :s = aware :
         if( o.is_group( name ) ) return true;
         if( o.is_stamp( name ) ) return true;
         if( o.hmap_external_type.exists( name ) ) return true;
+        return false;
+    };
+
+    func :.is_name =
+    {
+        if( o.hmap_declared_name.exists( name ) ) return true;
         return false;
     };
 
@@ -383,7 +392,7 @@ func (:s) :.check_overwrite =
             s.push_fa( "You can fix it in one of following ways:\n" );
             s.push_fa( "* Rename or (re)move the file.\n" );
             s.push_fa( "* Use command line flag '-f'.\n" );
-            return bcore_error_push_fa( TYPEOF_general_error, "\nERROR: #<sc_t>\n", s->sc );
+            return bcore_error_push_fa( general_error~, "\nERROR: #<sc_t>\n", s->sc );
         }
     }
 

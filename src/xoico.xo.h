@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
- *  Last File Update: 2021-02-12T13:01:03Z
+ *  Last File Update: 2021-02-12T14:30:19Z
  *
  *  Copyright and License of this File:
  *
@@ -45,7 +45,7 @@
 #include "bcore.xo.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico 0x5E52B0515E0A37A8ull
+#define HKEYOF_xoico 0x90406495934D7E56ull
 
 #define TYPEOF_xoico 0x21E8B04DB3E31F5Dull
 
@@ -1111,6 +1111,7 @@
       bcore_hmap_tpvd_s hmap_item; \
       bcore_hmap_tpvd_s hmap_func; \
       bcore_hmap_tp_s hmap_external_type; \
+      bcore_hmap_tp_s hmap_declared_name; \
       bcore_hmap_name_s name_map; \
       bl_t has_main_function; \
       tp_t target_pre_hash; \
@@ -1126,6 +1127,7 @@
   static inline bl_t xoico_compiler_s_is_group( const xoico_compiler_s* o, tp_t name ); \
   static inline bl_t xoico_compiler_s_is_func( const xoico_compiler_s* o, tp_t name ); \
   bl_t xoico_compiler_s_is_type( const xoico_compiler_s* o, tp_t name ); \
+  bl_t xoico_compiler_s_is_name( const xoico_compiler_s* o, tp_t name ); \
   bl_t xoico_compiler_s_is_stamp( const xoico_compiler_s* o, tp_t name ); \
   bl_t xoico_compiler_s_is_body( const xoico_compiler_s* o, tp_t name ); \
   bl_t xoico_compiler_s_is_signature( const xoico_compiler_s* o, tp_t name ); \
@@ -1283,6 +1285,7 @@
   void xoico_che_s_push_typedecl( xoico_che_s* o, const xoico_typespec_s* typespec, tp_t name ); \
   void xoico_che_s_typespec_to_sink( xoico_che_s* o, const xoico_typespec_s* typespec, bcore_sink* sink ); \
   static inline bl_t xoico_che_s_is_type( const xoico_che_s* o, tp_t name ); \
+  static inline bl_t xoico_che_s_is_name( const xoico_che_s* o, tp_t name ); \
   static inline bl_t xoico_che_s_is_group( const xoico_che_s* o, tp_t name ); \
   static inline bl_t xoico_che_s_is_stamp( const xoico_che_s* o, tp_t name ); \
   static inline bl_t xoico_che_s_is_func( const xoico_che_s* o, tp_t name ); \
@@ -1309,6 +1312,7 @@
   er_t xoico_che_s_take_typespec( xoico_che_s* o, bcore_source* source, xoico_typespec_s* typespec, bl_t require_tractable_type ); \
   er_t xoico_che_s_push_typespec( xoico_che_s* o, const xoico_typespec_s* typespec, xoico_che_result* result ); \
   er_t xoico_che_s_trans_type( xoico_che_s* o, bcore_source* source, xoico_che_result* result, xoico_typespec_s* out_typespec ); \
+  er_t xoico_che_s_trans_name( xoico_che_s* o, bcore_source* source, xoico_che_result* result, xoico_typespec_s* out_typespec ); \
   er_t xoico_che_s_trans_ternary_branch( xoico_che_s* o, bcore_source* source, xoico_che_result* result, xoico_typespec_s* out_typespec ); \
   er_t xoico_che_s_trans_bracket( xoico_che_s* o, bcore_source* source, xoico_che_result* result, xoico_typespec_s* out_typespec ); \
   er_t xoico_che_s_trans_array_subscript( xoico_che_s* o, bcore_source* source, xoico_che_result* result, xoico_typespec_s* out_typespec ); \
@@ -1356,6 +1360,7 @@
   er_t xoico_che_s_trans_control_return( xoico_che_s* o, bcore_source* source, xoico_che_result* result ); \
   static inline tp_t xoico_che_s_entypeof( xoico_che_s* o, sc_t name ){ return  bcore_hmap_name_s_set_sc(&(o->hmap_name),name );} \
   static inline bl_t xoico_che_s_is_type( const xoico_che_s* o, tp_t name ){ return  xoico_compiler_s_is_type(o->compiler,name );} \
+  static inline bl_t xoico_che_s_is_name( const xoico_che_s* o, tp_t name ){ return  xoico_compiler_s_is_name(o->compiler,name );} \
   static inline bl_t xoico_che_s_is_group( const xoico_che_s* o, tp_t name ){ return  xoico_compiler_s_is_group(o->compiler,name );} \
   static inline bl_t xoico_che_s_is_stamp( const xoico_che_s* o, tp_t name ){ return  xoico_compiler_s_is_stamp(o->compiler,name );} \
   static inline bl_t xoico_che_s_is_func( const xoico_che_s* o, tp_t name ){ return  xoico_compiler_s_is_func(o->compiler,name );} \
@@ -1818,4 +1823,4 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOILA_OUT_SIGNATURE 0x3141CD3B5CE53A90ull
+// XOILA_OUT_SIGNATURE 0xDE36C6C79B914D80ull

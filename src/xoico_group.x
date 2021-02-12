@@ -508,6 +508,7 @@ func (:s) xoico.parse = (try)
             m $* name = xoico_name_s!^;
             name.parse( o, source );
             o.push_item_d( name.fork() );
+            o.compiler.hmap_declared_name.set( name.name );
         }
         else if( source.parse_bl( " #?w'type' " ) )
         {

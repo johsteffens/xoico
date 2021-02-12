@@ -49,7 +49,7 @@ stamp :transient_s = aware :
 
 stamp :s = aware :
 {
-    tp_t type; // possible variable types are TYPEOF_type_deduce and TYPEOF_type_object
+    tp_t type; // possible variable types are TYPEOF_type_deduce and type_object~
     tp_t access_class; // 'const|mutable|discardable'
 
     :transient_s => transient;
@@ -69,7 +69,7 @@ stamp :s = aware :
     func     :.parse;
     func     :.relent =
     {
-        if( o.type == TYPEOF_type_object ) o.type = tp_obj_type;
+        if( o.type == type_object~ ) o.type = tp_obj_type;
         return 0;
     };
 
@@ -159,11 +159,11 @@ func (:s) :.parse = (try)
     }
     else if( source.parse_bl( "#?'@' " ) )
     {
-        o->type = TYPEOF_type_object;
+        o->type = type_object~;
     }
     else if( source.parse_bl( "#?'$' " ) )
     {
-        o->type = TYPEOF_type_deduce;
+        o->type = type_deduce~;
     }
     else
     {
@@ -226,12 +226,12 @@ func (:s) :.expand = (try)
 
     tp_t type = o.type;
 
-    if( type == TYPEOF_type_object )
+    if( type == type_object~ )
     {
         //if( !sc_obj_type ) ERR_fa( "Cannot resolve 'type_object' at this point." );
         type = host.obj_type(); //compiler.entypeof( sc_obj_type );
     }
-    else if( type == TYPEOF_type_deduce )
+    else if( type == type_deduce~ )
     {
         ERR_fa( "Cannot resolve 'type_deduce' at this point." );
     }
@@ -264,12 +264,12 @@ func (:s) :.expand_x = (try)
 
     tp_t type = o.type;
 
-    if( type == TYPEOF_type_object )
+    if( type == type_object~ )
     {
         //if( !sc_obj_type ) ERR_fa( "Cannot resolve 'type_object' at this point." );
         type = host.obj_type(); //compiler.entypeof( sc_obj_type );
     }
-    else if( type == TYPEOF_type_deduce )
+    else if( type == type_deduce~ )
     {
         ERR_fa( "Cannot resolve 'type_deduce' at this point." );
     }
@@ -301,23 +301,23 @@ func (bl_t is_numeric( tp_t type )) =
 {
     switch( type )
     {
-        case TYPEOF_u0_t: return true;
-        case TYPEOF_u1_t: return true;
-        case TYPEOF_u2_t: return true;
-        case TYPEOF_u3_t: return true;
-        case TYPEOF_s0_t: return true;
-        case TYPEOF_s1_t: return true;
-        case TYPEOF_s2_t: return true;
-        case TYPEOF_s3_t: return true;
-        case TYPEOF_f2_t: return true;
-        case TYPEOF_f3_t: return true;
-        case TYPEOF_sz_t: return true;
-        case TYPEOF_uz_t: return true;
-        case TYPEOF_tp_t: return true;
-        case TYPEOF_aware_t: return true;
-        case TYPEOF_er_t: return true;
-        case TYPEOF_bl_t: return true;
-        case TYPEOF_char: return true;
+        case u0_t~: return true;
+        case u1_t~: return true;
+        case u2_t~: return true;
+        case u3_t~: return true;
+        case s0_t~: return true;
+        case s1_t~: return true;
+        case s2_t~: return true;
+        case s3_t~: return true;
+        case f2_t~: return true;
+        case f3_t~: return true;
+        case sz_t~: return true;
+        case uz_t~: return true;
+        case tp_t~: return true;
+        case aware_t~: return true;
+        case er_t~: return true;
+        case bl_t~: return true;
+        case char~: return true;
         default: break;
     }
     return false;
@@ -353,7 +353,7 @@ func (:s) :.converts_to =
             {
                 return true;
             }
-            else if( b.type == TYPEOF_vd_t && b.type == TYPEOF_vc_t )
+            else if( b.type == vd_t~ && b.type == vc_t~ )
             {
                 return true;
             }
@@ -362,7 +362,7 @@ func (:s) :.converts_to =
                 return false;
             }
         }
-        else if( b.type == TYPEOF_vc_t && b.indirection == 0 )
+        else if( b.type == vc_t~ && b.indirection == 0 )
         {
             if( o.indirection == 1 )
             {
@@ -373,7 +373,7 @@ func (:s) :.converts_to =
                 return false;
             }
         }
-        else if( b.type == TYPEOF_vd_t && b.indirection == 0 )
+        else if( b.type == vd_t~ && b.indirection == 0 )
         {
             if( o.indirection == 1 && ( o.access_class != TYPEOF_const ) )
             {
@@ -384,13 +384,13 @@ func (:s) :.converts_to =
                 return false;
             }
         }
-        else if( b.type == TYPEOF_bl_t && b.indirection == 0 )
+        else if( b.type == bl_t~ && b.indirection == 0 )
         {
             if( o.indirection > 0 )
             {
                 return true;
             }
-            else if( o.type == TYPEOF_vd_t || o.type == TYPEOF_vc_t || o.type == TYPEOF_sc_t || o.type == TYPEOF_sd_t )
+            else if( o.type == vd_t~ || o.type == vc_t~ || o.type == sc_t~ || o.type == sd_t~ )
             {
                 return ( o.indirection == 0 );
             }

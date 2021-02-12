@@ -479,6 +479,7 @@ stamp :s = aware :
     };
 
     func xoico_compiler.is_type  = { return o.compiler.is_type( name ); };
+    func xoico_compiler.is_name  = { return o.compiler.is_name( name ); };
     func xoico_compiler.is_group = { return o.compiler.is_group( name ); };
     func xoico_compiler.is_stamp = { return o.compiler.is_stamp( name ); };
     func xoico_compiler.is_func  = { return o.compiler.is_func( name ); };
@@ -535,7 +536,7 @@ func (:s) (tp_t get_identifier( m @* o, m bcore_source* source, bl_t take_from_s
             case '$':
             {
                 source.get_char();
-                tp_identifier = TYPEOF_type_deduce;
+                tp_identifier = type_deduce~;
             }
             break;
 
@@ -966,10 +967,10 @@ func (:s)
         );
     }
 
-    if( typespec_target.type == TYPEOF_type_deduce ) return source.parse_error_fa( "adapt_expression: typespec_target is 'type_deduce'" );
-    if( typespec_target.type == TYPEOF_type_object ) return source.parse_error_fa( "adapt_expression: typespec_target is 'type_object'" );
-    if( typespec_expr.type == TYPEOF_type_deduce ) return source.parse_error_fa( "adapt_expression: typespec_expr is 'type_deduce'" );
-    if( typespec_expr.type == TYPEOF_type_object ) return source.parse_error_fa( "adapt_expression: typespec_expr is 'type_object'" );
+    if( typespec_target.type == type_deduce~ ) return source.parse_error_fa( "adapt_expression: typespec_target is 'type_deduce'" );
+    if( typespec_target.type == type_object~ ) return source.parse_error_fa( "adapt_expression: typespec_target is 'type_object'" );
+    if( typespec_expr.type == type_deduce~ ) return source.parse_error_fa( "adapt_expression: typespec_expr is 'type_deduce'" );
+    if( typespec_expr.type == type_object~ ) return source.parse_error_fa( "adapt_expression: typespec_expr is 'type_object'" );
 
     bl_t discarding_const =
         ( typespec_expr.access_class == TYPEOF_const && typespec_expr.access_class != typespec_target.access_class ) &&
@@ -1190,7 +1191,7 @@ func (:s)
 
     if( require_tractable_type )
     {
-        if( !( tp_identifier == TYPEOF_type_deduce || o.is_type( tp_identifier ) ) )
+        if( !( tp_identifier == type_deduce~ || o.is_type( tp_identifier ) ) )
         {
             source.set_index( index );
             return 0;
@@ -1249,11 +1250,11 @@ func (:s) :.push_typespec  = (try)
 {
     tp_t type = typespec.type;
 
-    if( type == TYPEOF_type_object )
+    if( type == type_object~ )
     {
         ERR_fa( "Cannot resolve 'type_object' at this point." );
     }
-    else if( type == TYPEOF_type_deduce )
+    else if( type == type_deduce~ )
     {
         ERR_fa( "Cannot resolve 'type_deduce' at this point." );
     }
@@ -1323,6 +1324,50 @@ func (:s)
             result.push_result_d( result_local.fork() );
         }
 
+        o.trans_typespec_expression( source, result, typespec, out_typespec );
+    }
+    else if( source.parse_bl( "#?'~'" ) )
+    {
+        m xoico_typespec_s* typespec = xoico_typespec_s!^^;
+        typespec.type = TYPEOF_tp_t;
+        typespec.indirection = 0;
+        typespec.flag_addressable = false;
+        typespec.access_class = 0;
+        result.push_fa( "((tp_t)(TYPEOF_#<sc_t>))", o.nameof( tp_identifier ) );
+        o.trans_typespec_expression( source, result, typespec, out_typespec );
+    }
+    else
+    {
+        result.push_result_d( result_local.fork() );
+    }
+    return 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:s)
+(
+    er_t trans_name
+    (
+        m @* o,
+        m bcore_source* source,
+        m :result* result, // can be NULL
+        m xoico_typespec_s* out_typespec // optional
+    )
+) = (try)
+{
+    m $* result_local = :result_create_arr()^^;
+    tp_t tp_identifier;
+    o.trans_identifier( source, result_local, tp_identifier );
+    o.trans_whitespace( source, result_local );
+    if( source.parse_bl( "#?'~'" ) )
+    {
+        m xoico_typespec_s* typespec = xoico_typespec_s!^^;
+        typespec.type = TYPEOF_tp_t;
+        typespec.indirection = 0;
+        typespec.flag_addressable = false;
+        typespec.access_class = 0;
+        result.push_fa( "((tp_t)(TYPEOF_#<sc_t>))", o.nameof( tp_identifier ) );
         o.trans_typespec_expression( source, result, typespec, out_typespec );
     }
     else
@@ -1509,6 +1554,12 @@ func (:s)
             o.trans_type( source, result, out_typespec );
         }
 
+        // identifier represents a type known to the compiler
+        else if( o.is_name( tp_identifier ) )
+        {
+            o.trans_name( source, result, out_typespec );
+        }
+
         // identifier represents a (global) function name
         else if( o.is_func( tp_identifier ) )
         {
@@ -1659,7 +1710,7 @@ func (:s)
         {
             if( typespec_var.flag_scope ) return source.parse_error_fa( "Declaration-syntax: Stack-scope requested with subsequent assignment." );
             bl_t pushed_typedecl = false;
-            if( typespec_var.type != TYPEOF_type_deduce )
+            if( typespec_var.type != type_deduce~ )
             {
                 o.push_typedecl( typespec_var, tp_identifier );
                 pushed_typedecl = true;
@@ -1670,7 +1721,7 @@ func (:s)
             m $* result_expr = :result_create_arr()^^;
             o.trans_expression( source, result_expr, typespec_expr );
 
-            if( typespec_var.type == TYPEOF_type_deduce )
+            if( typespec_var.type == type_deduce~ )
             {
                 if( !typespec_expr.type )
                 {
@@ -1704,7 +1755,7 @@ func (:s)
             result_out.push_result_d( result_var.fork() );
             if( !pushed_typedecl ) o.push_typedecl( typespec_var, tp_identifier );
         }
-        else if( typespec_var.type == TYPEOF_type_deduce )
+        else if( typespec_var.type == type_deduce~ )
         {
             return source.parse_error_fa( "Declaration-syntax: Deduce requested without assignment." );
         }

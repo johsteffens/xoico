@@ -35,7 +35,7 @@ func (:s) xoico.parse = (try)
     o.source_point.set( source );
     o.typespec.parse( host, source );
 
-    if( o.typespec.type == TYPEOF_type_deduce )
+    if( o.typespec.type == type_deduce~ )
     {
         return o.source_point.parse_error_fa( "'$' (type_deduce) can not be used in an argument." );
     }

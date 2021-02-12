@@ -387,6 +387,7 @@ TODO:
      syntax2: <filename>.x
      syntax2 assumes <group_name> = <filename> and <trait_name> = x_inst
 - (fixed) bug: in-place expansion does not work for nested groups (nested groups are declared after expansion): fix: move in-place expansion to the end of *.xo.h
+- (done) a 'type' or 'name'-identifier used with subsequent '~' translates into TYPEOF_<identifier>
 
 - bug: binary operator not recognized after unregistered member function
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
@@ -394,7 +395,7 @@ TODO:
 - make 'fork' a transient function in x_inst rather than a builtin function
 - add registry for unspecific identifiers (allows disabling unknown identifier waiver)
 - che: disable as many waivers as possible
-- allow 'name'-identifier to be used literally -> translates into TYPEOF_<identifier>
+- provide alternative to macros BCORE_STDOUT, BCORE_STDERR
 
 ===================================================================
 

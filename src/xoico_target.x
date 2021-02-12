@@ -136,7 +136,7 @@ func (:s) :.parse_from_path = (try)
         }
         else
         {
-            return bcore_error_push_fa( TYPEOF_general_error, "Could not open '#<sc_t>'.", source_path );
+            return bcore_error_push_fa( general_error~, "Could not open '#<sc_t>'.", source_path );
         }
 
         o.push_d( xsource.fork() );
@@ -220,7 +220,7 @@ func (:s) :.set_dependencies = (try)
 
     if( o.is_cyclic() )
     {
-        return bcore_error_push_fa( TYPEOF_general_error, "Cyclic dependencies found in target '#<sc_t>'.", o.name.sc );
+        return bcore_error_push_fa( general_error~, "Cyclic dependencies found in target '#<sc_t>'.", o.name.sc );
     }
 
     return 0;
