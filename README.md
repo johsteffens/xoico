@@ -1,11 +1,10 @@
 # Xoila Compiler
 
-Xoico is a self-hosting compiler for [xoila](https://github.com/johsteffens/beth#xoila)-code.
+Xoico is a self-hosting compiler for [xoila](https://github.com/johsteffens/beth#xoila) programming language.
 
 It generates c-source code, which is stored in files named `*.xo.{c,h}`.
 
 Configuration files `*_xoico.cfg` specify how xoico is to navigate through the sources.
-I tried to make them self-explanatory.
 
 ***More details will follow ...***
 
@@ -36,7 +35,8 @@ It provides a convenient programming layer unlocking core concepts of project be
 
 (*Xoila* was initially called *Beth-Plant*.)
 
-***More details will follow ...***
+The language is still in development. Once it reaches maturity it shall be better document.
+Until then the code for this compiler can be used as basis to learn more about the language.
 
 ------
 

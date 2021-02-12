@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
- *  Last File Update: 2021-02-12T14:30:19Z
+ *  Last File Update: 2021-02-12T14:51:54Z
  *
  *  Copyright and License of this File:
  *
@@ -4682,7 +4682,7 @@ er_t xoico_compiler_s_check_overwrite( const xoico_compiler_s* o, sc_t file )
         if( o->overwrite_unsigned_target_files )
         {
             st_s_push_fa(s,"Flag 'overwrite_unsigned_target_files' is 'true'. The file will be overwritten.\n" );
-            bcore_sink_a_push_fa( BCORE_STDERR,"\nWARNING: #<sc_t>\n", s->sc );
+            bcore_sink_a_push_fa(x_inst_stderr(),"\nWARNING: #<sc_t>\n", s->sc );
         }
         else
         {
@@ -6328,7 +6328,7 @@ er_t xoico_che_s_inspect_expression( xoico_che_s* o, bcore_source* source )
     bcore_msg_fa( " \?? #<sc_t>;\n", st->sc );
     if( xoico_che_s_trans_expression(o,((bcore_source*)(((bcore_source_string_s*)BLM_LEVEL_T_PUSH(0,bcore_source_string_s,bcore_source_string_s_create_fa("#<st_s*>;", st ))))), result_local, typespec ) )
     {
-        bcore_error_pop_to_sink( BCORE_STDOUT );
+        bcore_error_pop_to_sink( x_inst_stdout() );
         bcore_msg_fa( "\n" );
     }
     else
@@ -6774,8 +6774,8 @@ er_t xoico_che_s_translate_mutable( xoico_che_s* o, const xoico_host* host, cons
     
     if( o->verbose )
     {
-        bcore_sink_a_push_fa( BCORE_STDOUT,"##############################\n" );
-        bcore_sink_a_push_fa( BCORE_STDOUT,"#<st_s*>\n", buf );
+        bcore_sink_a_push_fa(x_inst_stdout(),"##############################\n" );
+        bcore_sink_a_push_fa(x_inst_stdout(),"#<st_s*>\n", buf );
     }
     
     bcore_sink_a_push_sc(sink,buf->sc );
@@ -8872,7 +8872,7 @@ s2_t xoico_main_main( const bcore_arr_st_s* args )
     {
         if( st_s_equal_sc(args->data[ arg_idx ],"--help" ) )
         {
-            xoico_main_help(BCORE_STDOUT );
+            xoico_main_help(x_inst_stdout() );
         }
         else if( st_s_equal_sc(args->data[ arg_idx ],"--selftest" ) )
         {
@@ -8905,15 +8905,15 @@ s2_t xoico_main_main( const bcore_arr_st_s* args )
     
             if( xoico_builder_main_s_get_dry_run(&(builder_main)) )
             {
-                bcore_sink_a_push_fa( BCORE_STDOUT,"Dry run ...\n" );
+                bcore_sink_a_push_fa(x_inst_stdout(),"Dry run ...\n" );
             }
     
             if( xoico_builder_main_s_get_always_expand(&(builder_main)) )
             {
-                bcore_sink_a_push_fa( BCORE_STDOUT,"Expanding all ...\n" );
+                bcore_sink_a_push_fa(x_inst_stdout(),"Expanding all ...\n" );
             }
     
-            if( arg_idx >= args->size ) xoico_main_help(BCORE_STDOUT );
+            if( arg_idx >= args->size ) xoico_main_help(x_inst_stdout() );
             clock_t time = clock();
     
             for(sz_t i = arg_idx; i < args->size; i++ )
@@ -8930,7 +8930,7 @@ s2_t xoico_main_main( const bcore_arr_st_s* args )
             {
                 f3_t time_var = clock() - time;
                 time_var /= CLOCKS_PER_SEC;
-                bcore_sink_a_pushf( BCORE_STDOUT,"Finished after %.3f seconds.\n", time_var );
+                bcore_sink_a_pushf(x_inst_stdout(),"Finished after %.3f seconds.\n", time_var );
             }
         }
     }
@@ -9413,4 +9413,4 @@ int main( int argc, char** argv )
     BETH_CLOSEV( 0 );
     return retv;
 }
-// XOILA_OUT_SIGNATURE 0xD7827B21F7DDD6ABull
+// XOILA_OUT_SIGNATURE 0x5875B879E5B55BAEull

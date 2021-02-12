@@ -384,7 +384,7 @@ func (:s) :.check_overwrite =
         if( o.overwrite_unsigned_target_files )
         {
             s.push_fa( "Flag 'overwrite_unsigned_target_files' is 'true'. The file will be overwritten.\n" );
-            bcore_sink_a_push_fa( BCORE_STDERR, "\nWARNING: #<sc_t>\n", s->sc );
+            x_inst_stderr().push_fa( "\nWARNING: #<sc_t>\n", s->sc );
         }
         else
         {

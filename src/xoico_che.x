@@ -1826,7 +1826,7 @@ func(:s) (er_t inspect_expression( m @* o, m bcore_source* source )) = (try)
     bcore_msg_fa( " \?? #<sc_t>;\n", st.sc );
     if( o.trans_expression( bcore_source_string_s_create_fa( "#<st_s*>;", st )^^, result_local, typespec ) )
     {
-        bcore_error_pop_to_sink( BCORE_STDOUT );
+        bcore_error_pop_to_sink( x_inst_stdout() );
         bcore_msg_fa( "\n" );
     }
     else
@@ -2272,8 +2272,8 @@ func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* b
 
     if( o.verbose )
     {
-        bcore_sink_a_push_fa( BCORE_STDOUT, "##############################\n" );
-        bcore_sink_a_push_fa( BCORE_STDOUT, "#<st_s*>\n", buf );
+        x_inst_stdout().push_fa( "##############################\n" );
+        x_inst_stdout().push_fa( "#<st_s*>\n", buf );
     }
 
     sink.push_sc( buf.sc );
