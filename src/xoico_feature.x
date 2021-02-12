@@ -17,6 +17,48 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
+stamp :s = aware :
+{
+    xoico_signature_s signature;
+
+    xoico_funcs_s funcs;
+
+    xoico_funcs_s funcs_return_to_group; // these functions are passed to the group in which the feature is registered
+
+    tp_t function_pointer_name; /// name of function pointer as registered in c-code
+
+    st_s st_default_func_name;
+    xoico_body_s => default_body;
+
+    bl_t strict;
+    bl_t flag_p;
+    bl_t flag_t;
+    bl_t flag_a;
+    bl_t flag_r;
+    bl_t expandable = true;
+
+    bcore_source_point_s source_point;
+
+    func xoico.parse;
+    func xoico.get_hash;
+    func xoico.get_global_name_tp = { return o.signature.global_name; };
+    func xoico.finalize;
+    func xoico.expand_forward;
+    func xoico.expand_indef_typedef;
+    func xoico.expand_spect_declaration;
+    func xoico.expand_spect_definition;
+    func xoico.expand_indef_declaration;
+    func xoico.expand_definition;
+    func xoico.expand_init1;
+    func xoico.get_source_point = { return o.source_point; };
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**********************************************************************************************************************/
+
+//----------------------------------------------------------------------------------------------------------------------
+
 func (:s) xoico.get_hash =
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );

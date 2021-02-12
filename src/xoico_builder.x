@@ -17,6 +17,144 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
+/// returns index of target
+signature er_t load( m @* o, bl_t readonly, sc_t path );
+signature er_t build( m @* o );
+signature c @* name_match( c @* o, sc_t name );
+
+signature void push_target_index_to_arr( c @* o, m bcore_arr_sz_s* arr );
+
+stamp :arr_target_s = aware x_array { :target_s => []; };
+
+stamp :target_s = aware :
+{
+    st_s => name;             // unique target name
+    st_s => extension = "xo"; // extension used for xoila output files
+    st_s => root_folder;      // root folder of subsequent file paths (used if they are relative)
+    bl_t readonly;
+
+    bcore_arr_st_s dependencies; // dependent target definitions
+    bcore_arr_st_s sources;      // array of source files
+
+    /** Function name of principal signal handler for this target
+     *  If not defined, it is assumed that the name is <name>_general_signal_handler
+     */
+    st_s => signal_handler;
+
+    /** Implements <name>_general_signal_handler in xo.c
+     *  Set to false if a signal handler is manually implemented for given target.
+     */
+    bl_t define_signal_handler = true;
+
+    /// Optional cengine that is to be used in all bodies of this target
+    aware xoico_cengine => cengine = xoico_che_s;
+
+    private xoico_compiler_s* compiler;
+
+    // Runtime data
+    private @* parent_;
+    private @* root_;
+    hidden  aware :arr_target_s => dependencies_target_;
+    hidden  st_s                   full_path_;
+    hidden  sz_t                   target_index_ = -1; // Index for target on the compiler; -1 if this target has no representation
+    hidden  bcore_hmap_tpvd_s   => hmap_built_target_; // map of targets that have already been built
+
+    func bcore_via_call.source =
+    {
+        if( !o->root_folder )
+        {
+            o->root_folder = bcore_file_folder_path( bcore_source_a_get_file( source ) );
+            o.root_folder =< bcore_file_path_minimized( o.root_folder.sc );
+        }
+    };
+
+    func :.name_match =
+    {
+        if( o.name && sc_t_equal( name, o.name.sc ) ) return o;
+        if( o.parent_ ) return o->parent_.name_match( name );
+        return NULL;
+    };
+
+    func :.push_target_index_to_arr =
+    {
+        if( o.target_index_ != -1 )
+        {
+             arr.push( o.target_index_ );
+        }
+        else
+        {
+            foreach( m $* e in o.dependencies_target_ ) e.push_target_index_to_arr( arr );
+        }
+    };
+
+    func :.load;
+    func :.build;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+signature er_t build_from_file( m @* o, sc_t path );
+signature bl_t update_required( c @* o );
+signature er_t update         ( c @* o );
+
+signature er_t set_dry_run( m @* o, bl_t v );
+signature bl_t get_dry_run( c @* o );
+
+signature er_t set_always_expand( m @* o, bl_t v );
+signature bl_t get_always_expand( c @* o );
+
+signature er_t set_overwrite_unsigned_target_files( m @* o, bl_t v );
+signature bl_t get_overwrite_unsigned_target_files( c @* o );
+
+stamp :main_s = aware :
+{
+    xoico_compiler_s => compiler!;
+    :target_s => target;
+
+    func :.build_from_file;
+    func :.update_required = { return o.compiler.update_required(); };
+    func :.update;
+
+    func :.set_dry_run =
+    {
+        o.compiler.dry_run = v;
+        return 0;
+    };
+
+    func :.get_dry_run =
+    {
+        return o.compiler.dry_run;
+    };
+
+    func :.set_always_expand =
+    {
+        o.compiler.always_expand = v;
+        return 0;
+    };
+
+    func :.get_always_expand =
+    {
+        return o.compiler.always_expand;
+    };
+
+    func :.set_overwrite_unsigned_target_files =
+    {
+        o.compiler.overwrite_unsigned_target_files = v;
+        return 0;
+    };
+
+    func :.get_overwrite_unsigned_target_files =
+    {
+        return o.compiler.overwrite_unsigned_target_files;
+    };
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**********************************************************************************************************************/
+
+//----------------------------------------------------------------------------------------------------------------------
+
 func (:target_s) :.load = (try)
 {
     m st_s* st_path = st_s!^^;
@@ -114,7 +252,7 @@ func (:target_s) :.build = (try)
 
     if( o.root_.hmap_built_target_.exists( tp_target_name ) )
     {
-        m xoico_builder_target_s* target = o.root_.hmap_built_target_.get( tp_target_name ).cast( m xoico_builder_target_s** ).1;
+        m xoico_builder_target_s* target = o.root_.hmap_built_target_.get( tp_target_name ).cast( m xoico_builder_target_s.2 ).1;
         o.target_index_ = target.target_index_;
         return 0;
     }
@@ -125,20 +263,58 @@ func (:target_s) :.build = (try)
 
     bcore_msg_fa( "XOICO: compiling #<sc_t>\n", o.full_path_.sc );
 
-    foreach( m $* e in o.sources )
+    foreach( $* e in o.sources )
     {
-        m st_s* file_path = st_s!^;
-        if( e.sc[ 0 ] != '/' )
+        m bcore_source* source = bcore_source_string_s!^.setup_from_string( e );
+        st_s^ group_name;
+        st_s^ trait_name;
+        st_s^ file_path;
+        source.parse_fa( " " ); // take whitespaces
+
+        if( source.parse_bl( "#?w'group'" ) )
         {
-            if( o.root_folder ) file_path.push_fa( "#<sc_t>/", o.root_folder.sc );
+            source.parse_fa( " #name", group_name.1 );
+            if( group_name.size == 0 ) return source.parse_error_fa( "Group name expected in source declaration." );
+            source.parse_fa( " = #name", trait_name.1 );
+            if( trait_name.size == 0 ) return source.parse_error_fa( "Trait name expected in source declaration." );
+            source.parse_fa( " " );
         }
-        file_path.push_fa( "#<sc_t>", e.sc );
+
+        while( !source.eos() ) file_path.push_char( source.get_char() );
+        if( file_path.size == 0 ) return source.parse_error_fa( "File name expected in source declaration." );
+
+        if( e.sc[ 0 ] != '/' && o.root_folder )
+        {
+            st_s* tmp = file_path.clone()^;
+            file_path.copy_fa( "#<sc_t>/#<sc_t>", o.root_folder.sc, tmp.sc );
+        }
+
+        if( group_name.size == 0 && file_path.ends_in_sc( ".x" ) )
+        {
+            group_name.copy( bcore_file_strip_extension( bcore_file_name( file_path.sc ) )^ );
+            trait_name.copy_sc( "x_inst" );
+        }
 
         ASSERT( o.name );
         ASSERT( o.extension );
         sz_t index = -1;
 
-        o.compiler.parse( o->name->sc, o->extension->sc, file_path.sc, index );
+        if( group_name.size == 0 )
+        {
+            if( !file_path.ends_in_sc( ".h" ) )
+            {
+                return source.parse_error_fa( "File name should have extension *.h" );
+            }
+            o.compiler.parse( o.name.sc, o.extension.sc, file_path.sc, NULL, NULL, index.1 );
+        }
+        else
+        {
+            if( !file_path.ends_in_sc( ".x" ) )
+            {
+                return source.parse_error_fa( "File name should have extension *.x" );
+            }
+            o.compiler.parse( o.name.sc, o.extension.sc, file_path.sc, group_name.sc, trait_name.sc, index.1 );
+        }
 
         if( o.target_index_ == -1 ) o.target_index_ = index;
         if( index != o.target_index_ )
@@ -158,7 +334,7 @@ func (:target_s) :.build = (try)
     if( o.target_index_ >= 0 )
     {
         ASSERT( o.target_index_ < o.compiler.size );
-        m bcore_arr_sz_s* dependencies = bcore_arr_sz_s!^^;
+        m bcore_arr_sz_s* dependencies = bcore_arr_sz_s!^;
         foreach( m $* e in o->dependencies_target_ ) e.push_target_index_to_arr( dependencies );
 
         m xoico_target_s* target = o.compiler.[ o.target_index_ ];

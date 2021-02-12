@@ -13,18 +13,12 @@
  *  limitations under the License.
  */
 
-#ifndef XOICO_SOURCE_H
-#define XOICO_SOURCE_H
-
 /**********************************************************************************************************************/
 
-#include "xoico.h"
-#include "xoico_group.h"
+//----------------------------------------------------------------------------------------------------------------------
 
-/**********************************************************************************************************************/
-
-XOILA_DEFINE_GROUP( xoico_source, xoico )
-#ifdef XOILA_SECTION
+signature er_t parse_h( m @* o, c xoico_host* host, m bcore_source* source );
+signature er_t parse_x( m @* o, c xoico_host* host, m bcore_source* source, sc_t group_name, sc_t trait_name );
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -32,6 +26,7 @@ stamp :s = aware :
 {
     st_s name; // file name excluding directory and extension
     st_s path; // file path excluding extension
+    st_s ext;  // file extension ( "h" or "x" )
     xoico_group_s => [];
 
     hidden aware xoico_target_s* target;
@@ -55,7 +50,8 @@ stamp :s = aware :
         return hash;
     };
 
-    func xoico.parse;
+    func :.parse_h;
+    func :.parse_x;
 
     func xoico.finalize =
     {
@@ -68,7 +64,7 @@ stamp :s = aware :
     {
         sink.push_fa( "\n" );
         sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
-        sink.push_fa( "#rn{ }// source: #<sc_t>.h\n", indent, o.name.sc );
+        sink.push_fa( "#rn{ }// source: #<sc_t>.#<sc_t>\n", indent, o.name.sc, o.ext.sc );
         foreach( m $* e in o ) e.expand_declaration( indent, sink ).try();
         return 0;
     };
@@ -77,8 +73,12 @@ stamp :s = aware :
     {
         sink.push_fa( "\n" );
         sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
-        sink.push_fa( "#rn{ }// source: #<sc_t>.h\n", indent, o.name.sc );
-        sink.push_fa( "#rn{ }##include \"#<sc_t>.h\"\n", indent, o.name.sc );
+        sink.push_fa( "#rn{ }// source: #<sc_t>.#<sc_t>\n", indent, o.name.sc, o.ext.sc );
+
+        if( o.ext.equal_sc( "h" ) )
+        {
+            sink.push_fa( "#rn{ }##include \"#<sc_t>.#<sc_t>\"\n", indent, o.name.sc, o.ext.sc );
+        }
         foreach( m $* e in o ) e.expand_definition( indent, sink ).try();
         return 0;
     };
@@ -87,8 +87,24 @@ stamp :s = aware :
     {
         sink.push_fa( "\n" );
         sink.push_fa( "#rn{ }// #rn{-}\n", indent, sz_max( 0, 80 - indent ) );
-        sink.push_fa( "#rn{ }// source: #<sc_t>.h\n", indent, o.name.sc );
+        sink.push_fa( "#rn{ }// source: #<sc_t>.#<sc_t>\n", indent, o.name.sc, o.ext.sc );
         foreach( m $* e in o ) e.expand_init1( indent, sink ).try();
+        return 0;
+    };
+
+    func xoico.expand_manifesto =
+    {
+        st_s^ buf;
+        foreach( m $* e in o ) e.expand_manifesto( host, indent, buf ).try();
+
+        if( buf.size > 0 )
+        {
+//            sink.push_fa( "\n" );
+//            sink.push_fa( "#rn{ }// #rn{-}\n", indent, sz_max( 0, 80 - indent ) );
+//            sink.push_fa( "#rn{ }// source: #<sc_t>.#<sc_t>\n", indent, o.name.sc, o.ext.sc );
+            sink.push_sc( buf.sc );
+        }
+
         return 0;
     };
 
@@ -105,16 +121,14 @@ stamp :s = aware :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.parse = (try)
+func (:s) :.parse_h = (try)
 {
     m $* compiler = o.target.compiler;
     while( !source.eos() )
     {
-        m xoico_group_s* group = NULL;
-
         if( source.parse_bl( " #?w'XOILA_DEFINE_GROUP'" ) )
         {
-            group = xoico_group_s!^^;
+            m xoico_group_s* group = xoico_group_s!^;
             o.push_d( group.fork() );
             group.xoico_source = o;
             group.compiler = compiler;
@@ -154,8 +168,26 @@ func (:s) xoico.parse = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-#endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+func (:s) :.parse_x = (try)
+{
+    m $* compiler = o.target.compiler;
+    m xoico_group_s* group = xoico_group_s!^;
+    o.push_d( group.fork() );
+
+    st_s^ st_group_name.copy_sc( group_name );
+    st_s^ st_trait_name.copy_sc( trait_name );
+
+    group.xoico_source = o;
+    group.compiler = compiler;
+    group.st_name.copy( st_group_name );
+    group.trait_name = compiler.entypeof( st_trait_name.sc );
+    group.is_manifesto = true;
+    group.parse( o, source );
+    compiler.register_group( group );
+
+    return 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
 
 /**********************************************************************************************************************/
-
-#endif // XOICO_SOURCE_H

@@ -17,6 +17,51 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
+signature er_t parse_expression( m @* o, c xoico_host* host, m bcore_source* source );
+signature er_t finalize( m @* o, c xoico_host* host );
+signature er_t expand( c @* o, c xoico_host* host, c xoico_signature_s* signature, sz_t indent, m bcore_sink* sink );
+
+//----------------------------------------------------------------------------------------------------------------------
+
+stamp :code_s = aware :
+{
+    bl_t single_line;
+    tp_t hash_source;
+
+    bcore_source_point_s source_point;
+
+    func xoico.parse;
+    func xoico.get_hash;
+    func xoico.get_source_point = { return o.source_point; };
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+stamp :s = aware :
+{
+    tp_t name;
+    tp_t global_name;
+
+    :code_s => code;
+
+    bl_t go_inline;
+
+    bcore_source_point_s source_point;
+
+    func xoico.get_hash;
+    func xoico.get_global_name_tp = { return o.global_name; };
+    func     :.parse_expression;
+    func     xoico.parse;
+    func     :.finalize = { return 0; };
+    func     :.expand;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**********************************************************************************************************************/
+
+//----------------------------------------------------------------------------------------------------------------------
+
 func (:code_s) xoico.parse = (try)
 {
     tp_t hash = bcore_tp_init();

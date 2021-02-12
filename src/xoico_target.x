@@ -17,12 +17,91 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
+signature er_t parse_from_path( m @* o, sc_t source_path, sc_t group_name /* can be NULL */, sc_t trait_name /* can be NULL */ );
+signature bl_t to_be_modified( c @* o );
+signature er_t expand_phase1( m @* o, m bl_t* p_modified );
+signature er_t expand_phase2( m @* o, m bl_t* p_modified );
+signature bl_t is_cyclic( m @* o ); // mutable because flag is used for cyclic test
+signature er_t set_dependencies(  m @* o, c bcore_arr_sz_s* dependencies );
+signature er_t set_main_function( m @* o, c xoico_func_s* func );
+
+stamp :s = aware :
+{
+    st_s name; // target name (e.g. "bcore")
+    st_s ext;  // target extension (e.g. "xo")
+
+    st_s include_path; // (local) path used in generated '#include' directives
+    st_s path; // full path excluding extension *.h or *.c
+    xoico_source_s => [];
+
+    st_s signal_handler_name;   // name of governing signal handler
+    bl_t define_signal_handler; // implements <name>_general_signal_handler in xo.c
+
+    bcore_arr_sz_s dependencies; // index array to dependent targets
+    bl_t flag; // general purpose flag
+    bl_t modified;    // target is to be modified
+    bl_t readonly;    // target is readonly (affects writing in phase2)
+    st_s => target_h; // target header file
+    st_s => target_c; // target c file
+
+    /// Optional cengine that is to be used in all bodies of this target
+    aware xoico_cengine -> cengine;
+
+    hidden aware xoico_compiler_s* compiler;
+    hidden xoico_func_s* main_function;
+
+    func :.parse_from_path;
+    func :.to_be_modified;
+
+    func xoico.finalize =
+    {
+        foreach( m $* e in o ) e.finalize( o ).try();
+        return 0;
+    };
+
+    func xoico.expand_setup =
+    {
+        foreach( m $* e in o ) e.expand_setup( o ).try();
+        return 0;
+    };
+
+    func :.expand_phase1;
+    func :.expand_phase2;
+    func :.is_cyclic;
+    func :.set_dependencies;
+    func :.set_main_function =
+    {
+        if( o.compiler.has_main_function ) return func.source_point.parse_error_fa( "A main function was already declared." );
+        o.compiler.has_main_function = true;
+        o.main_function = func.cast( m$* );
+        return 0;
+    };
+
+    func (void push_d( m @* o, d xoico_source_s* source )) =
+    {
+        o.cast( m x_array* ).push_d( source );
+    };
+
+    func xoico_group.explicit_embeddings_push =
+    {
+        foreach( m $* source in o ) source.explicit_embeddings_push( arr );
+    };
+
+    func xoico_host.compiler = { return o.compiler; };
+    func xoico_host.cengine = { return o.cengine; };
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**********************************************************************************************************************/
+
+//----------------------------------------------------------------------------------------------------------------------
+
 func (:s) :.parse_from_path = (try)
 {
     m st_s* source_name        = bcore_file_strip_extension( bcore_file_name( source_path ) )^^;
     m st_s* source_folder_path = bcore_file_folder_path( source_path )^^;
     m st_s* source_path_n      = st_s_create_fa( "#<sc_t>/#<sc_t>", source_folder_path.sc, source_name.sc )^^;
-    m st_s* source_path_h      = st_s_create_fa( "#<sc_t>.h", source_path_n.sc )^^;
 
     bl_t source_exists = false;
 
@@ -42,10 +121,22 @@ func (:s) :.parse_from_path = (try)
 
         xsource.name.copy_sc( source_name.sc );
         xsource.path.copy( source_path_n );
+        xsource.ext.copy_sc( bcore_file_extension( source_path ) );
 
-        if( bcore_file_exists( source_path_h.sc ) )
+        if( bcore_file_exists( source_path ) )
         {
-            xsource.parse( o, bcore_file_open_source( source_path_h.sc )^^ );
+            if( group_name )
+            {
+                xsource.parse_x( o, bcore_file_open_source( source_path )^^, group_name, trait_name );
+            }
+            else
+            {
+                xsource.parse_h( o, bcore_file_open_source( source_path )^^ );
+            }
+        }
+        else
+        {
+            return bcore_error_push_fa( TYPEOF_general_error, "Could not open '#<sc_t>'.", source_path );
         }
 
         o.push_d( xsource.fork() );
@@ -143,7 +234,7 @@ func (:s) (er_t expand_heading( c @* o, sz_t indent, m bcore_sink* sink )) = (tr
     bcore_cday_utc_s_from_system( time );
 
     sink.push_fa( "/** This file was generated from xoila source code.\n" );
-    sink.push_fa( " *  Compiling Agent : xoico_compiler (C) 2020 J.B.Steffens\n" );
+    sink.push_fa( " *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens\n" );
     sink.push_fa( " *  Last File Update: " );
     bcore_cday_utc_s_to_sink( time, sink );
     sink.push_fa( "\n" );
@@ -154,7 +245,7 @@ func (:s) (er_t expand_heading( c @* o, sz_t indent, m bcore_sink* sink )) = (tr
     sink.push_fa( " *  Source code defining this file is distributed across following files:\n" );
     sink.push_fa( " *\n" );
 
-    foreach( m $* e in o ) sink.push_fa( " *  #<sc_t>.h\n", e.name.sc );
+    foreach( m $* e in o ) sink.push_fa( " *  #<sc_t>.#<sc_t>\n", e.name.sc, e.ext.sc );
 
     {
         m $* arr = bcore_arr_st_s!^^;
@@ -191,6 +282,14 @@ func (:s) (er_t expand_h( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
 
     sink.push_fa( "\n" );
     sink.push_fa( "#rn{ }##include \"bcore_control.h\"\n", indent );
+    sink.push_fa( "#rn{ }##include \"bcore_xoila.h\"\n", indent );
+
+    /// include generated headers this target depends on
+    foreach( sz_t target_idx in o.dependencies )
+    {
+        c xoico_target_s* target = o.compiler.data[ target_idx ];
+        sink.push_fa( "#rn{ }##include \"#<sc_t>.h\"\n", indent, target.include_path.sc );
+    }
 
     sink.push_fa( "\n" );
 
@@ -207,6 +306,12 @@ func (:s) (er_t expand_h( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
     sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
     sink.push_fa( "\n" );
     sink.push_fa( "#rn{ }vd_t #<sc_t>_#<sc_t>_signal_handler( const bcore_signal_s* o );\n", indent, o.name.sc, o.ext.sc );
+
+    sink.push_fa( "\n" );
+    sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
+    sink.push_fa( "// Manifesto\n" );
+    sink.push_fa( "\n" );
+    foreach( m $* e in o ) e.expand_manifesto( o, indent, sink );
 
     sink.push_fa( "\n" );
     sink.push_fa( "#rn{ }##endif // __#<sc_t>_#<sc_t>_H\n", indent, o.name.sc, o.ext.sc );

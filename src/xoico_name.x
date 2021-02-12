@@ -13,22 +13,11 @@
  *  limitations under the License.
  */
 
-#ifndef XOICO_FORWARD_H
-#define XOICO_FORWARD_H
-
 /**********************************************************************************************************************/
-
-#include "xoico.h"
-
-/**********************************************************************************************************************/
-
-XOILA_DEFINE_GROUP( xoico_forward, xoico )
-#ifdef XOILA_SECTION // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 stamp :s = aware :
 {
     tp_t name; // deemed global
-    hidden aware xoico_group_s* group;
     bcore_source_point_s source_point;
 
     func xoico.parse = (try)
@@ -41,34 +30,26 @@ stamp :s = aware :
 
     func xoico.get_hash =
     {
-        tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
-        hash = bcore_tp_fold_tp( hash, o.name );
+        tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
+        hash = bcore_tp_fold_tp( hash, o->name );
         return hash;
     };
 
-    func xoico.get_global_name_tp = { return o->name; };
+    func xoico.get_global_name_tp = { return o.name; };
 
-    func xoico.expand_declaration = (try)
+    func xoico.expand_declaration =
     {
-        sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, host.nameof( o.name ), o.name );
+        sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, host.compiler().nameof( o.name ), o.name );
         return 0;
     };
 
-    func xoico.expand_forward = (try)
+    func xoico.expand_init1 =
     {
-        sink.push_fa( " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, host.nameof( o.name ) );
+        sink.push_fa( "#rn{ }BCORE_REGISTER_NAME( #<sc_t> );\n", indent, host.compiler().nameof( o.name ) );
         return 0;
     };
-
-    func xoico.expand_init1 = { return 0; };
-
-    func xoico.get_source_point = { return o.source_point; };
 };
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-#endif // XOILA_SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//----------------------------------------------------------------------------------------------------------------------
 
 /**********************************************************************************************************************/
-
-#endif // XOICO_FORWARD_H

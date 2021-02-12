@@ -379,14 +379,19 @@ TODO:
 - (done) Define signature main in x_inst.
      -   Defining a function with this signature generates the main function int main( int argc, char** argv ) of a program
      -   Dependencies are automatically initialized
+- (done) where possible switch projects to define signal handler in *_xo.c
+- (done) set target flag 'define_signal_handler' true by default.
+- (done) x_inst: add transient functions for reflection access
+- (done) config file: embed *.x files directly;
+     syntax1: group <group_name> = <trait_name> <filename>.x
+     syntax2: <filename>.x
+     syntax2 assumes <group_name> = <filename> and <trait_name> = x_inst
+- (fixed) bug: in-place expansion does not work for nested groups (nested groups are declared after expansion): fix: move in-place expansion to the end of *.xo.h
 
 - bug: binary operator not recognized after unregistered member function
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
 - make traitline of all groups end in x_inst
 - make 'fork' a transient function in x_inst rather than a builtin function
-- x_inst: add transient functions for reflection access
-- where possible switch projects to define signal handler in *_xo.c
-- set target flag 'define_signal_handler' true by default.
 - add registry for unspecific identifiers (allows disabling unknown identifier waiver)
 - che: disable as many waivers as possible
 - allow 'name'-identifier to be used literally -> translates into TYPEOF_<identifier>
