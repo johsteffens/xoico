@@ -1,6 +1,6 @@
 # Xoila Compiler
 
-Xoico is a self-hosting compiler for [xoila](https://github.com/johsteffens/beth#xoila) programming language.
+Xoico is a self-hosting compiler for the [xoila programming language](https://github.com/johsteffens/beth#xoila).
 
 It generates c-source code, which is stored in files named `*.xo.{c,h}`.
 
