@@ -44,6 +44,8 @@ stamp :s = aware :
     st_s => target_h; // target header file
     st_s => target_c; // target c file
 
+    tp_t pre_hash;
+
     /// Optional cengine that is to be used in all bodies of this target
     aware xoico_cengine -> cengine;
 
@@ -150,7 +152,7 @@ func (:s) :.parse_from_path = (try)
 func (:s) (tp_t get_hash( c @* o )) =
 {
     tp_t hash = bcore_tp_init();
-
+    hash = bcore_tp_fold_tp( hash, o.pre_hash );
     hash = bcore_tp_fold_tp( hash, o.compiler.target_pre_hash );
     hash = bcore_tp_fold_tp( hash, o._ );
     hash = bcore_tp_fold_sc( hash, o.name.sc );

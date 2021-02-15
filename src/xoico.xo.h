@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
- *  Last File Update: 2021-02-12T14:51:54Z
+ *  Last File Update: 2021-02-15T14:32:00Z
  *
  *  Copyright and License of this File:
  *
@@ -45,7 +45,7 @@
 #include "bcore.xo.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico 0x5B9524E6623CFF35ull
+#define HKEYOF_xoico 0x1DA07BE59E7BA22Dull
 
 #define TYPEOF_xoico 0x21E8B04DB3E31F5Dull
 
@@ -1040,6 +1040,7 @@
       bl_t readonly; \
       st_s* target_h; \
       st_s* target_c; \
+      tp_t pre_hash; \
       xoico_cengine* cengine; \
       xoico_compiler_s* compiler; \
       xoico_func_s* main_function; \
@@ -1199,21 +1200,16 @@
 #define BETH_EXPAND_GROUP_xoico_cengine \
   BCORE_FORWARD_OBJECT( xoico_cengine ); \
   typedef er_t (*xoico_cengine_translate)(const xoico_cengine* o, const xoico_host* host, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink ); \
-  typedef tp_t (*xoico_cengine_get_hash)(const xoico_cengine* o ); \
   typedef bl_t (*xoico_cengine_is_reserved)(const xoico_cengine* o, tp_t tp_identifier ); \
   XOILA_DECLARE_SPECT( xoico_cengine ) \
   { \
       bcore_spect_header_s header; \
       xoico_cengine_translate translate; \
-      xoico_cengine_get_hash get_hash; \
       xoico_cengine_is_reserved is_reserved; \
   }; \
   BCORE_DECLARE_VIRTUAL_AWARE_OBJECT( xoico_cengine ) \
   static inline er_t xoico_cengine_a_translate( const xoico_cengine* o, const xoico_host* host, const xoico_body_s* body, const xoico_signature_s* signature, bcore_sink* sink ){ const xoico_cengine_spect_s* p = xoico_cengine_spect_s_get_aware( o ); assert( p->translate ); return p->translate( o, host, body, signature, sink );} \
   static inline bl_t xoico_cengine_defines_translate( const xoico_cengine* o ){ return xoico_cengine_spect_s_get_aware( o )->translate != NULL;} \
-  static inline tp_t xoico_cengine_a_get_hash( const xoico_cengine* o ){ const xoico_cengine_spect_s* p = xoico_cengine_spect_s_get_aware( o ); assert( p->get_hash ); return p->get_hash( o );} \
-  static inline bl_t xoico_cengine_defines_get_hash( const xoico_cengine* o ){ return  true;} \
-  static inline tp_t xoico_cengine_get_hash_default( const xoico_cengine* o ){ return  bcore_hash_a_get_tp( (bcore_hash*)o );} \
   static inline bl_t xoico_cengine_a_is_reserved( const xoico_cengine* o, tp_t tp_identifier ){ const xoico_cengine_spect_s* p = xoico_cengine_spect_s_get_aware( o ); assert( p->is_reserved ); return p->is_reserved( o, tp_identifier );} \
   static inline bl_t xoico_cengine_defines_is_reserved( const xoico_cengine* o ){ return  true;} \
   static inline bl_t xoico_cengine_is_reserved_default( const xoico_cengine* o, tp_t tp_identifier ){ return  false;}
@@ -1273,6 +1269,7 @@
       xoico_che_stack_block_s stack_block; \
       bcore_hmap_name_s hmap_name; \
   }; \
+  tp_t xoico_che_s_get_hash( const xoico_che_s* o ); \
   bl_t xoico_che_s_is_reserved( const xoico_che_s* o, tp_t tp_identifier ); \
   static inline tp_t xoico_che_s_entypeof( xoico_che_s* o, sc_t name ); \
   sc_t xoico_che_s_nameof( xoico_che_s* o, tp_t type ); \
@@ -1739,6 +1736,7 @@
   void xoico_builder_target_s_source( xoico_builder_target_s* o, bcore_source* source ); \
   const xoico_builder_target_s* xoico_builder_target_s_name_match( const xoico_builder_target_s* o, sc_t name ); \
   void xoico_builder_target_s_push_target_index_to_arr( const xoico_builder_target_s* o, bcore_arr_sz_s* arr ); \
+  tp_t xoico_builder_target_s_get_hash( const xoico_builder_target_s* o ); \
   er_t xoico_builder_target_s_load( xoico_builder_target_s* o, bl_t readonly, sc_t path ); \
   er_t xoico_builder_target_s_build( xoico_builder_target_s* o );
 #define TYPEOF_xoico_builder_main_s 0x10B2EBC3A7C03BBDull
@@ -1823,4 +1821,4 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOILA_OUT_SIGNATURE 0x354E12788033E58Cull
+// XOILA_OUT_SIGNATURE 0xD13872F9D2544B72ull

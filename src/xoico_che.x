@@ -404,6 +404,18 @@ stamp :s = aware :
 
     bcore_hmap_name_s hmap_name;
 
+    func xoico.get_hash =
+    {
+        tp_t hash = bcore_tp_init();
+        hash = bcore_tp_fold_bl( hash, o.verbose );
+        hash = bcore_tp_fold_bl( hash, o.insert_source_reference );
+        hash = bcore_tp_fold_bl( hash, o.waive_unknown_member_variable );
+        hash = bcore_tp_fold_bl( hash, o.waive_unknown_member_function );
+        hash = bcore_tp_fold_bl( hash, o.waive_function_in_untraced_context );
+        hash = bcore_tp_fold_bl( hash, o.waive_unknown_identifier );
+        return hash;
+    };
+
     func xoico_cengine.translate;
 
     func xoico_cengine.is_reserved =

@@ -22,7 +22,6 @@
 //----------------------------------------------------------------------------------------------------------------------
 
 feature 'a' er_t translate( c @* o, c xoico_host* host, c xoico_body_s* body, c xoico_signature_s* signature, m bcore_sink* sink );
-feature 'a' tp_t get_hash ( c @* o ) = { return bcore_hash_a_get_tp( (bcore_hash*)o ); };
 feature 'a' bl_t is_reserved( c @* o, tp_t tp_identifier ) = { return false; };
 
 //----------------------------------------------------------------------------------------------------------------------

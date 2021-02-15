@@ -87,6 +87,20 @@ stamp :target_s = aware :
         }
     };
 
+    func xoico.get_hash =
+    {
+        tp_t hash = bcore_tp_init();
+        hash = o.name ? bcore_tp_fold_sc( hash, o.name.sc ) : hash;
+        hash = o.extension ? bcore_tp_fold_sc( hash, o.extension.sc ) : hash;
+        hash = o.root_folder ? bcore_tp_fold_sc( hash, o.root_folder.sc ) : hash;
+        foreach( st_s* e in o.dependencies ) hash = bcore_tp_fold_sc( hash, e.sc );
+        foreach( st_s* e in o.sources ) hash = bcore_tp_fold_sc( hash, e.sc );
+        hash = o.signal_handler ? bcore_tp_fold_sc( hash, o.signal_handler.sc ) : hash;
+        hash = bcore_tp_fold_bl( hash, o.define_signal_handler );
+        hash = o.cengine ? bcore_tp_fold_bl( hash, o.cengine.get_hash() ) : hash;
+        return hash;
+    };
+
     func :.load;
     func :.build;
 };
@@ -346,6 +360,7 @@ func (:target_s) :.build = (try)
         target.define_signal_handler = o.define_signal_handler;
         target.readonly = o.readonly;
         target.cengine =< o.cengine.fork();
+        target.pre_hash = o.get_hash();
     }
 
     return 0;
