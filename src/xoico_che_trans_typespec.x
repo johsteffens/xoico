@@ -125,24 +125,26 @@ func (:s)
         {
             if( info.func ) // member function
             {
-                m $* typespec_ret = xoico_typespec_s!^^;
-                m $* result_object_expr = result.clone()^^;
+                m $* typespec_ret = xoico_typespec_s!^;
+                m $* result_object_expr = result.clone()^;
                 result.clear();
                 o.trans_function( source, info.func, result_object_expr, in_typespec, result, typespec_ret );
                 o.trans_typespec_expression( source, result, typespec_ret, out_typespec );
             }
             else // traced member element
             {
-                if( in_typespec.indirection > 1 )
+                if( in_typespec.indirection <= 1 )
                 {
-                    return source.parse_error_fa
-                    (
-                        "Dereferencing #<sc_t>: Indirection '#<sz_t>' is too large.",
-                        o.nameof( tp_identifier ),
-                        in_typespec.indirection
-                    );
+                    result.push_fa( "#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : "." );
                 }
-                result.push_fa( "#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : "." );
+                else
+                {
+                    m $* result_object_expr = result.clone()^;
+                    result.clear();
+                    result.push_fa( "(#rn{*}(", in_typespec.indirection );
+                    result.push_result_d( result_object_expr.fork() );
+                    result.push_fa( "))." );
+                }
                 result.push_result_d( result_local.fork() );
 
                 o.trans_typespec_expression( source, result, info.type_info.typespec, out_typespec );

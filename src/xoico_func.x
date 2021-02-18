@@ -115,7 +115,8 @@ func (:s) xoico.parse = (try)
     }
     else
     {
-        tp_t tp_signature_base_name;
+        tp_t tp_signature_base_name = 0;
+        tp_t tp_signature_global_name = 0;
 
         if( source.parse_bl( " #?'^'" ) )
         {
@@ -139,20 +140,33 @@ func (:s) xoico.parse = (try)
             }
             else
             {
-                tp_signature_base_name = host.cast( c xoico* ).get_global_name_tp();
+                sz_t idx = -1;
+                if( host._ == TYPEOF_xoico_stamp_s && ( idx = host.cast( xoico_stamp_s* ).funcs.get_index_from_name( name ) ) >= 0 )
+                {
+                    tp_signature_global_name = host.cast( xoico_stamp_s* ).funcs.[ idx ].signature_global_name;
+                }
+                else
+                {
+                    tp_signature_base_name = host.cast( c xoico* ).get_global_name_tp();
+                }
                 o.name = name;
             }
         }
 
         if( !o.name )
         {
-            m st_s* st_name = st_s!^^;
-            source.parse_em_fa( " #name", st_name );
-            if( st_name->size == 0 ) return source.parse_error_fa( "Function name expected." );
+            st_s^ st_name;
+            source.parse_em_fa( " #name", st_name.1 );
+            if( st_name.size == 0 ) return source.parse_error_fa( "Function name expected." );
             o.name = compiler.entypeof( st_name.sc );
         }
 
-        o.signature_global_name = compiler.entypeof( st_s_create_fa( "#<sc_t>_#<sc_t>", compiler.nameof( tp_signature_base_name ), compiler.nameof( o.name ) )^^.sc );
+        if( !tp_signature_global_name )
+        {
+            tp_signature_global_name = compiler.entypeof( st_s_create_fa( "#<sc_t>_#<sc_t>", compiler.nameof( tp_signature_base_name ), compiler.nameof( o.name ) )^.sc );
+        }
+
+        o.signature_global_name = tp_signature_global_name;
 
     }
 

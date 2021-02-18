@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
- *  Last File Update: 2021-02-15T14:32:00Z
+ *  Last File Update: 2021-02-18T17:08:58Z
  *
  *  Copyright and License of this File:
  *
@@ -45,7 +45,7 @@
 #include "bcore.xo.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico 0x1DA07BE59E7BA22Dull
+#define HKEYOF_xoico 0xB732E265DE4C5203ull
 
 #define TYPEOF_xoico 0x21E8B04DB3E31F5Dull
 
@@ -777,7 +777,7 @@
   { \
       aware_t _; \
       BCORE_ARRAY_DYN_LINK_STATIC_S( xoico, ); \
-      xoico_group_s* parent; \
+      xoico_group_s* lexical_parent; \
       bcore_arr_st_s includes_in_declaration; \
       bcore_arr_st_s includes_in_definition; \
       bcore_arr_st_s explicit_embeddings; \
@@ -798,6 +798,7 @@
       bcore_hmap_tpvd_s hmap_feature; \
       bcore_hmap_tpvd_s hmap_func; \
   }; \
+  void xoico_group_s_set_name_sc( xoico_group_s* o, const xoico_host* host, sc_t name ); \
   static inline tp_t xoico_group_s_get_global_name_tp( const xoico_group_s* o ); \
   er_t xoico_group_s_expand_setup( xoico_group_s* o, const xoico_host* host ); \
   er_t xoico_group_s_expand_manifesto( const xoico_group_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink ); \
@@ -819,7 +820,7 @@
   er_t xoico_group_s_push_default_func_from_sc( xoico_group_s* o, sc_t sc ); \
   er_t xoico_group_s_parse_func( xoico_group_s* o, bcore_source* source ); \
   er_t xoico_group_s_push_func_d( xoico_group_s* o, xoico_func_s* func ); \
-  er_t xoico_group_s_parse( xoico_group_s* o, const xoico_host* host, bcore_source* source ); \
+  er_t xoico_group_s_parse( xoico_group_s* o, const xoico_host* host, bl_t parse_block, bcore_source* source ); \
   er_t xoico_group_s_finalize( xoico_group_s* o, const xoico_host* host ); \
   er_t xoico_group_s_expand_forward( const xoico_group_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_group_s_expand_spect_declaration( const xoico_group_s* o, sz_t indent, bcore_sink* sink ); \
@@ -993,7 +994,7 @@
       xoico_target_s* target; \
   }; \
   er_t xoico_source_s_expand_setup( xoico_source_s* o, const xoico_host* host ); \
-  er_t xoico_source_s_push_d( xoico_source_s* o, xoico_group_s* group ); \
+  xoico_group_s* xoico_source_s_push_d( xoico_source_s* o, xoico_group_s* group ); \
   tp_t xoico_source_s_get_hash( const xoico_source_s* o ); \
   er_t xoico_source_s_finalize( xoico_source_s* o, const xoico_host* host ); \
   er_t xoico_source_s_expand_declaration( const xoico_source_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink ); \
@@ -1002,6 +1003,7 @@
   er_t xoico_source_s_expand_manifesto( const xoico_source_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink ); \
   void xoico_source_s_explicit_embeddings_push( const xoico_source_s* o, bcore_arr_st_s* arr ); \
   xoico_compiler_s* xoico_source_s_compiler( const xoico_source_s* o ); \
+  er_t xoico_source_s_get_group_if_preexsting( xoico_source_s* o, const xoico_host* host, bcore_source* source, sc_t group_name, sc_t trait_name, xoico_group_s** group ); \
   er_t xoico_source_s_parse_h( xoico_source_s* o, const xoico_host* host, bcore_source* source ); \
   er_t xoico_source_s_parse_x( xoico_source_s* o, const xoico_host* host, bcore_source* source, sc_t group_name, sc_t trait_name );
 #define BETH_EXPAND_GROUP_xoico_source \
@@ -1821,4 +1823,4 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOILA_OUT_SIGNATURE 0xD13872F9D2544B72ull
+// XOILA_OUT_SIGNATURE 0x081035F6F5976E63ull

@@ -25,6 +25,7 @@ signature er_t expand_declaration(   c @* o, sz_t indent, m bcore_sink* sink );
 signature er_t expand_definition(    c @* o, sz_t indent, m bcore_sink* sink );
 signature er_t expand_init1(         c @* o, sz_t indent, m bcore_sink* sink );
 signature void explicit_embeddings_push( c @* o, m bcore_arr_st_s* arr );
+signature er_t parse ( m @* o, c xoico_host* host, bl_t parse_block, m bcore_source* source );
 
 signature m xoico_source_s*   get_source( c @* o );
 signature m xoico_target_s*   get_target( c @* o );
@@ -42,7 +43,7 @@ stamp :s = aware :
 {
     aware xoico => []; // group elements
 
-    private @* parent; // parent group;
+    private @* lexical_parent; // lexical parent (for namespace)
 
     bcore_arr_st_s includes_in_declaration;
     bcore_arr_st_s includes_in_definition;
@@ -55,6 +56,12 @@ stamp :s = aware :
 
     st_s st_name; // global name
     tp_t tp_name; // global name
+
+    func ( void set_name_sc( m @* o, xoico_host* host, sc_t name ) ) =
+    {
+        o.st_name.copy_sc( name );
+        o.tp_name = host.entypeof( name );
+    };
 
     tp_t trait_name = bcore_inst; // trait name
     tp_t pre_hash;
@@ -93,7 +100,8 @@ stamp :s = aware :
     hidden bcore_hmap_tpvd_s hmap_feature;
     hidden bcore_hmap_tpvd_s hmap_func;
 
-    func xoico.parse;
+    func :.parse;
+
     func xoico.get_hash;
     func xoico.get_global_name_tp = { return o.tp_name; };
     func xoico.finalize;
@@ -190,7 +198,7 @@ stamp xoico_nested_group_s = aware :
 func (:s) xoico.get_hash =
 {
     tp_t hash = o.pre_hash;
-    hash = bcore_tp_fold_sc( hash, o.st_name.sc );
+    hash = bcore_tp_fold_tp( hash, o.tp_name );
     hash = bcore_tp_fold_tp( hash, o.trait_name );
     hash = bcore_tp_fold_bl( hash, o.retrievable );
     hash = bcore_tp_fold_bl( hash, o.expandable );
@@ -224,9 +232,9 @@ func (:s) :.parse_name_recursive = (try)
 {
     if( source.parse_bl( "#?':'" ) )
     {
-        if( o.parent )
+        if( o.lexical_parent )
         {
-            o.parent.parse_name_recursive( source, name );
+            o.lexical_parent.parse_name_recursive( source, name );
         }
         else
         {
@@ -236,7 +244,7 @@ func (:s) :.parse_name_recursive = (try)
     else
     {
         name.copy( o.st_name );
-        m st_s* s = st_s!^^;
+        m st_s* s = st_s!^;
         source.parse_em_fa( " #name", s );
         if( s.size > 0 ) name.push_fa( "_#<sc_t>", s.sc );
     }
@@ -265,7 +273,7 @@ func (:s) xoico_host.parse_name_st = (try)
 
 func (:s) xoico_host.parse_name_tp = (try)
 {
-    m $* s = st_s!^^;
+    m $* s = st_s!^;
 
     if( source.parse_bl( " #?':'" ) )
     {
@@ -288,9 +296,9 @@ func (:s) xoico_host.parse_name_tp = (try)
 func (:s) (er_t push_default_feature_from_sc( m @* o, sc_t sc )) = (try)
 {
     m $* compiler = o.compiler;
-    m $* feature = xoico_feature_s!^^;
+    m $* feature = xoico_feature_s!^;
     feature.expandable = false;
-    feature.parse( o, bcore_source_string_s_create_from_sc( sc )^^ );
+    feature.parse( o, bcore_source_string_s_create_from_sc( sc )^ );
 
     if( !compiler.is_item( feature.get_global_name_tp() ) )
     {
@@ -308,9 +316,9 @@ func (:s) (er_t push_default_feature_from_sc( m @* o, sc_t sc )) = (try)
 
 func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc )) = (try)
 {
-    m $* func = xoico_func_s!^^;
+    m $* func = xoico_func_s!^;
     func.expandable = false;
-    func.parse( o, bcore_source_string_s_create_from_sc( sc )^^ );
+    func.parse( o, bcore_source_string_s_create_from_sc( sc )^ );
     o.push_func_d( func.fork() );
     return 0;
 };
@@ -319,7 +327,7 @@ func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc )) = (try)
 
 func (:s) (er_t parse_func( m @* o, m bcore_source* source )) = (try)
 {
-    m $* func = xoico_func_s!^^;
+    m $* func = xoico_func_s!^;
     func.parse( o, source );
     o.push_func_d( func.fork() );
     if( func.signature_global_name == TYPEOF_x_inst_main ) o.xoico_source.target.set_main_function( func );
@@ -367,10 +375,10 @@ func (:s) (er_t push_func_d( m @* o, d xoico_func_s* func )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.parse = (try)
+func (:s) :.parse = (try)
 {
     m $* compiler = o.compiler;
-    m $* stack = xoico_group_source_stack_s!^^;
+    m $* stack = xoico_group_source_stack_s!^;
     stack.push_d( source.fork() );
 
     sc_t group_termination = NULL;
@@ -379,10 +387,10 @@ func (:s) xoico.parse = (try)
     {
         o.source_point!.set( source );
         o.pre_hash = bcore_tp_init();
-        o.tp_name = compiler.entypeof( o.st_name.sc );
+        if( !o.tp_name ) o.tp_name = compiler.entypeof( o.st_name.sc );
     }
 
-    if( o.parent ) // this group is nested in another group, the group body is enclosed in { ... }
+    if( parse_block ) // this group is nested in another group, the group body is enclosed in { ... }
     {
         source.parse_em_fa( " {" );
         group_termination = " #?'}'";
@@ -549,35 +557,54 @@ func (:s) xoico.parse = (try)
         }
         else if( source.parse_bl( " #?w'group' " ) )
         {
-            m $* group = xoico_group_s!^;
-            o.xoico_source.push_d( group.fork() );
-            group.parent = o;
-            group.trait_name = o.tp_name;
+            st_s^ st_group_name;
+            o.parse_name_st( source, st_group_name );
+            bl_t retrievable = false;
 
-            group.xoico_source = o.xoico_source;
-            group.compiler = o.compiler;
-            group.extending_stamp = o.extending_stamp;
-            group.expandable  = o.expandable;
-
-            o.parse_name_st( source, group.st_name );
             source.parse_em_fa( " =" );
 
             // flags
-            if( source.parse_bl( " #?w'retrievable' " ) ) group.retrievable = true;
+            if( source.parse_bl( " #?w'retrievable' " ) ) retrievable = true;
 
-            m $* trait_name_st = st_s!^^;
-            o.parse_name_st( source, trait_name_st );
-            if( trait_name_st.size > 0 )
+            tp_t tp_trait_name = o.tp_name;
+            m $* st_trait_name = st_s!^;
+            o.parse_name_st( source, st_trait_name );
+            if( st_trait_name.size > 0 )
             {
-                group.trait_name = compiler.entypeof( trait_name_st.sc );
+                tp_trait_name = compiler.entypeof( st_trait_name.sc );
+            }
+            else
+            {
+                st_trait_name.copy_sc( compiler.nameof( tp_trait_name ) );
             }
 
-            group.parse( o, source );
+
+            m xoico_group_s* group = NULL;
+            o.xoico_source.get_group_if_preexsting( host, source, st_group_name.sc, st_trait_name.sc, group.2 );
+
+            if( !group )
+            {
+                group = o.xoico_source.push_d( xoico_group_s! );
+                group.lexical_parent = o;
+                group.xoico_source = o.xoico_source;
+                group.compiler = o.compiler;
+                group.extending_stamp = o.extending_stamp;
+                group.expandable = o.expandable;
+                group.set_name_sc( host, st_group_name.sc );
+                group.retrievable = retrievable;
+                group.trait_name = tp_trait_name;
+                group.parse( o, true, source );
+                compiler.register_group( group );
+                m xoico_nested_group_s* nested_group = xoico_nested_group_s!^;
+                nested_group.group = group;
+                o.push_item_d( nested_group.fork() );
+            }
+            else
+            {
+                group.parse( o, true, source );
+            }
+
             source.parse_em_fa( " ; " );
-            compiler.register_group( group );
-            m xoico_nested_group_s* nested_group = xoico_nested_group_s!^;
-            nested_group.group = group;
-            o.push_item_d( nested_group.fork() );
         }
         else if( source.parse_bl( " #?w'set' " ) )
         {
@@ -589,7 +616,7 @@ func (:s) xoico.parse = (try)
         }
         else if( source.parse_bl( " #?w'embed' " ) )
         {
-            m st_s* folder = bcore_file_folder_path( bcore_source_a_get_file( source ) )^^;
+            m st_s* folder = bcore_file_folder_path( bcore_source_a_get_file( source ) )^;
             if( folder.size == 0 ) folder.push_char( '.' );
             m st_s* embed_file = st_s!^;
             source.parse_em_fa( " #string" , embed_file );
@@ -737,7 +764,7 @@ func (:s) :.expand_declaration = (try)
     sink.push_fa( "\n" );
     sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o.st_name.sc, btypeof( o.st_name.sc ) );
 
-    m st_s* st_spect_name = xoico_group_s_create_spect_name( o )^^;
+    m st_s* st_spect_name = xoico_group_s_create_spect_name( o )^;
     sc_t  sc_spect_name = st_spect_name->sc;
 
     sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, sc_spect_name, btypeof( sc_spect_name ) );
@@ -754,10 +781,6 @@ func (:s) :.expand_declaration = (try)
     foreach( m $* func in o->funcs ) func.expand_declaration( o, indent + 2, sink );
     sink.push_fa( "\n" );
 
-//    if( o.is_manifesto )
-//    {
-//        sink.push_fa( "#rn{ }BETH_EXPAND_GROUP_#<sc_t>\n", indent, o.st_name.sc );
-//    }
     return 0;
 };
 

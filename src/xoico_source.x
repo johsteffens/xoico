@@ -20,6 +20,9 @@
 signature er_t parse_h( m @* o, c xoico_host* host, m bcore_source* source );
 signature er_t parse_x( m @* o, c xoico_host* host, m bcore_source* source, sc_t group_name, sc_t trait_name );
 
+/// retrieves group if already defined (e.g. for extending); sets arg_group.1 NULL if not defined
+signature er_t get_group_if_preexsting( m @* o, xoico_host* host, m bcore_source* source, sc_t group_name, sc_t trait_name, m xoico_group_s.2 group );
+
 //----------------------------------------------------------------------------------------------------------------------
 
 stamp :s = aware :
@@ -37,10 +40,9 @@ stamp :s = aware :
         return 0;
     };
 
-    func (er_t push_d( m @* o, d xoico_group_s* group )) =
+    func (m xoico_group_s* push_d( m @* o, d xoico_group_s* group )) =
     {
-        o.cast( m x_array* ).push_d( group );
-        return 0;
+        return o.cast( m x_array* ).push_d( group );
     };
 
     func xoico.get_hash =
@@ -94,17 +96,7 @@ stamp :s = aware :
 
     func xoico.expand_manifesto =
     {
-        st_s^ buf;
-        foreach( m $* e in o ) e.expand_manifesto( host, indent, buf ).try();
-
-        if( buf.size > 0 )
-        {
-//            sink.push_fa( "\n" );
-//            sink.push_fa( "#rn{ }// #rn{-}\n", indent, sz_max( 0, 80 - indent ) );
-//            sink.push_fa( "#rn{ }// source: #<sc_t>.#<sc_t>\n", indent, o.name.sc, o.ext.sc );
-            sink.push_sc( buf.sc );
-        }
-
+        foreach( m $* e in o ) e.expand_manifesto( host, indent, sink ).try();
         return 0;
     };
 
@@ -117,25 +109,61 @@ stamp :s = aware :
     {
         return o.target.compiler;
     };
+
+    func :.get_group_if_preexsting;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.parse_h = (try)
+/// Returns NULL in case of no match;
+func (:s) get_group_if_preexsting = (try)
+{
+    m xoico_compiler_s* compiler = host.compiler();
+    if( compiler.is_group( host.entypeof( group_name ) ) )
+    {
+        group.1 = compiler.get_group( host.entypeof( group_name ) );
+
+        // Extending a preexisting group is only allowed inside the same target
+        if( group.xoico_source.target != o.target )
+        {
+            return source.parse_error_fa( "Group '#<sc_t>' was defined in target '#<sc_t>'. It cannot be extended in a different target.", group_name, group.xoico_source.target.name.sc );
+        }
+
+        if( group.trait_name != compiler.entypeof( trait_name ) )
+        {
+            return source.parse_error_fa( "Extending group '#<sc_t>' of trait '#<sc_t>' with a different trait '#<sc_t>'.", group_name, host.nameof( group.trait_name ), trait_name );
+        }
+
+    }
+    else
+    {
+        group.1 = NULL;
+    }
+    return 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:s) parse_h = (try)
 {
     m $* compiler = o.target.compiler;
     while( !source.eos() )
     {
         if( source.parse_bl( " #?w'XOILA_DEFINE_GROUP'" ) )
         {
-            m xoico_group_s* group = xoico_group_s!^;
-            o.push_d( group.fork() );
-            group.xoico_source = o;
-            group.compiler = compiler;
-
             st_s^ st_trait_name;
-            source.parse_em_fa( " ( #name , #name", group.st_name.1, st_trait_name.1 );
-            group.trait_name = compiler.entypeof( st_trait_name.sc );
+            st_s^ st_group_name;
+            source.parse_em_fa( " ( #name , #name", st_group_name.1, st_trait_name.1 );
+            m xoico_group_s* group = NULL;
+            o.get_group_if_preexsting( host, source, st_group_name.sc, st_trait_name.sc, group.2 );
+            if( !group )
+            {
+                group = o.push_d( xoico_group_s! );
+                group.xoico_source = o;
+                group.compiler = compiler;
+                group.set_name_sc( host, st_group_name.sc );
+                group.trait_name = compiler.entypeof( st_trait_name.sc );
+            }
 
             if( source.parse_bl( " #=?','" ) )
             {
@@ -147,14 +175,14 @@ func (:s) :.parse_h = (try)
                     xoico_embed_file_open( source, embed_file.sc, embed_source.2 );
                     embed_source^^;
                     group.explicit_embeddings.push_st( embed_file );
-                    group.parse( o, embed_source );
+                    group.parse( o, false, embed_source );
                 }
                 source.parse_em_fa( " )" );
             }
             else
             {
                 source.parse_em_fa( " )" );
-                group.parse( o, source );
+                group.parse( o, false, source );
             }
             o.target.compiler.register_group( group );
         }
@@ -168,21 +196,23 @@ func (:s) :.parse_h = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.parse_x = (try)
+func (:s) parse_x = (try)
 {
     m $* compiler = o.target.compiler;
-    m xoico_group_s* group = xoico_group_s!^;
-    o.push_d( group.fork() );
+    m xoico_group_s* group = NULL;
 
-    st_s^ st_group_name.copy_sc( group_name );
-    st_s^ st_trait_name.copy_sc( trait_name );
+    o.get_group_if_preexsting( host, source, group_name, trait_name, group.2 );
+    if( !group )
+    {
+        group = o.push_d( xoico_group_s! );
+        group.xoico_source = o;
+        group.compiler = compiler;
+        group.set_name_sc( host, group_name );
+        group.trait_name = compiler.entypeof( trait_name );
+        group.is_manifesto = true;
+    }
 
-    group.xoico_source = o;
-    group.compiler = compiler;
-    group.st_name.copy( st_group_name );
-    group.trait_name = compiler.entypeof( st_trait_name.sc );
-    group.is_manifesto = true;
-    group.parse( o, source );
+    group.parse( o, false, source );
     compiler.register_group( group );
 
     return 0;

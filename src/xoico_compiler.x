@@ -18,7 +18,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 
 signature er_t register_item(  m @* o, c xoico* item );
-signature er_t register_group( m @* o, c xoico_group_s* group );
+signature er_t register_group( m @* o, c xoico_group_s* group ); // no effect if group was already registered
 signature er_t register_func(  m @* o, c xoico_func_s* func );
 signature er_t register_external_type( m @* o, tp_t type );
 
@@ -282,15 +282,7 @@ stamp :s = aware :
 
 func (:s) :.register_group =
 {
-    if( o.hmap_group.exists( group.tp_name ) )
-    {
-        return bcore_source_point_s_parse_error_fa
-        (
-            group.source_point,
-            "'#<sc_t>' was already registered\n",
-            o.nameof( group.tp_name )
-        );
-    }
+    if( o.hmap_group.exists( group.tp_name ) ) return 0;
     o.hmap_group.set( group.tp_name, ( vd_t )group );
     return 0;
 };
