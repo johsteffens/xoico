@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
- *  Last File Update: 2021-02-18T17:08:58Z
+ *  Last File Update: 2021-02-24T12:38:04Z
  *
  *  Copyright and License of this File:
  *
@@ -45,7 +45,7 @@
 #include "bcore.xo.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico 0xB732E265DE4C5203ull
+#define HKEYOF_xoico 0xE321EBB47E5BB74Eull
 
 #define TYPEOF_xoico 0x21E8B04DB3E31F5Dull
 
@@ -1261,6 +1261,7 @@
       bl_t waive_unknown_member_variable; \
       bl_t waive_unknown_member_function; \
       bl_t waive_function_in_untraced_context; \
+      bl_t waive_unknown_type; \
       bl_t waive_unknown_identifier; \
       xoico_host* host; \
       xoico_compiler_s* compiler; \
@@ -1823,4 +1824,4 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOILA_OUT_SIGNATURE 0x081035F6F5976E63ull
+// XOILA_OUT_SIGNATURE 0xD6D3FD1051EB5F30ull

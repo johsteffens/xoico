@@ -110,6 +110,11 @@ func (:s)
         typespec_cast.type = typespec_expr.type;
     }
 
+    if( !o.waive_unknown_type && !o.is_type( typespec_cast.type ) )
+    {
+        return source.parse_error_fa( "Cast: Unknown type name was used." );
+    }
+
     o.push_typespec( typespec_cast, result_out );
     result_out.push_sc( ")(" );
 

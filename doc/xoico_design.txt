@@ -399,6 +399,7 @@ TODO:
 - make traitline of all groups end in x_inst
 - make 'fork' a transient function in x_inst rather than a builtin function
 - add registry for unspecific identifiers (allows disabling unknown identifier waiver)
+- che: add waiver for unknown type (in arglist or inside a function)
 - che: disable as many waivers as possible
 
 ===================================================================

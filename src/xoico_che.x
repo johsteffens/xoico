@@ -386,6 +386,9 @@ stamp :s = aware :
     // Condition: trans_expression: function identifier is not used in a tractable way (e.g. not as function call).
     bl_t waive_function_in_untraced_context = false;
 
+    // Condition: Unknown type was detected in an the arglist of a function
+    bl_t waive_unknown_type = true;
+
     // Condition: trans_expression encounters an unknown identifier
     bl_t waive_unknown_identifier = true;
 
@@ -1021,6 +1024,17 @@ func (:s)
                     else
                     {
                         fail_msg = st_s_create_fa( "'#<sc_t>' is obliv but the target typespec does not explicitly tolerate obliv objects.", o.nameof( typespec_expr.type ) )^^;
+                    }
+                }
+                else if( o.is_type( typespec_expr.type ) )
+                {
+                    if( typespec_target.flag_obliv )
+                    {
+                        implicit_cast = true;
+                    }
+                    else
+                    {
+                        fail_msg = st_s_create_fa( "'#<sc_t>' is presumed obliv but the target typespec does not explicitly tolerate obliv objects.", o.nameof( typespec_expr.type ) )^^;
                     }
                 }
                 else
@@ -2141,9 +2155,16 @@ func (:s) (er_t setup( m @* o, c xoico_host* host, c xoico_signature_s* signatur
     {
         m $* unit = xoico_che_stack_var_unit_s!^^;
         tp_t tp_member_obj_name  = o.entypeof( "o" );
+
         unit.typespec.copy( o.signature.arg_o.typespec );
         unit.name = tp_member_obj_name;
         unit.level = o.level;
+
+        if( !o.waive_unknown_type && !o.is_type( unit.typespec.type ) )
+        {
+            return signature.source_point.parse_error_fa( "Declaration: Argument '#<sc_t>' has an unknown type.", o.nameof( unit.name ) );
+        }
+
         o.stack_var.push_unit( unit );
         o.hmap_name.set_sc( o.compiler.nameof( o.signature.arg_o.typespec.type ) );
         o.hmap_name.set_sc( o.compiler.nameof( tp_member_obj_name ) );
@@ -2157,6 +2178,12 @@ func (:s) (er_t setup( m @* o, c xoico_host* host, c xoico_signature_s* signatur
             unit.typespec.copy( arg.typespec );
             unit.name = arg.name;
             unit.level = o.level;
+
+            if( !o.waive_unknown_type && !o.is_type( unit.typespec.type ) )
+            {
+                return signature.source_point.parse_error_fa( "Declaration: Argument '#<sc_t>' has an unknown type.", o.nameof( unit.name ) );
+            }
+
             o.stack_var.push_unit( unit );
             o.hmap_name.set_sc( o.compiler.nameof( arg.typespec.type ) );
             o.hmap_name.set_sc( o.compiler.nameof( arg.name ) );
