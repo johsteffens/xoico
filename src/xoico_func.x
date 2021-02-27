@@ -120,7 +120,7 @@ func (:s) xoico.parse = (try)
 
         if( source.parse_bl( " #?'^'" ) )
         {
-            if( host._ == TYPEOF_xoico_stamp_s )
+            if( host._ == xoico_stamp_s~ )
             {
                 tp_signature_base_name = host.cast( c xoico_stamp_s* ).trait_name;
             }
@@ -141,7 +141,7 @@ func (:s) xoico.parse = (try)
             else
             {
                 sz_t idx = -1;
-                if( host._ == TYPEOF_xoico_stamp_s && ( idx = host.cast( xoico_stamp_s* ).funcs.get_index_from_name( name ) ) >= 0 )
+                if( host._ == xoico_stamp_s~ && ( idx = host.cast( xoico_stamp_s* ).funcs.get_index_from_name( name ) ) >= 0 )
                 {
                     tp_signature_global_name = host.cast( xoico_stamp_s* ).funcs.[ idx ].signature_global_name;
                 }
@@ -183,7 +183,7 @@ func (:s) (er_t push_flect_decl_to_sink( c @* o, c xoico_host* host, m bcore_sin
 {
     m $* compiler = host.compiler();
     sink.push_sc( "func " );
-    if( host._ == TYPEOF_xoico_stamp_s && o.signature.base_name == host.cast( c xoico_stamp_s* ).trait_name )
+    if( host._ == xoico_stamp_s~ && o.signature.base_name == host.cast( c xoico_stamp_s* ).trait_name )
     {
         sink.push_fa( "^:#<sc_t>", compiler.nameof( o.name ) );
     }

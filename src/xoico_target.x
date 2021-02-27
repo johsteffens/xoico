@@ -300,7 +300,7 @@ func (:s) (er_t expand_h( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
 
     sink.push_fa( "\n" );
 
-    sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o.name.sc, typeof( o.name.sc ) );
+    sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o.name.sc, btypeof( o.name.sc ) );
 
     foreach( m $* e in o ) e.expand_declaration( o, indent, sink );
 

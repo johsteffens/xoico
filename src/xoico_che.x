@@ -75,7 +75,7 @@ group :result = :
 
         func (m :* last_plain( m @* o )) =
         {
-            return ( o.last()._ != TYPEOF_:plain_s ) ? o.adl.push_d( :plain_s! ) : o.adl.[ o.adl.size - 1 ];
+            return ( o.last()._ != :plain_s~ ) ? o.adl.push_d( :plain_s! ) : o.adl.[ o.adl.size - 1 ];
         };
 
         func :.push_char = { return o.last_plain().push_char( c ); };
@@ -208,6 +208,8 @@ group :result = :
         return ret;
     };
 };
+
+//----------------------------------------------------------------------------------------------------------------------
 
 /// stack for variable declarations
 group :stack_var = :
@@ -1343,7 +1345,7 @@ func (:s)
     else if( source.parse_bl( "#?'~'" ) )
     {
         m xoico_typespec_s* typespec = xoico_typespec_s!^^;
-        typespec.type = TYPEOF_tp_t;
+        typespec.type = tp_t~;
         typespec.indirection = 0;
         typespec.flag_addressable = false;
         typespec.access_class = 0;
@@ -1377,7 +1379,7 @@ func (:s)
     if( source.parse_bl( "#?'~'" ) )
     {
         m xoico_typespec_s* typespec = xoico_typespec_s!^^;
-        typespec.type = TYPEOF_tp_t;
+        typespec.type = tp_t~;
         typespec.indirection = 0;
         typespec.flag_addressable = false;
         typespec.access_class = 0;
@@ -1547,7 +1549,7 @@ func (:s)
             o.trans_identifier( source, result, NULL );
             o.trans_whitespace( source, result );
             m $* typespec = xoico_typespec_s!^^;
-            typespec.type = TYPEOF_bl_t;
+            typespec.type = bl_t~;
             typespec.indirection = 0;
             typespec.flag_addressable = false;
             o.trans_typespec_expression( source, result, typespec, out_typespec );
@@ -1595,13 +1597,23 @@ func (:s)
                 o.trans_whitespace( source, result );
             }
         }
-        else // unknown identifier
+        else // unknown/unspecified identifier
         {
             if( !o.waive_unknown_identifier )
             {
                 if( !o.is_identifier( tp_identifier ) )
                 {
-                    return source.parse_error_fa( "Unknwon identifier #<sc_t>\n.", o.nameof( tp_identifier ) );
+                    sc_t sc_identifier = o.nameof( tp_identifier );
+                    if( sc_t_cmp( "TYPEOF_", sc_identifier ) != 1 )
+                    {
+                        return source.parse_error_fa( "Unknwon identifier #<sc_t>\n.", o.nameof( tp_identifier ) );
+                    }
+
+                    sc_identifier += bcore_strlen( "TYPEOF_" );
+                    if( !o.is_identifier( btypeof( sc_identifier ) ) )
+                    {
+                        return source.parse_error_fa( "Unknwon identifier #<sc_t>\n.", o.nameof( tp_identifier ) );
+                    }
                 }
             }
             o.trans_identifier( source, result, NULL );
@@ -1880,7 +1892,7 @@ func (:s) (er_t trans_statement_expression( m @* o, m bcore_source* source, m :r
         o.trans_expression( source, result_expr, typespec );
         if
         (
-            ( typespec.type == TYPEOF_er_t ) &&
+            ( typespec.type == er_t~ ) &&
             ( typespec.indirection == 0 ) &&
             ( typespec.flag_addressable == false )
         )
@@ -2246,7 +2258,7 @@ func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* b
         {
             if( source.parse_bl( " #?w'try'" ) )
             {
-                if( o.signature.typespec_ret.type != TYPEOF_er_t || o.signature.typespec_ret.indirection != 0 )
+                if( o.signature.typespec_ret.type != er_t~ || o.signature.typespec_ret.indirection != 0 )
                 {
                     return source.parse_error_fa( "Operator 'try': This operator can only be used in functions returning 'er_t'." );
                 }

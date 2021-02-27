@@ -157,21 +157,21 @@ stamp :s = aware :
     func :.is_stamp =
     {
         c xoico* item = o.get_const_item( name );
-        if( item && ( item->_ == TYPEOF_xoico_stamp_s ) ) return true;
+        if( item && ( item->_ == xoico_stamp_s~ ) ) return true;
         return false;
     };
 
     func :.is_body =
     {
         c xoico* item = o.get_const_item( name );
-        if( item && ( item->_ == TYPEOF_xoico_body_s ) ) return true;
+        if( item && ( item->_ == xoico_body_s~ ) ) return true;
         return false;
     };
 
     func :.is_signature =
     {
         c xoico* item = o.get_const_item( name );
-        if( item && ( item->_ == TYPEOF_xoico_signature_s ) ) return true;
+        if( item && ( item->_ == xoico_signature_s~ ) ) return true;
         return false;
     };
 
@@ -179,14 +179,14 @@ stamp :s = aware :
     {
         c xoico* item = o.get_const_item( name );
         if( !item ) return NULL;
-        if( item->_ == TYPEOF_xoico_signature_s || item->_ == TYPEOF_xoico_feature_s ) return true;
+        if( item->_ == xoico_signature_s~ || item->_ == xoico_feature_s~ ) return true;
         return false;
     };
 
     func :.is_feature =
     {
         c xoico* item = o.get_const_item( name );
-        if( item && ( item->_ == TYPEOF_xoico_feature_s ) ) return true;
+        if( item && ( item->_ == xoico_feature_s~ ) ) return true;
         return false;
     };
 
@@ -205,27 +205,27 @@ stamp :s = aware :
     func :.get_stamp =
     {
         c xoico* item = o.get_const_item( name );
-        return ( item ) ? ( item._ == TYPEOF_xoico_stamp_s ) ? item.cast( m xoico_stamp_s* ) : NULL : NULL;
+        return ( item ) ? ( item._ == xoico_stamp_s~ ) ? item.cast( m xoico_stamp_s* ) : NULL : NULL;
     };
 
     func :.get_body =
     {
         c xoico* item = o.get_const_item( name );
-        return ( item ) ? ( item._ == TYPEOF_xoico_body_s ) ? item.cast( m xoico_body_s* ) : NULL : NULL;
+        return ( item ) ? ( item._ == xoico_body_s~ ) ? item.cast( m xoico_body_s* ) : NULL : NULL;
     };
 
     func :.get_feature =
     {
         c xoico* item = o.get_const_item( name );
-        return ( item ) ? ( item._ == TYPEOF_xoico_feature_s ) ? item.cast( m xoico_feature_s* ) : NULL : NULL;
+        return ( item ) ? ( item._ == xoico_feature_s~ ) ? item.cast( m xoico_feature_s* ) : NULL : NULL;
     };
 
     func :.get_signature =
     {
         c xoico* item = o.get_const_item( name );
         if( !item ) return NULL;
-        if( item._ == TYPEOF_xoico_signature_s ) return item.cast( m xoico_signature_s* );
-        if( item._ == TYPEOF_xoico_feature_s   ) return item.cast( m xoico_feature_s* ).signature;
+        if( item._ == xoico_signature_s~ ) return item.cast( m xoico_signature_s* );
+        if( item._ == xoico_feature_s~   ) return item.cast( m xoico_feature_s* ).signature;
         return NULL;
     };
 
@@ -496,7 +496,7 @@ func (:s) :.get_self =
     c xoico* item = o.get_const_item( type );
     if( !item ) return false;
 
-    if( item->_ == TYPEOF_xoico_stamp_s )
+    if( item->_ == xoico_stamp_s~ )
     {
         c xoico_stamp_s* stamp = item.cast( c xoico_stamp_s* );
         if( self ) self.1 = stamp->self;
@@ -513,7 +513,7 @@ func (:s) :.get_type_info =
     c xoico* item = o.get_const_item( type );
     if( !item ) return false;
     ASSERT( info );
-    if( item->_ == TYPEOF_xoico_stamp_s || item->_ == TYPEOF_xoico_group_s )
+    if( item->_ == xoico_stamp_s~ || item->_ == xoico_group_s~ )
     {
         info.item = item.cast( m $* );
         info.typespec.type = type;
@@ -538,7 +538,7 @@ func (:s) :.get_type_element_info =
     ASSERT( info );
     info.type_info.item = xoico_item.cast( m $* );
 
-    if( xoico_item->_ == TYPEOF_xoico_stamp_s )
+    if( xoico_item->_ == xoico_stamp_s~ )
     {
         c xoico_stamp_s* stamp = xoico_item.cast( c xoico_stamp_s* );
         c bcore_self_s* self = stamp.self;
@@ -576,14 +576,14 @@ func (:s) :.get_type_element_info =
         {
             if( name == TYPEOF_size )
             {
-                info.type_info.typespec.type = TYPEOF_uz_t;
+                info.type_info.typespec.type = uz_t~;
                 info.type_info.typespec.indirection = 0;
                 info.type_info.typespec.access_class = 0;
                 success = true;
             }
             else if( name == TYPEOF_space )
             {
-                info.type_info.typespec.type = TYPEOF_uz_t;
+                info.type_info.typespec.type = uz_t~;
                 info.type_info.typespec.indirection = 0;
                 info.type_info.typespec.access_class = 0;
                 success = true;
@@ -591,7 +591,7 @@ func (:s) :.get_type_element_info =
             else if( name == TYPEOF_data )
             {
                 info.type_info.typespec.access_class = TYPEOF_mutable;
-                info.type_info.typespec.type = self_item.type ? self_item.type : TYPEOF_x_inst;
+                info.type_info.typespec.type = self_item.type ? self_item.type : x_inst~;
                 info.type_info.typespec.indirection = bcore_flect_caps_get_indirection( self_item.caps ) + 1;
                 success = true;
             }
@@ -599,7 +599,7 @@ func (:s) :.get_type_element_info =
             {
                 if( bcore_flect_caps_is_typed( self_item.caps ) )
                 {
-                    info.type_info.typespec.type = TYPEOF_tp_t;
+                    info.type_info.typespec.type = tp_t~;
                     info.type_info.typespec.indirection = 0;
                     info.type_info.typespec.access_class = 0;
                     success = true;
@@ -607,12 +607,12 @@ func (:s) :.get_type_element_info =
             }
         }
     }
-    else if( xoico_item._ == TYPEOF_xoico_group_s )
+    else if( xoico_item._ == xoico_group_s~ )
     {
         c $* group = xoico_item.cast( m xoico_group_s* );
         if( name == TYPEOF__ ) // group builtin element '_'
         {
-            info.type_info.typespec.type = TYPEOF_aware_t;
+            info.type_info.typespec.type = aware_t~;
             info.type_info.typespec.indirection = 0;
             success = true;
         }
@@ -637,7 +637,7 @@ func (:s) :.get_type_array_element_info =
     bl_t success = false;
     info.type_info.item = xoico_item.cast( m $* );
 
-    if( xoico_item->_ == TYPEOF_xoico_stamp_s )
+    if( xoico_item->_ == xoico_stamp_s~ )
     {
         c xoico_stamp_s* stamp = xoico_item.cast( c xoico_stamp_s* );
         c bcore_self_item_s* self_item = bcore_self_s_get_first_anonymous_array_item( stamp.self );

@@ -21,7 +21,7 @@ func (:s)( bl_t is_builtin_func( c @* o, tp_t tp_identifier ) ) =
 {
     switch( tp_identifier )
     {
-        case TYPEOF_cast :
+        case TYPEOF_cast:
         case TYPEOF_scope:
         case TYPEOF_fork:
         case TYPEOF_try:
@@ -101,7 +101,7 @@ func (:s)
     {
         typespec_cast.type = o.host.obj_type();
     }
-    else if( typespec_cast.type == TYPEOF_type_deduce )
+    else if( typespec_cast.type == type_deduce~ )
     {
         if( !typespec_expr.type )
         {
@@ -121,10 +121,10 @@ func (:s)
     if
     (
         typespec_expr.type &&
-        ( typespec_expr.type != TYPEOF_vc_t ) &&
-        ( typespec_expr.type != TYPEOF_vd_t ) &&
-        ( typespec_expr.type != TYPEOF_sc_t ) &&
-        ( typespec_expr.type != TYPEOF_sd_t ) &&
+        ( typespec_expr.type != vc_t~ ) &&
+        ( typespec_expr.type != vd_t~ ) &&
+        ( typespec_expr.type != sc_t~ ) &&
+        ( typespec_expr.type != sd_t~ ) &&
         ( typespec_expr.type != TYPEOF_void )
     )
     {
@@ -209,11 +209,11 @@ func (:s)
         {
             level = o.stack_var.get_level( tp_identifier );
         }
-        else if( tp_identifier == TYPEOF_scope_local )
+        else if( tp_identifier == scope_local~ )
         {
             level = o.level;
         }
-        else if( tp_identifier == TYPEOF_scope_func )
+        else if( tp_identifier == scope_func~ )
         {
             level = 0;
         }
@@ -319,7 +319,7 @@ func (:s)
     )
 ) = (try)
 {
-    if( o.signature.typespec_ret.type != TYPEOF_er_t || o.signature.typespec_ret.indirection != 0 )
+    if( o.signature.typespec_ret.type != er_t~ || o.signature.typespec_ret.indirection != 0 )
     {
         return source.parse_error_fa( "Operator 'try': This operator can only be used in functions returning 'er_t'." );
     }
@@ -357,7 +357,7 @@ func (:s)
 
     if( typespec_try.type != 0 )
     {
-        if( typespec_try.type != TYPEOF_er_t ) return source.parse_error_fa( "Operator 'try': Expression must yield er_t." );
+        if( typespec_try.type != er_t~ ) return source.parse_error_fa( "Operator 'try': Expression must yield er_t." );
         if( typespec_try.indirection != 0    ) return source.parse_error_fa( "Operator 'try': Expression's indirection != 0." );
     }
     else

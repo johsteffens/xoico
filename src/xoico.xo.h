@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
- *  Last File Update: 2021-02-27T17:14:36Z
+ *  Last File Update: 2021-02-27T19:12:06Z
  *
  *  Copyright and License of this File:
  *
@@ -45,7 +45,7 @@
 #include "bcore.xo.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico 0xAC329AAD269C46FEull
+#define HKEYOF_xoico 0xB0BCEFCFF38AA38Cull
 
 #define TYPEOF_xoico 0x21E8B04DB3E31F5Dull
 
@@ -61,6 +61,7 @@
 #define TYPEOF_mutable 0xD3AC3C45566EFDE9ull
 #define TYPEOF_const 0x65C9718E19E3DF34ull
 #define TYPEOF_void 0x3173C900E37AE1DFull
+#define TYPEOF_type 0xA79439EF7BFA9C2Dull
 #define TYPEOF__ 0xAF64124C8602484Eull
 #define TYPEOF_o 0xAF63E24C8601F6BEull
 #define TYPEOF_xoico_name_s 0x72C1E17E15481547ull
@@ -400,7 +401,7 @@
   er_t xoico_typespec_s_expand( const xoico_typespec_s* o, const xoico_host* host, bcore_sink* sink ); \
   er_t xoico_typespec_s_expand_x( const xoico_typespec_s* o, const xoico_host* host, bcore_sink* sink ); \
   bl_t xoico_typespec_s_converts_to( const xoico_typespec_s* o, const xoico_typespec_s* b ); \
-  static inline bl_t xoico_typespec_s_is_void( const xoico_typespec_s* o ){ return  (o->type == 0 || o->type == TYPEOF_void) && o->indirection == 0;}
+  static inline bl_t xoico_typespec_s_is_void( const xoico_typespec_s* o ){ return  (o->type == 0 || o->type == ((tp_t)(TYPEOF_void))) && o->indirection == 0;}
 #define BETH_EXPAND_GROUP_xoico_typespec \
   BCORE_FORWARD_OBJECT( xoico_typespec ); \
   BCORE_FORWARD_OBJECT( xoico_typespec_transient_s ); \
@@ -1830,4 +1831,4 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOILA_OUT_SIGNATURE 0x97FB46472658CA6Bull
+// XOILA_OUT_SIGNATURE 0xE9E1A326C1DC0052ull

@@ -42,7 +42,7 @@ func (:s) xoico.parse = (try)
 
     if( o.typespec.flag_variadic ) return 0;
 
-    if( o.typespec.type == TYPEOF_void && o.typespec.indirection == 0 )
+    if( o.typespec.type == void~ && o.typespec.indirection == 0 )
     {
         return o.source_point.parse_error_fa( "'void' is misplaced here." );
     }

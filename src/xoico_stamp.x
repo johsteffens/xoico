@@ -303,7 +303,7 @@ func (:s) :.parse_func = (try)
         o.funcs.push_d( func.fork() );
     }
 
-    if( func.signature_global_name == TYPEOF_x_inst_main ) o.group.xoico_source.target.set_main_function( func );
+    if( func.signature_global_name == x_inst_main~ ) o.group.xoico_source.target.set_main_function( func );
 
     return 0;
 };
@@ -466,9 +466,9 @@ func (:s) xoico.parse = (try)
             return source.parse_error_fa( "Extending: Stamp name '#<sc_t>' must end in '_s'.", templ_name->sc );
         }
 
-        c xoico* item = compiler.get_const_item( typeof( templ_name.sc ) );
+        c xoico* item = compiler.get_const_item( btypeof( templ_name.sc ) );
         if( !item ) return source.parse_error_fa( "Template #<sc_t> not found.", templ_name.sc );
-        if( item._ != TYPEOF_xoico_stamp_s ) return source.parse_error_fa( "Template #<sc_t> is no stamp.", templ_name.sc );
+        if( item._ != xoico_stamp_s~ ) return source.parse_error_fa( "Template #<sc_t> is no stamp.", templ_name.sc );
         o.copy( item.cast( m xoico_stamp_s* ) );
     }
     else if( !verbatim && o.group.extending_stamp )
@@ -513,7 +513,7 @@ func (:s) xoico.finalize = (try)
     m $* compiler = o.group.compiler;
 
     // set transient classes for x_array
-    if( o.trait_name == TYPEOF_x_array || o.trait_name == TYPEOF_bcore_array )
+    if( o.trait_name == x_array~ || o.trait_name == bcore_array~ )
     {
         if( !o.first_array_item )
         {
@@ -580,7 +580,7 @@ func (:s) xoico.expand_declaration = (try)
 {
     sc_t sc_name = o.st_name.sc;
 
-    sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, sc_name, typeof( sc_name ) );
+    sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, sc_name, btypeof( sc_name ) );
 
     sink.push_fa( "#rn{ }##define BETH_EXPAND_ITEM_#<sc_t>", indent, sc_name, sc_name );
     sink.push_fa( " \\\n#rn{ }  BCORE_DECLARE_OBJECT( #<sc_t> )", indent, sc_name );

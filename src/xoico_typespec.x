@@ -102,7 +102,7 @@ stamp :s = aware :
         o.flag_addressable = true;  // object can have a pointer ('false' for objects returned by a function)
     };
 
-    func ( bl_t is_void( c @* o )) = { return (o.type == 0 || o.type == TYPEOF_void) && o.indirection == 0; };
+    func ( bl_t is_void( c @* o )) = { return (o.type == 0 || o.type == void~) && o.indirection == 0; };
 };
 
 //----------------------------------------------------------------------------------------------------------------------

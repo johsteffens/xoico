@@ -238,9 +238,9 @@ func (:s)
 
     if( typespec.indirection == 0 )
     {
-        if( in_typespec.type == TYPEOF_sc_t || in_typespec.type == TYPEOF_sd_t )
+        if( in_typespec.type == sc_t~ || in_typespec.type == sd_t~ )
         {
-            typespec.type = TYPEOF_u0_t;
+            typespec.type = u0_t~;
         }
         else
         {

@@ -158,7 +158,7 @@ func (:s)( er_t trans_control_foreach( m @* o, m bcore_source* source, m :result
         typespec_access_element.copy( typespec_array_element );
     }
 
-    if( typespec_var.type == TYPEOF_type_deduce ) typespec_var.type = typespec_access_element.type;
+    if( typespec_var.type == type_deduce~ ) typespec_var.type = typespec_access_element.type;
 
     m :result* condition_expr = NULL;
 
@@ -167,7 +167,7 @@ func (:s)( er_t trans_control_foreach( m @* o, m bcore_source* source, m :result
     typespec_arr.access_class = TYPEOF_const;
 
     m xoico_typespec_s* typespec_idx = scope( xoico_typespec_s! );
-    typespec_idx.type = TYPEOF_sz_t;
+    typespec_idx.type = sz_t~;
 
     o.push_typedecl( typespec_var, tp_var_name );
     o.push_typedecl( typespec_arr, o.entypeof( "__a" ) );

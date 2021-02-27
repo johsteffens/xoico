@@ -22,6 +22,7 @@ include "bcore_std.h";
 name mutable;
 name const;
 name void;
+name type;
 name _;
 name o;
 
@@ -121,6 +122,19 @@ func :.parse_fa =
     va_end( args );
     return ret;
 };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/**********************************************************************************************************************/
+/// external identifiers
+
+//----------------------------------------------------------------------------------------------------------------------
+
+identifier bcore_self_s_struct_body_to_sink_newline_escaped;
+identifier bcore_flect_caps_is_array_fix;
+identifier bcore_flect_caps_is_array_dyn;
+identifier bcore_flect_caps_is_typed;
+identifier bcore_flect_caps_get_indirection;
 
 //----------------------------------------------------------------------------------------------------------------------
 

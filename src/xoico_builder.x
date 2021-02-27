@@ -183,7 +183,7 @@ func (:target_s) :.load = (try)
 
     st_path = bcore_file_path_minimized( st_path.sc )^^;
 
-    bcore_txt_ml_a_from_file( o, st_path.sc );
+    o.from_file_txt_ml( st_path.sc );
     o->full_path_.copy( st_path );
     if( readonly ) o.readonly = true;
 
@@ -386,7 +386,7 @@ func (:main_s) :.build_from_file = (try)
 
 func (:main_s) :.update =
 {
-    if( bcore_error_stack_size() > 0 ) return TYPEOF_error_stack;
+    if( bcore_error_stack_size() > 0 ) return error_stack~;
     try( o.compiler.update_target_files( NULL ) );
     return 0;
 };
