@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
- *  Last File Update: 2021-02-27T12:53:13Z
+ *  Last File Update: 2021-02-27T17:14:36Z
  *
  *  Copyright and License of this File:
  *
@@ -45,7 +45,7 @@
 #include "bcore.xo.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico 0x1A4850C5A319CC1Eull
+#define HKEYOF_xoico 0xAC329AAD269C46FEull
 
 #define TYPEOF_xoico 0x21E8B04DB3E31F5Dull
 
@@ -1830,4 +1830,4 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOILA_OUT_SIGNATURE 0x16FAB985234D4EC2ull
+// XOILA_OUT_SIGNATURE 0x97FB46472658CA6Bull

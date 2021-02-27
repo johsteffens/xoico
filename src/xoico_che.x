@@ -618,31 +618,18 @@ func(:s) (er_t trans_number_literal( m @* o, m bcore_source* source, m :result* 
     }
     else // decimal
     {
-        while( source.parse_bl( "#?([0]>='0'&&[0]<='9')" ) )
-        {
-            result.push_char( source.get_char() );
-        }
+        while( source.parse_bl( "#?([0]>='0'&&[0]<='9')" ) ) result.push_char( source.get_char() );
     }
-
-    bl_t fraction = false;
 
     if( source.parse_bl( "#?([0]=='.')" ) )
     {
         result.push_char( source.get_char() );
-        fraction = true;
-    }
-
-    if( fraction )
-    {
-        while( source.parse_bl( "#?([0]>='0'&&[0]<='9')" ) )
-        {
-            result.push_char( source.get_char() );
-        }
+        while( source.parse_bl( "#?([0]>='0'&&[0]<='9')" ) ) result.push_char( source.get_char() );
     }
 
     bl_t exponent = false;
 
-    if( source.parse_bl( "#?([0]=='e'&&[0]=='E')" ) )
+    if( source.parse_bl( "#?([0]=='e'||[0]=='E')" ) )
     {
         result.push_char( source.get_char() );
         exponent = true;

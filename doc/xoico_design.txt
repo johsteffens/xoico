@@ -395,14 +395,14 @@ TODO:
 - (done) if a function was declared in a stamp, implementing it outside should always be possible simply by specifying the member name (without group)
 - (done) stamp: default trait is group in which the stamp is defined
 - (done) add registry for unspecific identifiers (allows disabling unknown identifier waiver)
+- (fixed) bug: che: 1e-4 (and similar) is not recognized as numeric expression
+- (done) che: add waiver for unknown type (in arglist or inside a function)
 
 - bug: binary operator not recognized after unregistered member function
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
 - make traitline of all groups end in x_inst
 - make 'fork' a transient function in x_inst rather than a builtin function
-- che: add waiver for unknown type (in arglist or inside a function)
 - che: disable as many waivers as possible
-- che: 1e-4 (and similar) is not recognized as numeric expression
 
 ===================================================================
 
