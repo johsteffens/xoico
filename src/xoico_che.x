@@ -494,6 +494,7 @@ stamp :s = aware :
     };
 
     func xoico_compiler.is_type  = { return o.compiler.is_type( name ); };
+    func xoico_compiler.is_identifier = { return o.compiler.is_identifier( name ); };
     func xoico_compiler.is_name  = { return o.compiler.is_name( name ); };
     func xoico_compiler.is_group = { return o.compiler.is_group( name ); };
     func xoico_compiler.is_stamp = { return o.compiler.is_stamp( name ); };
@@ -1609,7 +1610,13 @@ func (:s)
         }
         else // unknown identifier
         {
-            if( !o.waive_unknown_identifier ) return source.parse_error_fa( "Unknwon identifier #<sc_t>\n.", o.nameof( tp_identifier ) );
+            if( !o.waive_unknown_identifier )
+            {
+                if( !o.is_identifier( tp_identifier ) )
+                {
+                    return source.parse_error_fa( "Unknwon identifier #<sc_t>\n.", o.nameof( tp_identifier ) );
+                }
+            }
             o.trans_identifier( source, result, NULL );
             o.trans_whitespace( source, result );
 

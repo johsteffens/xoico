@@ -393,20 +393,22 @@ TODO:
          a name-clash is interpreted as continuation of the group
 - (done) allow automatic dereferencing across more than one indirection levels
 - (done) if a function was declared in a stamp, implementing it outside should always be possible simply by specifying the member name (without group)
+- (done) stamp: default trait is group in which the stamp is defined
+- (done) add registry for unspecific identifiers (allows disabling unknown identifier waiver)
 
 - bug: binary operator not recognized after unregistered member function
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
 - make traitline of all groups end in x_inst
 - make 'fork' a transient function in x_inst rather than a builtin function
-- add registry for unspecific identifiers (allows disabling unknown identifier waiver)
 - che: add waiver for unknown type (in arglist or inside a function)
 - che: disable as many waivers as possible
+- che: 1e-4 (and similar) is not recognized as numeric expression
 
 ===================================================================
 
 Keywords (for syntax highlight)
 
-group stamp stump hidden private func name signature body aware feature extending verbatim
-mutable plain retrievable forward include deferred embed cast foreach in verbatim_C fork
-strict try deduce scope scope_local scope_func extern obliv wrap restrict
+group stamp stump hidden private func name signature body obliv aware feature extending verbatim
+mutable retrievable forward include embed cast foreach in verbatim_C fork
+strict try scope scope_local scope_func extern wrap restrict type identifier
 

@@ -21,13 +21,15 @@ signature er_t register_item(  m @* o, c xoico* item );
 signature er_t register_group( m @* o, c xoico_group_s* group ); // no effect if group was already registered
 signature er_t register_func(  m @* o, c xoico_func_s* func );
 signature er_t register_external_type( m @* o, tp_t type );
+signature er_t register_external_identifier( m @* o, tp_t name );
 
 signature bl_t is_item(  c @* o, tp_t name );
 signature bl_t is_group( c @* o, tp_t name ); // checks if name represents a registered group
 signature bl_t is_func(  c @* o, tp_t name ); // checks if name represents the global name of a function (==name of implementation)
 signature bl_t is_stamp( c @* o, tp_t name ); // checks if name represents a registered stamp
 signature bl_t is_body(  c @* o, tp_t name ); // checks if name represents a registered body
-signature bl_t is_type(  c @* o, tp_t name ); // checks if name represents a registered type (either group, stamp, or external type)
+signature bl_t is_identifier( c @* o, tp_t name ); // checks if name represents a registered identifier (either group, stamp, external type, name or external identifier)
+signature bl_t is_type(  c @* o, tp_t name ); // checks if name represents a registered type (either group, stamp or external type)
 signature bl_t is_name(  c @* o, tp_t name ); // checks if name represents a registered name (declared with keyword 'name')
 signature bl_t is_signature( c @* o, tp_t name ); // checks if name represents a registered signature
 signature bl_t is_feature( c @* o, tp_t name ); // checks if name represents a registered feature
@@ -93,7 +95,8 @@ stamp :s = aware :
     hidden bcore_hmap_tpvd_s hmap_group;
     hidden bcore_hmap_tpvd_s hmap_item;
     hidden bcore_hmap_tpvd_s hmap_func;  // maps the global name of a function to the func instance
-    hidden bcore_hmap_tp_s hmap_external_type; // externally registered types
+    hidden bcore_hmap_tp_s hmap_external_type; // externally registered types (keyword 'type')
+    hidden bcore_hmap_tp_s hmap_external_identifier; // externally registered identifiers (keyword 'identifier')
     hidden bcore_hmap_tp_s hmap_declared_name; // declared names
 
     hidden bcore_hmap_name_s name_map;   // general name manager
@@ -123,6 +126,7 @@ stamp :s = aware :
     func :.register_group;
     func :.register_func;
     func :.register_external_type = { o.hmap_external_type.set( type ); return 0; };
+    func :.register_external_identifier = { o.hmap_external_identifier.set( name ); return 0; };
 
     func :.is_item  = { return o.hmap_item.exists( name ); };
     func :.is_group = { return o.hmap_group.exists( name ); };
@@ -133,6 +137,14 @@ stamp :s = aware :
         if( o.is_group( name ) ) return true;
         if( o.is_stamp( name ) ) return true;
         if( o.hmap_external_type.exists( name ) ) return true;
+        return false;
+    };
+
+    func :.is_identifier =
+    {
+        if( o.is_type( name ) ) return true;
+        if( o.hmap_declared_name.exists( name ) ) return true;
+        if( o.hmap_external_identifier.exists( name ) ) return true;
         return false;
     };
 

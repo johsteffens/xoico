@@ -477,15 +477,22 @@ func (:s) xoico.parse = (try)
     }
     else
     {
-        m $* st_trait_name = st_s!^;
-
         /// 'is_aware' is true by default
         if      ( source.parse_bl( " #?w'obliv'" ) ) o.is_aware = false;
         else if ( source.parse_bl( " #?w'aware'" ) ) o.is_aware = true;
 
+        m $* st_trait_name = st_s!^;
         o.group.parse_name_st( source, st_trait_name );
-        if( st_trait_name.size == 0 ) return source.parse_error_fa( "Trait name expected." );
-        o.trait_name = compiler.entypeof( st_trait_name.sc );
+        if( st_trait_name.size > 0 )
+        {
+            o.trait_name = compiler.entypeof( st_trait_name.sc );
+        }
+        else
+        {
+            o.trait_name = o.group.tp_name;
+        }
+
+
         if( source.parse_bl( " #=?'('" ) )
         {
             o.transient_map.parse( o, source );

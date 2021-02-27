@@ -1,6 +1,6 @@
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
- *  Last File Update: 2021-02-24T12:38:04Z
+ *  Last File Update: 2021-02-27T12:53:13Z
  *
  *  Copyright and License of this File:
  *
@@ -45,7 +45,7 @@
 #include "bcore.xo.h"
 
 //To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico 0xE321EBB47E5BB74Eull
+#define HKEYOF_xoico 0x1A4850C5A319CC1Eull
 
 #define TYPEOF_xoico 0x21E8B04DB3E31F5Dull
 
@@ -1114,6 +1114,7 @@
       bcore_hmap_tpvd_s hmap_item; \
       bcore_hmap_tpvd_s hmap_func; \
       bcore_hmap_tp_s hmap_external_type; \
+      bcore_hmap_tp_s hmap_external_identifier; \
       bcore_hmap_tp_s hmap_declared_name; \
       bcore_hmap_name_s name_map; \
       bl_t has_main_function; \
@@ -1126,10 +1127,12 @@
       sz_t verbosity; \
   }; \
   static inline er_t xoico_compiler_s_register_external_type( xoico_compiler_s* o, tp_t type ); \
+  static inline er_t xoico_compiler_s_register_external_identifier( xoico_compiler_s* o, tp_t name ); \
   static inline bl_t xoico_compiler_s_is_item( const xoico_compiler_s* o, tp_t name ); \
   static inline bl_t xoico_compiler_s_is_group( const xoico_compiler_s* o, tp_t name ); \
   static inline bl_t xoico_compiler_s_is_func( const xoico_compiler_s* o, tp_t name ); \
   bl_t xoico_compiler_s_is_type( const xoico_compiler_s* o, tp_t name ); \
+  bl_t xoico_compiler_s_is_identifier( const xoico_compiler_s* o, tp_t name ); \
   bl_t xoico_compiler_s_is_name( const xoico_compiler_s* o, tp_t name ); \
   bl_t xoico_compiler_s_is_stamp( const xoico_compiler_s* o, tp_t name ); \
   bl_t xoico_compiler_s_is_body( const xoico_compiler_s* o, tp_t name ); \
@@ -1168,6 +1171,7 @@
   bl_t xoico_compiler_s_get_type_array_element_info( const xoico_compiler_s* o, tp_t type, xoico_compiler_element_info_s* info ); \
   er_t xoico_compiler_s_update_target_files( xoico_compiler_s* o, bl_t* p_modified ); \
   static inline er_t xoico_compiler_s_register_external_type( xoico_compiler_s* o, tp_t type ){ bcore_hmap_tp_s_set(&(o->hmap_external_type),type ); return  0;} \
+  static inline er_t xoico_compiler_s_register_external_identifier( xoico_compiler_s* o, tp_t name ){ bcore_hmap_tp_s_set(&(o->hmap_external_identifier),name ); return  0;} \
   static inline bl_t xoico_compiler_s_is_item( const xoico_compiler_s* o, tp_t name ){ return  bcore_hmap_tpvd_s_exists(&(o->hmap_item),name );} \
   static inline bl_t xoico_compiler_s_is_group( const xoico_compiler_s* o, tp_t name ){ return  bcore_hmap_tpvd_s_exists(&(o->hmap_group),name );} \
   static inline bl_t xoico_compiler_s_is_func( const xoico_compiler_s* o, tp_t name ){ return  bcore_hmap_tpvd_s_exists(&(o->hmap_func),name );} \
@@ -1285,6 +1289,7 @@
   void xoico_che_s_push_typedecl( xoico_che_s* o, const xoico_typespec_s* typespec, tp_t name ); \
   void xoico_che_s_typespec_to_sink( xoico_che_s* o, const xoico_typespec_s* typespec, bcore_sink* sink ); \
   static inline bl_t xoico_che_s_is_type( const xoico_che_s* o, tp_t name ); \
+  static inline bl_t xoico_che_s_is_identifier( const xoico_che_s* o, tp_t name ); \
   static inline bl_t xoico_che_s_is_name( const xoico_che_s* o, tp_t name ); \
   static inline bl_t xoico_che_s_is_group( const xoico_che_s* o, tp_t name ); \
   static inline bl_t xoico_che_s_is_stamp( const xoico_che_s* o, tp_t name ); \
@@ -1360,6 +1365,7 @@
   er_t xoico_che_s_trans_control_return( xoico_che_s* o, bcore_source* source, xoico_che_result* result ); \
   static inline tp_t xoico_che_s_entypeof( xoico_che_s* o, sc_t name ){ return  bcore_hmap_name_s_set_sc(&(o->hmap_name),name );} \
   static inline bl_t xoico_che_s_is_type( const xoico_che_s* o, tp_t name ){ return  xoico_compiler_s_is_type(o->compiler,name );} \
+  static inline bl_t xoico_che_s_is_identifier( const xoico_che_s* o, tp_t name ){ return  xoico_compiler_s_is_identifier(o->compiler,name );} \
   static inline bl_t xoico_che_s_is_name( const xoico_che_s* o, tp_t name ){ return  xoico_compiler_s_is_name(o->compiler,name );} \
   static inline bl_t xoico_che_s_is_group( const xoico_che_s* o, tp_t name ){ return  xoico_compiler_s_is_group(o->compiler,name );} \
   static inline bl_t xoico_che_s_is_stamp( const xoico_che_s* o, tp_t name ){ return  xoico_compiler_s_is_stamp(o->compiler,name );} \
@@ -1824,4 +1830,4 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOILA_OUT_SIGNATURE 0xD6D3FD1051EB5F30ull
+// XOILA_OUT_SIGNATURE 0x16FAB985234D4EC2ull

@@ -520,10 +520,13 @@ func (:s) :.parse = (try)
         }
         else if( source.parse_bl( " #?w'type' " ) )
         {
-            m $* name = xoico_name_s!^;
-            name.parse( o, source );
-            compiler.register_external_type( name->name );
-            o.push_item_d( name.fork() );
+            xoico_name_s^ name.parse( o, source );
+            compiler.register_external_type( name.name );
+        }
+        else if( source.parse_bl( " #?w'identifier' " ) )
+        {
+            xoico_name_s^ name.parse( o, source );
+            compiler.register_external_identifier( name.name );
         }
         else if( bcore_source_a_parse_bl( source, " #?w'forward' " ) )
         {
