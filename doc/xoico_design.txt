@@ -409,6 +409,6 @@ TODO:
 Keywords (for syntax highlight)
 
 group stamp stump hidden private func name signature body obliv aware feature extending verbatim
-mutable retrievable forward include embed cast foreach in verbatim_C fork
+mutable discardable retrievable forward include embed cast foreach in verbatim_C fork
 strict try scope scope_local scope_func extern wrap restrict type identifier
 
