@@ -425,7 +425,7 @@ func (:s) :.check_overwrite =
         }
     }
 
-    if( clear_to_overwrite && body_signature )
+    if( clear_to_overwrite && body_signature && !o.always_expand )
     {
         clear_to_overwrite.0 = o.body_signature( data ) != body_signature;
     }

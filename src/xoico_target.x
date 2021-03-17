@@ -31,7 +31,9 @@ stamp :s = aware :
     st_s ext;  // target extension (e.g. "xo")
 
     /// parameters
-    bl_t update_target_h_only_on_new_body_signature = true;
+
+    /// prevents body update if body signature is unchanged
+    bl_t update_target_on_body_signature = true;
 
     st_s include_path; // (local) path used in generated '#include' directives
     st_s path; // full path excluding extension *.h or *.c
@@ -46,7 +48,12 @@ stamp :s = aware :
     bl_t readonly;    // target is readonly (affects writing in phase2)
     st_s => target_h; // target header file
     st_s => target_c; // target c file
-    tp_t body_signature_h; // body signature for header
+
+    /** The body signature is a signature of the effective c-code (and certain comments)
+     *  It is used to prevent updating *.xo files when the effective code has not changed.
+     */
+    tp_t body_signature_h; // body signature for output file
+    tp_t body_signature_c; // body signature for output file
 
     tp_t pre_hash;
 
@@ -322,7 +329,7 @@ func (:s) (er_t expand_h( c @* o, sz_t indent, m bcore_sink* sink, mutable tp_t*
     sink_buf.push_fa( "\n" );
     sink_buf.push_fa( "#rn{ }##endif // __#<sc_t>_#<sc_t>_H\n", indent, o.name.sc, o.ext.sc );
 
-    sink.push_sc( sink_buf.sc );
+    sink.push_data( ( vc_t )sink_buf.sc, sink_buf.size );
 
     tp_t body_hash = bcore_tp_fold_sc( bcore_tp_init(), sink_buf.sc );
     sink.push_fa( "// XOICO_BODY_SIGNATURE 0x#pl16'0'{#X<tp_t>}\n", body_hash );
@@ -340,30 +347,37 @@ func (:s) (er_t expand_init1( c @* o, sz_t indent, m bcore_sink* sink )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_c( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
+func (:s) (er_t expand_c( c @* o, sz_t indent, m bcore_sink* sink, mutable tp_t* body_signature )) = (try)
 {
+    st_s^ sink_buf;
+    tp_t body_hash = bcore_tp_init();
+
     o.expand_update_time( indent, sink );
-    o.expand_heading( indent, sink );
 
-    sink.push_fa( "\n" );
-    sink.push_fa( "#rn{ }##include \"#<sc_t>.h\"\n", indent, o.include_path.sc );
-    sink.push_fa( "#rn{ }##include \"bcore_spect.h\"\n", indent );
-    sink.push_fa( "#rn{ }##include \"bcore_spect_inst.h\"\n", indent );
-    sink.push_fa( "#rn{ }##include \"bcore_sr.h\"\n", indent );
-    sink.push_fa( "#rn{ }##include \"bcore_const_manager.h\"\n", indent );
+    o.expand_heading( indent, sink_buf );
 
-    sink.push_fa( "\n" );
+    sink_buf.push_fa( "\n" );
+    sink_buf.push_fa( "#rn{ }##include \"#<sc_t>.h\"\n", indent, o.include_path.sc );
+    sink_buf.push_fa( "#rn{ }##include \"bcore_spect.h\"\n", indent );
+    sink_buf.push_fa( "#rn{ }##include \"bcore_spect_inst.h\"\n", indent );
+    sink_buf.push_fa( "#rn{ }##include \"bcore_sr.h\"\n", indent );
+    sink_buf.push_fa( "#rn{ }##include \"bcore_const_manager.h\"\n", indent );
+    sink_buf.push_fa( "\n" );
 
-    sink.push_fa( "#rn{ }//To force a rebuild of this target by xoico, reset the hash key value below to 0.\n", indent );
-    sink.push_fa( "#rn{ }##define HKEYOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o.name.sc, o.get_hash() );
+    body_hash = bcore_tp_fold_sc( body_hash, sink_buf.sc );
+    sink.push_data( ( vc_t )sink_buf.sc, sink_buf.size );
+    sink_buf.clear();
+
+    sink.push_fa( "#rn{ }// To force a rebuild of this target by xoico, reset the hash key value below to 0.\n", indent );
+    sink.push_fa( "#rn{ }// HKEYOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o.name.sc, o.get_hash() );
 
     /// definition section
-    foreach( m $* e in o ) e.expand_definition( o, indent, sink );
+    foreach( m $* e in o ) e.expand_definition( o, indent, sink_buf );
 
     /// signal section
-    sink.push_fa( "\n" );
-    sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
-    sink.push_fa( "\n" );
+    sink_buf.push_fa( "\n" );
+    sink_buf.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
+    sink_buf.push_fa( "\n" );
 
     /// prototypes of signal handlers this target depends on
     foreach( sz_t target_idx in o.dependencies )
@@ -371,65 +385,72 @@ func (:s) (er_t expand_c( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
         c xoico_target_s* target = o.compiler.data[ target_idx ];
         if( target.signal_handler_name.size > 0 )
         {
-            sink.push_fa( "#rn{ }vd_t #<sc_t>( const bcore_signal_s* o );\n", indent, target.signal_handler_name.sc );
+            sink_buf.push_fa( "#rn{ }vd_t #<sc_t>( const bcore_signal_s* o );\n", indent, target.signal_handler_name.sc );
         }
     }
 
-    sink.push_fa( "\n" );
-    sink.push_fa( "#rn{ }vd_t #<sc_t>_#<sc_t>_signal_handler( const bcore_signal_s* o )\n", indent, o.name.sc, o.ext.sc );
-    sink.push_fa( "#rn{ }{\n", indent );
-    sink.push_fa( "#rn{ }    switch( bcore_signal_s_handle_type( o, typeof( \"#<sc_t>_#<sc_t>\" ) ) )\n", indent, o.name.sc, o.ext.sc );
-    sink.push_fa( "#rn{ }    {\n", indent );
+    sink_buf.push_fa( "\n" );
+    sink_buf.push_fa( "#rn{ }vd_t #<sc_t>_#<sc_t>_signal_handler( const bcore_signal_s* o )\n", indent, o.name.sc, o.ext.sc );
+    sink_buf.push_fa( "#rn{ }{\n", indent );
+    sink_buf.push_fa( "#rn{ }    switch( bcore_signal_s_handle_type( o, typeof( \"#<sc_t>_#<sc_t>\" ) ) )\n", indent, o.name.sc, o.ext.sc );
+    sink_buf.push_fa( "#rn{ }    {\n", indent );
 
-    sink.push_fa( "#rn{ }        case TYPEOF_init1:\n", indent );
-    sink.push_fa( "#rn{ }        {\n", indent );
-    o.expand_init1( indent + 12, sink );
-    foreach( m $* e in o ) e.expand_init1( o, indent + 12, sink );
-    sink.push_fa( "#rn{ }        }\n", indent );
-    sink.push_fa( "#rn{ }        break;\n", indent );
+    sink_buf.push_fa( "#rn{ }        case TYPEOF_init1:\n", indent );
+    sink_buf.push_fa( "#rn{ }        {\n", indent );
+    o.expand_init1( indent + 12, sink_buf );
+    foreach( m $* e in o ) e.expand_init1( o, indent + 12, sink_buf );
+    sink_buf.push_fa( "#rn{ }        }\n", indent );
+    sink_buf.push_fa( "#rn{ }        break;\n", indent );
 
     if( o.dependencies.size > 0 )
     {
-        sink.push_fa( "#rn{ }        case TYPEOF_push_dependencies:\n", indent );
-        sink.push_fa( "#rn{ }        {\n", indent );
-        sink.push_fa( "#rn{ }            ASSERT( o->object && ( *( aware_t* )o->object ) == TYPEOF_bcore_arr_fp_s );\n", indent );
-        sink.push_fa( "#rn{ }            bcore_arr_fp_s* arr_fp = o->object;\n", indent );
+        sink_buf.push_fa( "#rn{ }        case TYPEOF_push_dependencies:\n", indent );
+        sink_buf.push_fa( "#rn{ }        {\n", indent );
+        sink_buf.push_fa( "#rn{ }            ASSERT( o->object && ( *( aware_t* )o->object ) == TYPEOF_bcore_arr_fp_s );\n", indent );
+        sink_buf.push_fa( "#rn{ }            bcore_arr_fp_s* arr_fp = o->object;\n", indent );
         foreach( sz_t target_idx in o.dependencies )
         {
             c xoico_target_s* target = o.compiler.[ target_idx ];
             if( target.signal_handler_name.size > 0 )
             {
-                sink.push_fa( "#rn{ }            bcore_arr_fp_s_push( arr_fp, ( fp_t )#<sc_t> );\n", indent, target.signal_handler_name.sc );
+                sink_buf.push_fa( "#rn{ }            bcore_arr_fp_s_push( arr_fp, ( fp_t )#<sc_t> );\n", indent, target.signal_handler_name.sc );
             }
         }
-        sink.push_fa( "#rn{ }        }\n", indent );
-        sink.push_fa( "#rn{ }        break;\n", indent );
+        sink_buf.push_fa( "#rn{ }        }\n", indent );
+        sink_buf.push_fa( "#rn{ }        break;\n", indent );
     }
 
-    sink.push_fa( "#rn{ }        default: break;\n", indent );
-    sink.push_fa( "#rn{ }    }\n", indent );
-    sink.push_fa( "#rn{ }    return NULL;\n", indent );
-    sink.push_fa( "#rn{ }}\n", indent );
+    sink_buf.push_fa( "#rn{ }        default: break;\n", indent );
+    sink_buf.push_fa( "#rn{ }    }\n", indent );
+    sink_buf.push_fa( "#rn{ }    return NULL;\n", indent );
+    sink_buf.push_fa( "#rn{ }}\n", indent );
 
     if( o.define_signal_handler )
     {
-        sink.push_fa( "#rn{ }BETH_SIGNAL_DEFINE( #<sc_t> )\n", indent, o.name.sc );
+        sink_buf.push_fa( "#rn{ }BETH_SIGNAL_DEFINE( #<sc_t> )\n", indent, o.name.sc );
     }
 
     if( o.main_function )
     {
-        sink.push_fa( "\n" );
-        sink.push_fa( "#rn{ }int main( int argc, char** argv )\n", indent );
-        sink.push_fa( "#rn{ }{\n", indent );
-        sink.push_fa( "#rn{ }    BETH_USE( #<sc_t> );\n", indent, o.name.sc );
-        sink.push_fa( "#rn{ }    bcore_arr_st_s* args = bcore_arr_st_s_create();\n", indent );
-        sink.push_fa( "#rn{ }    for( sz_t i = 0; i < argc; i++ ) bcore_arr_st_s_push_sc( args, argv[ i ] );\n", indent );
-        sink.push_fa( "#rn{ }    int retv = #<sc_t>( args );\n", indent, o.compiler.nameof( o.main_function.global_name ) );
-        sink.push_fa( "#rn{ }    bcore_arr_st_s_discard( args );\n", indent );
-        sink.push_fa( "#rn{ }    BETH_CLOSEV( 0 );\n", indent );
-        sink.push_fa( "#rn{ }    return retv;\n", indent );
-        sink.push_fa( "#rn{ }}\n", indent );
+        sink_buf.push_fa( "\n" );
+        sink_buf.push_fa( "#rn{ }int main( int argc, char** argv )\n", indent );
+        sink_buf.push_fa( "#rn{ }{\n", indent );
+        sink_buf.push_fa( "#rn{ }    BETH_USE( #<sc_t> );\n", indent, o.name.sc );
+        sink_buf.push_fa( "#rn{ }    bcore_arr_st_s* args = bcore_arr_st_s_create();\n", indent );
+        sink_buf.push_fa( "#rn{ }    for( sz_t i = 0; i < argc; i++ ) bcore_arr_st_s_push_sc( args, argv[ i ] );\n", indent );
+        sink_buf.push_fa( "#rn{ }    int retv = #<sc_t>( args );\n", indent, o.compiler.nameof( o.main_function.global_name ) );
+        sink_buf.push_fa( "#rn{ }    bcore_arr_st_s_discard( args );\n", indent );
+        sink_buf.push_fa( "#rn{ }    BETH_CLOSEV( 0 );\n", indent );
+        sink_buf.push_fa( "#rn{ }    return retv;\n", indent );
+        sink_buf.push_fa( "#rn{ }}\n", indent );
     }
+
+    body_hash = bcore_tp_fold_sc( body_hash, sink_buf.sc );
+    sink.push_data( ( vc_t )sink_buf.sc, sink_buf.size );
+    sink_buf.clear();
+
+    sink.push_fa( "// XOICO_BODY_SIGNATURE 0x#pl16'0'{#X<tp_t>}\n", body_hash );
+    if( body_signature ) body_signature.0 = body_hash;
 
     return 0;
 };
@@ -447,19 +468,21 @@ func (:s) :.to_be_modified =
     m st_s* file_c = st_s_create_fa( "#<sc_t>.c", o.path.sc )^^;
     if( bcore_file_exists( file_c.sc ) )
     {
-        m st_s* key_defined = st_s_create_fa( "##?w'define HKEYOF_#<sc_t>'", o.name.sc )^^;
+        m st_s* key_defined = st_s_create_fa( "##?w'HKEYOF_#<sc_t>'", o.name.sc )^^;
         m bcore_source* source = bcore_file_open_source( file_c.sc )^^;
         while( !source.eos() )
         {
-            char c = source.get_u0();
-            if( c == '#' )
+            if( source.get_u0() == '/' )
             {
-                if( source.parse_bl( key_defined.sc ) )
+                if( source.get_u0() == '/' )
                 {
-                    tp_t key_val = 0;
-                    source.parse_fa( " #<tp_t*>", &key_val );
-                    to_be_modified = ( key_val != target_hash );
-                    break;
+                    if( source.parse_bl( key_defined.sc ) )
+                    {
+                        tp_t key_val = 0;
+                        source.parse_fa( " #<tp_t*>", &key_val );
+                        to_be_modified = ( key_val != target_hash );
+                        break;
+                    }
                 }
             }
         }
@@ -484,13 +507,13 @@ func (:s) :.expand_phase1 = (try)
         if( !o.compiler.dry_run )
         {
             o.expand_h( 0, o.target_h, o.body_signature_h.1 );
-            o.expand_c( 0, o.target_c );
+            o.expand_c( 0, o.target_c, o.body_signature_c.1 );
         }
         else
         {
             m st_s* buf = st_s!^^;
             o.expand_h( 0, buf, o.body_signature_h.1 );
-            o.expand_c( 0, buf );
+            o.expand_c( 0, buf, o.body_signature_c.1 );
         }
         o.modified = true;
     }
@@ -539,7 +562,7 @@ func (:s) :.expand_phase2 = (try)
     {
         {
             bl_t clear_to_overwrite = false;
-            tp_t body_signature = o.update_target_h_only_on_new_body_signature ? o.body_signature_h : 0;
+            tp_t body_signature = o.update_target_on_body_signature ? o.body_signature_h : 0;
             o.compiler.check_overwrite( file_h.sc, body_signature, clear_to_overwrite.1 );
             if( clear_to_overwrite )
             {
@@ -551,7 +574,8 @@ func (:s) :.expand_phase2 = (try)
 
         {
             bl_t clear_to_overwrite = false;
-            o.compiler.check_overwrite( file_c.sc, 0, clear_to_overwrite.1 );
+            tp_t body_signature = o.update_target_on_body_signature ? o.body_signature_c : 0;
+            o.compiler.check_overwrite( file_c.sc, body_signature, clear_to_overwrite.1 );
             if( clear_to_overwrite )
             {
                 bcore_msg_fa( "Writing: #<sc_t>\n", file_c.sc );

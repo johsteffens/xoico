@@ -1,4 +1,4 @@
-//  Last update: 2021-03-17T15:49:49Z
+//  Last update: 2021-03-17T17:10:44Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
  *
@@ -1029,7 +1029,7 @@
       aware_t _; \
       st_s name; \
       st_s ext; \
-      bl_t update_target_h_only_on_new_body_signature; \
+      bl_t update_target_on_body_signature; \
       st_s include_path; \
       st_s path; \
       BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_source_s, ); \
@@ -1042,6 +1042,7 @@
       st_s* target_h; \
       st_s* target_c; \
       tp_t body_signature_h; \
+      tp_t body_signature_c; \
       tp_t pre_hash; \
       xoico_cengine* cengine; \
       xoico_compiler_s* compiler; \
@@ -1063,7 +1064,7 @@
   er_t xoico_target_s_expand_heading( const xoico_target_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_target_s_expand_h( const xoico_target_s* o, sz_t indent, bcore_sink* sink, tp_t* body_signature ); \
   er_t xoico_target_s_expand_init1( const xoico_target_s* o, sz_t indent, bcore_sink* sink ); \
-  er_t xoico_target_s_expand_c( const xoico_target_s* o, sz_t indent, bcore_sink* sink ); \
+  er_t xoico_target_s_expand_c( const xoico_target_s* o, sz_t indent, bcore_sink* sink, tp_t* body_signature ); \
   bl_t xoico_target_s_to_be_modified( const xoico_target_s* o ); \
   er_t xoico_target_s_expand_phase1( xoico_target_s* o, bl_t* p_modified ); \
   er_t xoico_target_s_expand_phase2( xoico_target_s* o, bl_t* p_modified ); \
@@ -1832,5 +1833,5 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOICO_BODY_SIGNATURE 0x02A7D5C03BC21EF1
-// XOICO_FILE_SIGNATURE 0x8F8D26CECBE72EF0
+// XOICO_BODY_SIGNATURE 0xE279DA545FD8F829
+// XOICO_FILE_SIGNATURE 0x950A88821162300F

@@ -1,4 +1,4 @@
-//  Last update: 2021-03-17T16:04:17Z
+//  Last update: 2021-03-17T17:10:44Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
  *
@@ -43,8 +43,8 @@
 #include "bcore_sr.h"
 #include "bcore_const_manager.h"
 
-//To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico 0x468B133CC2BEA131ull
+// To force a rebuild of this target by xoico, reset the hash key value below to 0.
+// HKEYOF_xoico 0x0601683C5407ACD0ull
 
 /**********************************************************************************************************************/
 // source: xoico.x
@@ -3975,7 +3975,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_target_s )
 "{"
     "st_s name;"
     "st_s ext;"
-    "bl_t update_target_h_only_on_new_body_signature = true;"
+    "bl_t update_target_on_body_signature = true;"
     "st_s include_path;"
     "st_s path;"
     "xoico_source_s => [];"
@@ -3988,6 +3988,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_target_s )
     "st_s => target_h;"
     "st_s => target_c;"
     "tp_t body_signature_h;"
+    "tp_t body_signature_c;"
     "tp_t pre_hash;"
     "aware xoico_cengine -> cengine;"
     "hidden aware xoico_compiler_s* compiler;"
@@ -4000,7 +4001,7 @@ BCORE_DEFINE_OBJECT_INST_P( xoico_target_s )
 
 er_t xoico_target_s_finalize( xoico_target_s* o, const xoico_host* host )
 {
-    // xoico_target.x:63:5
+    // xoico_target.x:70:5
     
     {const xoico_target_s* __a=o ;if(__a)for(sz_t __i=0; __i<__a->size; __i++){xoico_source_s* e=__a->data[__i]; BLM_TRY(xoico_source_s_finalize(e,((const xoico_host*)(o ))))
     }}return  0;
@@ -4008,7 +4009,7 @@ er_t xoico_target_s_finalize( xoico_target_s* o, const xoico_host* host )
 
 er_t xoico_target_s_expand_setup( xoico_target_s* o, const xoico_host* host )
 {
-    // xoico_target.x:69:5
+    // xoico_target.x:76:5
     
     {const xoico_target_s* __a=o ;if(__a)for(sz_t __i=0; __i<__a->size; __i++){xoico_source_s* e=__a->data[__i]; BLM_TRY(xoico_source_s_expand_setup(e,((const xoico_host*)(o ))))
     }}return  0;
@@ -4016,7 +4017,7 @@ er_t xoico_target_s_expand_setup( xoico_target_s* o, const xoico_host* host )
 
 er_t xoico_target_s_set_main_function( xoico_target_s* o, const xoico_func_s* func )
 {
-    // xoico_target.x:79:5
+    // xoico_target.x:86:5
     
     if( o->compiler->has_main_function ) return  bcore_source_point_s_parse_error_fa(&(func->source_point),"A main function was already declared." );
     o->compiler->has_main_function = true;
@@ -4026,21 +4027,21 @@ er_t xoico_target_s_set_main_function( xoico_target_s* o, const xoico_func_s* fu
 
 void xoico_target_s_push_d( xoico_target_s* o, xoico_source_s* source )
 {
-    // xoico_target.x:87:5
+    // xoico_target.x:94:5
     
     ((xoico_source_s*)(x_array_push_d(((x_array*)(o)),((x_inst*)(source )))));
 }
 
 void xoico_target_s_explicit_embeddings_push( const xoico_target_s* o, bcore_arr_st_s* arr )
 {
-    // xoico_target.x:92:5
+    // xoico_target.x:99:5
     
     {const xoico_target_s* __a=o ;if(__a)for(sz_t __i=0; __i<__a->size; __i++){xoico_source_s* source=__a->data[__i]; xoico_source_s_explicit_embeddings_push(source,arr );}}
 }
 
 er_t xoico_target_s_parse_from_path( xoico_target_s* o, sc_t source_path, sc_t group_name, sc_t trait_name )
 {
-    // xoico_target.x:106:31
+    // xoico_target.x:113:31
     BLM_INIT_LEVEL(0);
     st_s* source_name        = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,bcore_file_strip_extension(bcore_file_name(source_path ) )));
     st_s* source_folder_path = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,bcore_file_folder_path(source_path )));
@@ -4090,7 +4091,7 @@ er_t xoico_target_s_parse_from_path( xoico_target_s* o, sc_t source_path, sc_t g
 
 tp_t xoico_target_s_get_hash( const xoico_target_s* o )
 {
-    // xoico_target.x:157:1
+    // xoico_target.x:164:1
     BLM_INIT_LEVEL(0);
     tp_t hash = bcore_tp_init();
     hash = bcore_tp_fold_tp( hash, o->pre_hash );
@@ -4121,7 +4122,7 @@ tp_t xoico_target_s_get_hash( const xoico_target_s* o )
 
 bl_t xoico_target_s_is_cyclic_recursive( xoico_target_s* o )
 {
-    // xoico_target.x:189:1
+    // xoico_target.x:196:1
     
     if( o->flag ) return  true;
     o->flag = true;
@@ -4132,7 +4133,7 @@ bl_t xoico_target_s_is_cyclic_recursive( xoico_target_s* o )
 
 bl_t xoico_target_s_is_cyclic( xoico_target_s* o )
 {
-    // xoico_target.x:200:1
+    // xoico_target.x:207:1
     
     xoico_compiler_s_clear_flags(o->compiler);
     bl_t cyclic = xoico_target_s_is_cyclic_recursive(o);
@@ -4142,7 +4143,7 @@ bl_t xoico_target_s_is_cyclic( xoico_target_s* o )
 
 er_t xoico_target_s_set_dependencies( xoico_target_s* o, const bcore_arr_sz_s* dependencies )
 {
-    // xoico_target.x:209:32
+    // xoico_target.x:216:32
     BLM_INIT_LEVEL(0);
     sz_t targets = o->compiler->size;
     
@@ -4170,7 +4171,7 @@ er_t xoico_target_s_set_dependencies( xoico_target_s* o, const bcore_arr_sz_s* d
 
 er_t xoico_target_s_expand_update_time( const xoico_target_s* o, sz_t indent, bcore_sink* sink )
 {
-    // xoico_target.x:237:82
+    // xoico_target.x:244:82
     BLM_INIT_LEVEL(0);
     bcore_cday_utc_s* time = ((bcore_cday_utc_s*)BLM_LEVEL_T_PUSH(0,bcore_cday_utc_s,bcore_cday_utc_s_create()));
     bcore_cday_utc_s_from_system( time );
@@ -4180,7 +4181,7 @@ er_t xoico_target_s_expand_update_time( const xoico_target_s* o, sz_t indent, bc
 
 er_t xoico_target_s_expand_heading( const xoico_target_s* o, sz_t indent, bcore_sink* sink )
 {
-    // xoico_target.x:247:78
+    // xoico_target.x:254:78
     BLM_INIT_LEVEL(0);
     bcore_sink_a_push_fa(sink,"/** This file was generated from xoila source code.\n" );
     bcore_sink_a_push_fa(sink," *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens\n" );
@@ -4216,7 +4217,7 @@ er_t xoico_target_s_expand_heading( const xoico_target_s* o, sz_t indent, bcore_
 
 er_t xoico_target_s_expand_h( const xoico_target_s* o, sz_t indent, bcore_sink* sink, tp_t* body_signature )
 {
-    // xoico_target.x:283:102
+    // xoico_target.x:290:102
     BLM_INIT_LEVEL(0);
     BLM_TRY(xoico_target_s_expand_update_time(o,indent, sink ))
     
@@ -4258,7 +4259,7 @@ er_t xoico_target_s_expand_h( const xoico_target_s* o, sz_t indent, bcore_sink* 
     }}st_s_push_fa(&(sink_buf),"\n" );
     st_s_push_fa(&(sink_buf),"#rn{ }##endif // __#<sc_t>_#<sc_t>_H\n", indent, o->name.sc, o->ext.sc );
     
-    bcore_sink_a_push_sc(sink,sink_buf.sc );
+    bcore_sink_a_push_data(sink,( vc_t )sink_buf.sc, sink_buf.size );
     
     tp_t body_hash = bcore_tp_fold_sc( bcore_tp_init(), sink_buf.sc );
     bcore_sink_a_push_fa(sink,"// XOICO_BODY_SIGNATURE 0x#pl16'0'{#X<tp_t>}\n", body_hash );
@@ -4269,37 +4270,44 @@ er_t xoico_target_s_expand_h( const xoico_target_s* o, sz_t indent, bcore_sink* 
 
 er_t xoico_target_s_expand_init1( const xoico_target_s* o, sz_t indent, bcore_sink* sink )
 {
-    // xoico_target.x:337:1
+    // xoico_target.x:344:1
     
     return  0;
 }
 
-er_t xoico_target_s_expand_c( const xoico_target_s* o, sz_t indent, bcore_sink* sink )
+er_t xoico_target_s_expand_c( const xoico_target_s* o, sz_t indent, bcore_sink* sink, tp_t* body_signature )
 {
-    // xoico_target.x:343:72
+    // xoico_target.x:350:102
+    BLM_INIT_LEVEL(0);
+    st_s sink_buf;BLM_T_INIT_SPUSH(st_s, &sink_buf);;
+    tp_t body_hash = bcore_tp_init();
     
     BLM_TRY(xoico_target_s_expand_update_time(o,indent, sink ))
-    BLM_TRY(xoico_target_s_expand_heading(o,indent, sink ))
     
-    bcore_sink_a_push_fa(sink,"\n" );
-    bcore_sink_a_push_fa(sink,"#rn{ }##include \"#<sc_t>.h\"\n", indent, o->include_path.sc );
-    bcore_sink_a_push_fa(sink,"#rn{ }##include \"bcore_spect.h\"\n", indent );
-    bcore_sink_a_push_fa(sink,"#rn{ }##include \"bcore_spect_inst.h\"\n", indent );
-    bcore_sink_a_push_fa(sink,"#rn{ }##include \"bcore_sr.h\"\n", indent );
-    bcore_sink_a_push_fa(sink,"#rn{ }##include \"bcore_const_manager.h\"\n", indent );
+    BLM_TRY(xoico_target_s_expand_heading(o,indent,((bcore_sink*)(&( sink_buf )))))
     
-    bcore_sink_a_push_fa(sink,"\n" );
+    st_s_push_fa(&(sink_buf),"\n" );
+    st_s_push_fa(&(sink_buf),"#rn{ }##include \"#<sc_t>.h\"\n", indent, o->include_path.sc );
+    st_s_push_fa(&(sink_buf),"#rn{ }##include \"bcore_spect.h\"\n", indent );
+    st_s_push_fa(&(sink_buf),"#rn{ }##include \"bcore_spect_inst.h\"\n", indent );
+    st_s_push_fa(&(sink_buf),"#rn{ }##include \"bcore_sr.h\"\n", indent );
+    st_s_push_fa(&(sink_buf),"#rn{ }##include \"bcore_const_manager.h\"\n", indent );
+    st_s_push_fa(&(sink_buf),"\n" );
     
-    bcore_sink_a_push_fa(sink,"#rn{ }//To force a rebuild of this target by xoico, reset the hash key value below to 0.\n", indent );
-    bcore_sink_a_push_fa(sink,"#rn{ }##define HKEYOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o->name.sc, xoico_target_s_get_hash(o) );
+    body_hash = bcore_tp_fold_sc( body_hash, sink_buf.sc );
+    bcore_sink_a_push_data(sink,( vc_t )sink_buf.sc, sink_buf.size );
+    st_s_clear(&(sink_buf));
+    
+    bcore_sink_a_push_fa(sink,"#rn{ }// To force a rebuild of this target by xoico, reset the hash key value below to 0.\n", indent );
+    bcore_sink_a_push_fa(sink,"#rn{ }// HKEYOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o->name.sc, xoico_target_s_get_hash(o) );
     
     /// definition section
-    {const xoico_target_s* __a=o ;if(__a)for(sz_t __i=0; __i<__a->size; __i++){xoico_source_s* e=__a->data[__i]; BLM_TRY(xoico_source_s_expand_definition(e,((const xoico_host*)(o)), indent, sink ))
+    {const xoico_target_s* __a=o ;if(__a)for(sz_t __i=0; __i<__a->size; __i++){xoico_source_s* e=__a->data[__i]; BLM_TRY(xoico_source_s_expand_definition(e,((const xoico_host*)(o)), indent,((bcore_sink*)(&( sink_buf )))))
     
     /// signal section
-    }}bcore_sink_a_push_fa(sink,"\n" );
-    bcore_sink_a_push_fa(sink,"#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
-    bcore_sink_a_push_fa(sink,"\n" );
+    }}st_s_push_fa(&(sink_buf),"\n" );
+    st_s_push_fa(&(sink_buf),"#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
+    st_s_push_fa(&(sink_buf),"\n" );
     
     /// prototypes of signal handlers this target depends on
     {const bcore_arr_sz_s* __a=&(o->dependencies );if(__a)for(sz_t __i=0; __i<__a->size; __i++){sz_t target_idx=__a->data[__i];
@@ -4307,72 +4315,79 @@ er_t xoico_target_s_expand_c( const xoico_target_s* o, sz_t indent, bcore_sink* 
         const xoico_target_s* target = o->compiler->data[ target_idx ];
         if( target->signal_handler_name.size > 0 )
         {
-            bcore_sink_a_push_fa(sink,"#rn{ }vd_t #<sc_t>( const bcore_signal_s* o );\n", indent, target->signal_handler_name.sc );
+            st_s_push_fa(&(sink_buf),"#rn{ }vd_t #<sc_t>( const bcore_signal_s* o );\n", indent, target->signal_handler_name.sc );
         }
     }
     
-    }}bcore_sink_a_push_fa(sink,"\n" );
-    bcore_sink_a_push_fa(sink,"#rn{ }vd_t #<sc_t>_#<sc_t>_signal_handler( const bcore_signal_s* o )\n", indent, o->name.sc, o->ext.sc );
-    bcore_sink_a_push_fa(sink,"#rn{ }{\n", indent );
-    bcore_sink_a_push_fa(sink,"#rn{ }    switch( bcore_signal_s_handle_type( o, typeof( \"#<sc_t>_#<sc_t>\" ) ) )\n", indent, o->name.sc, o->ext.sc );
-    bcore_sink_a_push_fa(sink,"#rn{ }    {\n", indent );
+    }}st_s_push_fa(&(sink_buf),"\n" );
+    st_s_push_fa(&(sink_buf),"#rn{ }vd_t #<sc_t>_#<sc_t>_signal_handler( const bcore_signal_s* o )\n", indent, o->name.sc, o->ext.sc );
+    st_s_push_fa(&(sink_buf),"#rn{ }{\n", indent );
+    st_s_push_fa(&(sink_buf),"#rn{ }    switch( bcore_signal_s_handle_type( o, typeof( \"#<sc_t>_#<sc_t>\" ) ) )\n", indent, o->name.sc, o->ext.sc );
+    st_s_push_fa(&(sink_buf),"#rn{ }    {\n", indent );
     
-    bcore_sink_a_push_fa(sink,"#rn{ }        case TYPEOF_init1:\n", indent );
-    bcore_sink_a_push_fa(sink,"#rn{ }        {\n", indent );
-    BLM_TRY(xoico_target_s_expand_init1(o,indent + 12, sink ))
-    {const xoico_target_s* __a=o ;if(__a)for(sz_t __i=0; __i<__a->size; __i++){xoico_source_s* e=__a->data[__i]; BLM_TRY(xoico_source_s_expand_init1(e,((const xoico_host*)(o)), indent + 12, sink ))
-    }}bcore_sink_a_push_fa(sink,"#rn{ }        }\n", indent );
-    bcore_sink_a_push_fa(sink,"#rn{ }        break;\n", indent );
+    st_s_push_fa(&(sink_buf),"#rn{ }        case TYPEOF_init1:\n", indent );
+    st_s_push_fa(&(sink_buf),"#rn{ }        {\n", indent );
+    BLM_TRY(xoico_target_s_expand_init1(o,indent + 12,((bcore_sink*)(&( sink_buf )))))
+    {const xoico_target_s* __a=o ;if(__a)for(sz_t __i=0; __i<__a->size; __i++){xoico_source_s* e=__a->data[__i]; BLM_TRY(xoico_source_s_expand_init1(e,((const xoico_host*)(o)), indent + 12,((bcore_sink*)(&( sink_buf )))))
+    }}st_s_push_fa(&(sink_buf),"#rn{ }        }\n", indent );
+    st_s_push_fa(&(sink_buf),"#rn{ }        break;\n", indent );
     
     if( o->dependencies.size > 0 )
     {
-        bcore_sink_a_push_fa(sink,"#rn{ }        case TYPEOF_push_dependencies:\n", indent );
-        bcore_sink_a_push_fa(sink,"#rn{ }        {\n", indent );
-        bcore_sink_a_push_fa(sink,"#rn{ }            ASSERT( o->object && ( *( aware_t* )o->object ) == TYPEOF_bcore_arr_fp_s );\n", indent );
-        bcore_sink_a_push_fa(sink,"#rn{ }            bcore_arr_fp_s* arr_fp = o->object;\n", indent );
+        st_s_push_fa(&(sink_buf),"#rn{ }        case TYPEOF_push_dependencies:\n", indent );
+        st_s_push_fa(&(sink_buf),"#rn{ }        {\n", indent );
+        st_s_push_fa(&(sink_buf),"#rn{ }            ASSERT( o->object && ( *( aware_t* )o->object ) == TYPEOF_bcore_arr_fp_s );\n", indent );
+        st_s_push_fa(&(sink_buf),"#rn{ }            bcore_arr_fp_s* arr_fp = o->object;\n", indent );
         {const bcore_arr_sz_s* __a=&(o->dependencies );if(__a)for(sz_t __i=0; __i<__a->size; __i++){sz_t target_idx=__a->data[__i];
         {
             const xoico_target_s* target = o->compiler->data[ target_idx ];
             if( target->signal_handler_name.size > 0 )
             {
-                bcore_sink_a_push_fa(sink,"#rn{ }            bcore_arr_fp_s_push( arr_fp, ( fp_t )#<sc_t> );\n", indent, target->signal_handler_name.sc );
+                st_s_push_fa(&(sink_buf),"#rn{ }            bcore_arr_fp_s_push( arr_fp, ( fp_t )#<sc_t> );\n", indent, target->signal_handler_name.sc );
             }
         }
-        }}bcore_sink_a_push_fa(sink,"#rn{ }        }\n", indent );
-        bcore_sink_a_push_fa(sink,"#rn{ }        break;\n", indent );
+        }}st_s_push_fa(&(sink_buf),"#rn{ }        }\n", indent );
+        st_s_push_fa(&(sink_buf),"#rn{ }        break;\n", indent );
     }
     
-    bcore_sink_a_push_fa(sink,"#rn{ }        default: break;\n", indent );
-    bcore_sink_a_push_fa(sink,"#rn{ }    }\n", indent );
-    bcore_sink_a_push_fa(sink,"#rn{ }    return NULL;\n", indent );
-    bcore_sink_a_push_fa(sink,"#rn{ }}\n", indent );
+    st_s_push_fa(&(sink_buf),"#rn{ }        default: break;\n", indent );
+    st_s_push_fa(&(sink_buf),"#rn{ }    }\n", indent );
+    st_s_push_fa(&(sink_buf),"#rn{ }    return NULL;\n", indent );
+    st_s_push_fa(&(sink_buf),"#rn{ }}\n", indent );
     
     if( o->define_signal_handler )
     {
-        bcore_sink_a_push_fa(sink,"#rn{ }BETH_SIGNAL_DEFINE( #<sc_t> )\n", indent, o->name.sc );
+        st_s_push_fa(&(sink_buf),"#rn{ }BETH_SIGNAL_DEFINE( #<sc_t> )\n", indent, o->name.sc );
     }
     
     if( o->main_function )
     {
-        bcore_sink_a_push_fa(sink,"\n" );
-        bcore_sink_a_push_fa(sink,"#rn{ }int main( int argc, char** argv )\n", indent );
-        bcore_sink_a_push_fa(sink,"#rn{ }{\n", indent );
-        bcore_sink_a_push_fa(sink,"#rn{ }    BETH_USE( #<sc_t> );\n", indent, o->name.sc );
-        bcore_sink_a_push_fa(sink,"#rn{ }    bcore_arr_st_s* args = bcore_arr_st_s_create();\n", indent );
-        bcore_sink_a_push_fa(sink,"#rn{ }    for( sz_t i = 0; i < argc; i++ ) bcore_arr_st_s_push_sc( args, argv[ i ] );\n", indent );
-        bcore_sink_a_push_fa(sink,"#rn{ }    int retv = #<sc_t>( args );\n", indent, xoico_compiler_s_nameof(o->compiler,o->main_function->global_name ) );
-        bcore_sink_a_push_fa(sink,"#rn{ }    bcore_arr_st_s_discard( args );\n", indent );
-        bcore_sink_a_push_fa(sink,"#rn{ }    BETH_CLOSEV( 0 );\n", indent );
-        bcore_sink_a_push_fa(sink,"#rn{ }    return retv;\n", indent );
-        bcore_sink_a_push_fa(sink,"#rn{ }}\n", indent );
+        st_s_push_fa(&(sink_buf),"\n" );
+        st_s_push_fa(&(sink_buf),"#rn{ }int main( int argc, char** argv )\n", indent );
+        st_s_push_fa(&(sink_buf),"#rn{ }{\n", indent );
+        st_s_push_fa(&(sink_buf),"#rn{ }    BETH_USE( #<sc_t> );\n", indent, o->name.sc );
+        st_s_push_fa(&(sink_buf),"#rn{ }    bcore_arr_st_s* args = bcore_arr_st_s_create();\n", indent );
+        st_s_push_fa(&(sink_buf),"#rn{ }    for( sz_t i = 0; i < argc; i++ ) bcore_arr_st_s_push_sc( args, argv[ i ] );\n", indent );
+        st_s_push_fa(&(sink_buf),"#rn{ }    int retv = #<sc_t>( args );\n", indent, xoico_compiler_s_nameof(o->compiler,o->main_function->global_name ) );
+        st_s_push_fa(&(sink_buf),"#rn{ }    bcore_arr_st_s_discard( args );\n", indent );
+        st_s_push_fa(&(sink_buf),"#rn{ }    BETH_CLOSEV( 0 );\n", indent );
+        st_s_push_fa(&(sink_buf),"#rn{ }    return retv;\n", indent );
+        st_s_push_fa(&(sink_buf),"#rn{ }}\n", indent );
     }
     
-    return  0;
+    body_hash = bcore_tp_fold_sc( body_hash, sink_buf.sc );
+    bcore_sink_a_push_data(sink,( vc_t )sink_buf.sc, sink_buf.size );
+    st_s_clear(&(sink_buf));
+    
+    bcore_sink_a_push_fa(sink,"// XOICO_BODY_SIGNATURE 0x#pl16'0'{#X<tp_t>}\n", body_hash );
+    if( body_signature ) (*(body_signature)) = body_hash;
+    
+    BLM_RETURNV(er_t, 0)
 }
 
 bl_t xoico_target_s_to_be_modified( const xoico_target_s* o )
 {
-    // xoico_target.x:440:1
+    // xoico_target.x:461:1
     BLM_INIT_LEVEL(0);
     if( o->compiler->always_expand ) BLM_RETURNV(bl_t, true)
     
@@ -4383,19 +4398,21 @@ bl_t xoico_target_s_to_be_modified( const xoico_target_s* o )
     st_s* file_c = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,st_s_create_fa("#<sc_t>.c", o->path.sc )));
     if( bcore_file_exists(file_c->sc ) )
     {
-        st_s* key_defined = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,st_s_create_fa("##?w'define HKEYOF_#<sc_t>'", o->name.sc )));
+        st_s* key_defined = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,st_s_create_fa("##?w'HKEYOF_#<sc_t>'", o->name.sc )));
         bcore_source* source = ((bcore_source*)BLM_LEVEL_A_PUSH(0,bcore_file_open_source(file_c->sc )));
         while( !bcore_source_a_eos(source) )
         {
-            char c = bcore_source_a_get_u0(source);
-            if( c == '#' )
+            if( bcore_source_a_get_u0(source) == '/' )
             {
-                if( bcore_source_a_parse_bl(source,key_defined->sc ) )
+                if( bcore_source_a_get_u0(source) == '/' )
                 {
-                    tp_t key_val = 0;
-                    bcore_source_a_parse_fa(source," #<tp_t*>", &key_val );
-                    to_be_modified = ( key_val != target_hash );
-                    break;
+                    if( bcore_source_a_parse_bl(source,key_defined->sc ) )
+                    {
+                        tp_t key_val = 0;
+                        bcore_source_a_parse_fa(source," #<tp_t*>", &key_val );
+                        to_be_modified = ( key_val != target_hash );
+                        break;
+                    }
                 }
             }
         }
@@ -4406,7 +4423,7 @@ bl_t xoico_target_s_to_be_modified( const xoico_target_s* o )
 
 er_t xoico_target_s_expand_phase1( xoico_target_s* o, bl_t* p_modified )
 {
-    // xoico_target.x:474:29
+    // xoico_target.x:497:29
     BLM_INIT_LEVEL(0);
     st_s_attach( &(o->target_h ),  NULL);
     st_s_attach( &(o->target_c ),  NULL);
@@ -4419,13 +4436,13 @@ er_t xoico_target_s_expand_phase1( xoico_target_s* o, bl_t* p_modified )
         if( !o->compiler->dry_run )
         {
             BLM_TRY(xoico_target_s_expand_h(o,0,((bcore_sink*)( o->target_h)), (&(o->body_signature_h)) ))
-            BLM_TRY(xoico_target_s_expand_c(o,0,((bcore_sink*)( o->target_c ))))
+            BLM_TRY(xoico_target_s_expand_c(o,0,((bcore_sink*)( o->target_c)), (&(o->body_signature_c)) ))
         }
         else
         {
             st_s* buf = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,st_s_create()));
             BLM_TRY(xoico_target_s_expand_h(o,0,((bcore_sink*)( buf)), (&(o->body_signature_h)) ))
-            BLM_TRY(xoico_target_s_expand_c(o,0,((bcore_sink*)( buf ))))
+            BLM_TRY(xoico_target_s_expand_c(o,0,((bcore_sink*)( buf)), (&(o->body_signature_c)) ))
         }
         o->modified = true;
     }
@@ -4437,7 +4454,7 @@ er_t xoico_target_s_expand_phase1( xoico_target_s* o, bl_t* p_modified )
 
 er_t xoico_target_s_expand_phase2( xoico_target_s* o, bl_t* p_modified )
 {
-    // xoico_target.x:518:29
+    // xoico_target.x:541:29
     BLM_INIT_LEVEL(0);
     if( !o->modified )
     {
@@ -4461,7 +4478,7 @@ er_t xoico_target_s_expand_phase2( xoico_target_s* o, bl_t* p_modified )
     {
         {
             bl_t clear_to_overwrite = false;
-            tp_t body_signature = o->update_target_h_only_on_new_body_signature ? o->body_signature_h : 0;
+            tp_t body_signature = o->update_target_on_body_signature ? o->body_signature_h : 0;
             BLM_TRY(xoico_compiler_s_check_overwrite(o->compiler,file_h->sc, body_signature, (&(clear_to_overwrite)) ))
             if( clear_to_overwrite )
             {
@@ -4473,7 +4490,8 @@ er_t xoico_target_s_expand_phase2( xoico_target_s* o, bl_t* p_modified )
     
         {
             bl_t clear_to_overwrite = false;
-            BLM_TRY(xoico_compiler_s_check_overwrite(o->compiler,file_c->sc, 0, (&(clear_to_overwrite)) ))
+            tp_t body_signature = o->update_target_on_body_signature ? o->body_signature_c : 0;
+            BLM_TRY(xoico_compiler_s_check_overwrite(o->compiler,file_c->sc, body_signature, (&(clear_to_overwrite)) ))
             if( clear_to_overwrite )
             {
                 bcore_msg_fa( "Writing: #<sc_t>\n", file_c->sc );
@@ -4493,7 +4511,7 @@ XOILA_DEFINE_SPECT( xoico, xoico_target )
 
 er_t xoico_target_write_with_signature( sc_t file, const st_s* data )
 {
-    // xoico_target.x:506:63
+    // xoico_target.x:529:63
     BLM_INIT_LEVEL(0);
     tp_t hash = bcore_tp_fold_sc( bcore_tp_init(), data->sc );
     bcore_sink* sink = ((bcore_sink*)BLM_LEVEL_A_PUSH(0,bcore_file_open_sink(file )));
@@ -4808,7 +4826,7 @@ er_t xoico_compiler_s_check_overwrite( const xoico_compiler_s* o, sc_t file, tp_
         }
     BLM_DOWN();}
     
-    if( clear_to_overwrite && body_signature )
+    if( clear_to_overwrite && body_signature && !o->always_expand )
     {
         (*(clear_to_overwrite)) = xoico_compiler_body_signature(data ) != body_signature;
     }
@@ -9613,4 +9631,5 @@ int main( int argc, char** argv )
     BETH_CLOSEV( 0 );
     return retv;
 }
-// XOICO_FILE_SIGNATURE 0x25DEC1F4963ED151
+// XOICO_BODY_SIGNATURE 0xF4CF7565994A5F25
+// XOICO_FILE_SIGNATURE 0xD75EA6A88EB51DE8
