@@ -1,4 +1,4 @@
-//  Last update: 2021-03-17T17:10:44Z
+//  Last update: 2021-03-17T17:53:51Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
  *
@@ -1041,6 +1041,7 @@
       bl_t readonly; \
       st_s* target_h; \
       st_s* target_c; \
+      st_s* target_state; \
       tp_t body_signature_h; \
       tp_t body_signature_c; \
       tp_t pre_hash; \
@@ -1065,6 +1066,7 @@
   er_t xoico_target_s_expand_h( const xoico_target_s* o, sz_t indent, bcore_sink* sink, tp_t* body_signature ); \
   er_t xoico_target_s_expand_init1( const xoico_target_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_target_s_expand_c( const xoico_target_s* o, sz_t indent, bcore_sink* sink, tp_t* body_signature ); \
+  er_t xoico_target_s_expand_state( const xoico_target_s* o, bcore_sink* sink ); \
   bl_t xoico_target_s_to_be_modified( const xoico_target_s* o ); \
   er_t xoico_target_s_expand_phase1( xoico_target_s* o, bl_t* p_modified ); \
   er_t xoico_target_s_expand_phase2( xoico_target_s* o, bl_t* p_modified ); \
@@ -1833,5 +1835,5 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOICO_BODY_SIGNATURE 0xE279DA545FD8F829
-// XOICO_FILE_SIGNATURE 0x950A88821162300F
+// XOICO_BODY_SIGNATURE 0x7EAAD36D3349C2C3
+// XOICO_FILE_SIGNATURE 0xBD2C54C56FBF1292

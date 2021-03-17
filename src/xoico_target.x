@@ -48,6 +48,7 @@ stamp :s = aware :
     bl_t readonly;    // target is readonly (affects writing in phase2)
     st_s => target_h; // target header file
     st_s => target_c; // target c file
+    st_s => target_state; // target state file
 
     /** The body signature is a signature of the effective c-code (and certain comments)
      *  It is used to prevent updating *.xo files when the effective code has not changed.
@@ -457,6 +458,14 @@ func (:s) (er_t expand_c( c @* o, sz_t indent, m bcore_sink* sink, mutable tp_t*
 
 //----------------------------------------------------------------------------------------------------------------------
 
+func (:s) (er_t expand_state( c @* o, m bcore_sink* sink )) = (try)
+{
+    sink.push_fa( "HKEYOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}\n", o.name.sc, o.get_hash() );
+    return 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
 func (:s) :.to_be_modified =
 {
     if( o.compiler.always_expand ) return true;
@@ -465,25 +474,26 @@ func (:s) :.to_be_modified =
 
     tp_t target_hash = o.get_hash();
 
-    m st_s* file_c = st_s_create_fa( "#<sc_t>.c", o.path.sc )^^;
-    if( bcore_file_exists( file_c.sc ) )
+    m st_s* file = st_s_create_fa( "#<sc_t>.state", o.path.sc )^^;
+    if( bcore_file_exists( file.sc ) )
     {
         m st_s* key_defined = st_s_create_fa( "##?w'HKEYOF_#<sc_t>'", o.name.sc )^^;
-        m bcore_source* source = bcore_file_open_source( file_c.sc )^^;
+        m bcore_source* source = bcore_file_open_source( file.sc )^^;
         while( !source.eos() )
         {
-            if( source.get_u0() == '/' )
+            if( source.inspect_char() == 'H' )
             {
-                if( source.get_u0() == '/' )
+                if( source.parse_bl( key_defined.sc ) )
                 {
-                    if( source.parse_bl( key_defined.sc ) )
-                    {
-                        tp_t key_val = 0;
-                        source.parse_fa( " #<tp_t*>", &key_val );
-                        to_be_modified = ( key_val != target_hash );
-                        break;
-                    }
+                    tp_t key_val = 0;
+                    source.parse_fa( " #<tp_t*>", &key_val );
+                    to_be_modified = ( key_val != target_hash );
+                    break;
                 }
+            }
+            else
+            {
+                source.get_char();
             }
         }
     }
@@ -498,22 +508,26 @@ func (:s) :.expand_phase1 = (try)
 {
     o.target_h =< NULL;
     o.target_c =< NULL;
+    o.target_state =< NULL;
     o.modified = false;
 
     if( o.to_be_modified() )
     {
         o.target_h = st_s!;
         o.target_c = st_s!;
+        o.target_state = st_s!;
         if( !o.compiler.dry_run )
         {
             o.expand_h( 0, o.target_h, o.body_signature_h.1 );
             o.expand_c( 0, o.target_c, o.body_signature_c.1 );
+            o.expand_state( o.target_state );
         }
         else
         {
             m st_s* buf = st_s!^^;
             o.expand_h( 0, buf, o.body_signature_h.1 );
             o.expand_c( 0, buf, o.body_signature_c.1 );
+            o.expand_state( buf );
         }
         o.modified = true;
     }
@@ -551,6 +565,7 @@ func (:s) :.expand_phase2 = (try)
 
     m st_s* file_h = st_s_create_fa( "#<sc_t>.h", o.path.sc )^^;
     m st_s* file_c = st_s_create_fa( "#<sc_t>.c", o.path.sc )^^;
+    m st_s* file_state = st_s_create_fa( "#<sc_t>.state", o.path.sc )^^;
 
     if( o.readonly )
     {
@@ -580,6 +595,17 @@ func (:s) :.expand_phase2 = (try)
             {
                 bcore_msg_fa( "Writing: #<sc_t>\n", file_c.sc );
                 xoico_target_write_with_signature( file_c.sc, o.target_c );
+                if( p_modified.1 ) p_modified.0 = true;
+            }
+        }
+
+        {
+            bl_t clear_to_overwrite = false;
+            o.compiler.check_overwrite( file_state.sc, 0, clear_to_overwrite.1 );
+            if( clear_to_overwrite )
+            {
+                bcore_msg_fa( "Writing: #<sc_t>\n", file_state.sc );
+                xoico_target_write_with_signature( file_state.sc, o.target_state );
                 if( p_modified.1 ) p_modified.0 = true;
             }
         }
