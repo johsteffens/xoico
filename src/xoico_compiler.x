@@ -49,7 +49,12 @@ signature c xoico_feature_s* get_feature( c @* o, tp_t name );
 signature c xoico_signature_s* get_signature( c @* o, tp_t name );
 
 signature er_t life_a_push(     m @* o, m bcore_inst* object );
-signature er_t check_overwrite( c @* o, sc_t file );
+
+/** If body_signature is != 0 it is matched against the file and a clear_overwrite oly set in case
+ *  the file's body signature differs
+ */
+signature er_t check_overwrite( c @* o, sc_t file, tp_t body_signature, mutable bl_t* clear_to_overwrite );
+
 signature bl_t get_self(        c @* o, tp_t type, c bcore_self_s** self ); // returns success
 
 
@@ -349,23 +354,21 @@ func (:s) :.register_func =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// returns true if correct signature could be verified
-func (bl_t is_signed( sc_t file )) =
+/// returns true if correct file signature could be verified
+func (bl_t is_correctly_signed( st_s* data )) =
 {
-    m bcore_source* source = bcore_file_open_source( file )^^;
-    m st_s* data = st_s!^^;
-    while( !source.eos() ) data.push_char( source.get_u0() );
-
-    if( data.size < bcore_strlen( "// XOILA_OUT_SIGNATURE" ) ) return false;
+    if( data.size < bcore_strlen( "// XOICO_FILE_SIGNATURE" ) ) return false;
 
     sz_t idx = data.size - 1;
     while( idx >= 0 && data.[ idx ] != '/' ) idx--;
     if( idx > 0 ) idx--;
 
-    if( data.find_sc( idx, -1, "// XOILA_OUT_SIGNATURE" ) != idx ) return false;
+    if( data.find_sc( idx, -1, "// XOICO_FILE_SIGNATURE" ) != idx ) return false;
 
     tp_t hash = 0;
-    data.parse_fa( idx, -1, "// XOILA_OUT_SIGNATURE #<tp_t*>", hash.1 );
+    sz_t end_idx = data.parse_fa( idx, -1, "// XOICO_FILE_SIGNATURE #<tp_t*> ", hash.1 );
+
+    if( end_idx != data.size ) return false;
 
     data.[ idx ] = 0;
 
@@ -376,28 +379,55 @@ func (bl_t is_signed( sc_t file )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
+/// returns true if correct file signature could be verified
+func (tp_t body_signature( st_s* data )) =
+{
+    // search from bottom upwards ...
+    sz_t idx = 0;
+    if( ( idx = data.find_sc( data.size, 0, "// XOICO_BODY_SIGNATURE" ) ) == data.size ) return 0;
+
+    tp_t hash = 0;
+    data.parse_fa( idx, -1, "// XOICO_BODY_SIGNATURE #<tp_t*>", hash.1 );
+
+    return hash;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
 func (:s) :.check_overwrite =
 {
+    if( clear_to_overwrite ) clear_to_overwrite.0 = true;
     if( !bcore_file_exists( file ) ) return 0;
 
-    if( !xoico_compiler_is_signed( file ) )
+    m bcore_source* source = bcore_file_open_source( file )^;
+    m st_s* data = st_s!^;
+    while( !source.eos() ) data.push_char( source.get_u0() );
+
+    if( !o.is_correctly_signed( data ) )
     {
         m st_s* s = st_s!^;
         s.push_fa( "Planted file #<sc_t>: Signature check failed.\n", file );
         s.push_fa( "This file might have been created or edited outside the xoico framework.\n" );
         if( o.overwrite_unsigned_target_files )
         {
+            if( clear_to_overwrite ) clear_to_overwrite.0 = true;
             s.push_fa( "Flag 'overwrite_unsigned_target_files' is 'true'. The file will be overwritten.\n" );
             x_inst_stderr().push_fa( "\nWARNING: #<sc_t>\n", s->sc );
         }
         else
         {
+            if( clear_to_overwrite ) clear_to_overwrite.0 = false;
             s.push_fa( "Xoico has currently no permission to overwrite unsigned target files.\n" );
             s.push_fa( "You can fix it in one of following ways:\n" );
             s.push_fa( "* Rename or (re)move the file.\n" );
             s.push_fa( "* Use command line flag '-f'.\n" );
             return bcore_error_push_fa( general_error~, "\nERROR: #<sc_t>\n", s->sc );
         }
+    }
+
+    if( clear_to_overwrite && body_signature )
+    {
+        clear_to_overwrite.0 = o.body_signature( data ) != body_signature;
     }
 
     return 0;
@@ -407,8 +437,8 @@ func (:s) :.check_overwrite =
 
 func (:s) :.parse = (try)
 {
-    m st_s* source_folder_path = bcore_file_folder_path( source_path )^^;
-    m st_s* target_path        = st_s_create_fa( "#<sc_t>/#<sc_t>.#<sc_t>", source_folder_path->sc, target_name, target_ext )^^;
+    m st_s* source_folder_path = bcore_file_folder_path( source_path )^;
+    m st_s* target_path        = st_s_create_fa( "#<sc_t>/#<sc_t>.#<sc_t>", source_folder_path->sc, target_name, target_ext )^;
 
     sz_t target_index = -1;
     for( sz_t i = 0; i < o->size; i++ )

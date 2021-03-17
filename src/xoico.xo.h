@@ -1,6 +1,6 @@
+//  Last update: 2021-03-17T15:49:49Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
- *  Last File Update: 2021-02-27T19:12:06Z
  *
  *  Copyright and License of this File:
  *
@@ -43,9 +43,6 @@
 #include "bcore_control.h"
 #include "bcore_xoila.h"
 #include "bcore.xo.h"
-
-//To force a rebuild of this target by xoico, reset the hash key value below to 0.
-#define HKEYOF_xoico 0xB0BCEFCFF38AA38Cull
 
 #define TYPEOF_xoico 0x21E8B04DB3E31F5Dull
 
@@ -1032,6 +1029,7 @@
       aware_t _; \
       st_s name; \
       st_s ext; \
+      bl_t update_target_h_only_on_new_body_signature; \
       st_s include_path; \
       st_s path; \
       BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_source_s, ); \
@@ -1043,6 +1041,7 @@
       bl_t readonly; \
       st_s* target_h; \
       st_s* target_c; \
+      tp_t body_signature_h; \
       tp_t pre_hash; \
       xoico_cengine* cengine; \
       xoico_compiler_s* compiler; \
@@ -1060,8 +1059,9 @@
   bl_t xoico_target_s_is_cyclic_recursive( xoico_target_s* o ); \
   bl_t xoico_target_s_is_cyclic( xoico_target_s* o ); \
   er_t xoico_target_s_set_dependencies( xoico_target_s* o, const bcore_arr_sz_s* dependencies ); \
+  er_t xoico_target_s_expand_update_time( const xoico_target_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_target_s_expand_heading( const xoico_target_s* o, sz_t indent, bcore_sink* sink ); \
-  er_t xoico_target_s_expand_h( const xoico_target_s* o, sz_t indent, bcore_sink* sink ); \
+  er_t xoico_target_s_expand_h( const xoico_target_s* o, sz_t indent, bcore_sink* sink, tp_t* body_signature ); \
   er_t xoico_target_s_expand_init1( const xoico_target_s* o, sz_t indent, bcore_sink* sink ); \
   er_t xoico_target_s_expand_c( const xoico_target_s* o, sz_t indent, bcore_sink* sink ); \
   bl_t xoico_target_s_to_be_modified( const xoico_target_s* o ); \
@@ -1160,7 +1160,7 @@
   er_t xoico_compiler_s_register_group( xoico_compiler_s* o, const xoico_group_s* group ); \
   er_t xoico_compiler_s_register_item( xoico_compiler_s* o, const xoico* item ); \
   er_t xoico_compiler_s_register_func( xoico_compiler_s* o, const xoico_func_s* func ); \
-  er_t xoico_compiler_s_check_overwrite( const xoico_compiler_s* o, sc_t file ); \
+  er_t xoico_compiler_s_check_overwrite( const xoico_compiler_s* o, sc_t file, tp_t body_signature, bl_t* clear_to_overwrite ); \
   er_t xoico_compiler_s_parse( xoico_compiler_s* o, sc_t target_name, sc_t target_ext, sc_t source_path, sc_t group_name, sc_t trait_name, sz_t* p_target_index ); \
   er_t xoico_compiler_s_finalize( xoico_compiler_s* o, const xoico_host* host ); \
   er_t xoico_compiler_s_expand_setup( xoico_compiler_s* o, const xoico_host* host ); \
@@ -1186,7 +1186,8 @@
   BCORE_FORWARD_OBJECT( xoico_compiler_type_info_s ); \
   BCORE_FORWARD_OBJECT( xoico_compiler_element_info_s ); \
   BCORE_FORWARD_OBJECT( xoico_compiler_s ); \
-  bl_t xoico_compiler_is_signed( sc_t file ); \
+  bl_t xoico_compiler_is_correctly_signed( const st_s* data ); \
+  tp_t xoico_compiler_body_signature( const st_s* data ); \
   XOILA_DECLARE_SPECT( xoico_compiler ) \
   { \
       bcore_spect_header_s header; \
@@ -1831,4 +1832,5 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOILA_OUT_SIGNATURE 0xE9E1A326C1DC0052ull
+// XOICO_BODY_SIGNATURE 0x02A7D5C03BC21EF1
+// XOICO_FILE_SIGNATURE 0x8F8D26CECBE72EF0

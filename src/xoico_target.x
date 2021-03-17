@@ -30,6 +30,9 @@ stamp :s = aware :
     st_s name; // target name (e.g. "bcore")
     st_s ext;  // target extension (e.g. "xo")
 
+    /// parameters
+    bl_t update_target_h_only_on_new_body_signature = true;
+
     st_s include_path; // (local) path used in generated '#include' directives
     st_s path; // full path excluding extension *.h or *.c
     xoico_source_s => [];
@@ -43,6 +46,7 @@ stamp :s = aware :
     bl_t readonly;    // target is readonly (affects writing in phase2)
     st_s => target_h; // target header file
     st_s => target_c; // target c file
+    tp_t body_signature_h; // body signature for header
 
     tp_t pre_hash;
 
@@ -230,16 +234,20 @@ func (:s) :.set_dependencies = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_heading( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
+func (:s) (er_t expand_update_time( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
 {
     m bcore_cday_utc_s* time = bcore_cday_utc_s!^^;
     bcore_cday_utc_s_from_system( time );
+    sink.push_fa( "//  Last update: " ); bcore_cday_utc_s_to_sink( time, sink ); sink.push_fa( "\n" );
+    return 0;
+};
 
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:s) (er_t expand_heading( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
+{
     sink.push_fa( "/** This file was generated from xoila source code.\n" );
     sink.push_fa( " *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens\n" );
-    sink.push_fa( " *  Last File Update: " );
-    bcore_cday_utc_s_to_sink( time, sink );
-    sink.push_fa( "\n" );
     sink.push_fa( " *\n" );
     sink.push_fa( " *  Copyright and License of this File:\n" );
     sink.push_fa( " *\n" );
@@ -272,51 +280,53 @@ func (:s) (er_t expand_heading( c @* o, sz_t indent, m bcore_sink* sink )) = (tr
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_h( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
+func (:s) (er_t expand_h( c @* o, sz_t indent, m bcore_sink* sink, mutable tp_t* body_signature )) = (try)
 {
+    o.expand_update_time( indent, sink );
+
+    st_s^ sink_buf;
+
     o.expand_heading( indent, sink );
+    sink_buf.push_fa( "\n" );
+    sink_buf.push_fa( "#rn{ }##ifndef __#<sc_t>_#<sc_t>_H\n", indent, o.name.sc, o.ext.sc );
+    sink_buf.push_fa( "#rn{ }##define __#<sc_t>_#<sc_t>_H\n", indent, o.name.sc, o.ext.sc );
 
-    tp_t target_hash = o.get_hash();
-
-    sink.push_fa( "\n" );
-    sink.push_fa( "#rn{ }##ifndef __#<sc_t>_#<sc_t>_H\n", indent, o.name.sc, o.ext.sc );
-    sink.push_fa( "#rn{ }##define __#<sc_t>_#<sc_t>_H\n", indent, o.name.sc, o.ext.sc );
-
-    sink.push_fa( "\n" );
-    sink.push_fa( "#rn{ }##include \"bcore_control.h\"\n", indent );
-    sink.push_fa( "#rn{ }##include \"bcore_xoila.h\"\n", indent );
+    sink_buf.push_fa( "\n" );
+    sink_buf.push_fa( "#rn{ }##include \"bcore_control.h\"\n", indent );
+    sink_buf.push_fa( "#rn{ }##include \"bcore_xoila.h\"\n", indent );
 
     /// include generated headers this target depends on
     foreach( sz_t target_idx in o.dependencies )
     {
         c xoico_target_s* target = o.compiler.data[ target_idx ];
-        sink.push_fa( "#rn{ }##include \"#<sc_t>.h\"\n", indent, target.include_path.sc );
+        sink_buf.push_fa( "#rn{ }##include \"#<sc_t>.h\"\n", indent, target.include_path.sc );
     }
 
-    sink.push_fa( "\n" );
+    sink_buf.push_fa( "\n" );
 
-    sink.push_fa( "#rn{ }//To force a rebuild of this target by xoico, reset the hash key value below to 0.\n", indent );
-    sink.push_fa( "#rn{ }##define HKEYOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o.name.sc, target_hash );
+    sink_buf.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o.name.sc, btypeof( o.name.sc ) );
 
-    sink.push_fa( "\n" );
+    foreach( m $* e in o ) e.expand_declaration( o, indent, sink_buf );
 
-    sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o.name.sc, btypeof( o.name.sc ) );
+    sink_buf.push_fa( "\n" );
+    sink_buf.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
+    sink_buf.push_fa( "\n" );
+    sink_buf.push_fa( "#rn{ }vd_t #<sc_t>_#<sc_t>_signal_handler( const bcore_signal_s* o );\n", indent, o.name.sc, o.ext.sc );
 
-    foreach( m $* e in o ) e.expand_declaration( o, indent, sink );
+    sink_buf.push_fa( "\n" );
+    sink_buf.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
+    sink_buf.push_fa( "// Manifesto\n" );
+    sink_buf.push_fa( "\n" );
+    foreach( m $* e in o ) e.expand_manifesto( o, indent, sink_buf );
 
-    sink.push_fa( "\n" );
-    sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
-    sink.push_fa( "\n" );
-    sink.push_fa( "#rn{ }vd_t #<sc_t>_#<sc_t>_signal_handler( const bcore_signal_s* o );\n", indent, o.name.sc, o.ext.sc );
+    sink_buf.push_fa( "\n" );
+    sink_buf.push_fa( "#rn{ }##endif // __#<sc_t>_#<sc_t>_H\n", indent, o.name.sc, o.ext.sc );
 
-    sink.push_fa( "\n" );
-    sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
-    sink.push_fa( "// Manifesto\n" );
-    sink.push_fa( "\n" );
-    foreach( m $* e in o ) e.expand_manifesto( o, indent, sink );
+    sink.push_sc( sink_buf.sc );
 
-    sink.push_fa( "\n" );
-    sink.push_fa( "#rn{ }##endif // __#<sc_t>_#<sc_t>_H\n", indent, o.name.sc, o.ext.sc );
+    tp_t body_hash = bcore_tp_fold_sc( bcore_tp_init(), sink_buf.sc );
+    sink.push_fa( "// XOICO_BODY_SIGNATURE 0x#pl16'0'{#X<tp_t>}\n", body_hash );
+    if( body_signature ) body_signature.0 = body_hash;
 
     return 0;
 };
@@ -332,6 +342,7 @@ func (:s) (er_t expand_init1( c @* o, sz_t indent, m bcore_sink* sink )) =
 
 func (:s) (er_t expand_c( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
 {
+    o.expand_update_time( indent, sink );
     o.expand_heading( indent, sink );
 
     sink.push_fa( "\n" );
@@ -341,8 +352,12 @@ func (:s) (er_t expand_c( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
     sink.push_fa( "#rn{ }##include \"bcore_sr.h\"\n", indent );
     sink.push_fa( "#rn{ }##include \"bcore_const_manager.h\"\n", indent );
 
-    /// definition section
     sink.push_fa( "\n" );
+
+    sink.push_fa( "#rn{ }//To force a rebuild of this target by xoico, reset the hash key value below to 0.\n", indent );
+    sink.push_fa( "#rn{ }##define HKEYOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o.name.sc, o.get_hash() );
+
+    /// definition section
     foreach( m $* e in o ) e.expand_definition( o, indent, sink );
 
     /// signal section
@@ -429,11 +444,11 @@ func (:s) :.to_be_modified =
 
     tp_t target_hash = o.get_hash();
 
-    m st_s* file_h = st_s_create_fa( "#<sc_t>.h", o.path.sc )^^;
-    if( bcore_file_exists( file_h.sc ) )
+    m st_s* file_c = st_s_create_fa( "#<sc_t>.c", o.path.sc )^^;
+    if( bcore_file_exists( file_c.sc ) )
     {
         m st_s* key_defined = st_s_create_fa( "##?w'define HKEYOF_#<sc_t>'", o.name.sc )^^;
-        m bcore_source* source = bcore_file_open_source( file_h.sc )^^;
+        m bcore_source* source = bcore_file_open_source( file_c.sc )^^;
         while( !source.eos() )
         {
             char c = source.get_u0();
@@ -468,13 +483,13 @@ func (:s) :.expand_phase1 = (try)
         o.target_c = st_s!;
         if( !o.compiler.dry_run )
         {
-            o.expand_h( 0, o.target_h );
+            o.expand_h( 0, o.target_h, o.body_signature_h.1 );
             o.expand_c( 0, o.target_c );
         }
         else
         {
             m st_s* buf = st_s!^^;
-            o.expand_h( 0, buf );
+            o.expand_h( 0, buf, o.body_signature_h.1 );
             o.expand_c( 0, buf );
         }
         o.modified = true;
@@ -493,7 +508,7 @@ func (er_t write_with_signature( sc_t file, c st_s* data )) = (try)
     tp_t hash = bcore_tp_fold_sc( bcore_tp_init(), data.sc );
     m bcore_sink* sink = bcore_file_open_sink( file )^^;
     sink.push_data( ( vc_t )data.data, data.size );
-    sink.push_fa( "// XOILA_OUT_SIGNATURE 0x#pl16'0'{#X<tp_t>}ull\n", hash );
+    sink.push_fa( "// XOICO_FILE_SIGNATURE 0x#pl16'0'{#X<tp_t>}\n", hash );
     return 0;
 };
 
@@ -522,13 +537,29 @@ func (:s) :.expand_phase2 = (try)
     }
     else
     {
-        o.compiler.check_overwrite( file_h.sc );
-        o.compiler.check_overwrite( file_c.sc );
-        bcore_msg_fa( "Writing: #<sc_t>\n", file_h.sc );
-        xoico_target_write_with_signature( file_h.sc, o.target_h );
-        bcore_msg_fa( "Writing: #<sc_t>\n", file_c.sc );
-        xoico_target_write_with_signature( file_c.sc, o.target_c );
-        if( p_modified.1 ) p_modified.0 = true;
+        {
+            bl_t clear_to_overwrite = false;
+            tp_t body_signature = o.update_target_h_only_on_new_body_signature ? o.body_signature_h : 0;
+            o.compiler.check_overwrite( file_h.sc, body_signature, clear_to_overwrite.1 );
+            if( clear_to_overwrite )
+            {
+                bcore_msg_fa( "Writing: #<sc_t>\n", file_h.sc );
+                xoico_target_write_with_signature( file_h.sc, o.target_h );
+                if( p_modified.1 ) p_modified.0 = true;
+            }
+        }
+
+        {
+            bl_t clear_to_overwrite = false;
+            o.compiler.check_overwrite( file_c.sc, 0, clear_to_overwrite.1 );
+            if( clear_to_overwrite )
+            {
+                bcore_msg_fa( "Writing: #<sc_t>\n", file_c.sc );
+                xoico_target_write_with_signature( file_c.sc, o.target_c );
+                if( p_modified.1 ) p_modified.0 = true;
+            }
+        }
+
     }
     return 0;
 };
