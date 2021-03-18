@@ -5,6 +5,7 @@
 *.workspace
 *.layout
 *.depend
+*.xo.state
 xoico
 build
 dev
