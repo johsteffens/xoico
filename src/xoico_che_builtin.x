@@ -173,6 +173,14 @@ func (:s)
         if( source.parse_bl( "#?'^'" ) )
         {
             level = source.parse_bl( "#?'^'" ) ? 0 : o.level;
+
+            if( !o.waive_local_scope_operator_creates_implicit_block )
+            {
+                if( level > 0 && o.stack_block_get_top_unit().statement_wrapped_as_block )
+                {
+                    return source.parse_error_fa( "Scope operator '^' creates an implicit block. Please use an explicit block  '{ ... }' or choose a different scope operator to clarify your intention ." );
+                }
+            }
             closing_bracket = false;
         }
         else

@@ -1,4 +1,4 @@
-//  Last update: 2021-03-17T17:53:51Z
+//  Last update: 2021-03-18T11:01:13Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
  *
@@ -1272,6 +1272,7 @@
       bl_t waive_function_in_untraced_context; \
       bl_t waive_unknown_type; \
       bl_t waive_unknown_identifier; \
+      bl_t waive_local_scope_operator_creates_implicit_block; \
       xoico_host* host; \
       xoico_compiler_s* compiler; \
       xoico_signature_s* signature; \
@@ -1672,6 +1673,7 @@
       sz_t level; \
       bl_t use_blm; \
       bl_t break_ledge; \
+      bl_t statement_wrapped_as_block; \
   };
 #define TYPEOF_xoico_che_stack_block_unit_adl_s 0xA5237D94C1D2339Aull
 #define BETH_EXPAND_ITEM_xoico_che_stack_block_unit_adl_s \
@@ -1835,5 +1837,5 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOICO_BODY_SIGNATURE 0x7EAAD36D3349C2C3
-// XOICO_FILE_SIGNATURE 0xBD2C54C56FBF1292
+// XOICO_BODY_SIGNATURE 0x7190D13B50DE0BD7
+// XOICO_FILE_SIGNATURE 0xFBA9155DFBD3E08B

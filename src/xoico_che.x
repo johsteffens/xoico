@@ -293,7 +293,18 @@ group :stack_block = :
     {
         sz_t level; // level of this block
         bl_t use_blm = false;
-        bl_t break_ledge = false; // this block represents a break-ledge for a break-command inside this block or higher-level blocks up to the next break-level
+
+        /** This block represents a break-ledge for a break-command inside
+         *  this block or higher-level blocks up to the next break-level
+         */
+        bl_t break_ledge = false;
+
+        /** This block represents syntactically a statement but is treated
+         *  semantically as block.
+         *  This flag is used to warn the developer on constructions where
+         *  this fact can have unexpected side effects.
+         */
+        bl_t statement_wrapped_as_block = false;
     };
 
     stamp :unit_adl_s = aware x_array { :unit_s => []; };
@@ -377,22 +388,32 @@ stamp :s = aware :
     /// Prepends a commented reference to the xoila source for each function in *xoila_out.c
     bl_t insert_source_reference = true;
 
-    /// purity-control:
+    /// Waivers for purity-control and side effects ...
 
-    // Condition: identifier specifies an undeclared member variable
+    /// (purity) Condition: identifier specifies an undeclared member variable
     bl_t waive_unknown_member_variable = false;
 
-    // Condition: identifier specifies an undeclared member function
+    /// (purity) Condition: identifier specifies an undeclared member function
     bl_t waive_unknown_member_function = false;
 
-    // Condition: trans_expression: function identifier is not used in a tractable way (e.g. not as function call).
+    /// (purity) Condition: trans_expression: function identifier is not used in a tractable way (e.g. not as function call).
     bl_t waive_function_in_untraced_context = false;
 
-    // Condition: Unknown type was detected in an the arglist of a function
+    /// (purity) Condition: Unknown type was detected in an the arglist of a function
     bl_t waive_unknown_type = true;
 
-    // Condition: trans_expression encounters an unknown identifier
+    /// (purity) Condition: trans_expression encounters an unknown identifier
     bl_t waive_unknown_identifier = true;
+
+    /** (side effect)
+     *  Condition: Operator '^' used in block-wrapped-statement that appear syntactically not being a block.
+     *  E.g.:
+     *  In case '^' is used inside <statement>:
+     *    if( <condition> ) <statement>
+     *    should better be written as
+     *    if( <condition> ) { <statement> }
+     */
+    bl_t waive_local_scope_operator_creates_implicit_block = false;
 
     /// runtime data
     hidden xoico_host*       host;
@@ -2076,7 +2097,12 @@ func (:s) (er_t trans_statement_as_block( m @* o, m bcore_source* source, m :res
     m $* result = :result_create_arr()^^;
 
     o.inc_block();
-    o.stack_block_get_top_unit().break_ledge = is_break_ledge;
+
+    {
+        m :stack_block_unit_s* top_unit = o.stack_block_get_top_unit();
+        top_unit.break_ledge = is_break_ledge;
+        top_unit.statement_wrapped_as_block = true;
+    }
 
     o.trans_statement( source, result );
     o.trans_whitespace( source, result );

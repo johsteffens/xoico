@@ -403,6 +403,16 @@ TODO:
 - make traitline of all groups end in x_inst
 - make 'fork' a transient function in x_inst rather than a builtin function
 - che: disable as many waivers as possible
+- bug:
+    if( <cond> ) var = type!^;
+    behaves like
+    if( <cond> ) { var = type!^; }
+    This leaves var is a dangling pointer after if ...;
+    Minimal solution: create an error requesting to use brackets in this case.
+    Btw: if( <cond> ) var = type!^^; behaves correctly
+
+
+
 
 ===================================================================
 
