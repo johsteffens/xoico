@@ -107,7 +107,6 @@ func (:s)( er_t trans_control_for( m @* o, m bcore_source* source, m :result* re
 func (:s)( er_t trans_control_foreach( m @* o, m bcore_source* source, m :result* result ) ) = (try)
 {
     o.inc_block();
-    o.stack_block_get_top_unit().break_ledge = true;
     source.parse_em_fa( "foreach ( " );
 
     m xoico_typespec_s* typespec_var = scope( xoico_typespec_s! );
@@ -184,6 +183,8 @@ func (:s)( er_t trans_control_foreach( m @* o, m bcore_source* source, m :result
     source.parse_em_fa( " )" );
 
     m $* result_statement = :result_arr_s!^;
+    o.inc_block();
+    o.stack_block_get_top_unit().break_ledge = true;
     if( source.parse_bl( "#=?'{'" ) )
     {
         o.trans_block( source, result_statement, false );
@@ -192,14 +193,18 @@ func (:s)( er_t trans_control_foreach( m @* o, m bcore_source* source, m :result
     {
         o.trans_statement_as_block( source, result_statement, false );
     }
+    o.dec_block();
 
     result.push_fa( "{" );
+    d$* blm_init = :result_create_blm_init( o.level );
+    result.push_result_d( blm_init );
 
     o.push_typespec( typespec_arr, result );
 
     result.push_fa( " __a=" );
     o.adapt_expression( source, typespec_arr_expr, typespec_arr, result_arr_expr, result );
     result.push_fa( ";" );
+
     result.push_fa( "if(__a)for(sz_t __i=0; __i<__a->size; __i++){" );
     o.push_typespec( typespec_var, result );
     result.push_fa( " #<sc_t>=", xoico_che_s_nameof( o, tp_var_name ) );
@@ -220,7 +225,18 @@ func (:s)( er_t trans_control_foreach( m @* o, m bcore_source* source, m :result
         result.push_result_d( result_statement.fork() );
     }
 
-    result.push_fa( "}}" );
+    result.push_fa( "}" );
+
+    d$* blm_down = :result_create_blm_down();
+
+    if( !o.stack_block_get_top_unit().use_blm )
+    {
+        blm_init.deactivate();
+        blm_down.deactivate();
+    }
+
+    result.push_result_d( blm_down );
+    result.push_fa( "}" );
     o.dec_block();
     return 0;
 };

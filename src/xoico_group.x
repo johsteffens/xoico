@@ -78,7 +78,11 @@ stamp :s = aware :
     // expands group inside *.xo.h during expand_manifesto; typically done when the group wraps a *.x source
     bl_t is_manifesto;
 
-    bl_t retrievable;
+    // provides functionality to retrieve stamps which have this group in their trait-line
+    bl_t is_retrievable;
+
+    // defined when group is retrievable; contains a list of all stamps that have this group in their traitline
+    bcore_arr_tp_s => retrievable_stamps;
 
     /** Activates using the short perspective type name.
      *  Normally the perspective type of a group is '<group_name>_spect_s'
@@ -200,7 +204,7 @@ func (:s) xoico.get_hash =
     tp_t hash = o.pre_hash;
     hash = bcore_tp_fold_tp( hash, o.tp_name );
     hash = bcore_tp_fold_tp( hash, o.trait_name );
-    hash = bcore_tp_fold_bl( hash, o.retrievable );
+    hash = bcore_tp_fold_bl( hash, o.is_retrievable );
     hash = bcore_tp_fold_bl( hash, o.expandable );
     hash = bcore_tp_fold_bl( hash, o.short_spect_name );
     hash = bcore_tp_fold_tp( hash, o.beta );
@@ -594,7 +598,7 @@ func (:s) :.parse = (try)
                 group.extending_stamp = o.extending_stamp;
                 group.expandable = o.expandable;
                 group.set_name_sc( host, st_group_name.sc );
-                group.retrievable = retrievable;
+                group.is_retrievable = retrievable;
                 group.trait_name = tp_trait_name;
                 group.parse( o, true, source );
                 compiler.register_group( group );
@@ -611,7 +615,7 @@ func (:s) :.parse = (try)
         }
         else if( source.parse_bl( " #?w'set' " ) )
         {
-            if(      source.parse_bl( " #?w'retrievable' "      ) ) o.retrievable = true;
+            if     ( source.parse_bl( " #?w'retrievable' "      ) ) o.is_retrievable = true;
             else if( source.parse_bl( " #?w'inexpandable' "     ) ) o.expandable = false;
             else if( source.parse_bl( " #?w'short_spect_name' " ) ) o.short_spect_name = true;
             else if( source.parse_bl( " #?w'beta' "             ) ) source.parse_em_fa( " = #<tp_t*>", o.beta.1 );
@@ -858,12 +862,23 @@ func (:s) :.expand_init1 = (try)
         sink.push_fa( "#rn{ }XOILA_REGISTER_SPECT( #<sc_t> );\n", indent, o.st_name.sc );
     }
 
-    if( o.retrievable )
+    if( o.is_retrievable )
     {
-        foreach( m $* e in o; e._ == xoico_stamp_s~ )
+        /// deprecated
+//        foreach( m $* e in o; e._ == xoico_stamp_s~ )
+//        {
+//            sink.push_fa( "#rn{ }bcore_inst_s_get_typed( TYPEOF_#<sc_t> );\n", indent, e.cast( m xoico_stamp_s* ).st_name.sc );
+//        }
+
+        sink.push_fa( "#rn{ }{\n", indent );
+        sink.push_fa( "#rn{ }   bcore_arr_tp_s* arr = bcore_arr_tp_s_create();\n", indent );
+        foreach( tp_t type in o.retrievable_stamps )
         {
-            sink.push_fa( "#rn{ }bcore_inst_s_get_typed( TYPEOF_#<sc_t> );\n", indent, e.cast( m xoico_stamp_s* ).st_name.sc );
+            sink.push_fa( "#rn{ }   bcore_arr_tp_s_push( arr, TYPEOF_#<sc_t> );\n", indent, o.compiler.nameof( type ) );
         }
+        sink.push_fa( "#rn{ }   bcore_xoila_set_arr_traitline_stamps_d( TYPEOF_#<sc_t>, arr );\n", indent, o.compiler.nameof( o.tp_name ) );
+        sink.push_fa( "#rn{ }}\n", indent );
+
     }
     return 0;
 };

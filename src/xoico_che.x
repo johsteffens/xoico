@@ -26,6 +26,8 @@ group :result = :
     feature er_t push_st( m @* o, c st_s* st )    = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
     feature m :* push_result_c( m @* o, c :* result ) = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
     feature m :* push_result_d( m @* o, d :* result ) = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
+    feature o activate(   m @* o ) = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
+    feature o deactivate( m @* o ) = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
     feature er_t to_sink( c @* o, m bcore_sink* sink );
 
     feature void set_parent_block( m @* o, m :block_s* parent ) = {};
@@ -65,8 +67,11 @@ group :result = :
     stamp :arr_s = aware :
     {
         :adl_s adl;
+        bl_t active = true;
 
         func :.clear = { o.adl.clear(); };
+        func :.activate = { o.active = true; return o; };
+        func :.deactivate = { o.active = false; return o; };
 
         func (m :* last( m @* o )) =
         {
@@ -86,7 +91,7 @@ group :result = :
 
         func :.to_sink =
         {
-            foreach( m $* e in o.adl ) e.to_sink( sink );
+            if( o.active ) foreach( m $* e in o.adl ) e.to_sink( sink );
             return 0;
         };
 
@@ -153,8 +158,11 @@ group :result = :
 
     stamp :blm_init_s = aware :
     {
+        bl_t active = true;
         sz_t level;
-        func :.to_sink = { sink.push_fa( "BLM_INIT_LEVEL(#<sz_t>);", o.level ); return 0; };
+        func :.to_sink = { if( o.active ) sink.push_fa( "BLM_INIT_LEVEL(#<sz_t>);", o.level ); return 0; };
+        func :.activate = { o.active = true; return o; };
+        func :.deactivate = { o.active = false; return o; };
     };
 
     func (d :* create_blm_init( sz_t level ) ) = { d $* o = :blm_init_s!; o.level = level; return o; };
@@ -163,7 +171,10 @@ group :result = :
 
     stamp :blm_down_s = aware :
     {
-        func :.to_sink = { sink.push_sc( "BLM_DOWN();" ); return 0; };
+        bl_t active = true;
+        func :.to_sink = { if( o.active ) sink.push_sc( "BLM_DOWN();" ); return 0; };
+        func :.activate = { o.active = true; return o; };
+        func :.deactivate = { o.active = false; return o; };
     };
 
     func (d :* create_blm_down() ) = { d $* o = :blm_down_s!; return o; };

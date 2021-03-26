@@ -570,6 +570,13 @@ func (:s) xoico.finalize = (try)
         return o.source_point.parse_error_fa( "In stamp '#<sc_t>': Trait name '#<sc_t>' is not a group.", o.st_name.sc, compiler.nameof( o.trait_name ) );
     }
 
+    // update retrievability of groups in traitline
+    for( tp_t trait_name = o.trait_name; trait_name != 0; )
+    {
+        xoico_group_s* group = compiler.get_group( trait_name );
+        trait_name = group.trait_name != group.tp_name ? group.trait_name : 0;
+        if( group.is_retrievable ) group.retrievable_stamps!.push( o.tp_name );
+    }
 
     return 0;
 };

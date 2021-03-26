@@ -397,22 +397,24 @@ TODO:
 - (done) add registry for unspecific identifiers (allows disabling unknown identifier waiver)
 - (fixed) bug: che: 1e-4 (and similar) is not recognized as numeric expression
 - (done) che: add waiver for unknown type (in arglist or inside a function)
-
-- bug: binary operator not recognized after unregistered member function
-- introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
-- make traitline of all groups end in x_inst
-- make 'fork' a transient function in x_inst rather than a builtin function
-- che: disable as many waivers as possible
-- bug:
+- (fixed by waivable error) bug:
     if( <cond> ) var = type!^;
     behaves like
     if( <cond> ) { var = type!^; }
     This leaves var is a dangling pointer after if ...;
     Minimal solution: create an error requesting to use brackets in this case.
     Btw: if( <cond> ) var = type!^^; behaves correctly
+- (done) group: retrievable: setup a global tp list of all stamps that have this group in their trait line
+- (fixed) foreach: if expression uses life control, it is not correctly set up
+- (fixed) bug: foreach: breaking into wrong break_ledge
 
 
-
+- bug: binary operator not recognized after unregistered member function
+- introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
+- make traitline of all groups end in x_inst
+- make 'fork' a transient function in x_inst rather than a builtin function
+- che: disable as many waivers as possible
+- x_via: rename to x_stamp
 
 ===================================================================
 
