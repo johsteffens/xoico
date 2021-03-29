@@ -113,17 +113,18 @@ func (:s)
         o.trans_identifier( source, result_local, tp_identifier );
         o.trans_whitespace( source, result_local );
 
-        // builtin functions ...
-        if( o.is_builtin_func( tp_identifier ) )
+        //-----------------------
+
+        if( source.parse_bl( "#=?'('" ) ) // member function
         {
-            m xoico_typespec_s* typespec_builtin = xoico_typespec_s!^^;
-            o.trans_builtin( tp_identifier, source, result, in_typespec, result_local, typespec_builtin );
-            result.copy( result_local );
-            o.trans_typespec_expression( source, result, typespec_builtin, out_typespec );
-        }
-        else if( o.compiler.get_type_element_info( in_typespec.type, tp_identifier, info ) )
-        {
-            if( info.func ) // member function
+            if( o.is_builtin_func( tp_identifier ) )
+            {
+                m xoico_typespec_s* typespec_builtin = xoico_typespec_s!^^;
+                o.trans_builtin( tp_identifier, source, result, in_typespec, result_local, typespec_builtin );
+                result.copy( result_local );
+                o.trans_typespec_expression( source, result, typespec_builtin, out_typespec );
+            }
+            else if( o.compiler.get_type_member_function_info( in_typespec.type, tp_identifier, info ) )
             {
                 m $* typespec_ret = xoico_typespec_s!^;
                 m $* result_object_expr = result.clone()^;
@@ -131,8 +132,72 @@ func (:s)
                 o.trans_function( source, info.func, result_object_expr, in_typespec, result, typespec_ret );
                 o.trans_typespec_expression( source, result, typespec_ret, out_typespec );
             }
-            else // traced member element
+            else // untraced member function
             {
+                if( !o.waive_unknown_member_function )
+                {
+                    return source.parse_error_fa( "'#<sc_t>' has no member function '#<sc_t>'.", o.nameof( in_typespec.type ), o.nameof( tp_identifier ) );
+                }
+
+                m $* result_arg_obj = result.clone()^^;
+                result.clear();
+
+                /// Untraced member functions of a group are always treated as 'aware'
+                if( o.is_group( in_typespec.type ) )
+                {
+                    result.copy_fa
+                    (
+                        "#<sc_t>_a_#<sc_t>( ",
+                        o.nameof( in_typespec.type ),
+                        o.nameof( tp_identifier )
+                    );
+                }
+                else
+                {
+                    result.copy_fa
+                    (
+                        "#<sc_t>_#<sc_t>( ",
+                        o.nameof( in_typespec.type ),
+                        o.nameof( tp_identifier )
+                    );
+                }
+
+                {
+                    m xoico_typespec_s* typespec_obj = in_typespec.clone()^^;
+                    typespec_obj.indirection = 1; // first argument of member functions
+                    o.adapt_expression( source, in_typespec, typespec_obj, result_arg_obj, result );
+                }
+
+                bl_t first = true;
+                o.trans_whitespace( source, result_local );
+                while( !source.eos() )
+                {
+                    if( source.parse_bl( "#=?')'" ) ) break;
+
+                    m $* result_expr = :result_create_arr()^^;
+                    if( !first ) source.parse_em_fa( "," );
+                    o.trans_expression( source, result_expr, NULL );
+                    o.trans_whitespace( source, result_expr );
+                    result.push_fa( "," );
+                    result.push_result_d( result_expr.fork() );
+                    first = false;
+                }
+
+                source.parse_em_fa( ")" );
+                result.push_sc( ")" );
+
+                o.trans_expression( source, result, NULL );
+            }
+        }
+        else // member object
+        {
+            if( o.compiler.get_type_member_object_info( in_typespec.type, tp_identifier, info ) ) // traced member object
+            {
+                if( info.func )
+                {
+                    return source.parse_error_fa( "'#<sc_t>' is a member function.", o.nameof( tp_identifier ) );
+                }
+
                 if( in_typespec.indirection <= 1 )
                 {
                     result.push_fa( "#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : "." );
@@ -149,66 +214,116 @@ func (:s)
 
                 o.trans_typespec_expression( source, result, info.type_info.typespec, out_typespec );
             }
+            else // untraced member object
+            {
+                if( !o.waive_unknown_member_variable )
+                {
+                    return source.parse_error_fa( "'#<sc_t>' has no member '#<sc_t>'.", o.nameof( in_typespec.type ), o.nameof( tp_identifier ) );
+                }
+                result.push_fa( "#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : "." );
+                result.push_result_d( result_local.fork() );
+                o.trans_expression( source, result, NULL );
+            }
         }
-        else if( source.parse_bl( "#?'('" ) ) // untraced member function
-        {
-            if( !o.waive_unknown_member_function ) return source.parse_error_fa( "'#<sc_t>' has no member function '#<sc_t>'.", o.nameof( in_typespec.type ), o.nameof( tp_identifier ) );
-            m $* result_arg_obj = result.clone()^^;
-            result.clear();
 
-            /// Untraced member functions of a group are always treated as 'aware'
-            if( o.is_group( in_typespec.type ) )
-            {
-                result.copy_fa
-                (
-                    "#<sc_t>_a_#<sc_t>( ",
-                    o.nameof( in_typespec.type ),
-                    o.nameof( tp_identifier )
-                );
-            }
-            else
-            {
-                result.copy_fa
-                (
-                    "#<sc_t>_#<sc_t>( ",
-                    o.nameof( in_typespec.type ),
-                    o.nameof( tp_identifier )
-                );
-            }
+        //-----------------------
 
-            {
-                m xoico_typespec_s* typespec_obj = in_typespec.clone()^^;
-                typespec_obj.indirection = 1; // first argument of member functions
-                o.adapt_expression( source, in_typespec, typespec_obj, result_arg_obj, result );
-            }
-
-            bl_t first = true;
-            o.trans_whitespace( source, result_local );
-            while( !source.eos() )
-            {
-                if( source.parse_bl( "#=?')'" ) ) break;
-
-                m $* result_expr = :result_create_arr()^^;
-                if( !first ) source.parse_em_fa( "," );
-                o.trans_expression( source, result_expr, NULL );
-                o.trans_whitespace( source, result_expr );
-                result.push_fa( "," );
-                result.push_result_d( result_expr.fork() );
-                first = false;
-            }
-
-            source.parse_em_fa( ")" );
-            result.push_sc( ")" );
-
-            o.trans_expression( source, result, NULL );
-        }
-        else // untraced member element
-        {
-            if( !o.waive_unknown_member_variable ) return source.parse_error_fa( "'#<sc_t>' has no member '#<sc_t>'.", o.nameof( in_typespec.type ), o.nameof( tp_identifier ) );
-            result.push_fa( "#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : "." );
-            result.push_result_d( result_local.fork() );
-            o.trans_expression( source, result, NULL );
-        }
+//        // builtin functions ...
+//        if( o.is_builtin_func( tp_identifier ) )
+//        {
+//            m xoico_typespec_s* typespec_builtin = xoico_typespec_s!^^;
+//            o.trans_builtin( tp_identifier, source, result, in_typespec, result_local, typespec_builtin );
+//            result.copy( result_local );
+//            o.trans_typespec_expression( source, result, typespec_builtin, out_typespec );
+//        }
+//        else if( o.compiler.get_type_element_info( in_typespec.type, tp_identifier, info ) )
+//        {
+//            if( info.func ) // member function
+//            {
+//                m $* typespec_ret = xoico_typespec_s!^;
+//                m $* result_object_expr = result.clone()^;
+//                result.clear();
+//                o.trans_function( source, info.func, result_object_expr, in_typespec, result, typespec_ret );
+//                o.trans_typespec_expression( source, result, typespec_ret, out_typespec );
+//            }
+//            else // traced member element
+//            {
+//                if( in_typespec.indirection <= 1 )
+//                {
+//                    result.push_fa( "#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : "." );
+//                }
+//                else
+//                {
+//                    m $* result_object_expr = result.clone()^;
+//                    result.clear();
+//                    result.push_fa( "(#rn{*}(", in_typespec.indirection );
+//                    result.push_result_d( result_object_expr.fork() );
+//                    result.push_fa( "))." );
+//                }
+//                result.push_result_d( result_local.fork() );
+//
+//                o.trans_typespec_expression( source, result, info.type_info.typespec, out_typespec );
+//            }
+//        }
+//        else if( source.parse_bl( "#?'('" ) ) // untraced member function
+//        {
+//            if( !o.waive_unknown_member_function ) return source.parse_error_fa( "'#<sc_t>' has no member function '#<sc_t>'.", o.nameof( in_typespec.type ), o.nameof( tp_identifier ) );
+//            m $* result_arg_obj = result.clone()^^;
+//            result.clear();
+//
+//            /// Untraced member functions of a group are always treated as 'aware'
+//            if( o.is_group( in_typespec.type ) )
+//            {
+//                result.copy_fa
+//                (
+//                    "#<sc_t>_a_#<sc_t>( ",
+//                    o.nameof( in_typespec.type ),
+//                    o.nameof( tp_identifier )
+//                );
+//            }
+//            else
+//            {
+//                result.copy_fa
+//                (
+//                    "#<sc_t>_#<sc_t>( ",
+//                    o.nameof( in_typespec.type ),
+//                    o.nameof( tp_identifier )
+//                );
+//            }
+//
+//            {
+//                m xoico_typespec_s* typespec_obj = in_typespec.clone()^^;
+//                typespec_obj.indirection = 1; // first argument of member functions
+//                o.adapt_expression( source, in_typespec, typespec_obj, result_arg_obj, result );
+//            }
+//
+//            bl_t first = true;
+//            o.trans_whitespace( source, result_local );
+//            while( !source.eos() )
+//            {
+//                if( source.parse_bl( "#=?')'" ) ) break;
+//
+//                m $* result_expr = :result_create_arr()^^;
+//                if( !first ) source.parse_em_fa( "," );
+//                o.trans_expression( source, result_expr, NULL );
+//                o.trans_whitespace( source, result_expr );
+//                result.push_fa( "," );
+//                result.push_result_d( result_expr.fork() );
+//                first = false;
+//            }
+//
+//            source.parse_em_fa( ")" );
+//            result.push_sc( ")" );
+//
+//            o.trans_expression( source, result, NULL );
+//        }
+//        else // untraced member element
+//        {
+//            if( !o.waive_unknown_member_variable ) return source.parse_error_fa( "'#<sc_t>' has no member '#<sc_t>'.", o.nameof( in_typespec.type ), o.nameof( tp_identifier ) );
+//            result.push_fa( "#<sc_t>", ( in_typespec.indirection == 1 ) ? "->" : "." );
+//            result.push_result_d( result_local.fork() );
+//            o.trans_expression( source, result, NULL );
+//        }
     }
     return 0;
 };

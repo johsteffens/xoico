@@ -1,4 +1,4 @@
-//  Last update: 2021-03-26T11:20:06Z
+//  Last update: 2021-03-28T13:45:08Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
  *
@@ -1172,7 +1172,8 @@
   er_t xoico_compiler_s_expand( xoico_compiler_s* o, bl_t* p_modified ); \
   bl_t xoico_compiler_s_get_self( const xoico_compiler_s* o, tp_t type, const bcore_self_s** self ); \
   bl_t xoico_compiler_s_get_type_info( const xoico_compiler_s* o, tp_t type, xoico_compiler_type_info_s* info ); \
-  bl_t xoico_compiler_s_get_type_element_info( const xoico_compiler_s* o, tp_t type, tp_t name, xoico_compiler_element_info_s* info ); \
+  bl_t xoico_compiler_s_get_type_member_function_info( const xoico_compiler_s* o, tp_t type, tp_t name, xoico_compiler_element_info_s* info ); \
+  bl_t xoico_compiler_s_get_type_member_object_info( const xoico_compiler_s* o, tp_t type, tp_t name, xoico_compiler_element_info_s* info ); \
   bl_t xoico_compiler_s_get_type_array_element_info( const xoico_compiler_s* o, tp_t type, xoico_compiler_element_info_s* info ); \
   er_t xoico_compiler_s_update_target_files( xoico_compiler_s* o, bl_t* p_modified ); \
   static inline er_t xoico_compiler_s_register_external_type( xoico_compiler_s* o, tp_t type ){ bcore_hmap_tp_s_set(&(o->hmap_external_type),type ); return  0;} \
@@ -1863,5 +1864,5 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOICO_BODY_SIGNATURE 0xECBF6F0E2D94C53A
-// XOICO_FILE_SIGNATURE 0xA2B898D09BE66510
+// XOICO_BODY_SIGNATURE 0x8DF6CC41BC41F2C7
+// XOICO_FILE_SIGNATURE 0xB072F62FA8E7351F

@@ -557,12 +557,28 @@ func (:s) xoico.finalize = (try)
         {
             if( hmap_name.exists( item.name ) )
             {
-                return o.source_point.parse_error_fa( "In stamp '#<sc_t>': Repeated use of element name '#<sc_t>'.", o.st_name.sc, compiler.nameof( item.name ) );
+                return o.source_point.parse_error_fa( "In stamp '#<sc_t>': Repeated use of member name '#<sc_t>'.", o.st_name.sc, compiler.nameof( item.name ) );
             }
 
             hmap_name.set( item.name );
         }
     }
+
+    // checking for repetitions of function names
+//    foreach( m $* func in o.funcs )
+//    {
+//        if( func.name )
+//        {
+//            if( hmap_name.exists( func.name ) )
+//            {
+//                return o.source_point.parse_error_fa( "In stamp '#<sc_t>': Repeated use of member name '#<sc_t>'.", o.st_name.sc, compiler.nameof( func.name ) );
+//            }
+//
+//            hmap_name.set( func.name );
+//        }
+//    }
+
+
 
     // check validity of trait name
     if( !compiler.is_group( o.trait_name ) )

@@ -71,7 +71,11 @@ stamp :element_info_s = aware :
 };
 
 signature bl_t get_type_info(               c @* o, tp_t type,            m :type_info_s*    info );
-signature bl_t get_type_element_info(       c @* o, tp_t type, tp_t name, m :element_info_s* info );
+
+//signature bl_t get_type_element_info(         c @* o, tp_t type, tp_t name, m :element_info_s* info );
+signature bl_t get_type_member_function_info( c @* o, tp_t type, tp_t name, m :element_info_s* info );
+signature bl_t get_type_member_object_info(   c @* o, tp_t type, tp_t name, m :element_info_s* info );
+
 signature bl_t get_type_array_element_info( c @* o, tp_t type,            m :element_info_s* info );
 
 // external interface ...
@@ -261,7 +265,9 @@ stamp :s = aware :
     func :.check_overwrite;
     func :.get_self;
     func :.get_type_info;
-    func :.get_type_element_info;
+    //func :.get_type_element_info;
+    func :.get_type_member_function_info;
+    func :.get_type_member_object_info;
     func :.get_type_array_element_info;
 
     // external interface ...
@@ -555,7 +561,155 @@ func (:s) :.get_type_info =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.get_type_element_info =
+//func (:s) get_type_element_info =
+//{
+//    c xoico* xoico_item = o.get_const_item( type );
+//    if( !xoico_item )
+//    {
+//        xoico_item = o.cast( m $* ).get_group( type );
+//        if( !xoico_item ) return false;
+//    }
+//
+//    bl_t success = false;
+//    ASSERT( info );
+//    info.type_info.item = xoico_item.cast( m $* );
+//
+//    if( xoico_item->_ == xoico_stamp_s~ )
+//    {
+//        c xoico_stamp_s* stamp = xoico_item.cast( c xoico_stamp_s* );
+//        c bcore_self_s* self = stamp.self;
+//        c bcore_self_item_s* self_item = NULL; // returns NULL in case of no match
+//
+//        if( ( self_item = self.get_item_by_name( name ) ) )
+//        {
+//            if( self_item.caps == BCORE_CAPS_EXTERNAL_FUNC )
+//            {
+//                info.func = stamp.get_func_from_name( name ).cast( m $* );
+//                ASSERT( info.func );
+//                success = true;
+//            }
+//            else if( bcore_flect_caps_is_array_fix( self_item.caps ) )
+//            {
+//                info.type_info.typespec.access_class = TYPEOF_mutable;
+//                info.type_info.typespec.type = self_item.type;
+//                info.type_info.typespec.indirection = 1;
+//                success = true;
+//            }
+//            else if( !bcore_flect_caps_is_array_dyn( self_item.caps ) ) // dynamic arrays are handled separately
+//            {
+//                sz_t indirection = bcore_flect_caps_get_indirection( self_item.caps );
+//                info.type_info.typespec.type = self_item.type;
+//                info.type_info.typespec.indirection = indirection;
+//                info.type_info.typespec.access_class = ( indirection > 0 ) ? TYPEOF_mutable : 0;
+//                success = true;
+//            }
+//        }
+//        else if( ( info.func = stamp.get_trait_line_func_from_name( name ).cast( m $* ) ) ) /// trait-line function
+//        {
+//            success = true;
+//        }
+//        else if( ( self_item = bcore_self_s_get_first_anonymous_array_item( self ) ) ) /// builtin elements for arrays
+//        {
+//            if( name == TYPEOF_size )
+//            {
+//                info.type_info.typespec.type = uz_t~;
+//                info.type_info.typespec.indirection = 0;
+//                info.type_info.typespec.access_class = 0;
+//                success = true;
+//            }
+//            else if( name == TYPEOF_space )
+//            {
+//                info.type_info.typespec.type = uz_t~;
+//                info.type_info.typespec.indirection = 0;
+//                info.type_info.typespec.access_class = 0;
+//                success = true;
+//            }
+//            else if( name == TYPEOF_data )
+//            {
+//                info.type_info.typespec.access_class = TYPEOF_mutable;
+//                info.type_info.typespec.type = self_item.type ? self_item.type : x_inst~;
+//                info.type_info.typespec.indirection = bcore_flect_caps_get_indirection( self_item.caps ) + 1;
+//                success = true;
+//            }
+//            else if( name == TYPEOF_type )
+//            {
+//                if( bcore_flect_caps_is_typed( self_item.caps ) )
+//                {
+//                    info.type_info.typespec.type = tp_t~;
+//                    info.type_info.typespec.indirection = 0;
+//                    info.type_info.typespec.access_class = 0;
+//                    success = true;
+//                }
+//            }
+//        }
+//    }
+//    else if( xoico_item._ == xoico_group_s~ )
+//    {
+//        c $* group = xoico_item.cast( m xoico_group_s* );
+//        if( name == TYPEOF__ ) // group builtin element '_'
+//        {
+//            info.type_info.typespec.type = aware_t~;
+//            info.type_info.typespec.indirection = 0;
+//            success = true;
+//        }
+//        else
+//        {
+//            info.func = group.get_trait_line_func_from_name( name ).cast( m $* );
+//            if( info.func ) success = true;
+//        }
+//    }
+//
+//    return success;
+//};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:s) get_type_member_function_info =
+{
+    c xoico* xoico_item = o.get_const_item( type );
+    if( !xoico_item )
+    {
+        xoico_item = o.cast( m $* ).get_group( type );
+        if( !xoico_item ) return false;
+    }
+
+    bl_t success = false;
+    ASSERT( info );
+    info.type_info.item = xoico_item.cast( m $* );
+
+    if( xoico_item->_ == xoico_stamp_s~ )
+    {
+        c xoico_stamp_s* stamp = xoico_item.cast( c xoico_stamp_s* );
+        c bcore_self_s* self = stamp.self;
+        c bcore_self_item_s* self_item = NULL; // returns NULL in case of no match
+
+        if( ( info.func = stamp.get_trait_line_func_from_name( name ).cast( m $* ) ) ) /// trait-line function
+        {
+            success = true;
+        }
+        else if( ( self_item = self.get_item_by_name( name ) ) )
+        {
+            if( self_item.caps == BCORE_CAPS_EXTERNAL_FUNC )
+            {
+                info.func = stamp.get_func_from_name( name ).cast( m $* );
+                ASSERT( info.func );
+                success = true;
+            }
+        }
+    }
+    else if( xoico_item._ == xoico_group_s~ )
+    {
+        c $* group = xoico_item.cast( m xoico_group_s* );
+        info.func = group.get_trait_line_func_from_name( name ).cast( m $* );
+        if( info.func ) success = true;
+    }
+
+    return success;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:s) get_type_member_object_info =
 {
     c xoico* xoico_item = o.get_const_item( type );
     if( !xoico_item )
@@ -576,13 +730,7 @@ func (:s) :.get_type_element_info =
 
         if( ( self_item = self.get_item_by_name( name ) ) )
         {
-            if( self_item.caps == BCORE_CAPS_EXTERNAL_FUNC )
-            {
-                info.func = stamp.get_func_from_name( name ).cast( m $* );
-                ASSERT( info.func );
-                success = true;
-            }
-            else if( bcore_flect_caps_is_array_fix( self_item.caps ) )
+            if( bcore_flect_caps_is_array_fix( self_item.caps ) )
             {
                 info.type_info.typespec.access_class = TYPEOF_mutable;
                 info.type_info.typespec.type = self_item.type;
@@ -597,10 +745,6 @@ func (:s) :.get_type_element_info =
                 info.type_info.typespec.access_class = ( indirection > 0 ) ? TYPEOF_mutable : 0;
                 success = true;
             }
-        }
-        else if( ( info.func = stamp.get_trait_line_func_from_name( name ).cast( m $* ) ) ) /// trait-line function
-        {
-            success = true;
         }
         else if( ( self_item = bcore_self_s_get_first_anonymous_array_item( self ) ) ) /// builtin elements for arrays
         {
@@ -639,17 +783,11 @@ func (:s) :.get_type_element_info =
     }
     else if( xoico_item._ == xoico_group_s~ )
     {
-        c $* group = xoico_item.cast( m xoico_group_s* );
         if( name == TYPEOF__ ) // group builtin element '_'
         {
             info.type_info.typespec.type = aware_t~;
             info.type_info.typespec.indirection = 0;
             success = true;
-        }
-        else
-        {
-            info.func = group.get_trait_line_func_from_name( name ).cast( m $* );
-            if( info.func ) success = true;
         }
     }
 
