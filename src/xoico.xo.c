@@ -1,4 +1,4 @@
-//  Last update: 2021-04-11T15:30:55Z
+//  Last update: 2021-04-12T21:24:05Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
  *
@@ -44,7 +44,7 @@
 #include "bcore_const_manager.h"
 
 // To force a rebuild of this target by xoico, reset the hash key value below to 0.
-// HKEYOF_xoico 0x541D1122048192C2ull
+// HKEYOF_xoico 0x8BDAD665C010C1C8ull
 
 /**********************************************************************************************************************/
 // source: xoico.x
@@ -8962,7 +8962,7 @@ er_t xoico_builder_target_s_load( xoico_builder_target_s* o, bl_t readonly, sc_t
     
     st_path = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,bcore_file_path_minimized(st_path->sc )));
     
-    ((xoico_builder_target_s*)(x_inst_from_file_txt_ml(((x_inst*)(o)),st_path->sc )));
+    BLM_TRY(x_btml_from_file(((x_btml*)(o)),st_path->sc ))
     st_s_copy(&(o->full_path_),st_path );
     if( readonly ) o->readonly = true;
     
@@ -9817,5 +9817,5 @@ int main( int argc, char** argv )
     BETH_CLOSEV( 0 );
     return retv;
 }
-// XOICO_BODY_SIGNATURE 0x401060DFB57A5F21
-// XOICO_FILE_SIGNATURE 0x60036C984110A3F4
+// XOICO_BODY_SIGNATURE 0x8F2B25C355BCF78E
+// XOICO_FILE_SIGNATURE 0xB7454C256B51FFB5
