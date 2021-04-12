@@ -55,6 +55,8 @@ stamp :s = aware :
     func xoico.expand_declaration;
     func xoico.expand_definition;
     func xoico.get_source_point = { return o.source_point; };
+
+    func xoico_signature.as_member = { return o.signature ? o.signature.as_member() : false; };
 };
 
 //----------------------------------------------------------------------------------------------------------------------

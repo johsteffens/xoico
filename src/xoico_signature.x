@@ -20,6 +20,7 @@
 signature er_t relent( m @* o, c xoico_host* host, tp_t tp_obj_type );
 signature er_t expand_declaration( c @* o, c xoico_host* host, sc_t sc_func_global_name, sz_t indent, m bcore_sink* sink );
 signature er_t set_global_name( m @* o, c xoico_host* host );
+signature bl_t as_member( c @* o ); // indicates that the function can be used as member function to an object
 
 stamp :s = aware :
 {
@@ -71,6 +72,8 @@ stamp :s = aware :
     func :.expand_declaration;
 
     func xoico_arg.is_variadic = { return o.args.is_variadic(); };
+
+    func :.as_member = { return o.arg_o != NULL; };
 
     func xoico.get_source_point = { return o.source_point; };
 

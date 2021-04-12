@@ -23,7 +23,7 @@ signature er_t make_funcs_overloadable( m @* o );
 signature er_t push_default_funcs( m @* o );
 signature c xoico_func_s* get_func_from_name( c @* o, tp_t name ); // returns NULL if not found
 signature c xoico_func_s* get_trait_line_func_from_name( c @* o, tp_t name ); // returns NULL if not found
-
+signature c xoico_func_s* get_trait_line_member_func_from_name( c @* o, tp_t name ); // returns NULL if not found
 
 stamp :s = aware :
 {
@@ -92,6 +92,16 @@ stamp :s = aware :
         if( !func )
         {
             func = o.group.compiler.get_group( o.trait_name ).get_trait_line_func_from_name( name );
+        }
+        return func;
+    };
+
+    func :.get_trait_line_member_func_from_name =
+    {
+        c $* func = o.funcs.get_func_from_name( name );
+        if( !func )
+        {
+            func = o.group.compiler.get_group( o.trait_name ).get_trait_line_member_func_from_name( name );
         }
         return func;
     };
@@ -563,22 +573,6 @@ func (:s) xoico.finalize = (try)
             hmap_name.set( item.name );
         }
     }
-
-    // checking for repetitions of function names
-//    foreach( m $* func in o.funcs )
-//    {
-//        if( func.name )
-//        {
-//            if( hmap_name.exists( func.name ) )
-//            {
-//                return o.source_point.parse_error_fa( "In stamp '#<sc_t>': Repeated use of member name '#<sc_t>'.", o.st_name.sc, compiler.nameof( func.name ) );
-//            }
-//
-//            hmap_name.set( func.name );
-//        }
-//    }
-
-
 
     // check validity of trait name
     if( !compiler.is_group( o.trait_name ) )

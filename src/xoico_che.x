@@ -1204,16 +1204,15 @@ func (:s)
         o.trans_whitespace( source, NULL );
     }
 
-    while
-    (
-        tp_identifier == TYPEOF_static ||
-        tp_identifier == TYPEOF_volatile ||
-        tp_identifier == TYPEOF_keep
-    )
+    while( tp_identifier )
     {
-        if( tp_identifier == TYPEOF_static   ) typespec.flag_static   = true;
-        if( tp_identifier == TYPEOF_volatile ) typespec.flag_volatile = true;
-        if( tp_identifier == TYPEOF_scope    ) typespec.flag_scope    = true;
+        if     ( tp_identifier == TYPEOF_static   && !typespec.flag_static   ) typespec.flag_static   = true;
+        else if( tp_identifier == TYPEOF_volatile && !typespec.flag_volatile ) typespec.flag_volatile = true;
+        else if( tp_identifier == TYPEOF_aware    && !typespec.flag_aware    ) typespec.flag_aware    = true;
+        else if( tp_identifier == TYPEOF_obliv    && !typespec.flag_obliv    ) typespec.flag_obliv    = true;
+        else break;
+
+        tp_identifier = 0;
         o.trans_identifier( source, NULL, tp_identifier );
         o.trans_whitespace( source, NULL );
     }
@@ -1904,6 +1903,16 @@ func(:s) (er_t inspect_expression( m @* o, m bcore_source* source )) = (try)
             bcore_msg_fa( "  access_class : #<sc_t>\n",  ifnameof( typespec.access_class ) );
             bcore_msg_fa( "  type         : #<sc_t>\n", o.nameof( typespec.type ) );
             bcore_msg_fa( "  indirection  : #<sz_t>\n", typespec.indirection );
+            bcore_msg_fa( "  flags        : " );
+            if( typespec.flag_static   ) bcore_msg_fa( "static " );
+            if( typespec.flag_volatile ) bcore_msg_fa( "volatile " );
+            if( typespec.flag_restrict ) bcore_msg_fa( "restrict " );
+            if( typespec.flag_obliv    ) bcore_msg_fa( "obliv " );
+            if( typespec.flag_aware    ) bcore_msg_fa( "aware " );
+            if( typespec.flag_scope    ) bcore_msg_fa( "scope " );
+            if( typespec.flag_addressable ) bcore_msg_fa( "addressable " );
+            if( typespec.flag_variadic ) bcore_msg_fa( "variadic " );
+            bcore_msg_fa( "\n" );
         }
         else
         {

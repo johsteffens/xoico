@@ -33,8 +33,11 @@ signature m xoico_compiler_s* get_compiler( c @* o );
 
 signature c xoico_func_s* get_func( c @* o, tp_t name ); // returns NULL in case name is not a member function
 
+/// returns function by name in trait-line or NULL
 signature c xoico_func_s* get_trait_line_func_from_name( c @* o, tp_t name );
 
+/// returns member-function by name in trait-line or NULL
+signature c xoico_func_s* get_trait_line_member_func_from_name( c @* o, tp_t name );
 
 /// source stack to handle includes
 stamp :source_stack_s = aware x_array { aware bcore_source -> []; };
@@ -143,6 +146,14 @@ stamp :s = aware :
         if( !o ) return NULL;
         c xoico_func_s** p_func = ( const xoico_func_s** )o.hmap_func.get( name );
         return p_func ? *p_func : o.get_trait_group().get_trait_line_func_from_name( name );
+    };
+
+    func :.get_trait_line_member_func_from_name =
+    {
+        if( !o ) return NULL;
+        c xoico_func_s** p_func = ( const xoico_func_s** )o.hmap_func.get( name );
+        if( p_func && p_func.as_member() ) return p_func.1;
+        return o.get_trait_group().get_trait_line_member_func_from_name( name );
     };
 
     func :.get_func =

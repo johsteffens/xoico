@@ -23,6 +23,8 @@ name mutable;
 name const;
 name void;
 name type;
+name aware;
+name obliv;
 name _;
 name o;
 

@@ -1,4 +1,4 @@
-//  Last update: 2021-03-28T13:45:08Z
+//  Last update: 2021-04-11T15:28:29Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
  *
@@ -59,6 +59,8 @@
 #define TYPEOF_const 0x65C9718E19E3DF34ull
 #define TYPEOF_void 0x3173C900E37AE1DFull
 #define TYPEOF_type 0xA79439EF7BFA9C2Dull
+#define TYPEOF_aware 0x0328D79D85BE3229ull
+#define TYPEOF_obliv 0x872E61F6D2D9FBFFull
 #define TYPEOF__ 0xAF64124C8602484Eull
 #define TYPEOF_o 0xAF63E24C8601F6BEull
 #define TYPEOF_xoico_name_s 0x72C1E17E15481547ull
@@ -398,6 +400,7 @@
   er_t xoico_typespec_s_expand( const xoico_typespec_s* o, const xoico_host* host, bcore_sink* sink ); \
   er_t xoico_typespec_s_expand_x( const xoico_typespec_s* o, const xoico_host* host, bcore_sink* sink ); \
   bl_t xoico_typespec_s_converts_to( const xoico_typespec_s* o, const xoico_typespec_s* b ); \
+  bl_t xoico_typespec_s_is_ptr_type( const xoico_typespec_s* o ); \
   static inline bl_t xoico_typespec_s_is_void( const xoico_typespec_s* o ){ return  (o->type == 0 || o->type == ((tp_t)(TYPEOF_void))) && o->indirection == 0;}
 #define BETH_EXPAND_GROUP_xoico_typespec \
   BCORE_FORWARD_OBJECT( xoico_typespec ); \
@@ -545,6 +548,7 @@
   static inline tp_t xoico_signature_s_get_global_name_tp( const xoico_signature_s* o ); \
   er_t xoico_signature_s_relent( xoico_signature_s* o, const xoico_host* host, tp_t tp_obj_type ); \
   static inline bl_t xoico_signature_s_is_variadic( const xoico_signature_s* o ); \
+  static inline bl_t xoico_signature_s_as_member( const xoico_signature_s* o ); \
   static inline const bcore_source_point_s* xoico_signature_s_get_source_point( const xoico_signature_s* o ); \
   static inline bl_t xoico_signature_s_returns_a_value( const xoico_signature_s* o ); \
   er_t xoico_signature_s_expand_ret( const xoico_signature_s* o, const xoico_host* host, bcore_sink* sink ); \
@@ -556,6 +560,7 @@
   er_t xoico_signature_s_expand_declaration( const xoico_signature_s* o, const xoico_host* host, sc_t sc_func_global_name, sz_t indent, bcore_sink* sink ); \
   static inline tp_t xoico_signature_s_get_global_name_tp( const xoico_signature_s* o ){ return  o->global_name;} \
   static inline bl_t xoico_signature_s_is_variadic( const xoico_signature_s* o ){ return  xoico_args_s_is_variadic(&(o->args));} \
+  static inline bl_t xoico_signature_s_as_member( const xoico_signature_s* o ){ return  o->arg_o != NULL;} \
   static inline const bcore_source_point_s* xoico_signature_s_get_source_point( const xoico_signature_s* o ){ return &( o->source_point);} \
   static inline bl_t xoico_signature_s_returns_a_value( const xoico_signature_s* o ){ return  !xoico_typespec_s_is_void(&(o->typespec_ret));}
 #define BETH_EXPAND_GROUP_xoico_signature \
@@ -647,6 +652,7 @@
   }; \
   bl_t xoico_func_s_reflectable( const xoico_func_s* o, const xoico_host* host ); \
   static inline const bcore_source_point_s* xoico_func_s_get_source_point( const xoico_func_s* o ); \
+  static inline bl_t xoico_func_s_as_member( const xoico_func_s* o ); \
   tp_t xoico_func_s_get_hash( const xoico_func_s* o ); \
   er_t xoico_func_s_freeze_global_name( xoico_func_s* o, const xoico_host* host ); \
   er_t xoico_func_s_parse( xoico_func_s* o, const xoico_host* host, bcore_source* source ); \
@@ -655,7 +661,8 @@
   er_t xoico_func_s_expand_forward( const xoico_func_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink ); \
   er_t xoico_func_s_expand_declaration( const xoico_func_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink ); \
   er_t xoico_func_s_expand_definition( const xoico_func_s* o, const xoico_host* host, sz_t indent, bcore_sink* sink ); \
-  static inline const bcore_source_point_s* xoico_func_s_get_source_point( const xoico_func_s* o ){ return &( o->source_point);}
+  static inline const bcore_source_point_s* xoico_func_s_get_source_point( const xoico_func_s* o ){ return &( o->source_point);} \
+  static inline bl_t xoico_func_s_as_member( const xoico_func_s* o ){ return  o->signature ? xoico_signature_s_as_member(o->signature) : false;}
 #define BETH_EXPAND_GROUP_xoico_func \
   BCORE_FORWARD_OBJECT( xoico_func ); \
   BCORE_FORWARD_OBJECT( xoico_func_s ); \
@@ -804,6 +811,7 @@
   er_t xoico_group_s_push_item_d( xoico_group_s* o, xoico* item ); \
   const xoico_group_s* xoico_group_s_get_trait_group( const xoico_group_s* o ); \
   const xoico_func_s* xoico_group_s_get_trait_line_func_from_name( const xoico_group_s* o, tp_t name ); \
+  const xoico_func_s* xoico_group_s_get_trait_line_member_func_from_name( const xoico_group_s* o, tp_t name ); \
   const xoico_func_s* xoico_group_s_get_func( const xoico_group_s* o, tp_t name ); \
   static inline void xoico_group_s_explicit_embeddings_push( const xoico_group_s* o, bcore_arr_st_s* arr ); \
   static inline xoico_compiler_s* xoico_group_s_compiler( const xoico_group_s* o ); \
@@ -935,6 +943,7 @@
   er_t xoico_stamp_s_make_funcs_overloadable( xoico_stamp_s* o ); \
   static inline const xoico_func_s* xoico_stamp_s_get_func_from_name( const xoico_stamp_s* o, tp_t name ); \
   const xoico_func_s* xoico_stamp_s_get_trait_line_func_from_name( const xoico_stamp_s* o, tp_t name ); \
+  const xoico_func_s* xoico_stamp_s_get_trait_line_member_func_from_name( const xoico_stamp_s* o, tp_t name ); \
   static inline er_t xoico_stamp_s_parse_name_st( const xoico_stamp_s* o, bcore_source* source, st_s* name ); \
   static inline xoico_compiler_s* xoico_stamp_s_compiler( const xoico_stamp_s* o ); \
   static inline xoico_cengine* xoico_stamp_s_cengine( const xoico_stamp_s* o ); \
@@ -1864,5 +1873,5 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOICO_BODY_SIGNATURE 0x8DF6CC41BC41F2C7
-// XOICO_FILE_SIGNATURE 0xB072F62FA8E7351F
+// XOICO_BODY_SIGNATURE 0xAFC2F45830B3C72D
+// XOICO_FILE_SIGNATURE 0x28664A62F97CAE92

@@ -21,7 +21,8 @@ signature er_t parse(  m @* o, c xoico_host* host, m bcore_source* source );
 signature er_t relent( m @* o, c xoico_host* host, tp_t tp_obj_type );
 signature er_t expand( c @* o, c xoico_host* host, m bcore_sink* sink );
 signature er_t expand_x( c @* o, c xoico_host* host, m bcore_sink* sink ); // expands in x-format
-signature bl_t converts_to( c @* o, c @* b ); // converts to b without a cast
+signature bl_t converts_to( c @* o, c @* b ); // in 'C' auto-converts to b without a cast
+signature bl_t is_ptr_type( c @* o ); // type is a pointer type (like vc_t, vd_t, sc_t, sd_t)
 
 signature void reset( m @* o );
 
@@ -86,6 +87,7 @@ stamp :s = aware :
     func :.expand;
     func :.expand_x;
     func :.converts_to;
+    func :.is_ptr_type;
 
     func :.reset =
     {
@@ -128,16 +130,12 @@ func (:s) :.parse = (try)
     else if( source.parse_bl( " #?w'm'" ) || source.parse_bl( " #?w'mutable'"     ) ) access_class = TYPEOF_mutable;
     else if( source.parse_bl( " #?w'd'" ) || source.parse_bl( " #?w'discardable'" ) ) access_class = TYPEOF_discardable;
 
-    if(      source.parse_bl( " #?w'obliv'" ) ) o.flag_obliv = true;
-    else if( source.parse_bl( " #?w'aware'" ) ) o.flag_aware = true;
-
-
-    if( source.parse_bl( " #?w'scope'" ) ) o.flag_scope = true;
-
     while( !source.eos() )
     {
-        if     ( source.parse_bl( " #?w'static'"   ) ) o->flag_static = true;
-        else if( source.parse_bl( " #?w'volatile'" ) ) o->flag_volatile = true;
+        if     ( source.parse_bl( " #?w'static'"   ) && !o->flag_static ) o->flag_static = true;
+        else if( source.parse_bl( " #?w'volatile'" ) && !o->flag_volatile ) o->flag_volatile = true;
+        else if( source.parse_bl( " #?w'obliv'"    ) && !o->flag_obliv ) o->flag_obliv = true;
+        else if( source.parse_bl( " #?w'aware'"    ) && !o->flag_aware ) o->flag_aware = true;
         else break;
     }
 
@@ -404,6 +402,16 @@ func (:s) :.converts_to =
             return false;
         }
     }
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:s) is_ptr_type =
+{
+    return o.type == TYPEOF_vd_t ||
+           o.type == TYPEOF_vc_t ||
+           o.type == TYPEOF_sc_t ||
+           o.type == TYPEOF_sd_t;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
