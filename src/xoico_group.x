@@ -708,7 +708,7 @@ func (:s) xoico.finalize = (try)
     o.push_default_feature_from_sc( "d @* clone( c @* o );" );
     o.push_default_feature_from_sc( "void copy( m @* o, c @* src );" );
     o.push_default_feature_from_sc( "void discard( m @* o );" );
-    o.push_default_func_from_sc(    "(d @* t_create( tp_t t ));" );
+    o.push_default_func_from_sc(    "(d obliv @* t_create( tp_t t ));" );
 
     foreach( m $* e in o ) e.finalize( o );
     foreach( m $* func in o.funcs )

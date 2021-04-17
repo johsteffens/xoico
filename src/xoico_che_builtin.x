@@ -23,6 +23,7 @@ func (:s)( bl_t is_builtin_func( c @* o, tp_t tp_identifier ) ) =
     {
         case TYPEOF_cast:
         case TYPEOF_scope:
+        case TYPEOF_t_scope:
         case TYPEOF_fork:
         case TYPEOF_try:
             return true;
@@ -50,10 +51,11 @@ func (:s)
 {
     switch( tp_builtin )
     {
-        case TYPEOF_cast : return o.trans_builtin_cast(  source, result_expr, typespec_expr, result_out, typespec_out );
-        case TYPEOF_scope: return o.trans_builtin_scope( source, result_expr, typespec_expr, result_out, typespec_out );
-        case TYPEOF_fork:  return o.trans_builtin_fork(  source, result_expr, typespec_expr, result_out, typespec_out );
-        case TYPEOF_try:   return o.trans_builtin_try(   source, result_expr, typespec_expr, result_out, typespec_out );
+        case TYPEOF_cast :   return o.trans_builtin_cast(    source, result_expr, typespec_expr, result_out, typespec_out );
+        case TYPEOF_scope:   return o.trans_builtin_scope(   source, result_expr, typespec_expr, result_out, typespec_out );
+        case TYPEOF_t_scope: return o.trans_builtin_t_scope( source, result_expr, typespec_expr, result_out, typespec_out );
+        case TYPEOF_fork:    return o.trans_builtin_fork(    source, result_expr, typespec_expr, result_out, typespec_out );
+        case TYPEOF_try:     return o.trans_builtin_try(     source, result_expr, typespec_expr, result_out, typespec_out );
         default: return source.parse_error_fa( "Internal error: Invalid builtin type '#<sc_t>'", ifnameof( tp_builtin ) );
     }
 };
@@ -240,6 +242,10 @@ func (:s)
 
     if( o.is_group( typespec_scope.type ) )
     {
+        if( typespec_scope.flag_obliv )
+        {
+            return source.parse_error_fa( "scope: Expression yields an oblivious typespec of a group. Use t_scope to clarify which type is intended." );
+        }
         result_out.push_fa( ")BLM_LEVEL_A_PUSH(#<sz_t>,", level );
         result_out.push_result_c( result_expr );
         result_out.push_sc( "))" );
@@ -250,6 +256,104 @@ func (:s)
         result_out.push_result_c( result_expr );
         result_out.push_sc( "))" );
     }
+
+    o.stack_block.adl.[ level ].use_blm = true;
+
+    if( typespec_out )
+    {
+        typespec_out.copy( typespec_scope );
+        typespec_out.flag_scope = true;
+    }
+
+    return 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:s)
+(
+    er_t trans_builtin_t_scope
+    (
+        m @* o,
+        m bcore_source* source,
+        c :result* result_expr,
+        c xoico_typespec_s* typespec_expr,
+        m :result* result_out,
+        m xoico_typespec_s* typespec_out
+    )
+) = (try)
+{
+    bl_t has_arg = false;
+    bl_t closing_bracket = true;
+
+    sz_t level = 0;
+
+    m $* result_type_expr = :result_create_arr()^;
+
+    if( result_expr ) // member call
+    {
+        source.parse_em_fa( " ( " );
+        result_out.clear();
+        o.trans_expression( source, result_type_expr, NULL );
+        has_arg = source.parse_bl( "#?','" );
+    }
+    else // direct call
+    {
+        source.parse_em_fa( "scope ( " );
+        m $* result = :result_create_arr()^^;
+        m $* typespec = xoico_typespec_s!^^;
+        o.trans_expression( source, result, typespec );
+        typespec_expr = typespec;
+        result_expr = result;
+
+        source.parse_em_fa( " , " );
+        o.trans_expression( source, result_type_expr, NULL );
+
+        has_arg = source.parse_bl( "#?','" );
+    }
+
+    if( typespec_expr.type == 0 ) return source.parse_error_fa( "scope: Expression not tractable." );
+    if( typespec_expr.access_class != TYPEOF_discardable ) return source.parse_error_fa( "scope: Expression is not discardable." );
+    m xoico_typespec_s* typespec_scope = typespec_expr.clone()^^;
+    typespec_scope.access_class = TYPEOF_mutable;
+
+    result_out.push_sc( "((" );
+
+    if( has_arg )
+    {
+        source.parse_em_fa( " " );
+        tp_t tp_identifier = o.get_identifier( source, true );
+
+        if( o.is_var( tp_identifier ) )
+        {
+            level = o.stack_var.get_level( tp_identifier );
+        }
+        else if( tp_identifier == scope_local~ )
+        {
+            level = o.level;
+        }
+        else if( tp_identifier == scope_func~ )
+        {
+            level = 0;
+        }
+        else
+        {
+            return source.parse_error_fa( "scope: identifier '#<sc_t>' does not represent a variable.", o.nameof( tp_identifier ) );
+        }
+    }
+
+    if( closing_bracket ) source.parse_em_fa( " )" );
+
+    if( typespec_scope.indirection != 1 ) return source.parse_error_fa( "scope: Expression's indirection != 1." );
+    if( typespec_scope.flag_scope )       return source.parse_error_fa( "scope: Target is already scoped." );
+
+    o.push_typespec( typespec_scope, result_out );
+
+    result_out.push_fa( ")BLM_LEVEL_TV_PUSH(#<sz_t>,", level );
+    result_out.push_result_c( result_type_expr );
+    result_out.push_fa( "," );
+    result_out.push_result_c( result_expr );
+    result_out.push_sc( "))" );
 
     o.stack_block.adl.[ level ].use_blm = true;
 

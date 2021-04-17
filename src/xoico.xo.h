@@ -1,4 +1,4 @@
-//  Last update: 2021-04-11T15:28:29Z
+//  Last update: 2021-04-13T11:35:20Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
  *
@@ -1250,6 +1250,7 @@
 #define TYPEOF_verbatim_C 0x7C0F5E2B3285120Dull
 #define TYPEOF_keep 0x585D7CD75CF6F848ull
 #define TYPEOF_scope 0xC1074FFBE7EFE44Bull
+#define TYPEOF_t_scope 0xC1CF98C848995930ull
 #define TYPEOF_scope_local 0xC7F69BF78D91B167ull
 #define TYPEOF_scope_func 0x5E9151F1091C19BAull
 #define TYPEOF_keep_func 0xA74182F52F6E64F7ull
@@ -1365,6 +1366,7 @@
   er_t xoico_che_s_trans_builtin( xoico_che_s* o, tp_t tp_builtin, bcore_source* source, const xoico_che_result* result_expr, const xoico_typespec_s* typespec_expr, xoico_che_result* result_out, xoico_typespec_s* typespec_out ); \
   er_t xoico_che_s_trans_builtin_cast( xoico_che_s* o, bcore_source* source, const xoico_che_result* result_expr, const xoico_typespec_s* typespec_expr, xoico_che_result* result_out, xoico_typespec_s* typespec_out ); \
   er_t xoico_che_s_trans_builtin_scope( xoico_che_s* o, bcore_source* source, const xoico_che_result* result_expr, const xoico_typespec_s* typespec_expr, xoico_che_result* result_out, xoico_typespec_s* typespec_out ); \
+  er_t xoico_che_s_trans_builtin_t_scope( xoico_che_s* o, bcore_source* source, const xoico_che_result* result_expr, const xoico_typespec_s* typespec_expr, xoico_che_result* result_out, xoico_typespec_s* typespec_out ); \
   er_t xoico_che_s_trans_builtin_fork( xoico_che_s* o, bcore_source* source, const xoico_che_result* result_expr, const xoico_typespec_s* typespec_expr, xoico_che_result* result_out, xoico_typespec_s* typespec_out ); \
   er_t xoico_che_s_trans_builtin_try( xoico_che_s* o, bcore_source* source, const xoico_che_result* result_expr, const xoico_typespec_s* typespec_expr, xoico_che_result* result_out, xoico_typespec_s* typespec_out ); \
   bl_t xoico_che_s_is_control_name( const xoico_che_s* o, tp_t tp_identifier ); \
@@ -1873,5 +1875,5 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOICO_BODY_SIGNATURE 0xAFC2F45830B3C72D
-// XOICO_FILE_SIGNATURE 0x28664A62F97CAE92
+// XOICO_BODY_SIGNATURE 0xD985B083471FE31F
+// XOICO_FILE_SIGNATURE 0x294F984949111558

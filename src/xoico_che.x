@@ -368,6 +368,7 @@ name cast;
 name verbatim_C;
 name keep;
 name scope;
+name t_scope;
 name scope_local;
 name scope_func;
 name keep_func;
@@ -1637,13 +1638,13 @@ func (:s)
                     sc_t sc_identifier = o.nameof( tp_identifier );
                     if( sc_t_cmp( "TYPEOF_", sc_identifier ) != 1 )
                     {
-                        return source.parse_error_fa( "Unknwon identifier #<sc_t>\n.", o.nameof( tp_identifier ) );
+                        return source.parse_error_fa( "Unknwon identifier '#<sc_t>'\n.", o.nameof( tp_identifier ) );
                     }
 
                     sc_identifier += bcore_strlen( "TYPEOF_" );
                     if( !o.is_identifier( btypeof( sc_identifier ) ) )
                     {
-                        return source.parse_error_fa( "Unknwon identifier #<sc_t>\n.", o.nameof( tp_identifier ) );
+                        return source.parse_error_fa( "Unknwon identifier '#<sc_t>'\n.", o.nameof( tp_identifier ) );
                     }
                 }
             }
@@ -1958,8 +1959,6 @@ func (:s) (er_t trans_statement_expression( m @* o, m bcore_source* source, m :r
 
     o.trans_whitespace( source, result );
 
-    // ':' between expressions is to be taken literally
-    if( source.parse_bl( "#?':'" ) ) result.push_char( ':' );
     return 0;
 };
 
@@ -1968,9 +1967,6 @@ func (:s) (er_t trans_statement_expression( m @* o, m bcore_source* source, m :r
 func (:s) (er_t trans_statement( m @* o, m bcore_source* source, m :result* result )) = (try)
 {
     o.trans_whitespace( source, result );
-
-//    if( source.parse_bl( "#?([0]=='{'||[0]=='#'||[0]==';'||[0]==','||[0]=='.'||[0]==')'||[0]=='}'||([0]=='?'&&[1]=='?'))" ) )
-//    {
 
     bl_t handled = true;
 

@@ -417,6 +417,12 @@ TODO:
 - (done) assignment: extend auto type conversion to leaf-types excluding pinter-types
 - (rejected) trailine function: make only true member functions visible as traitline functions to a given object (no plain functions)
   Reason: Many traitline functions (e.g. x_* groups) should be seen as member functions even though they do not formally need an object input (sometimes just a type)
+- (solved) Problem: scoping an oblivious instance: x_inst_t_create( tp_t )^
+      scoping assumes instance is aware.
+      Fix:
+        let x_inst_t return 'obliv'; (same for other typed factories); check for obliv on scoping
+        introduce t_scope builtin function, accepting type variable as argument
+
 
 - bug: binary operator not recognized after unregistered member function
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
@@ -435,13 +441,11 @@ TODO:
      - Simplifies handling of of sr_s
      - Potential for unintended destructive cases is low as long as automatic indirection adjustment is prevented.
 
-
-
 ===================================================================
 
 Keywords (for syntax highlight)
 
 group stamp stump hidden private func name signature body obliv aware feature extending verbatim
 mutable discardable retrievable forward include embed cast foreach in verbatim_C fork
-strict try scope scope_local scope_func extern wrap restrict type identifier
+strict try scope t_scope scope_local scope_func extern wrap restrict type identifier
 
