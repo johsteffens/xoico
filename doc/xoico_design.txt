@@ -422,6 +422,7 @@ TODO:
       Fix:
         let x_inst_t return 'obliv'; (same for other typed factories); check for obliv on scoping
         introduce t_scope builtin function, accepting type variable as argument
+- (done) feature: typed function (switch first two arguments: type,object --> object,type )
 
 
 - bug: binary operator not recognized after unregistered member function

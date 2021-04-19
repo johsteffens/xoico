@@ -85,7 +85,7 @@ func (:s) xoico.parse = (try)
     if( source.parse_bl( " #?|'|" ) )
     {
         m st_s* flags = st_s!^^;
-        source.parse_em_fa( " #until'''", flags );
+        source.parse_em_fa( " #until{'}", flags );
         for( sz_t i = 0; i < flags.size; i++ )
         {
             switch( flags.data[ i ] )
@@ -222,10 +222,11 @@ func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) = (try)
 
     if( o.flag_t )
     {
+        /// new
         m st_s* st = st_s!^^;
-        st.push_fa( "(#<sc_t> t_#<sc_t>( tp_t t, ", sc_ret_typespec, sc_name );
+        st.push_fa( "(#<sc_t> t_#<sc_t>( ", sc_ret_typespec, sc_name );
         st.push_fa( flag_const ? " c" : " m" );
-        st.push_fa( " #<sc_t>* o", sc_obj_type );
+        st.push_fa( " #<sc_t>* o, tp_t t", sc_obj_type );
         o->signature.args.expand_x( host, false, st );
         st.push_fa( " )) = (verbatim_C) { " );
         st.push_fa( "const #<sc_t>* p = #<sc_t>_get_typed( t ); ", sc_spect_name, sc_spect_name );
@@ -237,6 +238,11 @@ func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) = (try)
 
         m xoico_func_s* func = o.push_func_from_sc( host, st.sc );
         func.declare_in_expand_forward = false;
+
+        d xoico_func_s* func_to_group = func.clone();
+        func_to_group.body =< NULL;
+        func_to_group.expandable = false;
+        o.funcs_return_to_group.push_d( func_to_group );
     }
 
     if( o->flag_t )
@@ -254,6 +260,11 @@ func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) = (try)
 
         m xoico_func_s* func = o.push_func_from_sc( host, st.sc );
         func.declare_in_expand_forward = false;
+
+        d xoico_func_s* func_to_group = func.clone();
+        func_to_group.body =< NULL;
+        func_to_group.expandable = false;
+        o.funcs_return_to_group.push_d( func_to_group );
     }
 
     if( o.flag_p )
