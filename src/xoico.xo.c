@@ -1,4 +1,4 @@
-//  Last update: 2021-04-19T16:12:30Z
+//  Last update: 2021-04-20T14:38:20Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
  *
@@ -44,7 +44,7 @@
 #include "bcore_const_manager.h"
 
 // To force a rebuild of this target by xoico, reset the hash key value below to 0.
-// HKEYOF_xoico 0x4DF40CBDDF8F5150ull
+// HKEYOF_xoico 0x06810A67F85593F2ull
 
 /**********************************************************************************************************************/
 // source: xoico.x
@@ -3389,7 +3389,7 @@ er_t xoico_stamp_s_parse_extend( xoico_stamp_s* o, bcore_source* source )
             if( er )
             {BLM_INIT_LEVEL(3);
                 st_s* msg = ((st_s*)BLM_LEVEL_T_PUSH(3,st_s,st_s_create()));
-                bcore_error_pop_st( (&(er)), msg );
+                bcore_error_pop_st((&(er)), msg );
                 BLM_RETURNV(er_t, bcore_source_a_parse_error_fa(source,"Reflection parse error:\n#<sc_t>\n", msg->sc ))
             BLM_DOWN();}
     
@@ -4139,7 +4139,7 @@ er_t xoico_target_s_parse_from_path( xoico_target_s* o, sc_t source_path, sc_t g
         }
         else
         {
-            BLM_RETURNV(er_t, bcore_error_push_fa( ((tp_t)(TYPEOF_general_error)), "Could not open '#<sc_t>'.", source_path ))
+            BLM_RETURNV(er_t, bcore_error_push_fa(((tp_t)(TYPEOF_general_error)), "Could not open '#<sc_t>'.", source_path ))
         }
     
         xoico_target_s_push_d(o,((xoico_source_s*)bcore_fork(xsource)) );
@@ -4222,7 +4222,7 @@ er_t xoico_target_s_set_dependencies( xoico_target_s* o, const bcore_arr_sz_s* d
     
     if( xoico_target_s_is_cyclic(o) )
     {
-        BLM_RETURNV(er_t, bcore_error_push_fa( ((tp_t)(TYPEOF_general_error)), "Cyclic dependencies found in target '#<sc_t>'.", o->name.sc ))
+        BLM_RETURNV(er_t, bcore_error_push_fa(((tp_t)(TYPEOF_general_error)), "Cyclic dependencies found in target '#<sc_t>'.", o->name.sc ))
     }
     
     BLM_RETURNV(er_t, 0)
@@ -4897,7 +4897,7 @@ er_t xoico_compiler_s_check_overwrite( const xoico_compiler_s* o, sc_t file, tp_
         {
             if( clear_to_overwrite ) (*(clear_to_overwrite)) = true;
             st_s_push_fa(s,"Flag 'overwrite_unsigned_target_files' is 'true'. The file will be overwritten.\n" );
-            bcore_sink_a_push_fa(x_inst_stderr(),"\nWARNING: #<sc_t>\n", s->sc );
+            ((x_sink*)(x_sink_push_fa(x_sink_stderr(),"\nWARNING: #<sc_t>\n", s->sc )));
         }
         else
         {
@@ -4906,7 +4906,7 @@ er_t xoico_compiler_s_check_overwrite( const xoico_compiler_s* o, sc_t file, tp_
             st_s_push_fa(s,"You can fix it in one of following ways:\n" );
             st_s_push_fa(s,"* Rename or (re)move the file.\n" );
             st_s_push_fa(s,"* Use command line flag '-f'.\n" );
-            BLM_RETURNV(er_t, bcore_error_push_fa( ((tp_t)(TYPEOF_general_error)), "\nERROR: #<sc_t>\n", s->sc ))
+            BLM_RETURNV(er_t, bcore_error_push_fa(((tp_t)(TYPEOF_general_error)), "\nERROR: #<sc_t>\n", s->sc ))
         }
     BLM_DOWN();}
     
@@ -6619,7 +6619,7 @@ er_t xoico_che_s_inspect_expression( xoico_che_s* o, bcore_source* source )
     bcore_msg_fa( " \?? #<sc_t>;\n", st->sc );
     if( xoico_che_s_trans_expression(o,((bcore_source*)(((bcore_source_string_s*)BLM_LEVEL_T_PUSH(0,bcore_source_string_s,bcore_source_string_s_create_fa("#<st_s*>;", st ))))), result_local, typespec ) )
     {
-        bcore_error_pop_to_sink( x_inst_stdout() );
+        bcore_error_pop_to_sink(((bcore_sink*)(x_sink_stdout())) );
         bcore_msg_fa( "\n" );
     }
     else
@@ -7088,8 +7088,8 @@ er_t xoico_che_s_translate_mutable( xoico_che_s* o, const xoico_host* host, cons
     
     if( o->verbose )
     {
-        bcore_sink_a_push_fa(x_inst_stdout(),"##############################\n" );
-        bcore_sink_a_push_fa(x_inst_stdout(),"#<st_s*>\n", buf );
+        ((x_sink*)(x_sink_push_fa(x_sink_stdout(),"##############################\n" )));
+        ((x_sink*)(x_sink_push_fa(x_sink_stdout(),"#<st_s*>\n", buf )));
     }
     
     bcore_sink_a_push_sc(sink,buf->sc );
@@ -9065,7 +9065,7 @@ er_t xoico_builder_target_s_load( xoico_builder_target_s* o, bl_t readonly, sc_t
     st_s_copy(&(o->full_path_),st_path );
     if( readonly ) o->readonly = true;
     
-    if( !o->name ) BLM_RETURNV(er_t, bcore_error_push_fa( ((tp_t)(TYPEOF_general_error)), "In target file: '#<sc_t>'\nTarget name must be specified.", st_path->sc ))
+    if( !o->name ) BLM_RETURNV(er_t, bcore_error_push_fa(((tp_t)(TYPEOF_general_error)), "In target file: '#<sc_t>'\nTarget name must be specified.", st_path->sc ))
     
     /// check for dependency cycles
     if( o->parent_ )
@@ -9075,11 +9075,11 @@ er_t xoico_builder_target_s_load( xoico_builder_target_s* o, bl_t readonly, sc_t
         {
             if( st_s_equal_st(&(match->full_path_),&(o->full_path_ )) )
             {
-                BLM_RETURNV(er_t, bcore_error_push_fa( ((tp_t)(TYPEOF_general_error)), "In target file: '#<sc_t>'\nCyclic dependency detected.", st_path->sc ))
+                BLM_RETURNV(er_t, bcore_error_push_fa(((tp_t)(TYPEOF_general_error)), "In target file: '#<sc_t>'\nCyclic dependency detected.", st_path->sc ))
             }
             else
             {
-                BLM_RETURNV(er_t, bcore_error_push_fa( ((tp_t)(TYPEOF_general_error)), "Same target name '#<sc_t>' used in different target files:\n#<sc_t>\n#<sc_t>", o->name->sc, st_path->sc, match->full_path_.sc ))
+                BLM_RETURNV(er_t, bcore_error_push_fa(((tp_t)(TYPEOF_general_error)), "Same target name '#<sc_t>' used in different target files:\n#<sc_t>\n#<sc_t>", o->name->sc, st_path->sc, match->full_path_.sc ))
             }
         }
     }
@@ -9211,9 +9211,7 @@ er_t xoico_builder_target_s_build( xoico_builder_target_s* o )
         if( o->target_index_ == -1 ) o->target_index_ = index;
         if( index != o->target_index_ )
         {
-            BLM_RETURNV(er_t, bcore_error_push_fa
-            (
-                ((tp_t)(TYPEOF_general_error)),
+            BLM_RETURNV(er_t, bcore_error_push_fa(((tp_t)(TYPEOF_general_error)),
                 "Building source '#<sc_t>' in target '#<sc_t>':\n"
                 "Target index mismatch.\n"
                 "This problem occurs when a target defines sources from different directories.\n",
@@ -9363,7 +9361,7 @@ s2_t xoico_main_main( const bcore_arr_st_s* args )
     {
         if( st_s_equal_sc(args->data[ arg_idx ],"--help" ) )
         {
-            xoico_main_help(x_inst_stdout() );
+            xoico_main_help(((bcore_sink*)(x_sink_stdout() )));
         }
         else if( st_s_equal_sc(args->data[ arg_idx ],"--selftest" ) )
         {
@@ -9396,15 +9394,15 @@ s2_t xoico_main_main( const bcore_arr_st_s* args )
     
             if( xoico_builder_main_s_get_dry_run(&(builder_main)) )
             {
-                bcore_sink_a_push_fa(x_inst_stdout(),"Dry run ...\n" );
+                ((x_sink*)(x_sink_push_fa(x_sink_stdout(),"Dry run ...\n" )));
             }
     
             if( xoico_builder_main_s_get_always_expand(&(builder_main)) )
             {
-                bcore_sink_a_push_fa(x_inst_stdout(),"Expanding all ...\n" );
+                ((x_sink*)(x_sink_push_fa(x_sink_stdout(),"Expanding all ...\n" )));
             }
     
-            if( arg_idx >= args->size ) xoico_main_help(x_inst_stdout() );
+            if( arg_idx >= args->size ) xoico_main_help(((bcore_sink*)(x_sink_stdout() )));
             clock_t time = clock();
     
             for(sz_t i = arg_idx; i < args->size; i++ )
@@ -9421,7 +9419,7 @@ s2_t xoico_main_main( const bcore_arr_st_s* args )
             {
                 f3_t time_var = clock() - time;
                 time_var /= CLOCKS_PER_SEC;
-                bcore_sink_a_pushf(x_inst_stdout(),"Finished after %.3f seconds.\n", time_var );
+                ((x_sink*)(x_sink_push_st_d(x_sink_stdout(),st_s_createf("Finished after %.3f seconds.\n", time_var ) )));
             }
         }
     }
@@ -9430,7 +9428,7 @@ s2_t xoico_main_main( const bcore_arr_st_s* args )
         er = 1;
         st_s st;BLM_T_INIT_SPUSH(st_s, &st);;
         xoico_main_help(((bcore_sink*)(&(st ))));
-        bcore_error_push_sc( er, st.sc );
+        bcore_error_push_sc(er, st.sc );
     BLM_DOWN();}
     
     if( er ) bcore_error_pop_all_to_stderr();
@@ -9917,5 +9915,5 @@ int main( int argc, char** argv )
     BETH_CLOSEV( 0 );
     return retv;
 }
-// XOICO_BODY_SIGNATURE 0x1E95973138A1FFAF
-// XOICO_FILE_SIGNATURE 0x4399901FF69F889D
+// XOICO_BODY_SIGNATURE 0x8A8F6D820E1299E4
+// XOICO_FILE_SIGNATURE 0x83E6BB5E6A5913E4

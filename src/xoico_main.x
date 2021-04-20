@@ -48,7 +48,7 @@ func x_inst.main =
     {
         if( args.[ arg_idx ].equal_sc( "--help" ) )
         {
-            :help( x_inst_stdout() );
+            :help( x_sink_stdout() );
         }
         else if( args.[ arg_idx ].equal_sc( "--selftest" ) )
         {
@@ -81,15 +81,15 @@ func x_inst.main =
 
             if( builder_main.get_dry_run() )
             {
-                x_inst_stdout().push_fa( "Dry run ...\n" );
+                x_sink_stdout().push_fa( "Dry run ...\n" );
             }
 
             if( builder_main.get_always_expand() )
             {
-                x_inst_stdout().push_fa( "Expanding all ...\n" );
+                x_sink_stdout().push_fa( "Expanding all ...\n" );
             }
 
-            if( arg_idx >= args.size ) :help( x_inst_stdout() );
+            if( arg_idx >= args.size ) :help( x_sink_stdout() );
             clock_t time = clock();
 
             for( sz_t i = arg_idx; i < args.size; i++ )
@@ -106,7 +106,7 @@ func x_inst.main =
             {
                 f3_t time_var = clock() - time;
                 time_var /= CLOCKS_PER_SEC;
-                x_inst_stdout().pushf(  "Finished after %.3f seconds.\n", time_var );
+                x_sink_stdout().push_st_d( st_s_createf( "Finished after %.3f seconds.\n", time_var ) );
             }
         }
     }

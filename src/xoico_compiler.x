@@ -418,7 +418,7 @@ func (:s) :.check_overwrite =
         {
             if( clear_to_overwrite ) clear_to_overwrite.0 = true;
             s.push_fa( "Flag 'overwrite_unsigned_target_files' is 'true'. The file will be overwritten.\n" );
-            x_inst_stderr().push_fa( "\nWARNING: #<sc_t>\n", s->sc );
+            x_sink_stderr().push_fa( "\nWARNING: #<sc_t>\n", s->sc );
         }
         else
         {
