@@ -70,7 +70,7 @@ feature 'ap' er_t expand_indef_declaration  ( c @* o, c :host* host, sz_t indent
 feature 'ap' er_t expand_definition         ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
 feature 'ap' er_t expand_init1              ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
 feature 'ap' er_t expand_manifesto           ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; }; // manifestation: last expansion stage at which (group-)macros are immediately expanded
-feature 'ap' c bcore_source_point_s* get_source_point( c @* o ) = (verbatim_C) { ERR_fa( "Not implemented in #<sc_t>\n", bnameof( o->_ ) ); return NULL; };
+feature 'ap' c x_source_point_s* get_source_point( c @* o ) = (verbatim_C) { ERR_fa( "Not implemented in #<sc_t>\n", bnameof( o->_ ) ); return NULL; };
 
 //----------------------------------------------------------------------------------------------------------------------
 // functions

@@ -37,7 +37,7 @@ stamp :s = aware :
     bl_t flag_r;
     bl_t expandable = true;
 
-    bcore_source_point_s source_point;
+    x_source_point_s source_point;
 
     func xoico.parse;
     func xoico.get_hash;
@@ -79,7 +79,7 @@ func (:s) xoico.parse = (try)
 {
     m $* compiler = host.compiler();
 
-    o.source_point.set( source );
+    o.source_point.setup_from_source( source );
     o.strict = source.parse_bl( " #?w'strict' " );
 
     if( source.parse_bl( " #?|'|" ) )

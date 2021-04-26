@@ -40,7 +40,7 @@ stamp :s = aware :
     // if not defined at finalization it is retrieved via signature_global_name
     xoico_signature_s => signature;
 
-    bcore_source_point_s source_point;
+    x_source_point_s source_point;
 
     func :.get_hash;
 
@@ -96,7 +96,7 @@ func (:s) xoico.parse = (try)
     m $* compiler = host.compiler();
 
     // global name signature
-    o.source_point.set( source );
+    o.source_point.setup_from_source( source );
 
     if( source.parse_bl( " #?'('" ) )
     {

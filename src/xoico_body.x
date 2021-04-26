@@ -28,7 +28,7 @@ stamp :code_s = aware :
     bl_t single_line;
     tp_t hash_source;
 
-    bcore_source_point_s source_point;
+    x_source_point_s source_point;
 
     func xoico.parse;
     func xoico.get_hash;
@@ -46,7 +46,7 @@ stamp :s = aware :
 
     bl_t go_inline;
 
-    bcore_source_point_s source_point;
+    x_source_point_s source_point;
 
     func xoico.get_hash;
     func xoico.get_global_name_tp = { return o.global_name; };
@@ -66,7 +66,7 @@ func (:code_s) xoico.parse = (try)
 {
     tp_t hash = bcore_tp_init();
 
-    o.source_point.set( source );
+    o.source_point.setup_from_source( source );
 
     if( source.parse_bl( " #?'('" ) )
     {
@@ -243,7 +243,7 @@ func (:s) xoico.parse = (try)
 {
     m $* compiler = host.compiler();
     m st_s* string = st_s!^^;
-    o.source_point.set( source );
+    o.source_point.setup_from_source( source );
 
     if( !source.parse_bl( " #=?'='" ) )
     {

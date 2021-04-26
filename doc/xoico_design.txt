@@ -236,8 +236,8 @@ Setting indirection:
 sets indirection-level.
 
 ===================================================================
+FEATURES, BUGS ...
 
-TODO:
 - (done) each group has a perspective
 - (done) each group has default (aware, typed) features: *_t_create, _a_discard, _a_attach, _a_detach, _a_copy, _t_clone
 - (done) add inexpandable features for above functions
@@ -424,6 +424,20 @@ TODO:
         introduce t_scope builtin function, accepting type variable as argument
 - (done) feature: typed function (switch first two arguments: type,object --> object,type )
 
+- (done) group name declaration: disallow space between ':' and group-name
+
+- (done) stamp: parsing reflection:
+   - only pre-parse in parse-extend; move syntax evaluation happen to finalize
+   - remove superfluous members self_buf an first_array_item
+   - extended error checks
+
+- (done) try: allow try blocks in functions not returning er_t.
+        In such functions in case or error lifetime manager shuts down safely and bcore_down_exit( error_code ) is called.
+
+TODO:
+
+- stamp: parsing reflection:
+   - automatic prepend 'aware' for group types when type-awareness is unclear
 
 - bug: binary operator not recognized after unregistered member function
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)

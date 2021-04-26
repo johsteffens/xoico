@@ -61,7 +61,7 @@ signature bl_t get_self(        c @* o, tp_t type, c bcore_self_s** self ); // r
 stamp :type_info_s = aware :
 {
     xoico_typespec_s typespec;
-    hidden xoico* item; // group or stamp
+    hidden aware xoico* item; // group or stamp
 };
 
 stamp :element_info_s = aware :
@@ -317,7 +317,7 @@ func (:s) :.register_item =
     tp_t global_id = item.get_global_name_tp();
     if( o.hmap_item.exists( global_id ) )
     {
-        return item.get_source_point().parse_error_fa( "'#<sc_t>' was already registered\n", o.nameof( global_id ) );
+        return item.get_source_point().cast( m$* ).parse_error_fa( "'#<sc_t>' was already registered\n", o.nameof( global_id ) );
     }
     o.hmap_item.set( global_id, ( vd_t )item );
     return 0;
@@ -333,7 +333,7 @@ func (:s) :.register_func =
 
         if( func_registered == func )
         {
-            return bcore_source_point_s_parse_error_fa
+            return x_source_point_s_parse_error_fa
             (
                 func.source_point,
                 "Global func name '#<sc_t>' was already registered from same instance.\n",
@@ -342,7 +342,7 @@ func (:s) :.register_func =
         }
         else
         {
-            return bcore_source_point_s_parse_error_fa
+            return x_source_point_s_parse_error_fa
             (
                 func.source_point,
                 "Global func name '#<sc_t>' was already registered from different instance.\n"

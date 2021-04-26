@@ -431,11 +431,6 @@ func (:s)
     )
 ) = (try)
 {
-    if( o.signature.typespec_ret.type != er_t~ || o.signature.typespec_ret.indirection != 0 )
-    {
-        return source.parse_error_fa( "Operator 'try': This operator can only be used in functions returning 'er_t'." );
-    }
-
     if( typespec_out ) typespec_out.reset();
 
     if( result_expr ) // member call
@@ -477,7 +472,14 @@ func (:s)
         // return source.parse_error_fa( "Operator 'try': Expression not tractable." );
     }
 
-    result_out.push_sc( "BLM_TRY(" );
+    if( o.returns_er_t() )
+    {
+        result_out.push_sc( "BLM_TRY(" );
+    }
+    else
+    {
+        result_out.push_sc( "BLM_TRY_EXIT(" );
+    }
     result_out.push_result_c( result_expr );
     result_out.push_sc( ")" );
 

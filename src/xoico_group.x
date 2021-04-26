@@ -102,7 +102,7 @@ stamp :s = aware :
     private aware xoico_source_s* xoico_source;
     hidden aware  xoico_compiler_s* compiler;
 
-    bcore_source_point_s => source_point;
+    x_source_point_s => source_point;
 
     hidden bcore_hmap_tpvd_s hmap_feature;
     hidden bcore_hmap_tpvd_s hmap_func;
@@ -260,7 +260,7 @@ func (:s) :.parse_name_recursive = (try)
     {
         name.copy( o.st_name );
         m st_s* s = st_s!^;
-        source.parse_em_fa( " #name", s );
+        source.parse_em_fa( "#name", s );
         if( s.size > 0 ) name.push_fa( "_#<sc_t>", s.sc );
     }
     return 0;
@@ -400,7 +400,7 @@ func (:s) :.parse = (try)
 
     if( !o.source_point )
     {
-        o.source_point!.set( source );
+        o.source_point!.setup_from_source( source );
         o.pre_hash = bcore_tp_init();
         if( !o.tp_name ) o.tp_name = compiler.entypeof( o.st_name.sc );
     }

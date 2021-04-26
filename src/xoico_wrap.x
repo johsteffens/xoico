@@ -21,7 +21,7 @@ stamp :s = aware :
 {
     tp_t group_name;
     tp_t func_name;
-    bcore_source_point_s source_point;
+    x_source_point_s source_point;
 
     xoico_signature_s => signature;
     xoico_func_s => func;

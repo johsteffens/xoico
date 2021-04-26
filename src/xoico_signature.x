@@ -32,7 +32,7 @@ stamp :s = aware :
     xoico_arg_s => arg_o; // object argument (NULL in case of plain function)
     xoico_args_s args; // e.g.: sz_t a, sz_t b
 
-    bcore_source_point_s source_point;
+    x_source_point_s source_point;
 
     func xoico.parse;
     func xoico.get_hash;
@@ -137,7 +137,7 @@ func (:s) xoico.parse = (try)
         c $* signature = compiler.get_signature( tp_name );
         if( !signature ) return source.parse_error_fa( "Could not find predefined signature '#<sc_t>'.", host.nameof( tp_name ) );
         o.copy( signature );
-        o.source_point.set( source );
+        o.source_point.setup_from_source( source );
         source.parse_em_fa( " #name", name_buf );
         if( name_buf.size == 0 ) return source.parse_error_fa( "Signature name missing." );
         o.name = compiler.entypeof( name_buf.sc );
@@ -147,7 +147,7 @@ func (:s) xoico.parse = (try)
     }
     else
     {
-        o.source_point.set( source );
+        o.source_point.setup_from_source( source );
         o.typespec_ret.parse( host, source );
         o.typespec_ret.flag_addressable = false;
 

@@ -428,8 +428,8 @@ stamp :s = aware :
     bl_t waive_local_scope_operator_creates_implicit_block = false;
 
     /// runtime data
-    hidden xoico_host*       host;
-    hidden xoico_compiler_s* compiler;
+    hidden aware xoico_host*       host;
+    hidden aware xoico_compiler_s* compiler;
     xoico_signature_s => signature;
 
     /// runtime state
@@ -548,6 +548,12 @@ stamp :s = aware :
         try( source.parse_em_fa( format ));
         result.push_sc( format );
         return 0;
+    };
+
+
+    func (bl_t returns_er_t( c @* o )) =
+    {
+        return o.signature.typespec_ret.type == er_t~ && o.signature.typespec_ret.indirection == 0;
     };
 
 };
@@ -1863,9 +1869,15 @@ func (:s)
             }
         }
 
+        // catch group variable at indirection 0
+        if( typespec_var.indirection == 0 && o.is_group( typespec_var.type ) )
+        {
+            return source.parse_error_fa( "Declaration-syntax: Variable of group-type has indirection 0." );
+        }
+
         if( success ) success.0 = true;
     }
-    else
+    else // no declaration
     {
         source.set_index( index );
         return 0;
@@ -1943,7 +1955,14 @@ func (:s) (er_t trans_statement_expression( m @* o, m bcore_source* source, m :r
             {
                 return source.parse_error_fa( "Inside a try-block: Expressions yielding 'er_t' must end with ';'" );
             }
-            result.push_sc( "BLM_TRY(" );
+            if( o.returns_er_t() )
+            {
+                result.push_sc( "BLM_TRY(" );
+            }
+            else
+            {
+                result.push_sc( "BLM_TRY_EXIT(" );
+            }
             result.push_result_d( result_expr.fork() );
             result.push_sc( ")" );
         }
@@ -2300,10 +2319,6 @@ func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* b
         {
             if( source.parse_bl( " #?w'try'" ) )
             {
-                if( o.signature.typespec_ret.type != er_t~ || o.signature.typespec_ret.indirection != 0 )
-                {
-                    return source.parse_error_fa( "Operator 'try': This operator can only be used in functions returning 'er_t'." );
-                }
                 flag_try = true;
             }
             else if( source.parse_bl( " #?w'verbatim_C'" ) )

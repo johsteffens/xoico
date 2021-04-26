@@ -19,7 +19,7 @@ signature bl_t is_variadic( c @* o );
 
 stamp :s = aware :
 {
-    bcore_source_point_s source_point;
+    x_source_point_s source_point;
     xoico_typespec_s typespec;
     tp_t name;
 
@@ -32,7 +32,7 @@ stamp :s = aware :
 func (:s) xoico.parse = (try)
 {
     m $* compiler = host.compiler();
-    o.source_point.set( source );
+    o.source_point.setup_from_source( source );
     o.typespec.parse( host, source );
 
     if( o.typespec.type == type_deduce~ )

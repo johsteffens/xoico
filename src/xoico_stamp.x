@@ -32,10 +32,10 @@ stamp :s = aware :
     tp_t trait_name;
     bl_t is_aware = true;
 
-    st_s => self_buf;
+    :arr_self_item_s => arr_self_item;
+
     st_s => self_source;
 
-    bcore_self_item_s => first_array_item; // !=NULL if stamp has an array; valid after parsing
     bcore_self_s => self; // created in expand_setup
     xoico_funcs_s funcs;
     xoico_wraps_s wraps;
@@ -43,13 +43,13 @@ stamp :s = aware :
     xoico_transient_map_s transient_map;
 
     private aware xoico_group_s* group;
-    bcore_source_point_s source_point;
+    x_source_point_s source_point;
 
     func xoico.get_hash =
     {
         tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
         hash = bcore_tp_fold_sc( hash, o.st_name.sc );
-        hash = bcore_tp_fold_sc( hash, o.self_source ? o.self_source.sc : o.self_buf ? o.self_buf.sc : "" );
+        hash = bcore_tp_fold_sc( hash, o.self_source ? o.self_source.sc : "" );
         hash = bcore_tp_fold_tp( hash, o.funcs.get_hash() );
         return hash;
     };
@@ -115,6 +115,21 @@ stamp :s = aware :
     func xoico_host.transient_map = { return o.transient_map; };
 
     func xoico.get_source_point = { return o.source_point; };
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+stamp :self_item_s = { st_s st; x_source_point_s source_point; };
+stamp :arr_self_item_s = x_array
+{
+    :self_item_s [];
+
+    func (void push_st_source( m@* o, st_s* st, m bcore_source* source )) =
+    {
+        m :self_item_s* item = o.push();
+        item.st.copy( st );
+        item.source_point.setup_from_source( source );
+    };
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -332,8 +347,6 @@ func (:s) :.parse_wrap = (try)
 
 func (:s) (er_t parse_extend( m @* o, m bcore_source* source )) = (try)
 {
-    ASSERT( o.self_buf );
-
     m $* buf = st_s!^;
     m $* self = bcore_self_s!^;
     self.type = o.tp_name;
@@ -391,18 +404,7 @@ func (:s) (er_t parse_extend( m @* o, m bcore_source* source )) = (try)
                 }
             }
 
-            m $* item = bcore_self_item_s!^;
-            er_t er = bcore_self_item_s_parse_src( item, sr_awc( bcore_source_string_s_create_from_string( buf )^^ ), self, false );
-            if( bcore_flect_caps_is_array( item->caps ) && !o.first_array_item ) o.first_array_item = item.clone();
-
-            if( er )
-            {
-                m $* msg = st_s!^;
-                bcore_error_pop_st( er.1, msg );
-                return source.parse_error_fa( "Reflection parse error:\n#<sc_t>\n", msg.sc );
-            }
-
-            o.self_buf.push_st( buf );
+            o.arr_self_item!.push_st_source( buf, source );
         }
     }
     source.parse_em_fa( " ; " );
@@ -454,11 +456,10 @@ func (:s) xoico.parse = (try)
 {
     m $* compiler = o.group.compiler;
     bl_t verbatim = source.parse_bl( " #?w'verbatim'" );
-    o.self_buf =< st_s!;
 
     m $* st_stamp_name = st_s!^;
 
-    o.source_point.set( source );
+    o.source_point.setup_from_source( source );
 
     o.group.parse_name_st( source, st_stamp_name );
 
@@ -521,16 +522,54 @@ func (:s) xoico.parse = (try)
 func (:s) xoico.finalize = (try)
 {
     m $* compiler = o.group.compiler;
+    st_s^ self_buf;
+
+    m bcore_self_item_s* first_array_item = NULL; // !=NULL if stamp has an array;
+
+    {
+        m $* self = bcore_self_s!^;
+        self.type = o.tp_name;
+        self.trait = o.trait_name;
+
+        foreach( $* self_item in o.arr_self_item )
+        {
+            m $* item = bcore_self_item_s!^;
+            er_t er = bcore_self_item_s_parse_src( item, sr_awc( bcore_source_string_s_create_from_string( self_item.st )^^ ), self, false );
+
+            if( er )
+            {
+                m $* msg = st_s!^;
+                bcore_error_pop_st( er.1, msg );
+                return self_item.source_point.parse_error_fa( "#<sc_t>\n", msg.sc );
+            }
+
+            if( compiler.is_group( item.type ) )
+            {
+                if( bcore_flect_caps_get_indirection( item.caps ) == 0 )
+                {
+                    return self_item.source_point.parse_error_fa( "Element is a group at indirection 0. Was a pointer intended?\n" );
+                }
+
+                if( verbatim_C{ !item->flags.f_aware } && verbatim_C{ !item->flags.f_obliv } && !bcore_flect_caps_is_typed( item.caps ) )
+                {
+                    return self_item.source_point.parse_error_fa( "Element type is a group. Please use type-specifier 'obliv' or 'aware'. In future 'aware' is assumed in case awareness was not specified.\n" );
+                }
+            }
+
+            if( bcore_flect_caps_is_array( item->caps ) && !first_array_item ) first_array_item = item.clone()^^;
+            self_buf.push_st( self_item.st );
+        };
+    }
 
     // set transient classes for x_array
     if( o.trait_name == x_array~ || o.trait_name == bcore_array~ )
     {
-        if( !o.first_array_item )
+        if( !first_array_item )
         {
             return o.source_point.parse_error_fa( "In stamp '#<sc_t>': Tramp is of trait 'x_array' but contains no array", o.st_name.sc );
         }
         o.transient_map.set( compiler.entypeof( "TO" ), o.tp_name );
-        if( o.first_array_item.type ) o.transient_map.set( compiler.entypeof( "TE" ), o.first_array_item.type );
+        if( first_array_item.type ) o.transient_map.set( compiler.entypeof( "TE" ), first_array_item.type );
     }
 
     foreach( m $* wrap in o.wraps )
@@ -542,18 +581,15 @@ func (:s) xoico.finalize = (try)
     foreach( m $* func in o.funcs )
     {
         func.finalize( o );
-        if( func.reflectable( o ) ) func.push_flect_decl_to_sink( o, o.self_buf );
+        if( func.reflectable( o ) ) func.push_flect_decl_to_sink( o, self_buf );
         compiler.register_func( func );
     }
-
-    o.self_buf.replace_sc_sc( "@", o.st_name.sc );
 
     o.self_source =< st_s!;
     o.self_source.push_fa( "#<sc_t> =", o.st_name.sc );
     if( o.is_aware ) o.self_source.push_sc( "aware " );
     o.self_source.push_sc( compiler.nameof( o.trait_name ) );
-    o.self_source.push_fa( "{#<st_s*>}", o.self_buf );
-    o.self_buf =< NULL;
+    o.self_source.push_fa( "{#<st_s*>}", self_buf.1 );
 
     o.self =< bcore_self_s_parse_source( bcore_source_string_s_create_from_string( o.self_source )^^.cast( m bcore_source* ), 0, 0, o.group.st_name.sc, false );
 
