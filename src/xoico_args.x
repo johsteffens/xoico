@@ -29,7 +29,7 @@ func (:s) xoico.parse = { o.clear(); return o.append( host, source ); };
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t append( m @* o, c xoico_host* host, m bcore_source* source )) = (try)
+func (:s) (er_t append( m @* o, c xoico_host* host, m x_source* source )) = (try)
 {
     bl_t first = true;
     while( !source.parse_bl( " #=?')' " ) ) // args follow
@@ -62,7 +62,7 @@ func (:s) xoico.convert_transient_types = (try)
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand( c @* o, c xoico_host* host, bl_t first, m bcore_sink* sink )) =
+func (:s) (er_t expand( c @* o, c xoico_host* host, bl_t first, m x_sink* sink )) =
 {
     foreach( m $* arg in o )
     {
@@ -75,7 +75,7 @@ func (:s) (er_t expand( c @* o, c xoico_host* host, bl_t first, m bcore_sink* si
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_x( c @* o, c xoico_host* host, bl_t first, m bcore_sink* sink )) =
+func (:s) (er_t expand_x( c @* o, c xoico_host* host, bl_t first, m x_sink* sink )) =
 {
     foreach( m $* arg in o )
     {
@@ -88,7 +88,7 @@ func (:s) (er_t expand_x( c @* o, c xoico_host* host, bl_t first, m bcore_sink* 
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_name( c @* o, c xoico_host* host, bl_t first, m bcore_sink* sink )) =
+func (:s) (er_t expand_name( c @* o, c xoico_host* host, bl_t first, m x_sink* sink )) =
 {
     foreach( m $* arg in o )
     {

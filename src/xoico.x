@@ -58,32 +58,32 @@ feature 'ap' er_t convert_transient_types( m @* o, c :host* host, c :transient_m
 
 feature 'ap' tp_t get_hash                  ( c @* o );
 feature 'ap' tp_t get_global_name_tp        ( c @* o );
-feature 'ap' er_t parse                     ( m @* o, c :host* host, m bcore_source* source );
+feature 'ap' er_t parse                     ( m @* o, c :host* host, m x_source* source );
 feature 'ap' er_t finalize                  ( m @* o, c :host* host ) = { return 0; };  // final stage in the compilation phase
 feature 'ap' er_t expand_setup              ( m @* o, c :host* host ) = { return 0; };  // first stage in the expansion phase
-feature 'ap' er_t expand_forward            ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_indef_typedef      ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_spect_declaration  ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_spect_definition   ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_declaration        ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_indef_declaration  ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_definition         ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_init1              ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; };
-feature 'ap' er_t expand_manifesto           ( c @* o, c :host* host, sz_t indent, m bcore_sink* sink ) = { return 0; }; // manifestation: last expansion stage at which (group-)macros are immediately expanded
+feature 'ap' er_t expand_forward            ( c @* o, c :host* host, sz_t indent, m x_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_indef_typedef      ( c @* o, c :host* host, sz_t indent, m x_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_spect_declaration  ( c @* o, c :host* host, sz_t indent, m x_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_spect_definition   ( c @* o, c :host* host, sz_t indent, m x_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_declaration        ( c @* o, c :host* host, sz_t indent, m x_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_indef_declaration  ( c @* o, c :host* host, sz_t indent, m x_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_definition         ( c @* o, c :host* host, sz_t indent, m x_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_init1              ( c @* o, c :host* host, sz_t indent, m x_sink* sink ) = { return 0; };
+feature 'ap' er_t expand_manifesto           ( c @* o, c :host* host, sz_t indent, m x_sink* sink ) = { return 0; }; // manifestation: last expansion stage at which (group-)macros are immediately expanded
 feature 'ap' c x_source_point_s* get_source_point( c @* o ) = (verbatim_C) { ERR_fa( "Not implemented in #<sc_t>\n", bnameof( o->_ ) ); return NULL; };
 
 //----------------------------------------------------------------------------------------------------------------------
 // functions
 
-func (er_t parse_f( m bcore_source* source, sc_t format )) =
+func (er_t parse_f( m x_source* source, sc_t format )) =
 {
-    return bcore_source_a_parse_em_fa( source, format );
+    return source.parse_fa( format );
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
 /// opens an include file from an include directive in parent
-func (er_t embed_file_open( m bcore_source* parent, sc_t file_name, m bcore_source** include_source )) = (try)
+func (er_t embed_file_open( m x_source* parent, sc_t file_name, m x_source** include_source )) = (try)
 {
     m st_s* folder = bcore_file_folder_path( parent.get_file() )^^;
     if( folder.size == 0 ) folder.push_char( '.' );
@@ -111,7 +111,7 @@ func (er_t embed_file_open( m bcore_source* parent, sc_t file_name, m bcore_sour
 
 func :.parse_sc =
 {
-    return o.parse( host, bcore_source_string_s_create_sc( sc )^^ );
+    return o.parse( host, x_source_create_from_sc( sc )^ );
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -120,7 +120,7 @@ func :.parse_fa =
 {
     va_list args;
     va_start( args, format );
-    er_t ret = o.parse( host, bcore_source_string_s_create_fv( format, args )^^ );
+    er_t ret = o.parse( host, x_source_create_from_fv( format, args )^ );
     va_end( args );
     return ret;
 };

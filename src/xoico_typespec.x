@@ -17,10 +17,10 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-signature er_t parse(  m @* o, c xoico_host* host, m bcore_source* source );
+signature er_t parse(  m @* o, c xoico_host* host, m x_source* source );
 signature er_t relent( m @* o, c xoico_host* host, tp_t tp_obj_type );
-signature er_t expand( c @* o, c xoico_host* host, m bcore_sink* sink );
-signature er_t expand_x( c @* o, c xoico_host* host, m bcore_sink* sink ); // expands in x-format
+signature er_t expand( c @* o, c xoico_host* host, m x_sink* sink );
+signature er_t expand_x( c @* o, c xoico_host* host, m x_sink* sink ); // expands in x-format
 signature bl_t converts_to( c @* o, c @* b ); // in 'C' auto-converts to b without a cast
 signature bl_t is_ptr_type( c @* o ); // type is a pointer type (like vc_t, vd_t, sc_t, sd_t)
 
@@ -139,21 +139,21 @@ func (:s) :.parse = (try)
         else break;
     }
 
-    source.parse_em_fa( " " );
+    source.parse_fa( " " );
 
     if( source.parse_bl( "#?'(' " ) )
     {
         m st_s* s = st_s!^^;
-        source.parse_em_fa( "#name ", s );
+        source.parse_fa( "#name ", s );
         if( s.size == 0 ) source.parse_error_fa( "Transient class: Identifier expected." );
         o.transient!.class = compiler.entypeof( s.sc );
-        source.parse_em_fa( " ) " );
+        source.parse_fa( " ) " );
     }
 
     if( source.parse_bl( "#=?':'" ) )
     {
         host.parse_name_tp( source, o.type.1 );
-        source.parse_em_fa( " " );
+        source.parse_fa( " " );
     }
     else if( source.parse_bl( "#?'@' " ) )
     {
@@ -166,7 +166,7 @@ func (:s) :.parse = (try)
     else
     {
         m st_s* s = st_s!^^;
-        source.parse_em_fa( "#name ", s );
+        source.parse_fa( "#name ", s );
         if( s.size == 0 ) source.parse_error_fa( "Argument: Type expected." );
         o->type = xoico_compiler_s_entypeof( compiler, s->sc );
     }
@@ -175,7 +175,7 @@ func (:s) :.parse = (try)
     {
         if( !source.parse_bl( "#?([0]>='0'&&[0]<='9') " ) ) source.parse_error_fa( "Argument: Indirection literal expected." );
         sz_t indirection = 0;
-        source.parse_em_fa( "#<sz_t*> ", indirection.1 );
+        source.parse_fa( "#<sz_t*> ", indirection.1 );
         o.indirection = indirection;
     }
     else

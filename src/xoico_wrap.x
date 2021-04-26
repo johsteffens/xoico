@@ -28,13 +28,13 @@ stamp :s = aware :
 
     func xoico.parse = (try)
     {
-        source.parse_em_fa( " " );
+        source.parse_fa( " " );
         host.parse_name_tp( source, o.group_name.1 );
         m $* st = st_s!^^;
-        source.parse_em_fa( " . #name ", st );
+        source.parse_fa( " . #name ", st );
         if( st.size == 0 ) source.parse_error_fa( "Function name expected." );
         o.func_name = host.entypeof( st.sc );
-        source.parse_em_fa( ";" );
+        source.parse_fa( ";" );
         return 0;
     };
 
@@ -74,7 +74,7 @@ stamp :s = aware :
         st.push_fa( ");};" );
 
         o.func.body!;
-        o.func.body.parse( host, bcore_source_string_s_create_from_sc( st.sc )^^ );
+        o.func.body.parse( host, x_source_create_from_sc( st.sc )^^ );
 
         return 0;
     };

@@ -23,7 +23,7 @@ func (:s)
     er_t trans_function_args
     (
         m @* o,
-        m bcore_source* source,
+        m x_source* source,
         c xoico_func_s* func,
         c :result* result_object_expr,
         c xoico_typespec_s* typespec_object,
@@ -54,7 +54,7 @@ func (:s)
             o.trans_expression( source, result_expr, typespec_expr );
             result_object_expr = result_expr;
             typespec_object = typespec_expr;
-            if( signature.args.size > 0 ) source.parse_em_fa( " ," );
+            if( signature.args.size > 0 ) source.parse_fa( " ," );
         }
 
         transient_map = ( typespec_object ) ? o.get_transient_map( typespec_object.type ) : NULL;
@@ -100,11 +100,11 @@ func (:s)
 
         m $* result_expr = :result_arr_s!^;
         m $* typespec_expr = xoico_typespec_s!^;
-        source.parse_em_fa( " " );
+        source.parse_fa( " " );
 
         if( __i > 0 )
         {
-            source.parse_em_fa( " ," );
+            source.parse_fa( " ," );
             result.push_sc( "," );
         }
 
@@ -141,13 +141,13 @@ func (:s)
     {
         while( !source.eos() && !source.parse_bl( " #=?')'" ) )
         {
-            source.parse_em_fa( " ," );
+            source.parse_fa( " ," );
             result.push_sc( "," );
             o.trans_expression( source, result, NULL );
         }
     }
 
-    source.parse_em_fa( " " );
+    source.parse_fa( " " );
     o.trans( source, ")", result );
 
 
@@ -166,7 +166,7 @@ func (:s)
     er_t trans_function
     (
         m @* o,
-        m bcore_source* source,
+        m x_source* source,
         c xoico_func_s* func,
         c :result* result_object_expr, // NULL on direct calls
         c xoico_typespec_s* typespec_object, // NULL on direct calls

@@ -41,7 +41,7 @@ func (:s)
     (
         m @* o,
         tp_t tp_builtin,
-        m bcore_source* source,
+        m x_source* source,
         c :result* result_expr,
         c xoico_typespec_s* typespec_expr,
         m :result* result_out,
@@ -67,7 +67,7 @@ func (:s)
     er_t trans_builtin_cast
     (
         m @* o,
-        m bcore_source* source,
+        m x_source* source,
         c :result* result_expr,
         c xoico_typespec_s* typespec_expr,
         m :result* result_out,
@@ -77,16 +77,16 @@ func (:s)
 {
     if( result_expr ) // member call
     {
-        source.parse_em_fa( " ( " );
+        source.parse_fa( " ( " );
         result_out.clear();
     }
     else // direct call
     {
-        source.parse_em_fa( "cast ( " );
+        source.parse_fa( "cast ( " );
         m $* result = :result_create_arr()^^;
         m $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
-        source.parse_em_fa( " , " );
+        source.parse_fa( " , " );
         typespec_expr = typespec;
         result_expr = result;
     }
@@ -137,7 +137,7 @@ func (:s)
         result_out.push_result_c( result_expr );
     }
 
-    source.parse_em_fa( " )" );
+    source.parse_fa( " )" );
     result_out.push_sc( "))" );
 
     if( typespec_out ) typespec_out.copy( typespec_cast );
@@ -157,7 +157,7 @@ func (:s)
     er_t trans_builtin_scope
     (
         m @* o,
-        m bcore_source* source,
+        m x_source* source,
         c :result* result_expr,
         c xoico_typespec_s* typespec_expr,
         m :result* result_out,
@@ -187,14 +187,14 @@ func (:s)
         }
         else
         {
-            source.parse_em_fa( " ( " );
+            source.parse_fa( " ( " );
             result_out.clear();
             has_arg = !source.parse_bl( "#=?')'" );
         }
     }
     else // direct call
     {
-        source.parse_em_fa( "scope ( " );
+        source.parse_fa( "scope ( " );
         m $* result = :result_create_arr()^^;
         m $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
@@ -212,7 +212,7 @@ func (:s)
 
     if( has_arg )
     {
-        source.parse_em_fa( " " );
+        source.parse_fa( " " );
         tp_t tp_identifier = o.get_identifier( source, true );
 
         if( o.is_var( tp_identifier ) )
@@ -233,7 +233,7 @@ func (:s)
         }
     }
 
-    if( closing_bracket ) source.parse_em_fa( " )" );
+    if( closing_bracket ) source.parse_fa( " )" );
 
     if( typespec_scope.indirection != 1 ) return source.parse_error_fa( "scope: Expression's indirection != 1." );
     if( typespec_scope.flag_scope )       return source.parse_error_fa( "scope: Target is already scoped." );
@@ -275,7 +275,7 @@ func (:s)
     er_t trans_builtin_t_scope
     (
         m @* o,
-        m bcore_source* source,
+        m x_source* source,
         c :result* result_expr,
         c xoico_typespec_s* typespec_expr,
         m :result* result_out,
@@ -292,21 +292,21 @@ func (:s)
 
     if( result_expr ) // member call
     {
-        source.parse_em_fa( " ( " );
+        source.parse_fa( " ( " );
         result_out.clear();
         o.trans_expression( source, result_type_expr, NULL );
         has_arg = source.parse_bl( "#?','" );
     }
     else // direct call
     {
-        source.parse_em_fa( "scope ( " );
+        source.parse_fa( "scope ( " );
         m $* result = :result_create_arr()^^;
         m $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
         typespec_expr = typespec;
         result_expr = result;
 
-        source.parse_em_fa( " , " );
+        source.parse_fa( " , " );
         o.trans_expression( source, result_type_expr, NULL );
 
         has_arg = source.parse_bl( "#?','" );
@@ -321,7 +321,7 @@ func (:s)
 
     if( has_arg )
     {
-        source.parse_em_fa( " " );
+        source.parse_fa( " " );
         tp_t tp_identifier = o.get_identifier( source, true );
 
         if( o.is_var( tp_identifier ) )
@@ -342,7 +342,7 @@ func (:s)
         }
     }
 
-    if( closing_bracket ) source.parse_em_fa( " )" );
+    if( closing_bracket ) source.parse_fa( " )" );
 
     if( typespec_scope.indirection != 1 ) return source.parse_error_fa( "scope: Expression's indirection != 1." );
     if( typespec_scope.flag_scope )       return source.parse_error_fa( "scope: Target is already scoped." );
@@ -373,7 +373,7 @@ func (:s)
     er_t trans_builtin_fork
     (
         m @* o,
-        m bcore_source* source,
+        m x_source* source,
         c :result* result_expr,
         c xoico_typespec_s* typespec_expr,
         m :result* result_out,
@@ -383,12 +383,12 @@ func (:s)
 {
     if( result_expr ) // member call
     {
-        source.parse_em_fa( " ( " );
+        source.parse_fa( " ( " );
         result_out.clear();
     }
     else // direct call
     {
-        source.parse_em_fa( "fork ( " );
+        source.parse_fa( "fork ( " );
         m $* result = :result_create_arr()^^;
         m $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
@@ -401,7 +401,7 @@ func (:s)
 
     result_out.push_sc( "((" );
 
-    source.parse_em_fa( " )" );
+    source.parse_fa( " )" );
 
     if( typespec_fork.type        == 0 ) return source.parse_error_fa( "Operator 'fork': Expression not tractable." );
     if( typespec_fork.indirection != 1 ) return source.parse_error_fa( "Operator 'fork': Expression's indirection != 1." );
@@ -423,7 +423,7 @@ func (:s)
     er_t trans_builtin_try
     (
         m @* o,
-        m bcore_source* source,
+        m x_source* source,
         c :result* result_expr,
         c xoico_typespec_s* typespec_expr,
         m :result* result_out,
@@ -435,12 +435,12 @@ func (:s)
 
     if( result_expr ) // member call
     {
-        source.parse_em_fa( " ( " );
+        source.parse_fa( " ( " );
         result_out.clear();
     }
     else // direct call
     {
-        source.parse_em_fa( "try " );
+        source.parse_fa( "try " );
 
         if( source.parse_bl( "#=?'{'" ) ) // try block
         {
@@ -450,7 +450,7 @@ func (:s)
             return 0;
         }
 
-        source.parse_em_fa( "( " );
+        source.parse_fa( "( " );
         m $* result = :result_create_arr()^^;
         m $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
@@ -460,7 +460,7 @@ func (:s)
 
     c xoico_typespec_s* typespec_try = typespec_expr;
 
-    source.parse_em_fa( " ) ;" );
+    source.parse_fa( " ) ;" );
 
     if( typespec_try.type != 0 )
     {

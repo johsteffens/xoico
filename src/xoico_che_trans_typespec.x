@@ -22,7 +22,7 @@ func (:s)
     er_t trans_typespec_member
     (
         m @* o,
-        m bcore_source* source,
+        m x_source* source,
         m :result* result,
         c xoico_typespec_s*  in_typespec, // required
         m xoico_typespec_s* out_typespec  // optional
@@ -38,9 +38,9 @@ func (:s)
     }
     else
     {
-        source.parse_em_fa( "." );
+        source.parse_fa( "." );
     }
-    source.parse_em_fa( " " );
+    source.parse_fa( " " );
     m xoico_compiler_element_info_s* info = xoico_compiler_element_info_s!^^;
 
     char c = source.inspect_char();
@@ -54,7 +54,7 @@ func (:s)
     {
         m $* typespec_adapted = in_typespec.clone()^^;
         sz_t adapted_indirection = 0;
-        source.parse_em_fa( "#<sz_t*>", &adapted_indirection );
+        source.parse_fa( "#<sz_t*>", &adapted_indirection );
 
         typespec_adapted.indirection = adapted_indirection;
 
@@ -73,12 +73,12 @@ func (:s)
         bl_t bounds_check = false;
         if( source.parse_bl( "#=?'?'" ) )
         {
-            source.parse_em_fa( "?[" );
+            source.parse_fa( "?[" );
             bounds_check = true;
         }
         else
         {
-            source.parse_em_fa( "[" );
+            source.parse_fa( "[" );
         }
 
         if( bounds_check ) return source.parse_error_fa( "Bounds check not yet available." );
@@ -94,7 +94,7 @@ func (:s)
 
         result.push_fa( "#<sc_t>data[", ( in_typespec.indirection == 1 ) ? "->" : "." );
         o.trans_expression( source, result, NULL );
-        source.parse_em_fa( "]" );
+        source.parse_fa( "]" );
         result.push_sc( "]" );
 
         if( o.compiler.get_type_array_element_info( in_typespec.type, info ) )
@@ -175,7 +175,7 @@ func (:s)
                     if( source.parse_bl( "#=?')'" ) ) break;
 
                     m $* result_expr = :result_create_arr()^^;
-                    if( !first ) source.parse_em_fa( "," );
+                    if( !first ) source.parse_fa( "," );
                     o.trans_expression( source, result_expr, NULL );
                     o.trans_whitespace( source, result_expr );
                     result.push_fa( "," );
@@ -183,7 +183,7 @@ func (:s)
                     first = false;
                 }
 
-                source.parse_em_fa( ")" );
+                source.parse_fa( ")" );
                 result.push_sc( ")" );
 
                 o.trans_expression( source, result, NULL );
@@ -236,18 +236,18 @@ func (:s)
     er_t trans_typespec_array_subscript
     (
         m @* o,
-        m bcore_source* source,
+        m x_source* source,
         m :result* result,
         c xoico_typespec_s*  in_typespec, // required
         m xoico_typespec_s* out_typespec  // optional
     )
 ) = (try)
 {
-    source.parse_em_fa( "[" );
+    source.parse_fa( "[" );
 
     result.push_sc( "[" );
     o.trans_expression( source, result, NULL );
-    source.parse_em_fa( "]" );
+    source.parse_fa( "]" );
     result.push_sc( "]" );
 
     m xoico_typespec_s* typespec = in_typespec.clone()^^;
@@ -280,14 +280,14 @@ func (:s)
     er_t trans_typespec_create
     (
         m @* o,
-        m bcore_source* source,
+        m x_source* source,
         m :result* result,
         c xoico_typespec_s*  in_typespec, // required
         m xoico_typespec_s* out_typespec  // optional
     )
 ) = (try)
 {
-    source.parse_em_fa( "!" );
+    source.parse_fa( "!" );
 
     //ignore in case indirection is 0;
     if( in_typespec.indirection > 0 )
@@ -322,14 +322,14 @@ func (:s)
     er_t trans_typespec_test_presence
     (
         m @* o,
-        m bcore_source* source,
+        m x_source* source,
         m :result* result,
         c xoico_typespec_s*  in_typespec, // required
         m xoico_typespec_s* out_typespec  // optional
     )
 ) = (try)
 {
-    source.parse_em_fa( "?" );
+    source.parse_fa( "?" );
 
     //ignore in case indirection is 0;
     if( in_typespec.indirection > 0 )
@@ -359,7 +359,7 @@ func (:s)
     er_t trans_typespec_attach
     (
         m @* o,
-        m bcore_source* source,
+        m x_source* source,
         m :result* result,
         c xoico_typespec_s*  in_typespec, // required
         m xoico_typespec_s* out_typespec  // optional
@@ -376,7 +376,7 @@ func (:s)
         return source.parse_error_fa( "Attach-Operator: Addressable lvalue expected." );
     }
 
-    source.parse_em_fa( "=<" );
+    source.parse_fa( "=<" );
 
     m $* result_arg_obj = result.clone()^^;
     result.clear();
@@ -428,14 +428,14 @@ func (:s)
     er_t trans_typespec_assign
     (
         m @* o,
-        m bcore_source* source,
+        m x_source* source,
         m :result* result,
         c xoico_typespec_s*  in_typespec, // required
         m xoico_typespec_s* out_typespec  // optional
     )
 ) = (try)
 {
-    source.parse_em_fa( "=" );
+    source.parse_fa( "=" );
     result.push_sc( "=" );
 
     if( in_typespec.indirection > 0 && o.is_group( in_typespec.type ) )
@@ -486,7 +486,7 @@ func (:s)
     er_t trans_typespec_expression
     (
         m @* o,
-        m bcore_source* source,
+        m x_source* source,
         m :result* result,
         c xoico_typespec_s*  in_typespec, // required
         m xoico_typespec_s* out_typespec  // optional

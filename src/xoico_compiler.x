@@ -405,7 +405,7 @@ func (:s) :.check_overwrite =
     if( clear_to_overwrite ) clear_to_overwrite.0 = true;
     if( !bcore_file_exists( file ) ) return 0;
 
-    m bcore_source* source = bcore_file_open_source( file )^;
+    m x_source* source = bcore_file_open_source( file )^;
     m st_s* data = st_s!^;
     while( !source.eos() ) data.push_char( source.get_u0() );
 

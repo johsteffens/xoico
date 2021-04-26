@@ -17,11 +17,11 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-signature er_t parse_h( m @* o, c xoico_host* host, m bcore_source* source );
-signature er_t parse_x( m @* o, c xoico_host* host, m bcore_source* source, sc_t group_name, sc_t trait_name );
+signature er_t parse_h( m @* o, c xoico_host* host, m x_source* source );
+signature er_t parse_x( m @* o, c xoico_host* host, m x_source* source, sc_t group_name, sc_t trait_name );
 
 /// retrieves group if already defined (e.g. for extending); sets arg_group.1 NULL if not defined
-signature er_t get_group_if_preexsting( m @* o, xoico_host* host, m bcore_source* source, sc_t group_name, sc_t trait_name, m xoico_group_s.2 group );
+signature er_t get_group_if_preexsting( m @* o, xoico_host* host, m x_source* source, sc_t group_name, sc_t trait_name, m xoico_group_s.2 group );
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -153,7 +153,7 @@ func (:s) parse_h = (try)
         {
             st_s^ st_trait_name;
             st_s^ st_group_name;
-            source.parse_em_fa( " ( #name , #name", st_group_name.1, st_trait_name.1 );
+            source.parse_fa( " ( #name , #name", st_group_name.1, st_trait_name.1 );
             m xoico_group_s* group = NULL;
             o.get_group_if_preexsting( host, source, st_group_name.sc, st_trait_name.sc, group.2 );
             if( !group )
@@ -170,18 +170,18 @@ func (:s) parse_h = (try)
                 while( source.parse_bl( " #?','" ) )
                 {
                     m st_s* embed_file = st_s!^;
-                    source.parse_em_fa( " #string", embed_file );
-                    d bcore_source* embed_source = NULL;
+                    source.parse_fa( " #string", embed_file );
+                    d x_source* embed_source = NULL;
                     xoico_embed_file_open( source, embed_file.sc, embed_source.2 );
                     embed_source^^;
                     group.explicit_embeddings.push_st( embed_file );
                     group.parse( o, false, embed_source );
                 }
-                source.parse_em_fa( " )" );
+                source.parse_fa( " )" );
             }
             else
             {
-                source.parse_em_fa( " )" );
+                source.parse_fa( " )" );
                 group.parse( o, false, source );
             }
             o.target.compiler.register_group( group );

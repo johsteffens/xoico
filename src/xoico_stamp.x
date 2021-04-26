@@ -17,8 +17,8 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-signature er_t parse_func( m @* o, m bcore_source* source );
-signature er_t parse_wrap( m @* o, m bcore_source* source );
+signature er_t parse_func( m @* o, m x_source* source );
+signature er_t parse_wrap( m @* o, m x_source* source );
 signature er_t make_funcs_overloadable( m @* o );
 signature er_t push_default_funcs( m @* o );
 signature c xoico_func_s* get_func_from_name( c @* o, tp_t name ); // returns NULL if not found
@@ -124,7 +124,7 @@ stamp :arr_self_item_s = x_array
 {
     :self_item_s [];
 
-    func (void push_st_source( m@* o, st_s* st, m bcore_source* source )) =
+    func (void push_st_source( m@* o, st_s* st, m x_source* source )) =
     {
         m :self_item_s* item = o.push();
         item.st.copy( st );
@@ -345,14 +345,14 @@ func (:s) :.parse_wrap = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t parse_extend( m @* o, m bcore_source* source )) = (try)
+func (:s) (er_t parse_extend( m @* o, m x_source* source )) = (try)
 {
     m $* buf = st_s!^;
     m $* self = bcore_self_s!^;
     self.type = o.tp_name;
     self.trait = o.trait_name;
 
-    source.parse_em_fa( " {" );
+    source.parse_fa( " {" );
 
     while( !source.eos() && !source.parse_bl( " #?'}'" ) )
     {
@@ -407,7 +407,7 @@ func (:s) (er_t parse_extend( m @* o, m bcore_source* source )) = (try)
             o.arr_self_item!.push_st_source( buf, source );
         }
     }
-    source.parse_em_fa( " ; " );
+    source.parse_fa( " ; " );
 
     return 0;
 };
@@ -465,7 +465,7 @@ func (:s) xoico.parse = (try)
 
     if( !st_stamp_name.ends_in_sc( "_s" ) ) return source.parse_error_fa( "Stamp name '#<sc_t>' must end in '_s'.", st_stamp_name->sc );
 
-    source.parse_em_fa( " = " );
+    source.parse_fa( " = " );
 
     if( source.parse_bl( " #?w'extending'" ) )
     {
@@ -534,7 +534,7 @@ func (:s) xoico.finalize = (try)
         foreach( $* self_item in o.arr_self_item )
         {
             m $* item = bcore_self_item_s!^;
-            er_t er = bcore_self_item_s_parse_src( item, sr_awc( bcore_source_string_s_create_from_string( self_item.st )^^ ), self, false );
+            er_t er = bcore_self_item_s_parse_src( item, sr_awc( x_source_create_from_st( self_item.st )^ ), self, false );
 
             if( er )
             {
@@ -591,7 +591,7 @@ func (:s) xoico.finalize = (try)
     o.self_source.push_sc( compiler.nameof( o.trait_name ) );
     o.self_source.push_fa( "{#<st_s*>}", self_buf.1 );
 
-    o.self =< bcore_self_s_parse_source( bcore_source_string_s_create_from_string( o.self_source )^^.cast( m bcore_source* ), 0, 0, o.group.st_name.sc, false );
+    o.self =< bcore_self_s_parse_source( ( bcore_source* )x_source_create_from_st( o.self_source )^, 0, 0, o.group.st_name.sc, false );
 
     // checking for repetitions in o.self (non-functions)
     m $* hmap_name = bcore_hmap_tp_s!^;
@@ -639,7 +639,7 @@ func (:s) xoico.expand_declaration = (try)
     sink.push_fa( " \\\n#rn{ }  BCORE_DECLARE_OBJECT( #<sc_t> )", indent, sc_name );
     sink.push_fa( " \\\n" );
 
-    bcore_self_s_struct_body_to_sink_newline_escaped( o.self, indent + 2, sink );
+    bcore_self_s_struct_body_to_sink_newline_escaped( o.self, indent + 2, ( bcore_sink* )sink );
     sink.push_fa( ";" );
 
     foreach( m $* func in o.funcs ) func.expand_forward( o, indent + 2, sink ); // expands all prototypes

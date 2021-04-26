@@ -17,9 +17,9 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-signature er_t parse_expression( m @* o, c xoico_host* host, m bcore_source* source );
+signature er_t parse_expression( m @* o, c xoico_host* host, m x_source* source );
 signature er_t finalize( m @* o, c xoico_host* host );
-signature er_t expand( c @* o, c xoico_host* host, c xoico_signature_s* signature, sz_t indent, m bcore_sink* sink );
+signature er_t expand( c @* o, c xoico_host* host, c xoico_signature_s* signature, sz_t indent, m x_sink* sink );
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -71,10 +71,10 @@ func (:code_s) xoico.parse = (try)
     if( source.parse_bl( " #?'('" ) )
     {
         while( !source.eos() && source.inspect_char() != ')' ) hash = bcore_tp_fold_u0( hash, source.get_char() );
-        source.parse_em_fa( ")" );
+        source.parse_fa( ")" );
     }
 
-    source.parse_em_fa( " {" );
+    source.parse_fa( " {" );
 
     sz_t nest_count = 1;
     bl_t exit_loop = false;
@@ -123,7 +123,7 @@ func (:code_s) xoico.parse = (try)
                 while( !source.eos() && ((c = source.get_char()) != '\'') )
                 {
                     hash = bcore_tp_fold_u0( hash, c );
-                    if( c == '\\' ) hash = bcore_tp_fold_u0( hash, bcore_source_a_get_u0( source ) );
+                    if( c == '\\' ) hash = bcore_tp_fold_u0( hash, source.get_u0() );
                     if( c == '\n' ) return source.parse_error_fa( "Newline in char literal." );
                 }
                 c = 0;
@@ -247,12 +247,12 @@ func (:s) xoico.parse = (try)
 
     if( !source.parse_bl( " #=?'='" ) )
     {
-        source.parse_em_fa( " #name", string );
+        source.parse_fa( " #name", string );
         if( string.size == 0 ) return source.parse_error_fa( "Body name expected." );
         o.name = host.entypeof( string.sc );
     }
 
-    source.parse_em_fa( " =" );
+    source.parse_fa( " =" );
 
     o.parse_expression( host, source );
 
@@ -272,7 +272,7 @@ func (:s) :.expand = (try)
 
     if( o.code )
     {
-        cengine.translate( host, o, signature, ( bcore_sink* )st_out );
+        cengine.translate( host, o, signature, ( x_sink* )st_out );
         final_code = st_out;
     }
 

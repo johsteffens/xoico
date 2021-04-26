@@ -18,7 +18,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 
 signature er_t relent( m @* o, c xoico_host* host, tp_t tp_obj_type );
-signature er_t expand_declaration( c @* o, c xoico_host* host, sc_t sc_func_global_name, sz_t indent, m bcore_sink* sink );
+signature er_t expand_declaration( c @* o, c xoico_host* host, sc_t sc_func_global_name, sz_t indent, m x_sink* sink );
 signature er_t set_global_name( m @* o, c xoico_host* host );
 signature bl_t as_member( c @* o ); // indicates that the function can be used as member function to an object
 
@@ -79,13 +79,13 @@ stamp :s = aware :
 
     func (bl_t returns_a_value( c @* o )) = { return !o.typespec_ret.is_void(); };
 
-    func (er_t expand_ret( c @* o, c xoico_host* host, m bcore_sink* sink )) = (try)
+    func (er_t expand_ret( c @* o, c xoico_host* host, m x_sink* sink )) = (try)
     {
         o.typespec_ret.expand( host, sink );
         return 0;
     };
 
-    func (er_t expand_ret_x( c @* o, c xoico_host* host, m bcore_sink* sink )) = (try)
+    func (er_t expand_ret_x( c @* o, c xoico_host* host, m x_sink* sink )) = (try)
     {
         o.typespec_ret.expand_x( host, sink );
         return 0;
@@ -138,12 +138,12 @@ func (:s) xoico.parse = (try)
         if( !signature ) return source.parse_error_fa( "Could not find predefined signature '#<sc_t>'.", host.nameof( tp_name ) );
         o.copy( signature );
         o.source_point.setup_from_source( source );
-        source.parse_em_fa( " #name", name_buf );
+        source.parse_fa( " #name", name_buf );
         if( name_buf.size == 0 ) return source.parse_error_fa( "Signature name missing." );
         o.name = compiler.entypeof( name_buf.sc );
-        source.parse_em_fa( " (" );
+        source.parse_fa( " (" );
         o.args.append( host, source );
-        source.parse_em_fa( " )" );
+        source.parse_fa( " )" );
     }
     else
     {
@@ -152,16 +152,16 @@ func (:s) xoico.parse = (try)
         o.typespec_ret.flag_addressable = false;
 
         // get name
-        source.parse_em_fa( " #name", name_buf );
+        source.parse_fa( " #name", name_buf );
         o.name = compiler.entypeof( name_buf.sc );
 
-        source.parse_em_fa( " (" );
+        source.parse_fa( " (" );
 
         if( !source.parse_bl( " #=?')'" ) )
         {
             m xoico_arg_s* arg = xoico_arg_s!^;
             arg.parse( host, source );
-            if( !source.parse_bl( " #=?')'" ) ) source.parse_em_fa( ", " );
+            if( !source.parse_bl( " #=?')'" ) ) source.parse_fa( ", " );
             if( arg.name == TYPEOF_o )
             {
                 o.arg_o =< arg.fork();
@@ -178,7 +178,7 @@ func (:s) xoico.parse = (try)
             o.args.parse( host, source );
         }
 
-        source.parse_em_fa( " )" );
+        source.parse_fa( " )" );
     }
 
     /// if return type is a name in the argument list, copy argument typespec to return typespec

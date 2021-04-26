@@ -85,7 +85,7 @@ func (:s) xoico.parse = (try)
     if( source.parse_bl( " #?|'|" ) )
     {
         m st_s* flags = st_s!^^;
-        source.parse_em_fa( " #until{'}", flags );
+        source.parse_fa( " #until{'}", flags );
         for( sz_t i = 0; i < flags.size; i++ )
         {
             switch( flags.data[ i ] )
@@ -97,7 +97,7 @@ func (:s) xoico.parse = (try)
                 default: return source.parse_error_fa( "Feature: Flag '#<char>' not handled. Choose from 'ptar'.", flags.[ i ] );
             }
         }
-        source.parse_em_fa( "' " );
+        source.parse_fa( "' " );
     }
     else
     {
@@ -127,7 +127,7 @@ func (:s) xoico.parse = (try)
         if( o.st_default_func_name.size == 0 ) return source.parse_error_fa( "Feature: Default function: Global function name expected." );
     }
 
-    source.parse_em_fa( " ; " );
+    source.parse_fa( " ; " );
 
     o.function_pointer_name = o.signature.global_name;
 

@@ -63,7 +63,7 @@ stamp :target_s = aware :
     {
         if( !o->root_folder )
         {
-            o->root_folder = bcore_file_folder_path( bcore_source_a_get_file( source ) );
+            o->root_folder = bcore_file_folder_path( source.get_file() );
             o.root_folder =< bcore_file_path_minimized( o.root_folder.sc );
         }
     };
@@ -218,13 +218,13 @@ func (:target_s) :.load = (try)
 
         bl_t dep_readonly = o.readonly;
 
-        m bcore_source* source = bcore_source_string_s_create_sc( e.sc )^^;
-        source.parse_em_fa( " #:until':'", file_path );
+        m x_source* source = x_source_create_from_sc( e.sc )^;
+        source.parse_fa( " #:until':'", file_path );
 
         /// remove trailing spaces
         while( file_path.sc[ 0 ] == ' ' || file_path.sc[ 0 ] == '\t' ) file_path.pop_char();
 
-        if( bcore_source_a_parse_bl( source, "#?':'" ) )
+        if( source.parse_bl( "#?':'" ) )
         {
             if( source.parse_bl( " #?w'readonly'" ) )
             {
@@ -279,7 +279,7 @@ func (:target_s) :.build = (try)
 
     foreach( $* e in o.sources )
     {
-        m bcore_source* source = bcore_source_string_s!^.setup_from_string( e );
+        m x_source* source = x_source_create_from_st( e )^;
         st_s^ group_name;
         st_s^ trait_name;
         st_s^ file_path;

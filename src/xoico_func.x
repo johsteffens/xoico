@@ -104,7 +104,7 @@ func (:s) xoico.parse = (try)
         compiler.life_a_push( signature );
 
         signature.parse( host, source );
-        source.parse_em_fa( " ) " );
+        source.parse_fa( " ) " );
 
         o.pre_hash = bcore_tp_fold_tp( o.pre_hash, signature.get_hash() );
         o.name = signature.name;
@@ -130,7 +130,7 @@ func (:s) xoico.parse = (try)
             {
                 return source.parse_error_fa( "'^' can only be used inside a stamp." );
             }
-            source.parse_em_fa( " ." );
+            source.parse_fa( " ." );
         }
         else
         {
@@ -158,7 +158,7 @@ func (:s) xoico.parse = (try)
         if( !o.name )
         {
             st_s^ st_name;
-            source.parse_em_fa( " #name", st_name.1 );
+            source.parse_fa( " #name", st_name.1 );
             if( st_name.size == 0 ) return source.parse_error_fa( "Function name expected." );
             o.name = compiler.entypeof( st_name.sc );
         }
@@ -175,13 +175,13 @@ func (:s) xoico.parse = (try)
 
     if( source.parse_bl( " #=?'='" ) ) o.body!.parse( host, source );
 
-    source.parse_em_fa( " ; " );
+    source.parse_fa( " ; " );
     return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_flect_decl_to_sink( c @* o, c xoico_host* host, m bcore_sink* sink )) =
+func (:s) (er_t push_flect_decl_to_sink( c @* o, c xoico_host* host, m x_sink* sink )) =
 {
     m $* compiler = host.compiler();
     sink.push_sc( "func " );

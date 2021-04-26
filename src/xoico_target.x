@@ -242,17 +242,17 @@ func (:s) :.set_dependencies = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_update_time( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
+func (:s) (er_t expand_update_time( c @* o, sz_t indent, m x_sink* sink )) = (try)
 {
     m bcore_cday_utc_s* time = bcore_cday_utc_s!^^;
     bcore_cday_utc_s_from_system( time );
-    sink.push_fa( "//  Last update: " ); bcore_cday_utc_s_to_sink( time, sink ); sink.push_fa( "\n" );
+    sink.push_fa( "//  Last update: " ); bcore_cday_utc_s_to_sink( time, ( bcore_sink* )sink ); sink.push_fa( "\n" );
     return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_heading( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
+func (:s) (er_t expand_heading( c @* o, sz_t indent, m x_sink* sink )) = (try)
 {
     sink.push_fa( "/** This file was generated from xoila source code.\n" );
     sink.push_fa( " *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens\n" );
@@ -288,7 +288,7 @@ func (:s) (er_t expand_heading( c @* o, sz_t indent, m bcore_sink* sink )) = (tr
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_h( c @* o, sz_t indent, m bcore_sink* sink, mutable tp_t* body_signature )) = (try)
+func (:s) (er_t expand_h( c @* o, sz_t indent, m x_sink* sink, mutable tp_t* body_signature )) = (try)
 {
     o.expand_update_time( indent, sink );
 
@@ -341,14 +341,14 @@ func (:s) (er_t expand_h( c @* o, sz_t indent, m bcore_sink* sink, mutable tp_t*
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_init1( c @* o, sz_t indent, m bcore_sink* sink )) =
+func (:s) (er_t expand_init1( c @* o, sz_t indent, m x_sink* sink )) =
 {
     return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_c( c @* o, sz_t indent, m bcore_sink* sink, mutable tp_t* body_signature )) = (try)
+func (:s) (er_t expand_c( c @* o, sz_t indent, m x_sink* sink, mutable tp_t* body_signature )) = (try)
 {
     st_s^ sink_buf;
     tp_t body_hash = bcore_tp_init();
@@ -458,7 +458,7 @@ func (:s) (er_t expand_c( c @* o, sz_t indent, m bcore_sink* sink, mutable tp_t*
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_state( c @* o, m bcore_sink* sink )) = (try)
+func (:s) (er_t expand_state( c @* o, m x_sink* sink )) = (try)
 {
     sink.push_fa( "HKEYOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}\n", o.name.sc, o.get_hash() );
     return 0;
@@ -478,7 +478,7 @@ func (:s) :.to_be_modified =
     if( bcore_file_exists( file.sc ) )
     {
         m st_s* key_defined = st_s_create_fa( "##?w'HKEYOF_#<sc_t>'", o.name.sc )^^;
-        m bcore_source* source = bcore_file_open_source( file.sc )^^;
+        m x_source* source = bcore_file_open_source( file.sc )^^;
         while( !source.eos() )
         {
             if( source.inspect_char() == 'H' )
@@ -543,7 +543,7 @@ func (:s) :.expand_phase1 = (try)
 func (er_t write_with_signature( sc_t file, c st_s* data )) = (try)
 {
     tp_t hash = bcore_tp_fold_sc( bcore_tp_init(), data.sc );
-    m bcore_sink* sink = bcore_file_open_sink( file )^^;
+    m x_sink* sink = bcore_file_open_sink( file )^^;
     sink.push_data( ( vc_t )data.data, data.size );
     sink.push_fa( "// XOICO_FILE_SIGNATURE 0x#pl16'0'{#X<tp_t>}\n", hash );
     return 0;

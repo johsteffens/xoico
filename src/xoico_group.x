@@ -20,12 +20,12 @@
 name x_inst_main;
 
 signature er_t push_item_d( m @* o, d xoico* item );
-signature er_t parse_name_recursive( c @* o, m bcore_source* source, m st_s* name );
-signature er_t expand_declaration(   c @* o, sz_t indent, m bcore_sink* sink );
-signature er_t expand_definition(    c @* o, sz_t indent, m bcore_sink* sink );
-signature er_t expand_init1(         c @* o, sz_t indent, m bcore_sink* sink );
+signature er_t parse_name_recursive( c @* o, m x_source* source, m st_s* name );
+signature er_t expand_declaration(   c @* o, sz_t indent, m x_sink* sink );
+signature er_t expand_definition(    c @* o, sz_t indent, m x_sink* sink );
+signature er_t expand_init1(         c @* o, sz_t indent, m x_sink* sink );
 signature void explicit_embeddings_push( c @* o, m bcore_arr_st_s* arr );
-signature er_t parse ( m @* o, c xoico_host* host, bl_t parse_block, m bcore_source* source );
+signature er_t parse ( m @* o, c xoico_host* host, bl_t parse_block, m x_source* source );
 
 signature m xoico_source_s*   get_source( c @* o );
 signature m xoico_target_s*   get_target( c @* o );
@@ -40,7 +40,7 @@ signature c xoico_func_s* get_trait_line_func_from_name( c @* o, tp_t name );
 signature c xoico_func_s* get_trait_line_member_func_from_name( c @* o, tp_t name );
 
 /// source stack to handle includes
-stamp :source_stack_s = aware x_array { aware bcore_source -> []; };
+stamp :source_stack_s = aware x_array { aware x_source -> []; };
 
 stamp :s = aware :
 {
@@ -260,7 +260,7 @@ func (:s) :.parse_name_recursive = (try)
     {
         name.copy( o.st_name );
         m st_s* s = st_s!^;
-        source.parse_em_fa( "#name", s );
+        source.parse_fa( "#name", s );
         if( s.size > 0 ) name.push_fa( "_#<sc_t>", s.sc );
     }
     return 0;
@@ -276,7 +276,7 @@ func (:s) xoico_host.parse_name_st = (try)
     }
     else
     {
-        source.parse_em_fa( " #name", name );
+        source.parse_fa( " #name", name );
     }
 
     if( name.size > 0 ) o.compiler.entypeof( name.sc );
@@ -296,7 +296,7 @@ func (:s) xoico_host.parse_name_tp = (try)
     }
     else
     {
-        source.parse_em_fa( " #name", s );
+        source.parse_fa( " #name", s );
     }
 
     if( s.size == 0 ) source.parse_error_fa( "Identifier expected." );
@@ -313,7 +313,7 @@ func (:s) (er_t push_default_feature_from_sc( m @* o, sc_t sc )) = (try)
     m $* compiler = o.compiler;
     m $* feature = xoico_feature_s!^;
     feature.expandable = false;
-    feature.parse( o, bcore_source_string_s_create_from_sc( sc )^ );
+    feature.parse( o, x_source_create_from_sc( sc )^ );
 
     if( !compiler.is_item( feature.get_global_name_tp() ) )
     {
@@ -333,14 +333,14 @@ func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc )) = (try)
 {
     m $* func = xoico_func_s!^;
     func.expandable = false;
-    func.parse( o, bcore_source_string_s_create_from_sc( sc )^ );
+    func.parse( o, x_source_create_from_sc( sc )^ );
     o.push_func_d( func.fork() );
     return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t parse_func( m @* o, m bcore_source* source )) = (try)
+func (:s) (er_t parse_func( m @* o, m x_source* source )) = (try)
 {
     m $* func = xoico_func_s!^;
     func.parse( o, source );
@@ -407,7 +407,7 @@ func (:s) :.parse = (try)
 
     if( parse_block ) // this group is nested in another group, the group body is enclosed in { ... }
     {
-        source.parse_em_fa( " {" );
+        source.parse_fa( " {" );
         group_termination = " #?'}'";
     }
     else if( source.parse_bl( " #?'#ifdef XOILA_SECTION'" ) ) // this group is root
@@ -469,15 +469,15 @@ func (:s) :.parse = (try)
         {
             m $* signature = xoico_signature_s!^;
             signature.parse( o, source );
-            source.parse_em_fa( " ; " );
+            source.parse_fa( " ; " );
             compiler.register_item( signature );
             o.push_item_d( signature.fork() );
         }
-        else if( bcore_source_a_parse_bl( source, " #?w'body' " ) )
+        else if( source.parse_bl( " #?w'body' " ) )
         {
             m $* body = xoico_body_s!^;
             body.parse( o, source );
-            source.parse_em_fa( " ; " );
+            source.parse_fa( " ; " );
             compiler.register_item( body );
             o.push_item_d( body.fork() );
         }
@@ -497,7 +497,7 @@ func (:s) :.parse = (try)
             if( source.parse_bl( " #=?'('" ) )
             {
                 sz_t index = source.get_index();
-                source.parse_em_fa( "(" );
+                source.parse_fa( "(" );
                 m $* stamp_name = st_s!^;
                 o.parse_name_st( source, stamp_name );
                 if( source.parse_bl( " #?')'" ) )
@@ -543,14 +543,14 @@ func (:s) :.parse = (try)
             xoico_name_s^ name.parse( o, source ).try();
             compiler.register_external_identifier( name.name );
         }
-        else if( bcore_source_a_parse_bl( source, " #?w'forward' " ) )
+        else if( source.parse_bl( " #?w'forward' " ) )
         {
             m $* forward = xoico_forward_s!^;
             forward.group = o;
             forward.parse( o, source );
             o.push_item_d( forward.fork() );
         }
-        else if( bcore_source_a_parse_bl( source, " #?w'extending'" ) )
+        else if( source.parse_bl( " #?w'extending'" ) )
         {
             o.extending_stamp = NULL;
             if( source.parse_bl( " #=?';'" ) )
@@ -570,7 +570,7 @@ func (:s) :.parse = (try)
                 if( !item ) return source.parse_error_fa( "Template #<sc_t> not found.", templ_name.sc );
                 if( item._ != xoico_stamp_s~ ) return source.parse_error_fa( "Template #<sc_t> is no stamp.", templ_name.sc );
                 o.extending_stamp = item.cast( m xoico_stamp_s* );
-                source.parse_em_fa( " ;" );
+                source.parse_fa( " ;" );
             }
         }
         else if( source.parse_bl( " #?w'group' " ) )
@@ -579,7 +579,7 @@ func (:s) :.parse = (try)
             o.parse_name_st( source, st_group_name );
             bl_t retrievable = false;
 
-            source.parse_em_fa( " =" );
+            source.parse_fa( " =" );
 
             // flags
             if( source.parse_bl( " #?w'retrievable' " ) ) retrievable = true;
@@ -622,25 +622,25 @@ func (:s) :.parse = (try)
                 group.parse( o, true, source );
             }
 
-            source.parse_em_fa( " ; " );
+            source.parse_fa( " ; " );
         }
         else if( source.parse_bl( " #?w'set' " ) )
         {
             if     ( source.parse_bl( " #?w'retrievable' "      ) ) o.is_retrievable = true;
             else if( source.parse_bl( " #?w'inexpandable' "     ) ) o.expandable = false;
             else if( source.parse_bl( " #?w'short_spect_name' " ) ) o.short_spect_name = true;
-            else if( source.parse_bl( " #?w'beta' "             ) ) source.parse_em_fa( " = #<tp_t*>", o.beta.1 );
-            source.parse_em_fa( " ;" );
+            else if( source.parse_bl( " #?w'beta' "             ) ) source.parse_fa( " = #<tp_t*>", o.beta.1 );
+            source.parse_fa( " ;" );
         }
         else if( source.parse_bl( " #?w'embed' " ) )
         {
-            m st_s* folder = bcore_file_folder_path( bcore_source_a_get_file( source ) )^;
+            m st_s* folder = bcore_file_folder_path( source.get_file() )^;
             if( folder.size == 0 ) folder.push_char( '.' );
             m st_s* embed_file = st_s!^;
-            source.parse_em_fa( " #string" , embed_file );
-            source.parse_em_fa( " ;" );
+            source.parse_fa( " #string" , embed_file );
+            source.parse_fa( " ;" );
             o.explicit_embeddings.push_st( embed_file );
-            d bcore_source* embed_source = NULL;
+            d x_source* embed_source = NULL;
             try( xoico_embed_file_open( source, embed_file.sc, embed_source.2 ) );
 
             // check for cyclic inclusions
@@ -673,8 +673,8 @@ func (:s) :.parse = (try)
             }
 
             m st_s* include_file = st_s!^;
-            source.parse_em_fa( " #string" , include_file );
-            source.parse_em_fa( " ;" );
+            source.parse_fa( " #string" , include_file );
+            source.parse_fa( " ;" );
             if( in_definition )
             {
                 o.includes_in_definition.push_st( include_file );
@@ -689,7 +689,7 @@ func (:s) :.parse = (try)
             return source.parse_error_fa( "Xoico: syntax error." );
         }
 
-        source.parse_em_fa( " " );// consume whitespaces
+        source.parse_fa( " " );// consume whitespaces
     }
 
     if( stack.size > 1 )
@@ -722,7 +722,7 @@ func (:s) xoico.finalize = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_forward( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
+func (:s) (er_t expand_forward( c @* o, sz_t indent, m x_sink* sink )) = (try)
 {
     if( !o.expandable ) return 0;
     sink.push_fa( " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o.st_name.sc );
@@ -733,7 +733,7 @@ func (:s) (er_t expand_forward( c @* o, sz_t indent, m bcore_sink* sink )) = (tr
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_spect_declaration( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
+func (:s) (er_t expand_spect_declaration( c @* o, sz_t indent, m x_sink* sink )) = (try)
 {
     if( !o.expandable ) return 0;
     if( o.short_spect_name )
@@ -804,7 +804,7 @@ func (:s) :.expand_declaration = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_spect_definition( c @* o, sz_t indent, m bcore_sink* sink )) = (try)
+func (:s) (er_t expand_spect_definition( c @* o, sz_t indent, m x_sink* sink )) = (try)
 {
     m $* compiler = o.compiler;
     if( !o.expandable ) return 0;

@@ -48,7 +48,7 @@ func (:s) xoico.parse = (try)
     }
 
     m $* s = st_s!^^;
-    source.parse_em_fa( "#name ", s );
+    source.parse_fa( "#name ", s );
     if( s.size == 0 )
     {
         return source.parse_error_fa( "Argument: Name expected." );
@@ -82,7 +82,7 @@ func (:s) xoico.convert_transient_types = { return o.typespec.convert_transient_
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand( c @* o, c xoico_host* host, m bcore_sink* sink )) =
+func (:s) (er_t expand( c @* o, c xoico_host* host, m x_sink* sink )) =
 {
     try( o.typespec.expand( host, sink ) );
     if( o.name )
@@ -95,7 +95,7 @@ func (:s) (er_t expand( c @* o, c xoico_host* host, m bcore_sink* sink )) =
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_x( c @* o, c xoico_host* host, m bcore_sink* sink )) =
+func (:s) (er_t expand_x( c @* o, c xoico_host* host, m x_sink* sink )) =
 {
     try( o.typespec.expand_x( host, sink ) );
     if( o.name )
@@ -108,7 +108,7 @@ func (:s) (er_t expand_x( c @* o, c xoico_host* host, m bcore_sink* sink )) =
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_name( c @* o, c xoico_host* host, m bcore_sink* sink )) =
+func (:s) (er_t expand_name( c @* o, c xoico_host* host, m x_sink* sink )) =
 {
     if( !o.name ) return 0;
     sink.push_fa( "#<sc_t>", host.compiler().nameof( o.name ) );
