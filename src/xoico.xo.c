@@ -1,4 +1,4 @@
-//  Last update: 2021-04-26T20:07:15Z
+//  Last update: 2021-04-26T20:34:20Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
  *
@@ -44,7 +44,7 @@
 #include "bcore_const_manager.h"
 
 // To force a rebuild of this target by xoico, reset the hash key value below to 0.
-// HKEYOF_xoico 0x150799D3737A8F04ull
+// HKEYOF_xoico 0xB8C0F250D6E66A13ull
 
 /**********************************************************************************************************************/
 // source: xoico.x
@@ -9395,22 +9395,21 @@ void xoico_main_help( x_sink* sink )
 {
     // xoico_main.x:21:1
     
-    ((x_sink*)(x_sink_push_fa(sink,"Xoila Compiler: (C) J.B.Steffens\n"
+    ((x_sink*)(x_sink_push_sc(sink,"Xoila Compiler: (C) J.B.Steffens\n"
         "Usage:\n"
         "$ xoico [options] xoico <xoico-config-file> [<xoico-config-file> ...]   #normal operation\n"
         "$ xoico --help                                                          #displays this text\n"
-        "$ xoico --selftest <source-name>                                        #sends signal 'selftest' to handler specified by source-name\n"
         "\n"
         "Options:\n"
         "-d : Dry run. Target files are not modified.\n"
-        "-e : Always expand: Expands target files even if their hash has not changed.\n"
+        "-e : Always expand: Expands a target even if its hash value has not changed.\n"
         "-f : Force overwrite target files. Use with care.\n"
     )));
 }
 
 s2_t xoico_main_main( const bcore_arr_st_s* args )
 {
-    // xoico_main.x:41:1
+    // xoico_main.x:39:1
     BLM_INIT_LEVEL(0);
     xoico_builder_main_s builder_main;BLM_T_INIT_SPUSH(xoico_builder_main_s, &builder_main);;
     er_t er = 0;
@@ -9422,12 +9421,6 @@ s2_t xoico_main_main( const bcore_arr_st_s* args )
         if( st_s_equal_sc(args->data[ arg_idx ],"--help" ) )
         {
             xoico_main_help(x_sink_stdout() );
-        }
-        else if( st_s_equal_sc(args->data[ arg_idx ],"--selftest" ) )
-        {
-            arg_idx++;
-            ASSERT( arg_idx < args->size );
-            bcore_run_signal_selftest( btypeof( args->data[ arg_idx ]->sc ), NULL );
         }
         else
         {
@@ -9977,5 +9970,5 @@ int main( int argc, char** argv )
     BETH_CLOSEV( 0 );
     return retv;
 }
-// XOICO_BODY_SIGNATURE 0xF32271E672DC8FAF
-// XOICO_FILE_SIGNATURE 0x2F32272D8F04A44E
+// XOICO_BODY_SIGNATURE 0x8BE8F551BAF7EED8
+// XOICO_FILE_SIGNATURE 0x39495B80338F716E

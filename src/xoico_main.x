@@ -19,18 +19,16 @@
 
 func (void help( m x_sink* sink )) =
 {
-    sink.push_fa
+    sink.push_sc
     (
-
         "Xoila Compiler: (C) J.B.Steffens\n"
         "Usage:\n"
         "$ xoico [options] xoico <xoico-config-file> [<xoico-config-file> ...]   #normal operation\n"
         "$ xoico --help                                                          #displays this text\n"
-        "$ xoico --selftest <source-name>                                        #sends signal 'selftest' to handler specified by source-name\n"
         "\n"
         "Options:\n"
         "-d : Dry run. Target files are not modified.\n"
-        "-e : Always expand: Expands target files even if their hash has not changed.\n"
+        "-e : Always expand: Expands a target even if its hash value has not changed.\n"
         "-f : Force overwrite target files. Use with care.\n"
     );
 };
@@ -49,12 +47,6 @@ func x_inst.main =
         if( args.[ arg_idx ].equal_sc( "--help" ) )
         {
             :help( x_sink_stdout() );
-        }
-        else if( args.[ arg_idx ].equal_sc( "--selftest" ) )
-        {
-            arg_idx++;
-            ASSERT( arg_idx < args.size );
-            bcore_run_signal_selftest( btypeof( args.[ arg_idx ].sc ), NULL );
         }
         else
         {
