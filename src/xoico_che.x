@@ -222,6 +222,10 @@ group :result = :
 
 //----------------------------------------------------------------------------------------------------------------------
 
+/**********************************************************************************************************************/
+
+//----------------------------------------------------------------------------------------------------------------------
+
 /// stack for variable declarations
 group :stack_var = :
 {
@@ -346,6 +350,10 @@ group :stack_block = :
 
 //----------------------------------------------------------------------------------------------------------------------
 
+/**********************************************************************************************************************/
+
+//----------------------------------------------------------------------------------------------------------------------
+
 signature tp_t entypeof(  m @* o, sc_t name );
 signature sc_t nameof(    m @* o, tp_t type );
 signature void init_level0( m @* o );
@@ -399,6 +407,9 @@ stamp :s = aware :
 
     /// Prepends a commented reference to the xoila source for each function in *xoila_out.c
     bl_t insert_source_reference = true;
+
+    /// Prepends a commented reference to the xoila source for each function in *xoila_out.c
+    bl_t for_all_functions_enable_try = true;
 
     /// Waivers for purity-control and side effects ...
 
@@ -2311,7 +2322,7 @@ func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* b
     m $* result = :result_create_arr()^^;
 
     bl_t flag_verbatim_c = false;
-    bl_t flag_try = false;
+    bl_t flag_try = o.for_all_functions_enable_try;
 
     if( source.parse_bl( " #?'('" ) )
     {

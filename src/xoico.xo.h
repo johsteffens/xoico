@@ -1,4 +1,4 @@
-//  Last update: 2021-04-26T20:06:03Z
+//  Last update: 2021-04-27T14:49:00Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
  *
@@ -1298,6 +1298,7 @@
       aware_t _; \
       bl_t verbose; \
       bl_t insert_source_reference; \
+      bl_t for_all_functions_enable_try; \
       bl_t waive_unknown_member_variable; \
       bl_t waive_unknown_member_function; \
       bl_t waive_function_in_untraced_context; \
@@ -1661,8 +1662,8 @@
   BETH_EXPAND_ITEM_xoico_che_result_block_s \
   BETH_EXPAND_ITEM_xoico_che_result_blm_init_s \
   BETH_EXPAND_ITEM_xoico_che_result_blm_down_s \
-  static inline xoico_che_result* xoico_che_result_create_from_st( const st_s* st ){ xoico_che_result_arr_s* o = xoico_che_result_arr_s_create(); xoico_che_result_arr_s_push_st(o,st ); return ((xoico_che_result*)( o));} \
-  static inline xoico_che_result* xoico_che_result_create_from_sc( sc_t sc ){ xoico_che_result_arr_s* o = xoico_che_result_arr_s_create(); xoico_che_result_arr_s_push_sc(o,sc ); return ((xoico_che_result*)( o));} \
+  static inline xoico_che_result* xoico_che_result_create_from_st( const st_s* st ){ xoico_che_result_arr_s* o = xoico_che_result_arr_s_create(); BLM_TRY_EXIT(xoico_che_result_arr_s_push_st(o,st )) return ((xoico_che_result*)( o));} \
+  static inline xoico_che_result* xoico_che_result_create_from_sc( sc_t sc ){ xoico_che_result_arr_s* o = xoico_che_result_arr_s_create(); BLM_TRY_EXIT(xoico_che_result_arr_s_push_sc(o,sc )) return ((xoico_che_result*)( o));} \
   static inline xoico_che_result* xoico_che_result_create_arr( void ){ return ((xoico_che_result*)( xoico_che_result_arr_s_create()));} \
   static inline xoico_che_result* xoico_che_result_create_blm_init( sz_t level ){ xoico_che_result_blm_init_s* o = xoico_che_result_blm_init_s_create(); o->level = level; return ((xoico_che_result*)( o));} \
   static inline xoico_che_result* xoico_che_result_create_blm_down( void ){ xoico_che_result_blm_down_s* o = xoico_che_result_blm_down_s_create(); return ((xoico_che_result*)( o));}
@@ -1895,5 +1896,5 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOICO_BODY_SIGNATURE 0x7A26B7CE510E9B0A
-// XOICO_FILE_SIGNATURE 0x25379AC480A8FF30
+// XOICO_BODY_SIGNATURE 0x018497E4085D227F
+// XOICO_FILE_SIGNATURE 0xAF5D29E87547D5F7

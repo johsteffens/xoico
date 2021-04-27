@@ -436,6 +436,8 @@ FEATURES, BUGS ...
 
 TODO:
 
+- enable function-wide (try) by default (can be disabled via che parameter)
+
 - stamp: parsing reflection:
    - automatic prepend 'aware' for group types when type-awareness is unclear
 
