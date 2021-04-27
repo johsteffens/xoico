@@ -62,7 +62,7 @@ stamp :s = aware :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:code_s) xoico.parse = (try)
+func (:code_s) xoico.parse =
 {
     tp_t hash = bcore_tp_init();
 
@@ -208,7 +208,7 @@ func (:s) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.parse_expression = (try)
+func (:s) :.parse_expression =
 {
     if( source.parse_bl( " #=?'{'" ) || source.parse_bl( " #=?'('" ) )
     {
@@ -239,7 +239,7 @@ func (:s) :.parse_expression = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.parse = (try)
+func (:s) xoico.parse =
 {
     m $* compiler = host.compiler();
     m st_s* string = st_s!^^;
@@ -262,7 +262,7 @@ func (:s) xoico.parse = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.expand = (try)
+func (:s) :.expand =
 {
     c st_s* final_code = NULL;
     m st_s* st_out = st_s!^^;

@@ -26,7 +26,7 @@ stamp :s = aware :
     xoico_signature_s => signature;
     xoico_func_s => func;
 
-    func xoico.parse = (try)
+    func xoico.parse =
     {
         source.parse_fa( " " );
         host.parse_name_tp( source, o.group_name.1 );
@@ -38,7 +38,7 @@ stamp :s = aware :
         return 0;
     };
 
-    func xoico.finalize = (try)
+    func xoico.finalize =
     {
         m $* compiler = host.compiler();
         c xoico_group_s* group = compiler.get_group( o.group_name );

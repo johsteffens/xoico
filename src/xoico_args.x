@@ -29,7 +29,7 @@ func (:s) xoico.parse = { o.clear(); return o.append( host, source ); };
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t append( m @* o, c xoico_host* host, m x_source* source )) = (try)
+func (:s) (er_t append( m @* o, c xoico_host* host, m x_source* source )) =
 {
     bl_t first = true;
     while( !source.parse_bl( " #=?')' " ) ) // args follow
@@ -54,7 +54,7 @@ func (:s) (er_t relent( m @* o, c xoico_host* host, tp_t tp_obj_type )) =
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.convert_transient_types = (try)
+func (:s) xoico.convert_transient_types =
 {
     foreach( m $* arg in o ) arg.convert_transient_types( host, map );
     return  0;

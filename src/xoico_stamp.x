@@ -288,7 +288,7 @@ func (:s) (sc_t get_rel_name_sc( c @* o )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.parse_func = (try)
+func (:s) :.parse_func =
 {
     m $* compiler = o.group.compiler;
     m $* func = xoico_func_s!^;
@@ -335,7 +335,7 @@ func (:s) :.parse_func = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.parse_wrap = (try)
+func (:s) :.parse_wrap =
 {
     m $* wrap = xoico_wrap_s!^;
     wrap.parse( o, source );
@@ -345,7 +345,7 @@ func (:s) :.parse_wrap = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t parse_extend( m @* o, m x_source* source )) = (try)
+func (:s) (er_t parse_extend( m @* o, m x_source* source )) =
 {
     m $* buf = st_s!^;
     m $* self = bcore_self_s!^;
@@ -414,7 +414,7 @@ func (:s) (er_t parse_extend( m @* o, m x_source* source )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc )) = (try)
+func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc )) =
 {
     m $* compiler = o.group.compiler;
     m $* func = xoico_func_s!^;
@@ -439,7 +439,7 @@ func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.push_default_funcs = (try)
+func (:s) :.push_default_funcs =
 {
     o.push_default_func_from_sc( "bcore_stamp_funcs.init;" );
     o.push_default_func_from_sc( "bcore_stamp_funcs.down;" );
@@ -452,7 +452,7 @@ func (:s) :.push_default_funcs = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.parse = (try)
+func (:s) xoico.parse =
 {
     m $* compiler = o.group.compiler;
     bl_t verbatim = source.parse_bl( " #?w'verbatim'" );
@@ -519,7 +519,7 @@ func (:s) xoico.parse = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.finalize = (try)
+func (:s) xoico.finalize =
 {
     m $* compiler = o.group.compiler;
     st_s^ self_buf;
@@ -629,7 +629,7 @@ func (:s) xoico.finalize = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_declaration = (try)
+func (:s) xoico.expand_declaration =
 {
     sc_t sc_name = o.st_name.sc;
 
@@ -651,7 +651,7 @@ func (:s) xoico.expand_declaration = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_definition = (try)
+func (:s) xoico.expand_definition =
 {
     m st_s* embedded_string = o.create_embedded_string( o.self_source )^^;
 
@@ -686,7 +686,7 @@ func (:s) xoico.expand_definition = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_init1 = (try)
+func (:s) xoico.expand_init1 =
 {
     m $* compiler = o.group.compiler;
 

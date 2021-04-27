@@ -111,7 +111,7 @@ stamp :s = aware :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.parse_from_path = (try)
+func (:s) :.parse_from_path =
 {
     m st_s* source_name        = bcore_file_strip_extension( bcore_file_name( source_path ) )^^;
     m st_s* source_folder_path = bcore_file_folder_path( source_path )^^;
@@ -214,7 +214,7 @@ func (:s) :.is_cyclic =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.set_dependencies = (try)
+func (:s) :.set_dependencies =
 {
     sz_t targets = o.compiler.size;
 
@@ -242,7 +242,7 @@ func (:s) :.set_dependencies = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_update_time( c @* o, sz_t indent, m x_sink* sink )) = (try)
+func (:s) (er_t expand_update_time( c @* o, sz_t indent, m x_sink* sink )) =
 {
     m bcore_cday_utc_s* time = bcore_cday_utc_s!^^;
     bcore_cday_utc_s_from_system( time );
@@ -252,7 +252,7 @@ func (:s) (er_t expand_update_time( c @* o, sz_t indent, m x_sink* sink )) = (tr
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_heading( c @* o, sz_t indent, m x_sink* sink )) = (try)
+func (:s) (er_t expand_heading( c @* o, sz_t indent, m x_sink* sink )) =
 {
     sink.push_fa( "/** This file was generated from xoila source code.\n" );
     sink.push_fa( " *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens\n" );
@@ -288,7 +288,7 @@ func (:s) (er_t expand_heading( c @* o, sz_t indent, m x_sink* sink )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_h( c @* o, sz_t indent, m x_sink* sink, mutable tp_t* body_signature )) = (try)
+func (:s) (er_t expand_h( c @* o, sz_t indent, m x_sink* sink, mutable tp_t* body_signature )) =
 {
     o.expand_update_time( indent, sink );
 
@@ -348,7 +348,7 @@ func (:s) (er_t expand_init1( c @* o, sz_t indent, m x_sink* sink )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_c( c @* o, sz_t indent, m x_sink* sink, mutable tp_t* body_signature )) = (try)
+func (:s) (er_t expand_c( c @* o, sz_t indent, m x_sink* sink, mutable tp_t* body_signature )) =
 {
     st_s^ sink_buf;
     tp_t body_hash = bcore_tp_init();
@@ -458,7 +458,7 @@ func (:s) (er_t expand_c( c @* o, sz_t indent, m x_sink* sink, mutable tp_t* bod
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_state( c @* o, m x_sink* sink )) = (try)
+func (:s) (er_t expand_state( c @* o, m x_sink* sink )) =
 {
     sink.push_fa( "HKEYOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}\n", o.name.sc, o.get_hash() );
     return 0;
@@ -504,7 +504,7 @@ func (:s) :.to_be_modified =
 //----------------------------------------------------------------------------------------------------------------------
 
 /// expands all text files in memory
-func (:s) :.expand_phase1 = (try)
+func (:s) :.expand_phase1 =
 {
     o.target_h =< NULL;
     o.target_c =< NULL;
@@ -540,7 +540,7 @@ func (:s) :.expand_phase1 = (try)
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if a file was modified
-func (er_t write_with_signature( sc_t file, c st_s* data )) = (try)
+func (er_t write_with_signature( sc_t file, c st_s* data )) =
 {
     tp_t hash = bcore_tp_fold_sc( bcore_tp_init(), data.sc );
     m x_sink* sink = bcore_file_open_sink( file )^^;
@@ -552,7 +552,7 @@ func (er_t write_with_signature( sc_t file, c st_s* data )) = (try)
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if a file was modified
-func (:s) :.expand_phase2 = (try)
+func (:s) :.expand_phase2 =
 {
     if( !o.modified )
     {

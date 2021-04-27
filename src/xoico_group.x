@@ -243,7 +243,7 @@ func (:s) xoico_host.create_spect_name =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.parse_name_recursive = (try)
+func (:s) :.parse_name_recursive =
 {
     if( source.parse_bl( "#?':'" ) )
     {
@@ -268,7 +268,7 @@ func (:s) :.parse_name_recursive = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico_host.parse_name_st = (try)
+func (:s) xoico_host.parse_name_st =
 {
     if( source.parse_bl( " #?':'" ) )
     {
@@ -286,7 +286,7 @@ func (:s) xoico_host.parse_name_st = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico_host.parse_name_tp = (try)
+func (:s) xoico_host.parse_name_tp =
 {
     m $* s = st_s!^;
 
@@ -308,7 +308,7 @@ func (:s) xoico_host.parse_name_tp = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_default_feature_from_sc( m @* o, sc_t sc )) = (try)
+func (:s) (er_t push_default_feature_from_sc( m @* o, sc_t sc )) =
 {
     m $* compiler = o.compiler;
     m $* feature = xoico_feature_s!^;
@@ -329,7 +329,7 @@ func (:s) (er_t push_default_feature_from_sc( m @* o, sc_t sc )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc )) = (try)
+func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc )) =
 {
     m $* func = xoico_func_s!^;
     func.expandable = false;
@@ -340,7 +340,7 @@ func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t parse_func( m @* o, m x_source* source )) = (try)
+func (:s) (er_t parse_func( m @* o, m x_source* source )) =
 {
     m $* func = xoico_func_s!^;
     func.parse( o, source );
@@ -351,7 +351,7 @@ func (:s) (er_t parse_func( m @* o, m x_source* source )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_func_d( m @* o, d xoico_func_s* func )) = (try)
+func (:s) (er_t push_func_d( m @* o, d xoico_func_s* func )) =
 {
     sz_t idx = o.funcs.get_index_from_name( func.name );
 
@@ -390,7 +390,7 @@ func (:s) (er_t push_func_d( m @* o, d xoico_func_s* func )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.parse = (try)
+func (:s) :.parse =
 {
     m $* compiler = o.compiler;
     m $* stack = xoico_group_source_stack_s!^;
@@ -702,7 +702,7 @@ func (:s) :.parse = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.finalize = (try)
+func (:s) xoico.finalize =
 {
     /// default features
     o.push_default_feature_from_sc( "d @* clone( c @* o );" );
@@ -722,7 +722,7 @@ func (:s) xoico.finalize = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_forward( c @* o, sz_t indent, m x_sink* sink )) = (try)
+func (:s) (er_t expand_forward( c @* o, sz_t indent, m x_sink* sink )) =
 {
     if( !o.expandable ) return 0;
     sink.push_fa( " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o.st_name.sc );
@@ -733,7 +733,7 @@ func (:s) (er_t expand_forward( c @* o, sz_t indent, m x_sink* sink )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_spect_declaration( c @* o, sz_t indent, m x_sink* sink )) = (try)
+func (:s) (er_t expand_spect_declaration( c @* o, sz_t indent, m x_sink* sink )) =
 {
     if( !o.expandable ) return 0;
     if( o.short_spect_name )
@@ -763,7 +763,7 @@ func (:s) (er_t expand_spect_declaration( c @* o, sz_t indent, m x_sink* sink ))
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.expand_declaration = (try)
+func (:s) :.expand_declaration =
 {
     if( !o.expandable ) return 0;
 
@@ -804,7 +804,7 @@ func (:s) :.expand_declaration = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_spect_definition( c @* o, sz_t indent, m x_sink* sink )) = (try)
+func (:s) (er_t expand_spect_definition( c @* o, sz_t indent, m x_sink* sink )) =
 {
     m $* compiler = o.compiler;
     if( !o.expandable ) return 0;
@@ -827,7 +827,7 @@ func (:s) (er_t expand_spect_definition( c @* o, sz_t indent, m x_sink* sink )) 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.expand_definition = (try)
+func (:s) :.expand_definition =
 {
     if( !o.expandable ) return 0;
     sink.push_fa( "\n" );
@@ -857,7 +857,7 @@ func (:s) :.expand_definition = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.expand_init1 = (try)
+func (:s) :.expand_init1 =
 {
     if( !o.expandable ) return 0;
     sink.push_fa( "\n" );

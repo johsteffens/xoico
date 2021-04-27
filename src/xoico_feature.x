@@ -75,7 +75,7 @@ func (:s) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.parse = (try)
+func (:s) xoico.parse =
 {
     m $* compiler = host.compiler();
 
@@ -154,7 +154,7 @@ func (:s) (m xoico_func_s* push_func_from_sc( m @* o, c xoico_host* host, sc_t s
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) = (try)
+func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) =
 {
     m $* compiler = host.compiler();
     sc_t sc_name = compiler.nameof( o.signature.name );
@@ -366,7 +366,7 @@ func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.finalize = (try)
+func (:s) xoico.finalize =
 {
     foreach( m $* func in o.funcs ) func.finalize( host );
     return 0;
@@ -374,7 +374,7 @@ func (:s) xoico.finalize = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_forward = (try)
+func (:s) xoico.expand_forward =
 {
     foreach( m $* func in o.funcs ) func.expand_forward( host, indent, sink );
     return 0;
@@ -382,7 +382,7 @@ func (:s) xoico.expand_forward = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_indef_typedef = (try)
+func (:s) xoico.expand_indef_typedef =
 {
     if( !o.expandable ) return 0;
     m xoico_compiler_s* compiler = host.compiler();
@@ -397,7 +397,7 @@ func (:s) xoico.expand_indef_typedef = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_spect_declaration = (try)
+func (:s) xoico.expand_spect_declaration =
 {
     if( !o.expandable ) return 0;
     m xoico_compiler_s* compiler = host.compiler();
@@ -407,7 +407,7 @@ func (:s) xoico.expand_spect_declaration = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_spect_definition = (try)
+func (:s) xoico.expand_spect_definition =
 {
     if( !o.expandable ) return 0;
     m xoico_compiler_s* compiler = host.compiler();
@@ -426,7 +426,7 @@ func (:s) xoico.expand_spect_definition = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_indef_declaration = (try)
+func (:s) xoico.expand_indef_declaration =
 {
     if( !o.expandable ) return 0;
     foreach( m $* func in o->funcs ) func.expand_declaration( host, indent + 2, sink );
@@ -435,7 +435,7 @@ func (:s) xoico.expand_indef_declaration = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_definition = (try)
+func (:s) xoico.expand_definition =
 {
     if( !o.expandable ) return 0;
     foreach( m $* func in o.funcs ) func.expand_definition( host, indent, sink );
@@ -444,7 +444,7 @@ func (:s) xoico.expand_definition = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_init1 = (try)
+func (:s) xoico.expand_init1 =
 {
     if( !o.expandable ) return 0;
     m xoico_compiler_s* compiler = host.compiler();

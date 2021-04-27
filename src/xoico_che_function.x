@@ -30,7 +30,7 @@ func (:s)
         m :result* result,
         m xoico_typespec_s* typespec_return
     )
-) = (try)
+) =
 {
     tp_t transient_return_type = 0;
 
@@ -173,7 +173,7 @@ func (:s)
         m :result* result,
         m xoico_typespec_s* return_typespec
     )
-) = (try)
+) =
 {
     m $* typespec_ret = xoico_typespec_s!^;
     m $* result_args = :result_arr_s!^;

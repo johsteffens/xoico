@@ -441,7 +441,7 @@ func (:s) :.check_overwrite =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.parse = (try)
+func (:s) :.parse =
 {
     m st_s* source_folder_path = bcore_file_folder_path( source_path )^;
     m st_s* target_path        = st_s_create_fa( "#<sc_t>/#<sc_t>.#<sc_t>", source_folder_path->sc, target_name, target_ext )^;
@@ -477,7 +477,7 @@ func (:s) :.parse = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.finalize = (try)
+func (:s) xoico.finalize =
 {
     foreach( m $* e in o ) e.finalize( o );
     return 0;
@@ -485,7 +485,7 @@ func (:s) xoico.finalize = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_setup = (try)
+func (:s) xoico.expand_setup =
 {
     for( sz_t i = 0; i < o->size; i++ ) o.[ i ].expand_setup( o );
 
@@ -513,7 +513,7 @@ func (:s) (bl_t to_be_modified( c @* o )) =
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if a file was modified
-func (:s) (er_t expand( m @* o, m bl_t* p_modified )) = (try)
+func (:s) (er_t expand( m @* o, m bl_t* p_modified )) =
 {
     bl_t modified = false;
 

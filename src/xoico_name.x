@@ -20,7 +20,7 @@ stamp :s = aware :
     tp_t name; // deemed global
     x_source_point_s source_point;
 
-    func xoico.parse = (try)
+    func xoico.parse =
     {
         o.source_point.setup_from_source( source );
         host.parse_name_tp( source, o.name.1 );

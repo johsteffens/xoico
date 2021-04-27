@@ -29,7 +29,7 @@ stamp :s = aware :
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.parse = (try)
+func (:s) xoico.parse =
 {
     m $* compiler = host.compiler();
     o.source_point.setup_from_source( source );

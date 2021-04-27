@@ -81,7 +81,7 @@ func (:s) :.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t freeze_global_name( m @* o, c xoico_host* host )) = (try)
+func (:s) (er_t freeze_global_name( m @* o, c xoico_host* host )) =
 {
     if( o.global_name ) return 0;
     m $* compiler = host.compiler();
@@ -91,7 +91,7 @@ func (:s) (er_t freeze_global_name( m @* o, c xoico_host* host )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.parse = (try)
+func (:s) xoico.parse =
 {
     m $* compiler = host.compiler();
 
@@ -199,7 +199,7 @@ func (:s) (er_t push_flect_decl_to_sink( c @* o, c xoico_host* host, m x_sink* s
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.finalize = (try)
+func (:s) xoico.finalize =
 {
     m $* compiler = host.compiler();
     o.freeze_global_name( host );
@@ -230,7 +230,7 @@ func (:s) xoico.finalize = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_forward = (try)
+func (:s) xoico.expand_forward =
 {
     if( !o->expandable ) return 0;
     if( !o->declare_in_expand_forward ) return 0;
@@ -256,7 +256,7 @@ func (:s) xoico.expand_forward = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_declaration = (try)
+func (:s) xoico.expand_declaration =
 {
     if( !o.expandable ) return 0;
 
@@ -284,7 +284,7 @@ func (:s) xoico.expand_declaration = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_definition = (try)
+func (:s) xoico.expand_definition =
 {
     if( !o.expandable ) return 0;
     m $* compiler = host.compiler();

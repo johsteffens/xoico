@@ -169,7 +169,7 @@ stamp :main_s = aware :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:target_s) :.load = (try)
+func (:target_s) :.load =
 {
     m st_s* st_path = st_s!^^;
     st_path.copy_sc( path );
@@ -247,7 +247,7 @@ func (:target_s) :.load = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:target_s) :.build = (try)
+func (:target_s) :.build =
 {
     if( !o.root_    ) o.root_    = ( o.parent_ ) ? o.parent_.root_    : o;
     if( !o.compiler ) o.compiler = ( o.parent_ ) ? o.parent_.compiler : NULL;
@@ -372,7 +372,7 @@ func (:target_s) :.build = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:main_s) :.build_from_file = (try)
+func (:main_s) :.build_from_file =
 {
     o.target =< xoico_builder_target_s!;
     o.target.load( false, path );

@@ -38,7 +38,7 @@ stamp :s = aware :
     func xoico.get_hash;
     func :.set_global_name;
 
-    func xoico.convert_transient_types = (try)
+    func xoico.convert_transient_types =
     {
         if( o.arg_o )
         {
@@ -61,7 +61,7 @@ stamp :s = aware :
 
     func xoico.get_global_name_tp = { return o.global_name; };
 
-    func :.relent = (try)
+    func :.relent =
     {
         if( o.arg_o ) o.arg_o.relent( host, tp_obj_type );
         o.args.relent( host, tp_obj_type );
@@ -79,13 +79,13 @@ stamp :s = aware :
 
     func (bl_t returns_a_value( c @* o )) = { return !o.typespec_ret.is_void(); };
 
-    func (er_t expand_ret( c @* o, c xoico_host* host, m x_sink* sink )) = (try)
+    func (er_t expand_ret( c @* o, c xoico_host* host, m x_sink* sink )) =
     {
         o.typespec_ret.expand( host, sink );
         return 0;
     };
 
-    func (er_t expand_ret_x( c @* o, c xoico_host* host, m x_sink* sink )) = (try)
+    func (er_t expand_ret_x( c @* o, c xoico_host* host, m x_sink* sink )) =
     {
         o.typespec_ret.expand_x( host, sink );
         return 0;
@@ -116,7 +116,7 @@ func (:s) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.set_global_name = (try)
+func (:s) :.set_global_name =
 {
     o.base_name = host.obj_type();
     o.global_name = host.entypeof( st_s_create_fa( "#<sc_t>_#<sc_t>", host.nameof( o.base_name ), host.nameof( o.name ) )^^.sc );
@@ -125,7 +125,7 @@ func (:s) :.set_global_name = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.parse = (try)
+func (:s) xoico.parse =
 {
     m $* compiler = host.compiler();
     m $* name_buf = st_s!^^;
@@ -201,7 +201,7 @@ func (:s) xoico.parse = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.expand_declaration = (try)
+func (:s) :.expand_declaration =
 {
     o.expand_ret( host, sink );
     sink.push_fa( " #<sc_t>( ", sc_func_global_name );

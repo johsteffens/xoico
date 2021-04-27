@@ -20,7 +20,7 @@
 // parses an identifier with namespace-syntax
 feature 'a' er_t parse_name_st( c @* o, m x_source* source, m st_s* name ) = (verbatim_C) { ERR_fa( "Not implemented in '#<sc_t>'.", nameof( o->_ ) ); return 0; };
 
-feature 'a' er_t parse_name_tp( c @* o, m x_source* source, m tp_t* name ) = (try)
+feature 'a' er_t parse_name_tp( c @* o, m x_source* source, m tp_t* name ) =
 {
     m $* s = st_s!^^;
     o.parse_name_st( source, s );

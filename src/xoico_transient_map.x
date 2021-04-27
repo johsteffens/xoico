@@ -32,7 +32,7 @@ stamp :s = aware :
 //----------------------------------------------------------------------------------------------------------------------
 
 /// ( <key> <value>, <key> <value>, ... )
-func (:s) xoico.parse = (try)
+func (:s) xoico.parse =
 {
     o.map.clear();
     m xoico_compiler_s* compiler = host.compiler();

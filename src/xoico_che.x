@@ -632,7 +632,7 @@ func (:s) (tp_t get_identifier( m @* o, m x_source* source, bl_t take_from_sourc
 //----------------------------------------------------------------------------------------------------------------------
 
 /** transfers identifier, enrolls it and sets 'tp_identifier' */
-func(:s) (er_t trans_identifier( m @* o, m x_source* source, m :result* result /* can be NULL */, m tp_t* tp_identifier/* can be NULL */ )) = (try)
+func(:s) (er_t trans_identifier( m @* o, m x_source* source, m :result* result /* can be NULL */, m tp_t* tp_identifier/* can be NULL */ )) =
 {
     tp_t identifier = o.get_identifier( source, true );
     if( !identifier )
@@ -647,7 +647,7 @@ func(:s) (er_t trans_identifier( m @* o, m x_source* source, m :result* result /
 //----------------------------------------------------------------------------------------------------------------------
 
 /** parses number: (all integer, hex and float encodings)*/
-func(:s) (er_t trans_number_literal( m @* o, m x_source* source, m :result* result )) = (try)
+func(:s) (er_t trans_number_literal( m @* o, m x_source* source, m :result* result )) =
 {
     bl_t hex = false;
     if( source.parse_bl( "#?'0x'" ) )
@@ -712,7 +712,7 @@ func(:s) (er_t trans_number_literal( m @* o, m x_source* source, m :result* resu
 //----------------------------------------------------------------------------------------------------------------------
 
 /// parses string
-func (:s) (er_t trans_string_literal( m @* o, m x_source* source, m :result* result )) = (try)
+func (:s) (er_t trans_string_literal( m @* o, m x_source* source, m :result* result )) =
 {
     o.trans( source, "\"", result );
 
@@ -748,7 +748,7 @@ try
 //----------------------------------------------------------------------------------------------------------------------
 
 /// parses whitespaces including comments
-func (:s) (er_t trans_whitespace( m @* o, m x_source* source, m :result* result /* can be NULL */ )) = (try)
+func (:s) (er_t trans_whitespace( m @* o, m x_source* source, m :result* result /* can be NULL */ )) =
 {
     bl_t exit_loop = false;
     while( !exit_loop && !source.eos() )
@@ -810,7 +810,7 @@ func (:s) (er_t trans_whitespace( m @* o, m x_source* source, m :result* result 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t trans_preprocessor( m @* o, m x_source* source, m :result* result )) = (try)
+func (:s) (er_t trans_preprocessor( m @* o, m x_source* source, m :result* result )) =
 {
     source.parse_fa( "##" );
     result.push_sc( "#" );
@@ -949,7 +949,7 @@ func (:s)
         c :result* result_expr,
         m :result* result
     )
-) = (try)
+) =
 {
     if( target_indirection == typespec_expr.indirection )
     {
@@ -1000,7 +1000,7 @@ func (:s)
         c :result* result_expr,
         m :result* result
     )
-) = (try)
+) =
 {
     if( !typespec_expr.type )
     {
@@ -1114,7 +1114,7 @@ func (:s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t trans_member( m @* o, m x_source* source, m :result* result )) = (try)
+func (:s) (er_t trans_member( m @* o, m x_source* source, m :result* result )) =
 {
     if(      source.parse_bl( "#?'.'"  ) ) result.push_sc( "." );
     else if( source.parse_bl( "#?'->'" ) ) result.push_sc( "->" );
@@ -1165,7 +1165,7 @@ func (:s)
         bl_t require_tractable_type,
         m bl_t* success
     )
-) = (try)
+) =
 {
     if( success ) success.0 = false;
 
@@ -1289,7 +1289,7 @@ func (:s)
         m xoico_typespec_s* typespec,
         bl_t require_tractable_type
     )
-) = (try)
+) =
 {
     bl_t success = false;
     o.try_take_typespec( source, typespec, require_tractable_type, success );
@@ -1311,7 +1311,7 @@ func (:s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.push_typespec  = (try)
+func (:s) :.push_typespec  =
 {
     tp_t type = typespec.type;
 
@@ -1358,7 +1358,7 @@ func (:s)
         m :result* result, // can be NULL
         m xoico_typespec_s* out_typespec // optional
     )
-) = (try)
+) =
 {
     m $* result_local = :result_create_arr()^^;
     tp_t tp_identifier;
@@ -1419,7 +1419,7 @@ func (:s)
         m :result* result, // can be NULL
         m xoico_typespec_s* out_typespec // optional
     )
-) = (try)
+) =
 {
     m $* result_local = :result_create_arr()^^;
     tp_t tp_identifier;
@@ -1453,7 +1453,7 @@ func (:s)
         m :result* result, // can be NULL
         m xoico_typespec_s* out_typespec // optional
     )
-) = (try)
+) =
 {
     source.parse_fa( "?" );
     result.push_sc( "?" );
@@ -1508,7 +1508,7 @@ func (:s)
         m :result* result, // can be NULL
         m xoico_typespec_s* out_typespec // optional
     )
-) = (try)
+) =
 {
     source.parse_fa( "(" );
     result.push_char( '(' );
@@ -1535,7 +1535,7 @@ func (:s)
         m :result* result, // can be NULL
         m xoico_typespec_s* out_typespec // optional
     )
-) = (try)
+) =
 {
     source.parse_fa( "[" );
     result.push_sc( "[" );
@@ -1556,7 +1556,7 @@ func (:s)
         m :result* result_out, // can be NULL
         m xoico_typespec_s* out_typespec // optional
     )
-) = (try)
+) =
 {
     sc_t sc_bl_end_of_expression = "#?([0]==';'||[0]=='{'||[0]=='}'||[0]==')'||[0]==']'||[0]==','||([0]=='.'&&[1]=='.')||([0]==':'&&([1]==' '||[1]=='\t'||[1]=='\n'||[1]=='/')))";
 
@@ -1756,7 +1756,7 @@ func (:s)
         m :result* result_out,
         m bl_t* success
     )
-) = (try)
+) =
 {
     if( success ) success.0 = false;
 
@@ -1901,7 +1901,7 @@ func (:s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func(:s) (er_t inspect_expression( m @* o, m x_source* source )) = (try)
+func(:s) (er_t inspect_expression( m @* o, m x_source* source )) =
 {
     source.parse_fa( "\?\?" );
 
@@ -1948,7 +1948,7 @@ func(:s) (er_t inspect_expression( m @* o, m x_source* source )) = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t trans_statement_expression( m @* o, m x_source* source, m :result* result )) = (try)
+func (:s) (er_t trans_statement_expression( m @* o, m x_source* source, m :result* result )) =
 {
     if( o.try_block_level > 0 )
     {
@@ -1994,7 +1994,7 @@ func (:s) (er_t trans_statement_expression( m @* o, m x_source* source, m :resul
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t trans_statement( m @* o, m x_source* source, m :result* result )) = (try)
+func (:s) (er_t trans_statement( m @* o, m x_source* source, m :result* result )) =
 {
     o.trans_whitespace( source, result );
 
@@ -2088,7 +2088,7 @@ func (:s) (er_t trans_statement( m @* o, m x_source* source, m :result* result )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t trans_block_inside( m @* o, m x_source* source, m :result* result_out )) = (try)
+func (:s) (er_t trans_block_inside( m @* o, m x_source* source, m :result* result_out )) =
 {
     m $* result = :result_create_arr()^^;
 
@@ -2121,7 +2121,7 @@ func (:s) (er_t trans_block_inside( m @* o, m x_source* source, m :result* resul
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t trans_block( m @* o, m x_source* source, m :result* result_out, bl_t is_break_ledge )) = (try)
+func (:s) (er_t trans_block( m @* o, m x_source* source, m :result* result_out, bl_t is_break_ledge )) =
 {
     o.inc_block();
     m $* result = :result_create_arr()^^;
@@ -2138,7 +2138,7 @@ func (:s) (er_t trans_block( m @* o, m x_source* source, m :result* result_out, 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t trans_statement_as_block( m @* o, m x_source* source, m :result* result_out, bl_t is_break_ledge )) = (try)
+func (:s) (er_t trans_statement_as_block( m @* o, m x_source* source, m :result* result_out, bl_t is_break_ledge )) =
 {
     m $* result = :result_create_arr()^^;
 
@@ -2176,7 +2176,7 @@ func (:s) (er_t trans_statement_as_block( m @* o, m x_source* source, m :result*
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t trans_block_inside_verbatim_c( m @* o, m x_source* source, m :result* result )) = (try)
+func (:s) (er_t trans_block_inside_verbatim_c( m @* o, m x_source* source, m :result* result )) =
 {
     o.trans_whitespace( source, result );
     while( !source.parse_bl( "#=?'}'" ) && !source.eos() )
@@ -2217,7 +2217,7 @@ func (:s) (er_t trans_block_inside_verbatim_c( m @* o, m x_source* source, m :re
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t setup( m @* o, c xoico_host* host, c xoico_signature_s* signature )) = (try)
+func (:s) (er_t setup( m @* o, c xoico_host* host, c xoico_signature_s* signature )) =
 {
     o.signature =< signature.clone();
     o.signature.relent( host, host.obj_type() );
@@ -2313,7 +2313,7 @@ func (:s) (void remove_indentation( m st_s* string, sz_t indentation )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* body, c xoico_signature_s* signature, m x_sink* sink )) = (try)
+func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* body, c xoico_signature_s* signature, m x_sink* sink )) =
 {
     o.setup( host, signature );
 

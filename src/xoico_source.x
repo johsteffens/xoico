@@ -116,7 +116,7 @@ stamp :s = aware :
 //----------------------------------------------------------------------------------------------------------------------
 
 /// Returns NULL in case of no match;
-func (:s) get_group_if_preexsting = (try)
+func (:s) get_group_if_preexsting =
 {
     m xoico_compiler_s* compiler = host.compiler();
     if( compiler.is_group( host.entypeof( group_name ) ) )
@@ -144,7 +144,7 @@ func (:s) get_group_if_preexsting = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) parse_h = (try)
+func (:s) parse_h =
 {
     m $* compiler = o.target.compiler;
     while( !source.eos() )
@@ -196,7 +196,7 @@ func (:s) parse_h = (try)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) parse_x = (try)
+func (:s) parse_x =
 {
     m $* compiler = o.target.compiler;
     m xoico_group_s* group = NULL;
