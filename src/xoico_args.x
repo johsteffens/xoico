@@ -48,7 +48,7 @@ func (:s) (er_t append( m @* o, c xoico_host* host, m x_source* source )) =
 
 func (:s) (er_t relent( m @* o, c xoico_host* host, tp_t tp_obj_type )) =
 {
-    foreach( m $* arg in o ) arg.relent( host, tp_obj_type ).try();
+    foreach( m $* arg in o ) arg.relent( host, tp_obj_type );
     return 0;
 };
 
@@ -68,7 +68,7 @@ func (:s) (er_t expand( c @* o, c xoico_host* host, bl_t first, m x_sink* sink )
     {
         if( !first ) sink.push_fa( ", " );
         first = false;
-        arg.expand( host, sink ).try();
+        arg.expand( host, sink );
     }
     return 0;
 };
@@ -81,7 +81,7 @@ func (:s) (er_t expand_x( c @* o, c xoico_host* host, bl_t first, m x_sink* sink
     {
         if( !first ) sink.push_fa( ", " );
         first = false;
-        arg.expand_x( host, sink ).try();
+        arg.expand_x( host, sink );
     }
     return 0;
 };
@@ -94,7 +94,7 @@ func (:s) (er_t expand_name( c @* o, c xoico_host* host, bl_t first, m x_sink* s
     {
         if( !first ) sink.push_fa( ", " );
         first = false;
-        arg.expand_name( host, sink ).try();
+        arg.expand_name( host, sink );
     }
     return 0;
 };

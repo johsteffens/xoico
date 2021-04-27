@@ -69,13 +69,13 @@ stamp :s = aware :
 
     func xoico.finalize =
     {
-        foreach( m $* e in o ) e.finalize( o ).try();
+        foreach( m $* e in o ) e.finalize( o );
         return 0;
     };
 
     func xoico.expand_setup =
     {
-        foreach( m $* e in o ) e.expand_setup( o ).try();
+        foreach( m $* e in o ) e.expand_setup( o );
         return 0;
     };
 

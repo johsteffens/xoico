@@ -434,9 +434,9 @@ FEATURES, BUGS ...
 - (done) try: allow try blocks in functions not returning er_t.
         In such functions in case or error lifetime manager shuts down safely and bcore_down_exit( error_code ) is called.
 
-TODO:
+- (done) enable function-wide (try) by default (can be disabled via che parameter)
 
-- enable function-wide (try) by default (can be disabled via che parameter)
+TODO:
 
 - stamp: parsing reflection:
    - automatic prepend 'aware' for group types when type-awareness is unclear

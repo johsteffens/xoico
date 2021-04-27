@@ -36,7 +36,7 @@ stamp :s = aware :
 
     func xoico.expand_setup =
     {
-        foreach( m $* e in o ) e.expand_setup( o ).try();
+        foreach( m $* e in o ) e.expand_setup( o );
         return 0;
     };
 
@@ -57,7 +57,7 @@ stamp :s = aware :
 
     func xoico.finalize =
     {
-        foreach( m $* e in o ) e.finalize( o ).try();
+        foreach( m $* e in o ) e.finalize( o );
         return 0;
     };
 
@@ -67,7 +67,7 @@ stamp :s = aware :
         sink.push_fa( "\n" );
         sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
         sink.push_fa( "#rn{ }// source: #<sc_t>.#<sc_t>\n", indent, o.name.sc, o.ext.sc );
-        foreach( m $* e in o ) e.expand_declaration( indent, sink ).try();
+        foreach( m $* e in o ) e.expand_declaration( indent, sink );
         return 0;
     };
 
@@ -81,7 +81,7 @@ stamp :s = aware :
         {
             sink.push_fa( "#rn{ }##include \"#<sc_t>.#<sc_t>\"\n", indent, o.name.sc, o.ext.sc );
         }
-        foreach( m $* e in o ) e.expand_definition( indent, sink ).try();
+        foreach( m $* e in o ) e.expand_definition( indent, sink );
         return 0;
     };
 
@@ -90,13 +90,13 @@ stamp :s = aware :
         sink.push_fa( "\n" );
         sink.push_fa( "#rn{ }// #rn{-}\n", indent, sz_max( 0, 80 - indent ) );
         sink.push_fa( "#rn{ }// source: #<sc_t>.#<sc_t>\n", indent, o.name.sc, o.ext.sc );
-        foreach( m $* e in o ) e.expand_init1( indent, sink ).try();
+        foreach( m $* e in o ) e.expand_init1( indent, sink );
         return 0;
     };
 
     func xoico.expand_manifesto =
     {
-        foreach( m $* e in o ) e.expand_manifesto( host, indent, sink ).try();
+        foreach( m $* e in o ) e.expand_manifesto( host, indent, sink );
         return 0;
     };
 

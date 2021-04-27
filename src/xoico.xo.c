@@ -1,4 +1,4 @@
-//  Last update: 2021-04-27T14:57:45Z
+//  Last update: 2021-04-27T15:07:58Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
  *
@@ -44,7 +44,7 @@
 #include "bcore_const_manager.h"
 
 // To force a rebuild of this target by xoico, reset the hash key value below to 0.
-// HKEYOF_xoico 0x0DF12BF22A1013DCull
+// HKEYOF_xoico 0xCD3B6AE5753F8566ull
 
 /**********************************************************************************************************************/
 // source: xoico.x
@@ -2667,12 +2667,12 @@ er_t xoico_group_s_parse( xoico_group_s* o, const xoico_host* host, bl_t parse_b
         BLM_DOWN();}
         else if( x_source_parse_bl(source," #?w'type' " ) )
         {BLM_INIT_LEVEL(3);
-            xoico_name_s name;BLM_T_INIT_SPUSH(xoico_name_s, &name);BLM_TRY(xoico_name_s_parse(&(name),((const xoico_host*)(o)), source ))
+            xoico_name_s name;BLM_T_INIT_SPUSH(xoico_name_s, &name);xoico_name_s_parse(&(name),((const xoico_host*)(o)), source );
             BLM_TRY(xoico_compiler_s_register_external_type(compiler,name.name ))
         BLM_DOWN();}
         else if( x_source_parse_bl(source," #?w'identifier' " ) )
         {BLM_INIT_LEVEL(3);
-            xoico_name_s name;BLM_T_INIT_SPUSH(xoico_name_s, &name);BLM_TRY(xoico_name_s_parse(&(name),((const xoico_host*)(o)), source ))
+            xoico_name_s name;BLM_T_INIT_SPUSH(xoico_name_s, &name);xoico_name_s_parse(&(name),((const xoico_host*)(o)), source );
             BLM_TRY(xoico_compiler_s_register_external_identifier(compiler,name.name ))
         BLM_DOWN();}
         else if( x_source_parse_bl(source," #?w'forward' " ) )
@@ -9971,5 +9971,5 @@ int main( int argc, char** argv )
     BETH_CLOSEV( 0 );
     return retv;
 }
-// XOICO_BODY_SIGNATURE 0x02FAEECE38BAC3B8
-// XOICO_FILE_SIGNATURE 0x17FAC612A7C07245
+// XOICO_BODY_SIGNATURE 0xCBBCB0734FEE0CA4
+// XOICO_FILE_SIGNATURE 0x005FDCF1A07C5099

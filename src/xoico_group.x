@@ -535,12 +535,12 @@ func (:s) :.parse =
         }
         else if( source.parse_bl( " #?w'type' " ) )
         {
-            xoico_name_s^ name.parse( o, source ).try();
+            xoico_name_s^ name.parse( o, source );
             compiler.register_external_type( name.name );
         }
         else if( source.parse_bl( " #?w'identifier' " ) )
         {
-            xoico_name_s^ name.parse( o, source ).try();
+            xoico_name_s^ name.parse( o, source );
             compiler.register_external_identifier( name.name );
         }
         else if( source.parse_bl( " #?w'forward' " ) )
