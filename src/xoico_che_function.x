@@ -121,6 +121,18 @@ func (:s)
                 {
                     transient_return_type = typespec_expr.type;
                 }
+
+                if( transient_map )
+                {
+                    tp_t t = transient_map.get( ret_transient_class );
+                    if( o.is_stamp( t ) )
+                    {
+                        if( typespec_expr.type != t )
+                        {
+                            return source.parse_error_fa( "Function argument '#<sc_t>': Type '#<sc_t>' expected but type '#<sc_t>' passed.", o.nameof( arg.name ), o.nameof( t ), o.nameof( typespec_expr.type ) );
+                        }
+                    }
+                }
             }
 
             o.adapt_expression( source, typespec_expr, arg.typespec, result_expr, result );

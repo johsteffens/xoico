@@ -1,4 +1,4 @@
-//  Last update: 2021-04-27T15:07:58Z
+//  Last update: 2021-05-04T16:18:21Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
  *
@@ -44,7 +44,7 @@
 #include "bcore_const_manager.h"
 
 // To force a rebuild of this target by xoico, reset the hash key value below to 0.
-// HKEYOF_xoico 0xCD3B6AE5753F8566ull
+// HKEYOF_xoico 0xBAB022B607C71BFCull
 
 /**********************************************************************************************************************/
 // source: xoico.x
@@ -7715,6 +7715,18 @@ er_t xoico_che_s_trans_function_args( xoico_che_s* o, x_source* source, const xo
                 {
                     transient_return_type = typespec_expr->type;
                 }
+    
+                if( transient_map )
+                {
+                    tp_t t = xoico_transient_map_s_get(transient_map,ret_transient_class );
+                    if( xoico_che_s_is_stamp(o,t ) )
+                    {
+                        if( typespec_expr->type != t )
+                        {
+                            BLM_RETURNV(er_t, x_source_parse_error_fa(source,"Function argument '#<sc_t>': Type '#<sc_t>' expected but type '#<sc_t>' passed.", xoico_che_s_nameof(o,arg->name ), xoico_che_s_nameof(o,t ), xoico_che_s_nameof(o,typespec_expr->type ) ))
+                        }
+                    }
+                }
             }
     
             BLM_TRY(xoico_che_s_adapt_expression(o,source, typespec_expr,&( arg->typespec),((const xoico_che_result*)( result_expr)), result ))
@@ -7755,7 +7767,7 @@ er_t xoico_che_s_trans_function_args( xoico_che_s* o, x_source* source, const xo
 
 er_t xoico_che_s_trans_function( xoico_che_s* o, x_source* source, const xoico_func_s* func, const xoico_che_result* result_object_expr, const xoico_typespec_s* typespec_object, xoico_che_result* result, xoico_typespec_s* return_typespec )
 {
-    // xoico_che_function.x:177:1
+    // xoico_che_function.x:189:1
     BLM_INIT_LEVEL(0);
     xoico_typespec_s* typespec_ret = ((xoico_typespec_s*)BLM_LEVEL_T_PUSH(0,xoico_typespec_s,xoico_typespec_s_create()));
     xoico_che_result_arr_s* result_args = ((xoico_che_result_arr_s*)BLM_LEVEL_T_PUSH(0,xoico_che_result_arr_s,xoico_che_result_arr_s_create()));
@@ -9971,5 +9983,5 @@ int main( int argc, char** argv )
     BETH_CLOSEV( 0 );
     return retv;
 }
-// XOICO_BODY_SIGNATURE 0xCBBCB0734FEE0CA4
-// XOICO_FILE_SIGNATURE 0x005FDCF1A07C5099
+// XOICO_BODY_SIGNATURE 0xE0F263078575299F
+// XOICO_FILE_SIGNATURE 0x7BE384BFFB4505DA

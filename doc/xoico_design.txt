@@ -435,6 +435,7 @@ FEATURES, BUGS ...
         In such functions in case or error lifetime manager shuts down safely and bcore_down_exit( error_code ) is called.
 
 - (done) enable function-wide (try) by default (can be disabled via che parameter)
+- (done) transient arg: if transient type is a stamp check correct type of type of passed element
 
 TODO:
 
