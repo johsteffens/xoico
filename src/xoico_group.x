@@ -164,7 +164,6 @@ stamp :s = aware :
 
     func :.explicit_embeddings_push = { foreach( m st_s* st in o.explicit_embeddings ) arr.push_st( st ); };
 
-
     func xoico_host.parse_name_st;
     func xoico_host.parse_name_tp;
 
@@ -673,8 +672,25 @@ func (:s) :.parse =
             }
 
             m st_s* include_file = st_s!^;
-            source.parse_fa( " #string" , include_file );
+
+            if( source.parse_bl( " #?'\"'" ) )
+            {
+                include_file.push_char( '"' );
+                source.parse_fa( "#:until'\"'\"", include_file );
+                include_file.push_char( '"' );
+            }
+            else if( source.parse_bl( " #?'<'" ) )
+            {
+                include_file.push_char( '<' );
+                source.parse_fa( "#:until'>'>", include_file );
+                include_file.push_char( '>' );
+            }
+            else
+            {
+                return source.parse_error_fa( "'include <filepath>' or 'include \"filepath\"' expected." );
+            }
             source.parse_fa( " ;" );
+
             if( in_definition )
             {
                 o.includes_in_definition.push_st( include_file );
@@ -777,7 +793,7 @@ func (:s) :.expand_declaration =
     }
     sink.push_fa("\n" );
 
-    foreach( m $* e in o->includes_in_declaration ) sink.push_fa( "##include \"#<sc_t>\"\n", e.sc );
+    foreach( m $* e in o->includes_in_declaration ) sink.push_fa( "##include #<sc_t>\n", e.sc );
 
     sink.push_fa( "\n" );
     sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, o.st_name.sc, btypeof( o.st_name.sc ) );
@@ -840,7 +856,7 @@ func (:s) :.expand_definition =
     }
     sink.push_fa("\n" );
 
-    foreach( m $* e in o.includes_in_definition ) sink.push_fa( "##include \"#<sc_t>\"\n", e.sc );
+    foreach( m $* e in o.includes_in_definition ) sink.push_fa( "##include #<sc_t>\n", e.sc );
 
     // non-features
     foreach( m $* e in o; e._ != xoico_feature_s~ ) e.expand_definition( o, indent, sink );

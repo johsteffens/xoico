@@ -1,11 +1,12 @@
-//  Last update: 2021-04-27T14:49:00Z
+//  Last update: 2021-05-18T18:25:18Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
  *
  *  Copyright and License of this File:
  *
- *  Generated code inherits the copyright and license of the underlying xoila source code.
- *  Source code defining this file is distributed across following files:
+ *  Unless explicitly stated otherwise in governing license terms, this file inherits the
+ *  copyright and license terms of the immediate source code from which it was compiled.
+ *  This immediate source code is distributed across following files:
  *
  *  xoico.x
  *  xoico_host.x
@@ -1897,4 +1898,4 @@ BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
 // XOICO_BODY_SIGNATURE 0x018497E4085D227F
-// XOICO_FILE_SIGNATURE 0xAF5D29E87547D5F7
+// XOICO_FILE_SIGNATURE 0x95067737CDD700DA

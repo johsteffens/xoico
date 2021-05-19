@@ -37,16 +37,16 @@ func (:s) xoico.parse =
     o.map.clear();
     m xoico_compiler_s* compiler = host.compiler();
     source.parse_fa( "( " );
-    m $* s = st_s!^^;
+    m $* s = st_s!^;
 
     while( !source.eos() )
     {
         source.parse_fa( "#name ", s );
         if( s.size == 0 ) return source.parse_error_fa( "Transient class name expected." );
         tp_t key = compiler.entypeof( s.sc );
-        source.parse_fa( "#name ", s );
-        if( s.size == 0 ) return source.parse_error_fa( "Type name expected." );
-        tp_t type = compiler.entypeof( s.sc );
+        tp_t type = 0;
+        host.parse_name_tp( source, type.1 );
+        if( !type ) return source.parse_error_fa( "Type name expected." );
         o.map.set( key, type );
         if( source.parse_bl( "#?')' " ) ) break;
         source.parse_fa( ", " );

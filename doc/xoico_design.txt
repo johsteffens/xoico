@@ -2,7 +2,7 @@ Author and Copyright 2020 Johannes Bernhard Steffens
 
 XOICO Framework Design
 
-Xoila is a mostly declarative language that can be immersed with
+Xoila is a programming language that can be immersed with
 c-code.
 
 It was initially invented for the beth framework and originally called "beth_plant".
@@ -436,6 +436,13 @@ FEATURES, BUGS ...
 
 - (done) enable function-wide (try) by default (can be disabled via che parameter)
 - (done) transient arg: if transient type is a stamp check correct type of type of passed element
+- (fixed) bug: xoico_builder_target_s (cfg file) changing waiver flags does not rebuild affected code in functions
+- (done: not a bug) not returning a value when a return is expected does not clean up lifetime framework.
+   not a bug: xoico does not trace all possible return paths in a function and therefore
+   does not know if at its end a return would always be executed. Always formally Adding BLM_DOWN
+   is a solution but is just redundant code for correct implementations. (c-compiler warns in case of missing return)
+
+- (done) include: allow use of angle brackets <...>
 
 TODO:
 
@@ -446,7 +453,7 @@ TODO:
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
 - make traitline of all groups end in x_inst
 - make 'fork' a transient function in x_inst rather than a builtin function
-- che: disable as many waivers as possible
+- che (defaults): disable as many waivers as possible
 
 - cast: introduce aware_cast( <typespec> ) as safe cast-variation on object indirection > 0
      - assumes that all object involved are aware
@@ -458,6 +465,9 @@ TODO:
    Motivation:
      - Simplifies handling of of sr_s
      - Potential for unintended destructive cases is low as long as automatic indirection adjustment is prevented.
+
+- taget.cfg file: source: listing a *.x file without group specification automatically adds it to a common group
+  of name 'taget-name' instead of creating a dedicated group.
 
 ===================================================================
 

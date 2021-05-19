@@ -423,10 +423,10 @@ stamp :s = aware :
     bl_t waive_function_in_untraced_context = false;
 
     /// (purity) Condition: Unknown type was detected in an the arglist of a function
-    bl_t waive_unknown_type = true;
+    bl_t waive_unknown_type = false;
 
     /// (purity) Condition: trans_expression encounters an unknown identifier
-    bl_t waive_unknown_identifier = true;
+    bl_t waive_unknown_identifier = false;
 
     /** (side effect)
      *  Condition: Operator '^' used in block-wrapped-statement that appear syntactically not being a block.
@@ -437,6 +437,8 @@ stamp :s = aware :
      *    if( <condition> ) { <statement> }
      */
     bl_t waive_local_scope_operator_creates_implicit_block = false;
+
+    /// end parameters
 
     /// runtime data
     hidden aware xoico_host*       host;
@@ -456,12 +458,18 @@ stamp :s = aware :
     func xoico.get_hash =
     {
         tp_t hash = bcore_tp_init();
+
         hash = bcore_tp_fold_bl( hash, o.verbose );
         hash = bcore_tp_fold_bl( hash, o.insert_source_reference );
+        hash = bcore_tp_fold_bl( hash, o.for_all_functions_enable_try );
+
         hash = bcore_tp_fold_bl( hash, o.waive_unknown_member_variable );
         hash = bcore_tp_fold_bl( hash, o.waive_unknown_member_function );
         hash = bcore_tp_fold_bl( hash, o.waive_function_in_untraced_context );
+        hash = bcore_tp_fold_bl( hash, o.waive_unknown_type );
         hash = bcore_tp_fold_bl( hash, o.waive_unknown_identifier );
+        hash = bcore_tp_fold_bl( hash, o.waive_local_scope_operator_creates_implicit_block );
+
         return hash;
     };
 

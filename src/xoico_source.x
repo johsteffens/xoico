@@ -64,33 +64,42 @@ stamp :s = aware :
 
     func xoico.expand_declaration =
     {
-        sink.push_fa( "\n" );
-        sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
-        sink.push_fa( "#rn{ }// source: #<sc_t>.#<sc_t>\n", indent, o.name.sc, o.ext.sc );
-        foreach( m $* e in o ) e.expand_declaration( indent, sink );
+        if( o.size > 0 )
+        {
+            sink.push_fa( "\n" );
+            sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
+            sink.push_fa( "#rn{ }// source: #<sc_t>.#<sc_t>\n", indent, o.name.sc, o.ext.sc );
+            foreach( m $* e in o ) e.expand_declaration( indent, sink );
+        }
         return 0;
     };
 
     func xoico.expand_definition =
     {
-        sink.push_fa( "\n" );
-        sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
-        sink.push_fa( "#rn{ }// source: #<sc_t>.#<sc_t>\n", indent, o.name.sc, o.ext.sc );
-
-        if( o.ext.equal_sc( "h" ) )
+        if( o.size > 0 || o.ext.equal_sc( "h" ) )
         {
-            sink.push_fa( "#rn{ }##include \"#<sc_t>.#<sc_t>\"\n", indent, o.name.sc, o.ext.sc );
+            sink.push_fa( "\n" );
+            sink.push_fa( "#rn{ }/*#rn{*}*/\n", indent, sz_max( 0, 116 - indent ) );
+            sink.push_fa( "#rn{ }// source: #<sc_t>.#<sc_t>\n", indent, o.name.sc, o.ext.sc );
+
+            if( o.ext.equal_sc( "h" ) )
+            {
+                sink.push_fa( "#rn{ }##include \"#<sc_t>.#<sc_t>\"\n", indent, o.name.sc, o.ext.sc );
+            }
+            foreach( m $* e in o ) e.expand_definition( indent, sink );
         }
-        foreach( m $* e in o ) e.expand_definition( indent, sink );
         return 0;
     };
 
     func xoico.expand_init1 =
     {
-        sink.push_fa( "\n" );
-        sink.push_fa( "#rn{ }// #rn{-}\n", indent, sz_max( 0, 80 - indent ) );
-        sink.push_fa( "#rn{ }// source: #<sc_t>.#<sc_t>\n", indent, o.name.sc, o.ext.sc );
-        foreach( m $* e in o ) e.expand_init1( indent, sink );
+        if( o.size > 0 )
+        {
+            sink.push_fa( "\n" );
+            sink.push_fa( "#rn{ }// #rn{-}\n", indent, sz_max( 0, 80 - indent ) );
+            sink.push_fa( "#rn{ }// source: #<sc_t>.#<sc_t>\n", indent, o.name.sc, o.ext.sc );
+            foreach( m $* e in o ) e.expand_init1( indent, sink );
+        }
         return 0;
     };
 
@@ -202,7 +211,14 @@ func (:s) parse_x =
     m xoico_group_s* group = NULL;
 
     o.get_group_if_preexsting( host, source, group_name, trait_name, group.2 );
-    if( !group )
+    if( group )
+    {
+        if( group.xoico_source != o )
+        {
+            group.explicit_embeddings.push_st( st_s_create_fa( "#<sc_t>.#<sc_t>", o.name.sc, o.ext.sc )^ );
+        }
+    }
+    else
     {
         group = o.push_d( xoico_group_s! );
         group.xoico_source = o;
@@ -221,3 +237,4 @@ func (:s) parse_x =
 //----------------------------------------------------------------------------------------------------------------------
 
 /**********************************************************************************************************************/
+//

@@ -259,8 +259,9 @@ func (:s) (er_t expand_heading( c @* o, sz_t indent, m x_sink* sink )) =
     sink.push_fa( " *\n" );
     sink.push_fa( " *  Copyright and License of this File:\n" );
     sink.push_fa( " *\n" );
-    sink.push_fa( " *  Generated code inherits the copyright and license of the underlying xoila source code.\n" );
-    sink.push_fa( " *  Source code defining this file is distributed across following files:\n" );
+    sink.push_fa( " *  Unless explicitly stated otherwise in governing license terms, this file inherits the\n" );
+    sink.push_fa( " *  copyright and license terms of the immediate source code from which it was compiled.\n" );
+    sink.push_fa( " *  This immediate source code is distributed across following files:\n" );
     sink.push_fa( " *\n" );
 
     foreach( m $* e in o ) sink.push_fa( " *  #<sc_t>.#<sc_t>\n", e.name.sc, e.ext.sc );
