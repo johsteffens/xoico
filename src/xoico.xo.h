@@ -1,13 +1,14 @@
-//  Last update: 2021-05-18T18:25:18Z
+//  Last update: 2021-05-22T11:12:44Z
 /** This file was generated from xoila source code.
- *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens
+ *  Compiling Agent : XOICO (C) 2020 ... 2021 J.B.Steffens
+ *  Note that any changes of this file can be erased or overwritten by XOICO.
  *
  *  Copyright and License of this File:
  *
  *  Unless explicitly stated otherwise in governing license terms, this file inherits the
  *  copyright and license terms of the immediate source code from which it was compiled.
- *  This immediate source code is distributed across following files:
  *
+ *  The immediate source code is distributed across following files:
  *  xoico.x
  *  xoico_host.x
  *  xoico_name.x
@@ -1059,9 +1060,10 @@
       aware_t _; \
       st_s name; \
       st_s ext; \
+      st_s* copyright_and_license_terms; \
       bl_t update_target_on_body_signature; \
       st_s include_path; \
-      st_s path; \
+      st_s output_path; \
       BCORE_ARRAY_DYN_LINK_STATIC_S( xoico_source_s, ); \
       st_s signal_handler_name; \
       bl_t define_signal_handler; \
@@ -1194,7 +1196,7 @@
   er_t xoico_compiler_s_register_item( xoico_compiler_s* o, const xoico* item ); \
   er_t xoico_compiler_s_register_func( xoico_compiler_s* o, const xoico_func_s* func ); \
   er_t xoico_compiler_s_check_overwrite( const xoico_compiler_s* o, sc_t file, tp_t body_signature, bl_t* clear_to_overwrite ); \
-  er_t xoico_compiler_s_parse( xoico_compiler_s* o, sc_t target_name, sc_t target_ext, sc_t source_path, sc_t group_name, sc_t trait_name, sz_t* p_target_index ); \
+  er_t xoico_compiler_s_parse( xoico_compiler_s* o, sc_t target_name, sc_t target_ext, const st_s* target_output_folder, sc_t source_path, sc_t group_name, sc_t trait_name, sz_t* p_target_index ); \
   er_t xoico_compiler_s_finalize( xoico_compiler_s* o, const xoico_host* host ); \
   er_t xoico_compiler_s_expand_setup( xoico_compiler_s* o, const xoico_host* host ); \
   bl_t xoico_compiler_s_to_be_modified( const xoico_compiler_s* o ); \
@@ -1796,6 +1798,8 @@
       st_s* extension; \
       st_s* root_folder; \
       bl_t readonly; \
+      st_s* output_folder; \
+      st_s* copyright_and_license_terms; \
       bcore_arr_st_s dependencies; \
       bcore_arr_st_s sources; \
       st_s* signal_handler; \
@@ -1809,6 +1813,7 @@
       sz_t target_index_; \
       bcore_hmap_tpvd_s* hmap_built_target_; \
   }; \
+  const st_s* xoico_builder_target_s_root_output_folder( const xoico_builder_target_s* o ); \
   void xoico_builder_target_s_source( xoico_builder_target_s* o, bcore_source* source ); \
   const xoico_builder_target_s* xoico_builder_target_s_name_match( const xoico_builder_target_s* o, sc_t name ); \
   void xoico_builder_target_s_push_target_index_to_arr( const xoico_builder_target_s* o, bcore_arr_sz_s* arr ); \
@@ -1820,6 +1825,7 @@
   BCORE_DECLARE_OBJECT( xoico_builder_main_s ) \
   { \
       aware_t _; \
+      st_s* output_folder; \
       xoico_compiler_s* compiler; \
       xoico_builder_target_s* target; \
   }; \
@@ -1897,5 +1903,5 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOICO_BODY_SIGNATURE 0x018497E4085D227F
-// XOICO_FILE_SIGNATURE 0x95067737CDD700DA
+// XOICO_BODY_SIGNATURE 0xD7A48F67C4CF1517
+// XOICO_FILE_SIGNATURE 0xF977D007644B6882

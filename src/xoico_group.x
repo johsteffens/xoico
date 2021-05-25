@@ -536,11 +536,13 @@ func (:s) :.parse =
         {
             xoico_name_s^ name.parse( o, source );
             compiler.register_external_type( name.name );
+            o.pre_hash = bcore_tp_fold_tp( o.pre_hash, name.get_hash() );
         }
         else if( source.parse_bl( " #?w'identifier' " ) )
         {
             xoico_name_s^ name.parse( o, source );
             compiler.register_external_identifier( name.name );
+            o.pre_hash = bcore_tp_fold_tp( o.pre_hash, name.get_hash() );
         }
         else if( source.parse_bl( " #?w'forward' " ) )
         {

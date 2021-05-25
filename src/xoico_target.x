@@ -32,11 +32,16 @@ stamp :s = aware :
 
     /// parameters
 
+    /** copyright_and_licence_terms: If specified, the associated *.xo.* files carry this text
+     *  in the appropriate location for the license preamble.
+     */
+    st_s => copyright_and_license_terms;
+
     /// prevents body update if body signature is unchanged
     bl_t update_target_on_body_signature = true;
 
     st_s include_path; // (local) path used in generated '#include' directives
-    st_s path; // full path excluding extension *.h or *.c
+    st_s output_path; // full path excluding extension *.h *.c *.state or output files
     xoico_source_s => [];
 
     st_s signal_handler_name;   // name of governing signal handler
@@ -172,6 +177,7 @@ func (:s) (tp_t get_hash( c @* o )) =
     hash = bcore_tp_fold_bl( hash, o.define_signal_handler );
 
     if( o.cengine ) hash = bcore_tp_fold_tp( hash, o.cengine.get_hash() );
+    if( o.copyright_and_license_terms )  hash = bcore_tp_fold_sc( hash, o.copyright_and_license_terms.sc );
 
     foreach( m $* e in o ) hash = bcore_tp_fold_tp( hash, e.get_hash() );
 
@@ -255,14 +261,26 @@ func (:s) (er_t expand_update_time( c @* o, sz_t indent, m x_sink* sink )) =
 func (:s) (er_t expand_heading( c @* o, sz_t indent, m x_sink* sink )) =
 {
     sink.push_fa( "/** This file was generated from xoila source code.\n" );
-    sink.push_fa( " *  Compiling Agent : xoico_compiler (C) 2020 ... 2021 J.B.Steffens\n" );
+    sink.push_fa( " *  Compiling Agent : XOICO (C) 2020 ... 2021 J.B.Steffens\n" );
+    sink.push_fa( " *  Note that any changes of this file can be erased or overwritten by XOICO.\n" );
     sink.push_fa( " *\n" );
-    sink.push_fa( " *  Copyright and License of this File:\n" );
-    sink.push_fa( " *\n" );
-    sink.push_fa( " *  Unless explicitly stated otherwise in governing license terms, this file inherits the\n" );
-    sink.push_fa( " *  copyright and license terms of the immediate source code from which it was compiled.\n" );
-    sink.push_fa( " *  This immediate source code is distributed across following files:\n" );
-    sink.push_fa( " *\n" );
+
+    if( o.copyright_and_license_terms )
+    {
+        st_s^ st.copy( o.copyright_and_license_terms );
+        st.replace_sc_sc( "\n", " \n *  " );
+        sink.push_fa( " *  #<st_s*>\n", st.1 );
+    }
+    else
+    {
+        sink.push_fa( " *  Copyright and License of this File:\n" );
+        sink.push_fa( " *\n" );
+        sink.push_fa( " *  Unless explicitly stated otherwise in governing license terms, this file inherits the\n" );
+        sink.push_fa( " *  copyright and license terms of the immediate source code from which it was compiled.\n" );
+        sink.push_fa( " *\n" );
+    }
+
+    sink.push_fa( " *  The immediate source code is distributed across following files:\n" );
 
     foreach( m $* e in o ) sink.push_fa( " *  #<sc_t>.#<sc_t>\n", e.name.sc, e.ext.sc );
 
@@ -475,7 +493,7 @@ func (:s) :.to_be_modified =
 
     tp_t target_hash = o.get_hash();
 
-    m st_s* file = st_s_create_fa( "#<sc_t>.state", o.path.sc )^^;
+    m st_s* file = st_s_create_fa( "#<sc_t>.state", o.output_path.sc )^^;
     if( bcore_file_exists( file.sc ) )
     {
         m st_s* key_defined = st_s_create_fa( "##?w'HKEYOF_#<sc_t>'", o.name.sc )^^;
@@ -564,14 +582,14 @@ func (:s) :.expand_phase2 =
     ASSERT( o.target_h );
     ASSERT( o.target_c );
 
-    m st_s* file_h = st_s_create_fa( "#<sc_t>.h", o.path.sc )^^;
-    m st_s* file_c = st_s_create_fa( "#<sc_t>.c", o.path.sc )^^;
-    m st_s* file_state = st_s_create_fa( "#<sc_t>.state", o.path.sc )^^;
+    m st_s* file_h = st_s_create_fa( "#<sc_t>.h", o.output_path.sc )^;
+    m st_s* file_c = st_s_create_fa( "#<sc_t>.c", o.output_path.sc )^;
+    m st_s* file_state = st_s_create_fa( "#<sc_t>.state", o.output_path.sc )^;
 
     if( o.readonly )
     {
-        bcore_msg_fa( "Affected: #<sc_t>\n", file_h.sc );
-        bcore_msg_fa( "Affected: #<sc_t>\n", file_c.sc );
+//        bcore_msg_fa( "Affected: #<sc_t>\n", file_h.sc );
+//        bcore_msg_fa( "Affected: #<sc_t>\n", file_c.sc );
         if( p_modified.1 ) p_modified.0 = false;
     }
     else

@@ -30,6 +30,7 @@ func (void help( m x_sink* sink )) =
         "-d : Dry run. Target files are not modified.\n"
         "-e : Always expand: Expands a target even if its hash value has not changed.\n"
         "-f : Force overwrite target files. Use with care.\n"
+        "-O <folder>: Output folder for this target and all dependencies.\n"
     );
 };
 
@@ -63,6 +64,12 @@ func x_inst.main =
                 else if( args.[ arg_idx ].equal_sc( "-f" ) )
                 {
                     builder_main.set_overwrite_unsigned_target_files( true );
+                }
+                else if( args.[ arg_idx ].equal_sc( "-O" ) )
+                {
+                    arg_idx++;
+                    if( args.size == arg_idx ) ERR_fa( "Output folder expected.\n" );
+                    builder_main.output_folder =< args.[ arg_idx ].clone();
                 }
                 else
                 {

@@ -443,6 +443,10 @@ FEATURES, BUGS ...
    is a solution but is just redundant code for correct implementations. (c-compiler warns in case of missing return)
 
 - (done) include: allow use of angle brackets <...>
+- (done) cfg: specify output folder for (*.xo.*) files (if not specified current behavior is default)
+- (done) xoico: override output folder for all dependencies via command line
+- (done) group: 'type' and 'identifier' declarations need to affect pre_hash
+- (done) auto cast sd_t -> sc_t is allowed
 
 TODO:
 

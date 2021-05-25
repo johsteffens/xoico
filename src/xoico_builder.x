@@ -33,6 +33,22 @@ stamp :target_s = aware :
     st_s => root_folder;      // root folder of subsequent file paths (used if they are relative)
     bl_t readonly;
 
+    /** Folder in which to store *.xo.* files
+     *  A parent's output folder, if defined, takes precedence.
+     *  If no output folder was defined anywhere, the source folder is used as output.
+     */
+    st_s => output_folder;
+    func (st_s* root_output_folder(@* o)) =
+    {
+        st_s* folder = ( o.parent_ ) ? o.parent_.root_output_folder() : NULL;
+        return folder ? folder : o.output_folder;
+    };
+
+    /** copyright_and_licence_terms: If specified, the associated *.xo.* files carry this text
+     *  in the appropriate location for the license preamble.
+     */
+    st_s => copyright_and_license_terms;
+
     bcore_arr_st_s dependencies; // dependent target definitions
     bcore_arr_st_s sources;      // array of source files
 
@@ -122,6 +138,9 @@ signature bl_t get_overwrite_unsigned_target_files( c @* o );
 
 stamp :main_s = aware :
 {
+    /// Folder in which to store *.xo.* files (all dependencies)
+    st_s => output_folder;
+
     xoico_compiler_s => compiler!;
     :target_s => target;
 
@@ -319,7 +338,7 @@ func (:target_s) :.build =
             {
                 return source.parse_error_fa( "File name should have extension *.h" );
             }
-            o.compiler.parse( o.name.sc, o.extension.sc, file_path.sc, NULL, NULL, index.1 );
+            o.compiler.parse( o.name.sc, o.extension.sc, o.root_output_folder(), file_path.sc, NULL, NULL, index.1 );
         }
         else
         {
@@ -327,7 +346,7 @@ func (:target_s) :.build =
             {
                 return source.parse_error_fa( "File name should have extension *.x" );
             }
-            o.compiler.parse( o.name.sc, o.extension.sc, file_path.sc, group_name.sc, trait_name.sc, index.1 );
+            o.compiler.parse( o.name.sc, o.extension.sc, o.root_output_folder(), file_path.sc, group_name.sc, trait_name.sc, index.1 );
         }
 
         if( o.target_index_ == -1 ) o.target_index_ = index;
@@ -361,6 +380,7 @@ func (:target_s) :.build =
         target.readonly = o.readonly;
         target.cengine =< o.cengine.fork();
         target.pre_hash = o.get_hash();
+        target.copyright_and_license_terms =< o.copyright_and_license_terms.fork();
     }
 
     return 0;
@@ -377,6 +397,7 @@ func (:main_s) :.build_from_file =
     o.target =< xoico_builder_target_s!;
     o.target.load( false, path );
     o.target.compiler = o.compiler;
+    if( o.output_folder ) o.target.output_folder =< o.output_folder.fork();
     o.target.build();
     o.compiler.finalize( o );
     return 0;

@@ -82,11 +82,12 @@ signature bl_t get_type_array_element_info( c @* o, tp_t type,            m :ele
 signature er_t parse
 (
     m @* o,
-    sc_t target_name,
-    sc_t target_ext,
-    sc_t source_path,
-    sc_t group_name, // can be NULL
-    sc_t trait_name, // can be NULL
+    sc_t  target_name,
+    sc_t  target_ext,
+    st_s* target_output_folder, // can be NULL (in which case the source code folder is also the output folder)
+    sc_t  source_path,
+    sc_t  group_name, // can be NULL
+    sc_t  trait_name, // can be NULL
     m sz_t* p_target_index
 );
 
@@ -443,13 +444,14 @@ func (:s) :.check_overwrite =
 
 func (:s) :.parse =
 {
-    m st_s* source_folder_path = bcore_file_folder_path( source_path )^;
-    m st_s* target_path        = st_s_create_fa( "#<sc_t>/#<sc_t>.#<sc_t>", source_folder_path->sc, target_name, target_ext )^;
+    st_s* source_folder = bcore_file_folder_path( source_path )^;
+    st_s* output_folder = target_output_folder ? target_output_folder : source_folder;
+    m st_s* target_output_path = st_s_create_fa( "#<sc_t>/#<sc_t>.#<sc_t>", output_folder.sc, target_name, target_ext )^;
 
     sz_t target_index = -1;
     for( sz_t i = 0; i < o->size; i++ )
     {
-        if( target_path.equal_st( o.[ i ].path ) )
+        if( sc_t_equal( target_name, o.[ i ].name.sc ) )
         {
             target_index = i;
             break;
@@ -463,12 +465,23 @@ func (:s) :.parse =
         target.name        .copy_sc( target_name );
         target.ext         .copy_sc( target_ext );
         target.include_path.copy_fa( "#<sc_t>.#<sc_t>", target_name, target_ext );
-        target.path.copy( target_path );
+        target.output_path.copy( target_output_path );
         o.push_d( target );
         target_index = o->size - 1;
     }
 
     m xoico_target_s* target = o.[ target_index ];
+
+    /// check paths and extensions
+    if( !target.ext.equal_sc( target_ext ) )
+    {
+        ERR_fa( "Target '#<sc_t>': Assigned extension '#<sc_t>' differs from requested extension '#<sc_t>'.", target.name.sc, target.ext.sc, target_ext );
+    }
+    if( !target.output_path.equal_st( target_output_path ) )
+    {
+        ERR_fa( "Target '#<sc_t>': Assigned output path '#<sc_t>' differs from requested output path '#<sc_t>'.", target.name.sc, target.output_path.sc, target_output_path.sc );
+    }
+
     target.parse_from_path( source_path, group_name, trait_name );
     if( p_target_index ) p_target_index.0 = target_index;
 

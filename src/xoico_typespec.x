@@ -351,7 +351,11 @@ func (:s) :.converts_to =
             {
                 return true;
             }
-            else if( b.type == vd_t~ && b.type == vc_t~ )
+            else if( o.type == vd_t~ && b.type == vc_t~ )
+            {
+                return true;
+            }
+            else if( o.type == sd_t~ && b.type == sc_t~ )
             {
                 return true;
             }
