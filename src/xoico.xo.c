@@ -1,4 +1,4 @@
-//  Last update: 2021-05-25T09:53:14Z
+//  Last update: 2021-07-28T13:28:05Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : XOICO (C) 2020 ... 2021 J.B.Steffens
  *  Note that any changes of this file can be erased or overwritten by XOICO.
@@ -46,7 +46,7 @@
 #include "bcore_const_manager.h"
 
 // To force a rebuild of this target by xoico, reset the hash key value below to 0.
-// HKEYOF_xoico 0xC0A1F94B6600CE32ull
+// HKEYOF_xoico 0x641AAABD4257FEC3ull
 
 /**********************************************************************************************************************/
 // source: xoico.x
@@ -3396,6 +3396,20 @@ er_t xoico_stamp_s_parse_extend( xoico_stamp_s* o, x_source* source )
                     }
                     break;
     
+                    case '"': // string literal
+                    {
+                        st_s_push_char(buf,c );
+                        while( !x_source_eos(source) && ((c = x_source_get_char(source)) != '"') )
+                        {
+                            st_s_push_char(buf,c );
+                            if( c == '\\' ) st_s_push_char(buf,x_source_get_char(source) );
+                            if( c == '\n' ) BLM_RETURNV(er_t, x_source_parse_error_fa(source,"Newline in string literal." ))
+                        }
+                        if( x_source_eos(source) ) BLM_RETURNV(er_t, x_source_parse_error_fa(source,"End of file in string literal." ))
+                        st_s_push_char(buf,c );
+                    }
+                    break;
+    
                     default:
                     {
                         st_s_push_char(buf,c );
@@ -3414,7 +3428,7 @@ er_t xoico_stamp_s_parse_extend( xoico_stamp_s* o, x_source* source )
 
 er_t xoico_stamp_s_push_default_func_from_sc( xoico_stamp_s* o, sc_t sc )
 {
-    // xoico_stamp.x:418:1
+    // xoico_stamp.x:432:1
     BLM_INIT_LEVEL(0);
     xoico_compiler_s* compiler = o->group->compiler;
     xoico_func_s* func = ((xoico_func_s*)BLM_LEVEL_T_PUSH(0,xoico_func_s,xoico_func_s_create()));
@@ -3439,7 +3453,7 @@ er_t xoico_stamp_s_push_default_func_from_sc( xoico_stamp_s* o, sc_t sc )
 
 er_t xoico_stamp_s_push_default_funcs( xoico_stamp_s* o )
 {
-    // xoico_stamp.x:443:1
+    // xoico_stamp.x:457:1
     
     BLM_TRY(xoico_stamp_s_push_default_func_from_sc(o,"bcore_stamp_funcs.init;" ))
     BLM_TRY(xoico_stamp_s_push_default_func_from_sc(o,"bcore_stamp_funcs.down;" ))
@@ -3452,7 +3466,7 @@ er_t xoico_stamp_s_push_default_funcs( xoico_stamp_s* o )
 
 er_t xoico_stamp_s_parse( xoico_stamp_s* o, const xoico_host* host, x_source* source )
 {
-    // xoico_stamp.x:456:1
+    // xoico_stamp.x:470:1
     BLM_INIT_LEVEL(0);
     xoico_compiler_s* compiler = o->group->compiler;
     bl_t verbatim = x_source_parse_bl(source," #?w'verbatim'" );
@@ -3519,7 +3533,7 @@ er_t xoico_stamp_s_parse( xoico_stamp_s* o, const xoico_host* host, x_source* so
 
 er_t xoico_stamp_s_finalize( xoico_stamp_s* o, const xoico_host* host )
 {
-    // xoico_stamp.x:523:1
+    // xoico_stamp.x:537:1
     BLM_INIT_LEVEL(0);
     xoico_compiler_s* compiler = o->group->compiler;
     st_s self_buf;BLM_T_INIT_SPUSH(st_s, &self_buf);;
@@ -3629,7 +3643,7 @@ er_t xoico_stamp_s_finalize( xoico_stamp_s* o, const xoico_host* host )
 
 er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, const xoico_host* host, sz_t indent, x_sink* sink )
 {
-    // xoico_stamp.x:633:1
+    // xoico_stamp.x:647:1
     
     sc_t sc_name = o->st_name.sc;
     
@@ -3651,7 +3665,7 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, const xoico_host*
 
 er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, const xoico_host* host, sz_t indent, x_sink* sink )
 {
-    // xoico_stamp.x:655:1
+    // xoico_stamp.x:669:1
     BLM_INIT_LEVEL(0);
     st_s* embedded_string = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,xoico_stamp_create_embedded_string(o->self_source )));
     
@@ -3684,7 +3698,7 @@ er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, const xoico_host* 
 
 er_t xoico_stamp_s_expand_init1( const xoico_stamp_s* o, const xoico_host* host, sz_t indent, x_sink* sink )
 {
-    // xoico_stamp.x:690:1
+    // xoico_stamp.x:704:1
     
     xoico_compiler_s* compiler = o->group->compiler;
     
@@ -10077,5 +10091,5 @@ int main( int argc, char** argv )
     BETH_CLOSEV( 0 );
     return retv;
 }
-// XOICO_BODY_SIGNATURE 0x1506F1EBF6279B64
-// XOICO_FILE_SIGNATURE 0xAE25565A2589A716
+// XOICO_BODY_SIGNATURE 0xCA459A4CF20497FA
+// XOICO_FILE_SIGNATURE 0x230DA35460430BB9

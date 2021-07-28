@@ -396,6 +396,20 @@ func (:s) (er_t parse_extend( m @* o, m x_source* source )) =
                     }
                     break;
 
+                    case '"': // string literal
+                    {
+                        buf.push_char( c );
+                        while( !source.eos() && ((c = source.get_char()) != '"') )
+                        {
+                            buf.push_char( c );
+                            if( c == '\\' ) buf.push_char( source.get_char() );
+                            if( c == '\n' ) return source.parse_error_fa( "Newline in string literal." );
+                        }
+                        if( source.eos() ) return source.parse_error_fa( "End of file in string literal." );
+                        buf.push_char( c );
+                    }
+                    break;
+
                     default:
                     {
                         buf.push_char( c );
