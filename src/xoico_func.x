@@ -71,11 +71,13 @@ func (:s) :.get_hash =
     hash = bcore_tp_fold_tp( hash, o.pre_hash );
     hash = bcore_tp_fold_tp( hash, o.name );
     hash = bcore_tp_fold_tp( hash, o.global_name );
+    hash = bcore_tp_fold_tp( hash, o.obj_type );
+    hash = bcore_tp_fold_tp( hash, o.signature_global_name );
     hash = bcore_tp_fold_bl( hash, o.expandable );
     hash = bcore_tp_fold_bl( hash, o.overloadable );
     hash = bcore_tp_fold_bl( hash, o.declare_in_expand_forward );
-    hash = bcore_tp_fold_tp( hash, o.signature ? o.signature.get_hash() : o.signature_global_name );
-    if( o.body ) hash = bcore_tp_fold_tp( hash, xoico_body_s_get_hash( o.body ) );
+    if( o.body      ) hash = bcore_tp_fold_tp( hash, o.body.get_hash() );
+    if( o.signature ) hash = bcore_tp_fold_tp( hash, o.signature.get_hash() );
     return hash;
 };
 

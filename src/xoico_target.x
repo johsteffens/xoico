@@ -558,7 +558,6 @@ func (:s) :.expand_phase1 =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// returns true if a file was modified
 func (er_t write_with_signature( sc_t file, c st_s* data )) =
 {
     tp_t hash = bcore_tp_fold_sc( bcore_tp_init(), data.sc );
