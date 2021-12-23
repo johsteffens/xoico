@@ -2100,9 +2100,17 @@ func (:s) (er_t trans_block_inside( m @* o, m x_source* source, m :result* resul
 {
     m $* result = :result_create_arr()^^;
 
+    s3_t source_index = source.get_index();
+
     while( !source.parse_bl( "#=?'}'" ) && !source.eos() )
     {
         o.trans_statement( source, result );
+        s3_t index = source.get_index();
+        if( index == source_index && !source.eos() )
+        {
+            return source.parse_error_fa( "Syntax error: Statement translator failed to progress." );
+        }
+        source_index = index;
     }
 
     if( o.stack_block_get_top_unit().use_blm )

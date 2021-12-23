@@ -447,6 +447,7 @@ FEATURES, BUGS ...
 - (done) xoico: override output folder for all dependencies via command line
 - (done) group: 'type' and 'identifier' declarations need to affect pre_hash
 - (done) auto cast sd_t -> sc_t is allowed
+- (fixed) bug: endless loop if a syntax error yields a non-progressing statement
 
 TODO:
 
