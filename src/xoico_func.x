@@ -161,7 +161,7 @@ func (:s) xoico.parse =
         {
             st_s^ st_name;
             source.parse_fa( " #name", st_name.1 );
-            if( st_name.size == 0 ) return source.parse_error_fa( "Function name expected." );
+            //if( st_name.size == 0 ) return source.parse_error_fa( "Function name expected." );
             o.name = compiler.entypeof( st_name.sc );
         }
 

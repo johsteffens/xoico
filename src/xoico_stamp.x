@@ -21,6 +21,7 @@ signature er_t parse_func( m @* o, m x_source* source );
 signature er_t parse_wrap( m @* o, m x_source* source );
 signature er_t make_funcs_overloadable( m @* o );
 signature er_t push_default_funcs( m @* o );
+signature er_t push_compact_initializer_func( m @* o );
 signature c xoico_func_s* get_func_from_name( c @* o, tp_t name ); // returns NULL if not found
 signature c xoico_func_s* get_trait_line_func_from_name( c @* o, tp_t name ); // returns NULL if not found
 signature c xoico_func_s* get_trait_line_member_func_from_name( c @* o, tp_t name ); // returns NULL if not found
@@ -31,6 +32,7 @@ stamp :s = aware :
     tp_t tp_name; // typeof( st_name )
     tp_t trait_name;
     bl_t is_aware = true;
+    bl_t has_compact_initializer = false;
 
     :arr_self_item_s => arr_self_item;
 
@@ -119,18 +121,28 @@ stamp :s = aware :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-stamp :self_item_s = { st_s st; x_source_point_s source_point; };
-stamp :arr_self_item_s = x_array
+stamp :self_item_s =
 {
-    :self_item_s [];
+    bl_t arg_of_initializer;
+    st_s st;
+    x_source_point_s source_point;
 
-    func (void push_st_source( m@* o, st_s* st, m x_source* source )) =
+    func (er_t to_bcore_self_item( @* o, bcore_self_s* self, m bcore_self_item_s* item )) =
     {
-        m :self_item_s* item = o.push();
-        item.st.copy( st );
-        item.source_point.setup_from_source( source );
+        er_t er = bcore_self_item_s_parse_src( item, sr_awc( x_source_create_from_st( o.st )^ ), self, false );
+
+        if( er )
+        {
+            m $* msg = st_s!^;
+            bcore_error_pop_st( er.1, msg );
+            return o.source_point.parse_error_fa( "#<sc_t>\n", msg.sc );
+        }
+        return 0;
     };
+
 };
+
+stamp :arr_self_item_s = x_array { :self_item_s []; };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -369,6 +381,7 @@ func (:s) (er_t parse_extend( m @* o, m x_source* source )) =
             bl_t exit = false;
 
             buf.clear();
+            bl_t arg_of_initializer = false;
 
             while( !exit && !source.eos() )
             {
@@ -380,6 +393,12 @@ func (:s) (er_t parse_extend( m @* o, m x_source* source )) =
                         m st_s* name = st_s!^;
                         o.group.parse_name_recursive( source, name );
                         buf.push_st( name );
+                    }
+                    break;
+
+                    case '$':
+                    {
+                        arg_of_initializer = true;
                     }
                     break;
 
@@ -418,7 +437,13 @@ func (:s) (er_t parse_extend( m @* o, m x_source* source )) =
                 }
             }
 
-            o.arr_self_item!.push_st_source( buf, source );
+            if( arg_of_initializer ) o.has_compact_initializer = true;
+
+            m$* self_item = :self_item_s!^;
+            self_item.arg_of_initializer = arg_of_initializer;
+            self_item.st.copy( buf );
+            self_item.source_point.setup_from_source( source );
+            o.arr_self_item!.push_d( self_item.fork() );
         }
     }
     source.parse_fa( " ; " );
@@ -461,6 +486,96 @@ func (:s) :.push_default_funcs =
     o.push_default_func_from_sc( "bcore_stamp_funcs.create;" );
     o.push_default_func_from_sc( "bcore_stamp_funcs.discard;" );
     o.push_default_func_from_sc( "bcore_stamp_funcs.clone;" );
+    return 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:s) :.push_compact_initializer_func =
+{
+    m $* compiler = o.group.compiler;
+
+    st_s^ sig;
+    st_s^ body;
+    sig.push_fa( "(o _(m@* o" );
+
+    m $* self = bcore_self_s!^; self.type = o.tp_name; self.trait = o.trait_name;
+
+    sc_t err_prefix = "Cannot setup member for compact initialization";
+
+    foreach( $* self_item in o.arr_self_item )
+    {
+        if( self_item.arg_of_initializer )
+        {
+            m $* item = bcore_self_item_s!^;
+            self_item.to_bcore_self_item( self, item );
+
+            if( !item.type ) return self_item.source_point.parse_error_fa( "#<sc_t>: Item has no type.", err_prefix );
+            if( !item.name ) return self_item.source_point.parse_error_fa( "#<sc_t>: Item has no name.", err_prefix );
+            if( bcore_flect_caps_is_array( item.caps ) ) return self_item.source_point.parse_error_fa( "#<sc_t>: Item is an array.", err_prefix );
+            if( bcore_flect_caps_is_typed( item.caps ) ) return self_item.source_point.parse_error_fa( "#<sc_t>: Item is typed.", err_prefix );
+            sz_t indirection = bcore_flect_caps_get_indirection( item.caps );
+            bl_t is_leaf = x_stamp_t_is_leaf( item.type );
+            bl_t is_pointer = ( item.caps == BCORE_CAPS_POINTER );
+
+            sc_t sc_type = bnameof( item.type );
+            sc_t sc_name = bnameof( item.name );
+
+            if( indirection == 0 )
+            {
+                if( is_leaf )
+                {
+                    sig.push_fa( ", #<sc_t> #<sc_t>", sc_type, sc_name );
+                    body.push_fa( "    o.#<sc_t> = #<sc_t>;", sc_name, sc_name );
+                }
+                else
+                {
+                    sig.push_fa( ", c #<sc_t>* #<sc_t>", sc_type, sc_name );
+                    body.push_fa( "    o.#<sc_t>.copy( #<sc_t> );", sc_name, sc_name );
+                }
+            }
+            else
+            {
+                if( is_leaf || is_pointer )
+                {
+                    sig.push_fa( ", m #<sc_t>* #<sc_t>", sc_type, sc_name );
+                    body.push_fa( "    o.#<sc_t> = #<sc_t>;", sc_name, sc_name );
+                }
+                else
+                {
+                    sig.push_fa( ", d #<sc_t>* #<sc_t>", sc_type, sc_name );
+                    body.push_fa( "    o.#<sc_t> =< #<sc_t>;", sc_name, sc_name );
+                }
+            }
+            body.push_fa( "\n" );
+        }
+    }
+    sig.push_fa( "))" );
+
+    st_s^ st_func.push_fa
+    (
+        "#<sc_t> =\n"
+        "{\n"
+        "#<sc_t>"
+        "    return o;\n"
+        "};",
+        sig.sc,
+        body.sc
+    );
+
+    sz_t idx = o.funcs.get_index_from_name( compiler.entypeof( "_" ) );
+    if( idx >= 0 )
+    {
+        return o.funcs.[ idx ].source_point.parse_error_fa
+        (
+            "Explicit compact function declaration not possible because this stamp has one or more member elements marked for compact initialization."
+        );
+    }
+
+    m $* func = xoico_func_s!^;
+    func.parse_sc( o, st_func.sc );
+    o.funcs.push_d( func.fork() );
+
     return 0;
 };
 
@@ -527,6 +642,7 @@ func (:s) xoico.parse =
     o.st_name.copy( st_stamp_name );
     o.tp_name = compiler.entypeof( st_stamp_name.sc );
     o.parse_extend( source );
+    if( o.has_compact_initializer ) o.push_compact_initializer_func();
 
     return 0;
 };
@@ -535,27 +651,18 @@ func (:s) xoico.parse =
 
 func (:s) xoico.finalize =
 {
+    //if( o.has_compact_initializer ) o.push_compact_initializer_func();
+
     m $* compiler = o.group.compiler;
     st_s^ self_buf;
 
     m bcore_self_item_s* first_array_item = NULL; // !=NULL if stamp has an array;
-
     {
-        m $* self = bcore_self_s!^;
-        self.type = o.tp_name;
-        self.trait = o.trait_name;
-
+        m $* self = bcore_self_s!^; self.type = o.tp_name; self.trait = o.trait_name;
         foreach( $* self_item in o.arr_self_item )
         {
             m $* item = bcore_self_item_s!^;
-            er_t er = bcore_self_item_s_parse_src( item, sr_awc( x_source_create_from_st( self_item.st )^ ), self, false );
-
-            if( er )
-            {
-                m $* msg = st_s!^;
-                bcore_error_pop_st( er.1, msg );
-                return self_item.source_point.parse_error_fa( "#<sc_t>\n", msg.sc );
-            }
+            self_item.to_bcore_self_item( self, item );
 
             if( compiler.is_group( item.type ) )
             {
@@ -566,13 +673,17 @@ func (:s) xoico.finalize =
 
                 if( verbatim_C{ !item->flags.f_aware } && verbatim_C{ !item->flags.f_obliv } && !bcore_flect_caps_is_typed( item.caps ) )
                 {
-                    return self_item.source_point.parse_error_fa( "Element type is a group. Please use type-specifier 'obliv' or 'aware'. In future 'aware' is assumed in case awareness was not specified.\n" );
+                    return self_item.source_point.parse_error_fa
+                    (
+                        "Element type is a group. Please use type-specifier 'obliv' or 'aware'. "
+                        "In future 'aware' is assumed in case awareness was not specified.\n"
+                    );
                 }
             }
 
             if( bcore_flect_caps_is_array( item->caps ) && !first_array_item ) first_array_item = item.clone()^^;
             self_buf.push_st( self_item.st );
-        };
+        }
     }
 
     // set transient classes for x_array
@@ -580,7 +691,7 @@ func (:s) xoico.finalize =
     {
         if( !first_array_item )
         {
-            return o.source_point.parse_error_fa( "In stamp '#<sc_t>': Tramp is of trait 'x_array' but contains no array", o.st_name.sc );
+            return o.source_point.parse_error_fa( "In stamp '#<sc_t>': Stamp is of trait 'x_array' but contains no array", o.st_name.sc );
         }
         o.transient_map.set( compiler.entypeof( "TO" ), o.tp_name );
         if( first_array_item.type ) o.transient_map.set( compiler.entypeof( "TE" ), first_array_item.type );

@@ -1,4 +1,4 @@
-//  Last update: 2021-05-22T11:12:44Z
+//  Last update: 2022-01-28T18:55:30Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : XOICO (C) 2020 ... 2021 J.B.Steffens
  *  Note that any changes of this file can be erased or overwritten by XOICO.
@@ -810,7 +810,7 @@
   static inline tp_t xoico_group_s_get_global_name_tp( const xoico_group_s* o ); \
   er_t xoico_group_s_expand_setup( xoico_group_s* o, const xoico_host* host ); \
   er_t xoico_group_s_expand_manifesto( const xoico_group_s* o, const xoico_host* host, sz_t indent, x_sink* sink ); \
-  er_t xoico_group_s_push_item_d( xoico_group_s* o, xoico* item ); \
+  static inline xoico* xoico_group_s_push_item_d( xoico_group_s* o, xoico* item ); \
   const xoico_group_s* xoico_group_s_get_trait_group( const xoico_group_s* o ); \
   const xoico_func_s* xoico_group_s_get_trait_line_func_from_name( const xoico_group_s* o, tp_t name ); \
   const xoico_func_s* xoico_group_s_get_trait_line_member_func_from_name( const xoico_group_s* o, tp_t name ); \
@@ -838,6 +838,7 @@
   er_t xoico_group_s_expand_definition( const xoico_group_s* o, sz_t indent, x_sink* sink ); \
   er_t xoico_group_s_expand_init1( const xoico_group_s* o, sz_t indent, x_sink* sink ); \
   static inline tp_t xoico_group_s_get_global_name_tp( const xoico_group_s* o ){ return  o->tp_name;} \
+  static inline xoico* xoico_group_s_push_item_d( xoico_group_s* o, xoico* item ){ return  ((xoico*)(x_array_push_d(((x_array*)(o)),((x_inst*)(item )))));} \
   static inline void xoico_group_s_explicit_embeddings_push( const xoico_group_s* o, bcore_arr_st_s* arr ){ {const bcore_arr_st_s* __a=&(o->explicit_embeddings );if(__a)for(sz_t __i=0; __i<__a->size; __i++){st_s* st=__a->data[__i]; bcore_arr_st_s_push_st(arr,st );}}} \
   static inline xoico_compiler_s* xoico_group_s_compiler( const xoico_group_s* o ){ return  o->compiler;} \
   static inline tp_t xoico_group_s_obj_type( const xoico_group_s* o ){ return  o->tp_name;} \
@@ -927,6 +928,7 @@
       tp_t tp_name; \
       tp_t trait_name; \
       bl_t is_aware; \
+      bl_t has_compact_initializer; \
       xoico_stamp_arr_self_item_s* arr_self_item; \
       st_s* self_source; \
       bcore_self_s* self; \
@@ -957,6 +959,7 @@
   er_t xoico_stamp_s_parse_extend( xoico_stamp_s* o, x_source* source ); \
   er_t xoico_stamp_s_push_default_func_from_sc( xoico_stamp_s* o, sc_t sc ); \
   er_t xoico_stamp_s_push_default_funcs( xoico_stamp_s* o ); \
+  er_t xoico_stamp_s_push_compact_initializer_func( xoico_stamp_s* o ); \
   er_t xoico_stamp_s_parse( xoico_stamp_s* o, const xoico_host* host, x_source* source ); \
   er_t xoico_stamp_s_finalize( xoico_stamp_s* o, const xoico_host* host ); \
   er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, const xoico_host* host, sz_t indent, x_sink* sink ); \
@@ -976,17 +979,18 @@
   BCORE_DECLARE_OBJECT( xoico_stamp_self_item_s ) \
   { \
       aware_t _; \
+      bl_t arg_of_initializer; \
       st_s st; \
       x_source_point_s source_point; \
-  };
+  }; \
+  er_t xoico_stamp_self_item_s_to_bcore_self_item( const xoico_stamp_self_item_s* o, const bcore_self_s* self, bcore_self_item_s* item );
 #define TYPEOF_xoico_stamp_arr_self_item_s 0xD2F39189F80D1DA0ull
 #define BETH_EXPAND_ITEM_xoico_stamp_arr_self_item_s \
   BCORE_DECLARE_OBJECT( xoico_stamp_arr_self_item_s ) \
   { \
       aware_t _; \
       BCORE_ARRAY_DYN_SOLID_STATIC_S( xoico_stamp_self_item_s, ); \
-  }; \
-  void xoico_stamp_arr_self_item_s_push_st_source( xoico_stamp_arr_self_item_s* o, const st_s* st, x_source* source );
+  };
 #define BETH_EXPAND_GROUP_xoico_stamp \
   BCORE_FORWARD_OBJECT( xoico_stamp ); \
   BCORE_FORWARD_OBJECT( xoico_stamp_s ); \
@@ -1903,5 +1907,5 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOICO_BODY_SIGNATURE 0xD7A48F67C4CF1517
-// XOICO_FILE_SIGNATURE 0xF977D007644B6882
+// XOICO_BODY_SIGNATURE 0xAB3F28BBB79DE30F
+// XOICO_FILE_SIGNATURE 0xE50308A5429828A7

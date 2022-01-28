@@ -109,8 +109,21 @@ func (:s)
     else // member (object or function)
     {
         m $* result_local = :result_create_arr()^^;
-        tp_t tp_identifier = 0;
-        o.trans_identifier( source, result_local, tp_identifier );
+
+        tp_t tp_identifier = o.get_identifier( source, true );
+        if( !tp_identifier )
+        {
+            if( source.parse_bl( "#=?'('" ) ) // anonymous function call
+            {
+                tp_identifier = o.entypeof( "" );
+            }
+            else
+            {
+                return source.parse_error_fa( "Identifier expected" );
+            }
+        }
+        result_local.push_sc( o.nameof( tp_identifier ) );
+
         o.trans_whitespace( source, result_local );
 
         //-----------------------
@@ -506,6 +519,22 @@ func (:s)
     else if( c[0] == '[' )
     {
         o.trans_typespec_array_subscript( source, result, in_typespec, out_typespec );
+    }
+    else if( c[0] == '(' )
+    {
+        m$* info = xoico_compiler_element_info_s!^;
+        if( o.compiler.get_type_member_function_info( in_typespec.type, o.entypeof( "_" ), info ) )
+        {
+            m $* typespec_ret = xoico_typespec_s!^;
+            m $* result_object_expr = result.clone()^;
+            result.clear();
+            o.trans_function( source, info.func, result_object_expr, in_typespec, result, typespec_ret );
+            o.trans_typespec_expression( source, result, typespec_ret, out_typespec );
+        }
+        else
+        {
+            return source.parse_error_fa( "Object has no compact function.\n" );
+        }
     }
     // create if not present
     else if( c[0] =='!' && c[1] != '=' )

@@ -448,6 +448,13 @@ FEATURES, BUGS ...
 - (done) group: 'type' and 'identifier' declarations need to affect pre_hash
 - (done) auto cast sd_t -> sc_t is allowed
 - (fixed) bug: endless loop if a syntax error yields a non-progressing statement
+- (done) che (defaults): disable as many waivers as possible
+- (done) introduce anonymous signatures (signature without name) - algorithmically treat the signature as if it had the name "" (empty string)
+- (done) stamp member function
+   - introduce a generic arglist that matches the element list of the stamp for specifically marked elements
+   - introduce a function for compact syntax
+          mystamp_s^ mystamp( 3, 7 );
+          d$* something = mystamp_s!( 3, 7 );
 
 TODO:
 
@@ -458,7 +465,6 @@ TODO:
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
 - make traitline of all groups end in x_inst
 - make 'fork' a transient function in x_inst rather than a builtin function
-- che (defaults): disable as many waivers as possible
 
 - cast: introduce aware_cast( <typespec> ) as safe cast-variation on object indirection > 0
      - assumes that all object involved are aware

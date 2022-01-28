@@ -640,12 +640,18 @@ func (:s) (tp_t get_identifier( m @* o, m x_source* source, bl_t take_from_sourc
 //----------------------------------------------------------------------------------------------------------------------
 
 /** transfers identifier, enrolls it and sets 'tp_identifier' */
-func(:s) (er_t trans_identifier( m @* o, m x_source* source, m :result* result /* can be NULL */, m tp_t* tp_identifier/* can be NULL */ )) =
+func(:s) (er_t trans_identifier
+(
+    m @* o,
+    m x_source* source,
+    m :result* result,    // can be NULL
+    m tp_t* tp_identifier // can be NULL
+)) =
 {
     tp_t identifier = o.get_identifier( source, true );
     if( !identifier )
     {
-        return source.parse_error_fa( "Identifier exected" );
+        return source.parse_error_fa( "Identifier expected" );
     }
     if( tp_identifier ) tp_identifier.0 = identifier;
     if( result ) result.push_sc( o.nameof( identifier ) );

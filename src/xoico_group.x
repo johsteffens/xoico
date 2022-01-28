@@ -19,7 +19,7 @@
 
 name x_inst_main;
 
-signature er_t push_item_d( m @* o, d xoico* item );
+signature m xoico* /*item*/ push_item_d( m @* o, d xoico* item );
 signature er_t parse_name_recursive( c @* o, m x_source* source, m st_s* name );
 signature er_t expand_declaration(   c @* o, sz_t indent, m x_sink* sink );
 signature er_t expand_definition(    c @* o, sz_t indent, m x_sink* sink );
@@ -130,11 +130,7 @@ stamp :s = aware :
         return 0;
     };
 
-    func :.push_item_d =
-    {
-        o.cast( m x_array* ).push_d( item );
-        return 0;
-    };
+    func :.push_item_d = { return o.cast( m x_array* ).push_d( item ); };
 
     func (c @* get_trait_group( c @* o )) =
     {
@@ -445,8 +441,7 @@ func (:s) :.parse =
             stamp.group = o;
             stamp.parse( o, source );
             stamp.push_default_funcs();
-            compiler.register_item( stamp );
-            o.push_item_d( stamp.fork() );
+            compiler.register_item( o.push_item_d( stamp.fork() ) );
         }
 
         /// stumps are inexpandable stamps. They can be used as template.
@@ -469,26 +464,23 @@ func (:s) :.parse =
             m $* signature = xoico_signature_s!^;
             signature.parse( o, source );
             source.parse_fa( " ; " );
-            compiler.register_item( signature );
-            o.push_item_d( signature.fork() );
+            compiler.register_item( o.push_item_d( signature.fork() ) );
         }
         else if( source.parse_bl( " #?w'body' " ) )
         {
             m $* body = xoico_body_s!^;
             body.parse( o, source );
             source.parse_fa( " ; " );
-            compiler.register_item( body );
-            o.push_item_d( body.fork() );
+            compiler.register_item( o.push_item_d( body.fork() ) );
         }
         else if( source.parse_bl( " #?w'feature' " ) )
         {
             m $* feature = xoico_feature_s!^;
             feature.parse( o, source );
-            compiler.register_item( feature );
+            compiler.register_item( o.push_item_d( feature.fork() ) );
             o.hmap_feature.set( feature.signature.name, ( vd_t )feature );
             foreach( m $* func in feature.funcs_return_to_group ) o.funcs.push_d( func.fork() );
             feature.funcs_return_to_group.clear();
-            o.push_item_d( feature.fork() );
         }
         else if( source.parse_bl( " #?w'func' " ) )
         {
