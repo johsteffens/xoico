@@ -191,22 +191,21 @@ func (:s)
     m $* result_args = :result_arr_s!^;
 
     o.trans_function_args( source, func, result_object_expr, typespec_object, result_args, typespec_ret );
-
     bl_t cast_return_type = ( typespec_ret.get_hash() != func.signature.typespec_ret.get_hash() );
 
+    m $* result_expression = :result_arr_s!^;
+    result_expression.push_sc( o.nameof( func.global_name ) );
+    result_expression.push_result_d( result_args.fork() );
+
     if( cast_return_type )
     {
-        result.push_sc( "((" );
-        o.push_typespec( typespec_ret, result );
-        result.push_sc( ")(" );
+        m $* result_cast = :result_cast_s!^( :result_arr_s!, result_expression.fork() );
+        o.push_typespec( typespec_ret, result_cast.target );
+        result.push_result_d( result_cast.fork() );
     }
-
-    result.push_sc( o.nameof( func.global_name ) );
-    result.push_result_d( result_args.fork() );
-
-    if( cast_return_type )
+    else
     {
-        result.push_sc( "))" );
+        result.push_result_d( result_expression.fork() );
     }
 
     if( return_typespec ) return_typespec.copy( typespec_ret );

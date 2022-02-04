@@ -60,7 +60,7 @@ group :result = :
     func (d :* create_from_st( c st_s* st ) ) = { d $* o = :arr_s!; o.push_st( st ); return o; };
     func (d :* create_from_sc(   sc_t  sc ) ) = { d $* o = :arr_s!; o.push_sc( sc ); return o; };
 
-    stamp :adl_s = aware x_array { aware : -> []; }; // !! weak links !!  (if this causes problems revert to strong links)
+    stamp :adl_s = aware x_array { aware : -> []; }; // !! weak links !!  (if this causes problems, revert to strong links)
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -178,6 +178,23 @@ group :result = :
     };
 
     func (d :* create_blm_down() ) = { d $* o = :blm_down_s!; return o; };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    stamp :cast_s = aware :
+    {
+        $ aware : => target;
+        $ aware : => expression;
+        func :.to_sink =
+        {
+            sink.push_sc( "((" );
+            o.target?.to_sink( sink );
+            sink.push_sc( ")(" );
+            o.expression?.to_sink( sink );
+            sink.push_sc( "))" );
+            return 0;
+        };
+    };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -1116,12 +1133,16 @@ func (:s)
 
         if( implicit_cast )
         {
-            result.push_sc( "((" );
-            o.push_typespec( typespec_target, result );
-            result.push_sc( ")(" );
+            m $* result_cast = :result_cast_s!^( :result_arr_s!, :result_arr_s! );
+            o.push_typespec( typespec_target, result_cast.target );
+            o.adapt_expression_indirection( source, typespec_expr, typespec_target.indirection, result_expr, result_cast.expression );
+            result.push_result_d( result_cast.fork() );
         }
-        o.adapt_expression_indirection( source, typespec_expr, typespec_target.indirection, result_expr, result );
-        if( implicit_cast ) result.push_sc( "))" );
+        else
+        {
+            o.adapt_expression_indirection( source, typespec_expr, typespec_target.indirection, result_expr, result );
+        }
+
     }
     return 0;
 };

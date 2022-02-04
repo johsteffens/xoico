@@ -235,6 +235,26 @@ Setting indirection:
 <expr>.<positive integer literal>
 sets indirection-level.
 
+Anonymous Function:
+The anonymous function is allowed. It is a function where the name is an empty string.
+
+Compact Function:
+A compact function is a member function of a stamp and has the name '_'.
+A compact function call is done without using the '.' delimiter: my_stamp( ... );
+
+Compact Initializer:
+Certain elements of a stamp can be marked using a preceding '$':
+stamp my_stamp_s = { $ f3_t a; $ st_s => b; $ st_s c; };
+In that case a compact initializer funtion is automatically generated:
+func (my_stamp_s) (o _(m@* o, f3_t a, d st_s* b, c st_s* c )) =
+{
+    o.a = a;
+    o.b =< b;
+    o.c.copy( c );
+    return o;
+}
+
+
 ===================================================================
 FEATURES, BUGS ...
 
@@ -455,6 +475,9 @@ FEATURES, BUGS ...
    - introduce a function for compact syntax
           mystamp_s^ mystamp( 3, 7 );
           d$* something = mystamp_s!( 3, 7 );
+- (fixed) bug: compact initializer: error in case compact type is not already registered
+
+- (done) cast: introduce cast result
 
 TODO:
 
@@ -466,8 +489,10 @@ TODO:
 - make traitline of all groups end in x_inst
 - make 'fork' a transient function in x_inst rather than a builtin function
 
-- cast: introduce aware_cast( <typespec> ) as safe cast-variation on object indirection > 0
-     - assumes that all object involved are aware
+- cast: remove unnecessary cast expressions in the final code
+
+- cast: introduce aware_cast( <typespec> ) as cast-variation on object indirection > 0 with runtime type-check
+     - assumes that all objects involved are aware
      - NULL results in NULL
      - if <typespec> is a stamp, the object's type is checked at runtime and NULL returned in case of mismatch
 

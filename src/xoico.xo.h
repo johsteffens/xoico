@@ -1,6 +1,6 @@
-//  Last update: 2022-01-28T18:55:30Z
+//  Last update: 2022-02-03T20:08:42Z
 /** This file was generated from xoila source code.
- *  Compiling Agent : XOICO (C) 2020 ... 2021 J.B.Steffens
+ *  Compiling Agent : XOICO (C) 2020 ... 2022 J.B.Steffens
  *  Note that any changes of this file can be erased or overwritten by XOICO.
  *
  *  Copyright and License of this File:
@@ -1586,6 +1586,16 @@
   static inline er_t xoico_che_result_blm_down_s_to_sink( const xoico_che_result_blm_down_s* o, x_sink* sink ){ if( o->active ) ((x_sink*)(x_sink_push_sc(sink,"BLM_DOWN();" ))); return  0;} \
   static inline xoico_che_result_blm_down_s* xoico_che_result_blm_down_s_activate( xoico_che_result_blm_down_s* o ){ o->active = true; return  o;} \
   static inline xoico_che_result_blm_down_s* xoico_che_result_blm_down_s_deactivate( xoico_che_result_blm_down_s* o ){ o->active = false; return  o;}
+#define TYPEOF_xoico_che_result_cast_s 0x4E939F8FB409AC54ull
+#define BETH_EXPAND_ITEM_xoico_che_result_cast_s \
+  BCORE_DECLARE_OBJECT( xoico_che_result_cast_s ) \
+  { \
+      aware_t _; \
+      xoico_che_result* target; \
+      xoico_che_result* expression; \
+  }; \
+  er_t xoico_che_result_cast_s_to_sink( const xoico_che_result_cast_s* o, x_sink* sink ); \
+  xoico_che_result_cast_s* xoico_che_result_cast_s__( xoico_che_result_cast_s* o, xoico_che_result* target, xoico_che_result* expression );
 #define BETH_EXPAND_GROUP_xoico_che_result \
   BCORE_FORWARD_OBJECT( xoico_che_result ); \
   BCORE_FORWARD_OBJECT( xoico_che_result_plain_s ); \
@@ -1594,6 +1604,7 @@
   BCORE_FORWARD_OBJECT( xoico_che_result_block_s ); \
   BCORE_FORWARD_OBJECT( xoico_che_result_blm_init_s ); \
   BCORE_FORWARD_OBJECT( xoico_che_result_blm_down_s ); \
+  BCORE_FORWARD_OBJECT( xoico_che_result_cast_s ); \
   static inline xoico_che_result* xoico_che_result_create_from_st( const st_s* st ); \
   static inline xoico_che_result* xoico_che_result_create_from_sc( sc_t sc ); \
   static inline xoico_che_result* xoico_che_result_create_arr( void ); \
@@ -1669,6 +1680,7 @@
   BETH_EXPAND_ITEM_xoico_che_result_block_s \
   BETH_EXPAND_ITEM_xoico_che_result_blm_init_s \
   BETH_EXPAND_ITEM_xoico_che_result_blm_down_s \
+  BETH_EXPAND_ITEM_xoico_che_result_cast_s \
   static inline xoico_che_result* xoico_che_result_create_from_st( const st_s* st ){ xoico_che_result_arr_s* o = xoico_che_result_arr_s_create(); BLM_TRY_EXIT(xoico_che_result_arr_s_push_st(o,st )) return ((xoico_che_result*)( o));} \
   static inline xoico_che_result* xoico_che_result_create_from_sc( sc_t sc ){ xoico_che_result_arr_s* o = xoico_che_result_arr_s_create(); BLM_TRY_EXIT(xoico_che_result_arr_s_push_sc(o,sc )) return ((xoico_che_result*)( o));} \
   static inline xoico_che_result* xoico_che_result_create_arr( void ){ return ((xoico_che_result*)( xoico_che_result_arr_s_create()));} \
@@ -1907,5 +1919,5 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOICO_BODY_SIGNATURE 0xAB3F28BBB79DE30F
-// XOICO_FILE_SIGNATURE 0xE50308A5429828A7
+// XOICO_BODY_SIGNATURE 0xBD592AEA12A55DB8
+// XOICO_FILE_SIGNATURE 0x9C0FA326A606DE70
