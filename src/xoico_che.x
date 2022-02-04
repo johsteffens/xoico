@@ -32,11 +32,22 @@ group :result = :
 
     feature void set_parent_block( m @* o, m :block_s* parent ) = {};
 
+    // returns true in case result represents a cast and sets cast accordingly (pp_cast can be NULL)
+    feature bl_t get_cast( m @* o, m :cast_s.2 pp_cast ) = { if( pp_cast ) pp_cast.1 = NULL; return false; };
+
     feature d st_s* create_st( c @* o ) =
     {
         d $* st = st_s!;
         o.to_sink( st );
         return st;
+    };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    stamp :whitespace_s = aware :
+    {
+        $ st_s => st;
+        func :.to_sink = { sink.push_st( o.st );  return 0; };
     };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -60,10 +71,9 @@ group :result = :
     func (d :* create_from_st( c st_s* st ) ) = { d $* o = :arr_s!; o.push_st( st ); return o; };
     func (d :* create_from_sc(   sc_t  sc ) ) = { d $* o = :arr_s!; o.push_sc( sc ); return o; };
 
-    stamp :adl_s = aware x_array { aware : -> []; }; // !! weak links !!  (if this causes problems, revert to strong links)
-
 //----------------------------------------------------------------------------------------------------------------------
 
+    stamp :adl_s = aware x_array { aware : -> []; }; // !! weak links !!  (if this causes problems, revert to strong links)
     stamp :arr_s = aware :
     {
         :adl_s adl;
@@ -98,6 +108,13 @@ group :result = :
         func :.set_parent_block =
         {
             foreach( m $* e in o.adl ) e.set_parent_block( parent );
+        };
+
+        func :.get_cast =
+        {
+            foreach( m $* e in o.adl ) if( e._ != :whitespace_s~ ) return e.get_cast( pp_cast );
+            if( pp_cast ) pp_cast.1 = NULL;
+            return false;
         };
     };
 
@@ -183,17 +200,91 @@ group :result = :
 
     stamp :cast_s = aware :
     {
-        $ aware : => target;
+        $ hidden ::s* che;
+        $ xoico_typespec_s => target_typespec;
         $ aware : => expression;
+
+        bl_t active = true;
+        func :.activate = { o.active = true; return o; };
+        func :.deactivate = { o.active = false; return o; };
+
+        func :.get_cast =
+        {
+            if( o.active )
+            {
+                if( pp_cast ) pp_cast.1 = o;
+                return true;
+            }
+            else
+            {
+                return o.expression.get_cast( pp_cast );
+            }
+        };
+
+        func ( bl_t overrides( @* o, @* a )) =
+        {
+            xoico_typespec_s* to = o.target_typespec;
+            xoico_typespec_s* ta = a.target_typespec;
+
+            /* Currently we restrict to group and stamp pointers.
+             * We might be less restrictive in future.
+             */
+            if( !o.che.is_group( to.type ) && !o.che.is_stamp( to.type ) ) return false;
+            if( !o.che.is_group( ta.type ) && !o.che.is_stamp( ta.type ) ) return false;
+            if( to.indirection != 1 ) return false;
+            if( ta.indirection != 1 ) return false;
+            return true;
+        };
+
+        /// removes successive reducible casts
+        func ( o reduce( m@* o )) =
+        {
+            m @* prev_cast = NULL;
+            if( o.expression.get_cast( prev_cast ) )
+            {
+                if( o.overrides( prev_cast ) ) prev_cast.deactivate();
+            }
+            return o;
+        };
+
+        func :.set_parent_block = { o.expression?.set_parent_block( parent ); };
+
         func :.to_sink =
         {
-            sink.push_sc( "((" );
-            o.target?.to_sink( sink );
-            sink.push_sc( ")(" );
-            o.expression?.to_sink( sink );
-            sink.push_sc( "))" );
+            if( o.active )
+            {
+                sink.push_sc( "((" );
+                o.che.typespec_to_sink( o.target_typespec, sink );
+                sink.push_sc( ")(" );
+                o.expression?.to_sink( sink );
+                sink.push_sc( "))" );
+            }
+            else
+            {
+                o.expression?.to_sink( sink );
+            }
             return 0;
         };
+    };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    stamp :statement_s = aware :
+    {
+        $ aware : => expression;
+
+        func :.get_cast = { return o.expression.get_cast( pp_cast ); };
+
+        /// removes ineffective code
+        func ( o reduce( m@* o )) =
+        {
+            m :cast_s* prev_cast = NULL;
+            if( o.expression.get_cast( prev_cast ) ) prev_cast.deactivate();
+            return o;
+        };
+
+        func :.set_parent_block = { o.expression.set_parent_block( parent ); };
+        func :.to_sink = { return o.expression.to_sink( sink ); };
     };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -559,9 +650,9 @@ stamp :s = aware :
     func :.push_typespec;
     func :.typespec_to_sink =
     {
-        m $* result = :result_create_arr()^^;
+        m $* result = :result_create_arr()^;
         o.push_typespec( typespec, result );
-        sink.push_sc( result.create_st()^^.sc );
+        result.to_sink( sink );
     };
 
     func xoico_compiler.is_type  = { return o.compiler.is_type( name ); };
@@ -782,6 +873,9 @@ try
 func (:s) (er_t trans_whitespace( m @* o, m x_source* source, m :result* result /* can be NULL */ )) =
 {
     bl_t exit_loop = false;
+
+    m st_s* st = result ? st_s!^ : NULL;
+
     while( !exit_loop && !source.eos() )
     {
         char c =  source.inspect_char();
@@ -792,7 +886,7 @@ func (:s) (er_t trans_whitespace( m @* o, m x_source* source, m :result* result 
             case '\n':
             {
                 char c =  source.get_char();
-                if( result )  result.push_char( c );
+                if( st ) st.push_char( c );
             }
             break;
 
@@ -800,26 +894,26 @@ func (:s) (er_t trans_whitespace( m @* o, m x_source* source, m :result* result 
             {
                 if( source.parse_bl( "#?'//'" ) )
                 {
-                    if( result ) result.push_sc( "//" );
+                    if( st ) st.push_sc( "//" );
                     while( !source.eos() )
                     {
                         char c =  source.get_char();
-                        if( result ) result.push_char( c );
+                        if( st ) st.push_char( c );
                         if( c == '\n' ) break;
                     }
                 }
                 else if( source.parse_bl( "#?'/*'" ) )
                 {
-                    if( result ) result.push_sc( "/*" );
+                    if( st ) st.push_sc( "/*" );
                     while( !source.eos() )
                     {
                         if( source.parse_bl( "#?'*/'" ) )
                         {
-                            if( result ) result.push_sc( "*/" );
+                            if( st ) st.push_sc( "*/" );
                             break;
                         }
                         char c =  source.get_char();
-                        if( result ) result.push_char( c );
+                        if( st ) st.push_char( c );
                     }
                 }
                 else
@@ -836,6 +930,8 @@ func (:s) (er_t trans_whitespace( m @* o, m x_source* source, m :result* result 
             break;
         }
     }
+
+    if( result && st.size > 0 ) result.push_result_d( :result_whitespace_s!( st.fork() ) );
     return 0;
 };
 
@@ -1131,16 +1227,16 @@ func (:s)
             return source.parse_error_fa( "#<st_s*>", msg );
         }
 
+        m :result* result_expression = :result_arr_s!^;
+        o.adapt_expression_indirection( source, typespec_expr, typespec_target.indirection, result_expr, result_expression );
+
         if( implicit_cast )
         {
-            m $* result_cast = :result_cast_s!^( :result_arr_s!, :result_arr_s! );
-            o.push_typespec( typespec_target, result_cast.target );
-            o.adapt_expression_indirection( source, typespec_expr, typespec_target.indirection, result_expr, result_cast.expression );
-            result.push_result_d( result_cast.fork() );
+            result.push_result_d( :result_cast_s!( o, typespec_target.clone(), result_expression.fork() ).reduce() );
         }
         else
         {
-            o.adapt_expression_indirection( source, typespec_expr, typespec_target.indirection, result_expr, result );
+            result.push_result_d( result_expression.fork() );
         }
 
     }
@@ -1985,6 +2081,8 @@ func(:s) (er_t inspect_expression( m @* o, m x_source* source )) =
 
 func (:s) (er_t trans_statement_expression( m @* o, m x_source* source, m :result* result )) =
 {
+    m$* result_statement = :result_statement_s!^( :result_arr_s! );
+
     if( o.try_block_level > 0 )
     {
         m xoico_typespec_s* typespec = xoico_typespec_s!^^;
@@ -2003,26 +2101,28 @@ func (:s) (er_t trans_statement_expression( m @* o, m x_source* source, m :resul
             }
             if( o.returns_er_t() )
             {
-                result.push_sc( "BLM_TRY(" );
+                result_statement.expression.push_sc( "BLM_TRY(" );
             }
             else
             {
-                result.push_sc( "BLM_TRY_EXIT(" );
+                result_statement.expression.push_sc( "BLM_TRY_EXIT(" );
             }
-            result.push_result_d( result_expr.fork() );
-            result.push_sc( ")" );
+            result_statement.expression.push_result_d( result_expr.fork() );
+            result_statement.expression.push_sc( ")" );
         }
         else
         {
-            result.push_result_d( result_expr.fork() );
+            result_statement.expression.push_result_d( result_expr.fork() );
         }
     }
     else
     {
-        o.trans_expression( source, result, NULL );
+        o.trans_expression( source, result_statement.expression, NULL );
     }
 
-    o.trans_whitespace( source, result );
+    o.trans_whitespace( source, result_statement.expression );
+
+    result.push_result_d( result_statement.reduce().fork() );
 
     return 0;
 };

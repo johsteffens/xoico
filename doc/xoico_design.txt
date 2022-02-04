@@ -479,6 +479,10 @@ FEATURES, BUGS ...
 
 - (done) cast: introduce cast result
 
+- (done) cast: remove unnecessary casts in the final code
+    - final cast in a statement
+    - successive casts that can be resolved to a single one
+
 TODO:
 
 - stamp: parsing reflection:
@@ -488,8 +492,6 @@ TODO:
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)
 - make traitline of all groups end in x_inst
 - make 'fork' a transient function in x_inst rather than a builtin function
-
-- cast: remove unnecessary cast expressions in the final code
 
 - cast: introduce aware_cast( <typespec> ) as cast-variation on object indirection > 0 with runtime type-check
      - assumes that all objects involved are aware

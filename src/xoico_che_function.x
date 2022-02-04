@@ -199,9 +199,7 @@ func (:s)
 
     if( cast_return_type )
     {
-        m $* result_cast = :result_cast_s!^( :result_arr_s!, result_expression.fork() );
-        o.push_typespec( typespec_ret, result_cast.target );
-        result.push_result_d( result_cast.fork() );
+        result.push_result_d( :result_cast_s!( o, typespec_ret.clone(), result_expression.fork() ).reduce() );
     }
     else
     {
