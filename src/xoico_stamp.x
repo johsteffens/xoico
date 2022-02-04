@@ -515,7 +515,7 @@ func (:s) :.push_compact_initializer_func =
             if( bcore_flect_caps_is_array( item.caps ) ) return self_item.source_point.parse_error_fa( "#<sc_t>: Item is an array.", err_prefix );
             if( bcore_flect_caps_is_typed( item.caps ) ) return self_item.source_point.parse_error_fa( "#<sc_t>: Item is typed.", err_prefix );
             sz_t indirection = bcore_flect_caps_get_indirection( item.caps );
-            bl_t is_leaf = x_stamp_t_is_leaf( item.type );
+            bl_t is_leaf = bcore_type_is_leaf( item.type );
             bl_t is_pointer = ( item.caps == BCORE_CAPS_POINTER );
 
             sc_t sc_type = bnameof( item.type );
