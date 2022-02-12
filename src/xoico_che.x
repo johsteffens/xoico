@@ -17,316 +17,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// stack for variable declarations
-group :result = :
-{
-    feature void clear( m @* o )             = {};
-    feature er_t push_char( m @* o, char c )          = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
-    feature er_t push_sc( m @* o, sc_t sc )           = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
-    feature er_t push_st( m @* o, c st_s* st )    = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
-    feature m :* push_result_c( m @* o, c :* result ) = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
-    feature m :* push_result_d( m @* o, d :* result ) = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
-    feature o activate(   m @* o ) = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
-    feature o deactivate( m @* o ) = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
-    feature er_t to_sink( c @* o, m x_sink* sink );
-
-    feature void set_parent_block( m @* o, m :block_s* parent ) = {};
-
-    // returns true in case result represents a cast and sets cast accordingly (pp_cast can be NULL)
-    feature bl_t get_cast( m @* o, m :cast_s.2 pp_cast ) = { if( pp_cast ) pp_cast.1 = NULL; return false; };
-
-    feature d st_s* create_st( c @* o ) =
-    {
-        d $* st = st_s!;
-        o.to_sink( st );
-        return st;
-    };
-
-//----------------------------------------------------------------------------------------------------------------------
-
-    stamp :whitespace_s = aware :
-    {
-        $ st_s => st;
-        func :.to_sink = { sink.push_st( o.st );  return 0; };
-    };
-
-//----------------------------------------------------------------------------------------------------------------------
-
-    stamp :plain_s = aware :
-    {
-        st_s st;
-
-        func (d @* create_from_st(   c st_s* st ) ) = { d $* o = @!; o.st.copy( st ); return o; };
-        func (d @* create_from_st_d( d st_s* st ) ) = { d $* o = @!; o.st.copy( st ); st.discard(); return o; };
-        func (d @* create_from_sc(     sc_t  sc ) ) = { d $* o = @!; o.st.copy_sc( sc ); return o; };
-
-        func :.clear     = { o.st.clear(); };
-        func :.push_char = { o.st.push_char( c ); return 0; };
-        func :.push_sc   = { o.st.push_sc( sc ); return 0; };
-        func :.push_st   = { o.st.push_st( st ); return 0; };
-        func :.to_sink   = { sink.push_st( o.st );  return 0; };
-        func :.create_st = { return o.st.clone(); };
-    };
-
-    func (d :* create_from_st( c st_s* st ) ) = { d $* o = :arr_s!; o.push_st( st ); return o; };
-    func (d :* create_from_sc(   sc_t  sc ) ) = { d $* o = :arr_s!; o.push_sc( sc ); return o; };
-
-//----------------------------------------------------------------------------------------------------------------------
-
-    stamp :adl_s = aware x_array { aware : -> []; }; // !! weak links !!  (if this causes problems, revert to strong links)
-    stamp :arr_s = aware :
-    {
-        :adl_s adl;
-        bl_t active = true;
-
-        func :.clear = { o.adl.clear(); };
-        func :.activate = { o.active = true; return o; };
-        func :.deactivate = { o.active = false; return o; };
-
-        func (m :* last( m @* o )) =
-        {
-            return ( o.adl.size == 0 ) ? o.adl.push_d( :plain_s! ) : o.adl.[ o.adl.size - 1 ];
-        };
-
-        func (m :* last_plain( m @* o )) =
-        {
-            return ( o.last()._ != :plain_s~ ) ? o.adl.push_d( :plain_s! ) : o.adl.[ o.adl.size - 1 ];
-        };
-
-        func :.push_char = { return o.last_plain().push_char( c ); };
-        func :.push_sc   = { return o.last_plain().push_sc( sc );  };
-        func :.push_st   = { return o.last_plain().push_st( st );  };
-        func :.push_result_d = { return o.adl.push_d( result ); };
-        func :.push_result_c = { return o.adl.push_c( result ); };
-
-        func :.to_sink =
-        {
-            if( o.active ) foreach( m $* e in o.adl ) e.to_sink( sink );
-            return 0;
-        };
-
-        func :.set_parent_block =
-        {
-            foreach( m $* e in o.adl ) e.set_parent_block( parent );
-        };
-
-        func :.get_cast =
-        {
-            foreach( m $* e in o.adl ) if( e._ != :whitespace_s~ ) return e.get_cast( pp_cast );
-            if( pp_cast ) pp_cast.1 = NULL;
-            return false;
-        };
-    };
-
-    func (d :* create_arr() ) = { return :arr_s!; };
-
-//----------------------------------------------------------------------------------------------------------------------
-
-    stamp :block_s = aware :
-    {
-        :arr_s arr;
-        sz_t level = 0;
-        bl_t is_using_blm = false;
-        bl_t is_root = false;
-        hidden @* parent;
-        func :.clear = { o.arr.clear(); };
-        func :.push_char = { return o.arr.push_char( c ); };
-        func :.push_sc   = { return o.arr.push_sc( sc );  };
-        func :.push_st   = { return o.arr.push_st( st );  };
-
-        func :.push_result_d =
-        {
-            m :* result_pushed = o.arr.push_result_d( result );
-            result_pushed.set_parent_block( o );
-            return result_pushed;
-        };
-
-        func :.push_result_c =
-        {
-            m :* result_pushed = o.arr.push_result_c( result );
-            result_pushed.set_parent_block( o );
-            return result_pushed;
-        };
-
-        func :.to_sink = { return o.arr.to_sink( sink ); };
-        func :.set_parent_block = { o.parent = parent; };
-
-        func (bl_t is_using_blm_until_level( c @* o, sz_t level )) =
-        {
-            if( level > o.level ) return false;
-            if( o.is_using_blm ) return true;
-            if( o.is_root ) return false;
-
-            ASSERT( o.parent );
-            return o.parent.is_using_blm_until_level( level );
-        };
-
-    };
-
-    func (d :* create_block( sz_t level, bl_t is_using_blm  ) ) =
-    {
-        d $* o = :block_s!;
-        o.level = level;
-        o.is_using_blm = is_using_blm;
-        return o;
-    };
-
-//----------------------------------------------------------------------------------------------------------------------
-
-    stamp :blm_init_s = aware :
-    {
-        bl_t active = true;
-        sz_t level;
-        func :.to_sink = { if( o.active ) sink.push_fa( "BLM_INIT_LEVEL(#<sz_t>);", o.level ); return 0; };
-        func :.activate = { o.active = true; return o; };
-        func :.deactivate = { o.active = false; return o; };
-    };
-
-    func (d :* create_blm_init( sz_t level ) ) = { d $* o = :blm_init_s!; o.level = level; return o; };
-
-//----------------------------------------------------------------------------------------------------------------------
-
-    stamp :blm_down_s = aware :
-    {
-        bl_t active = true;
-        func :.to_sink = { if( o.active ) sink.push_sc( "BLM_DOWN();" ); return 0; };
-        func :.activate = { o.active = true; return o; };
-        func :.deactivate = { o.active = false; return o; };
-    };
-
-    func (d :* create_blm_down() ) = { d $* o = :blm_down_s!; return o; };
-
-//----------------------------------------------------------------------------------------------------------------------
-
-    stamp :cast_s = aware :
-    {
-        $ hidden ::s* che;
-        $ xoico_typespec_s => target_typespec;
-        $ aware : => expression;
-
-        bl_t active = true;
-        func :.activate = { o.active = true; return o; };
-        func :.deactivate = { o.active = false; return o; };
-
-        func :.get_cast =
-        {
-            if( o.active )
-            {
-                if( pp_cast ) pp_cast.1 = o;
-                return true;
-            }
-            else
-            {
-                return o.expression.get_cast( pp_cast );
-            }
-        };
-
-        func ( bl_t overrides( @* o, @* a )) =
-        {
-            xoico_typespec_s* to = o.target_typespec;
-            xoico_typespec_s* ta = a.target_typespec;
-
-            /* Currently we restrict to group and stamp pointers.
-             * We might be less restrictive in future.
-             */
-            if( !o.che.is_group( to.type ) && !o.che.is_stamp( to.type ) ) return false;
-            if( !o.che.is_group( ta.type ) && !o.che.is_stamp( ta.type ) ) return false;
-            if( to.indirection != 1 ) return false;
-            if( ta.indirection != 1 ) return false;
-            return true;
-        };
-
-        /// removes successive reducible casts
-        func ( o reduce( m@* o )) =
-        {
-            m @* prev_cast = NULL;
-            if( o.expression.get_cast( prev_cast ) )
-            {
-                if( o.overrides( prev_cast ) ) prev_cast.deactivate();
-            }
-            return o;
-        };
-
-        func :.set_parent_block = { o.expression?.set_parent_block( parent ); };
-
-        func :.to_sink =
-        {
-            if( o.active )
-            {
-                sink.push_sc( "((" );
-                o.che.typespec_to_sink( o.target_typespec, sink );
-                sink.push_sc( ")(" );
-                o.expression?.to_sink( sink );
-                sink.push_sc( "))" );
-            }
-            else
-            {
-                o.expression?.to_sink( sink );
-            }
-            return 0;
-        };
-    };
-
-//----------------------------------------------------------------------------------------------------------------------
-
-    stamp :statement_s = aware :
-    {
-        $ aware : => expression;
-
-        func :.get_cast = { return o.expression.get_cast( pp_cast ); };
-
-        /// removes ineffective code
-        func ( o reduce( m@* o )) =
-        {
-            m :cast_s* prev_cast = NULL;
-            if( o.expression.get_cast( prev_cast ) ) prev_cast.deactivate();
-            return o;
-        };
-
-        func :.set_parent_block = { o.expression.set_parent_block( parent ); };
-        func :.to_sink = { return o.expression.to_sink( sink ); };
-    };
-
-//----------------------------------------------------------------------------------------------------------------------
-
-    func (er_t push_fv( m @* o, sc_t format, va_list args )) =
-    {
-        d st_s* st = st_s_create_fv( format, args );
-        er_t ret = o.push_st( st );
-        st_s_discard( st );
-        return ret;
-    };
-
-//----------------------------------------------------------------------------------------------------------------------
-
-    func( er_t push_fa( m @* o, sc_t format, ... )) =
-    {
-        va_list args;
-        va_start( args, format );
-        er_t ret = o.push_fv( format, args );
-        va_end( args );
-        return ret;
-    };
-
-//----------------------------------------------------------------------------------------------------------------------
-
-    func( er_t copy_fv( m @* o, sc_t format, va_list args )) =
-    {
-        xoico_che_result_a_clear( o );
-        return o.push_fv( format, args );
-    };
-
-//----------------------------------------------------------------------------------------------------------------------
-
-    func (er_t copy_fa( m @* o, sc_t format, ... )) =
-    {
-        va_list args;
-        va_start( args, format );
-        er_t ret = o.copy_fv( format, args );
-        va_end( args );
-        return ret;
-    };
-};
+group :result = : { embed "xoico_che_result.x"; };
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -502,6 +193,7 @@ name case;
 name default;
 name break;
 name return;
+name completion;
 name continue;
 name goto;
 name true;
@@ -555,13 +247,14 @@ stamp :s = aware :
 
     /// runtime state
 
-    sz_t level;
-    sz_t try_block_level;
+    hidden sz_t level;
+    hidden sz_t try_block_level;
+    hidden :stack_var_s   stack_var;
+    hidden :stack_block_s stack_block;
+    hidden bcore_hmap_name_s hmap_name;
 
-    :stack_var_s   stack_var;
-    :stack_block_s stack_block;
-
-    bcore_hmap_name_s hmap_name;
+    hidden bl_t has_completion; // function has at least one completion statement (used to detect missing returns)
+    hidden bl_t has_verbatim_code; // function has verbatim code (disables error on missing return)
 
     func xoico.get_hash =
     {
@@ -2164,6 +1857,11 @@ func (:s) (er_t trans_statement( m @* o, m x_source* source, m :result* result )
         }
         break;
 
+        case '=': // completion statement (same as return)
+        {
+            o.trans_control( TYPEOF_completion, source, result );
+        }
+
         case '?':
         {
             if( source.parse_bl( "#?([1]=='?')" ) )
@@ -2321,6 +2019,7 @@ func (:s) (er_t trans_statement_as_block( m @* o, m x_source* source, m :result*
 
 func (:s) (er_t trans_block_inside_verbatim_c( m @* o, m x_source* source, m :result* result )) =
 {
+    o.has_verbatim_code = true;
     o.trans_whitespace( source, result );
     while( !source.parse_bl( "#=?'}'" ) && !source.eos() )
     {
@@ -2501,6 +2200,12 @@ func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* b
         o.try_block_level -= flag_try;
     }
     source.parse_fa( " }" );
+
+    if( o.returns_a_value() && !o.has_completion && !o.has_verbatim_code )
+    {
+        return source.parse_error_fa( "Function yields a value. Completion statement ('return' or '=') expected." );
+    }
+
 
     m $* result_block = :result_create_block( o.level, o.stack_block_get_bottom_unit().use_blm )^^;
     result_block.cast( m :result_block_s* ).is_root = true;

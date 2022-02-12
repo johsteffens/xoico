@@ -254,6 +254,11 @@ func (my_stamp_s) (o _(m@* o, f3_t a, d st_s* b, c st_s* c )) =
     return o;
 }
 
+Completion (Return statement) '=':
+Using '=' as statement is interpreted as completion.
+At this corresponds to using a return satement
+Example:
+func ( sz_t seven() ) = { = 7; };
 
 ===================================================================
 FEATURES, BUGS ...
@@ -482,6 +487,9 @@ FEATURES, BUGS ...
 - (done) cast: remove unnecessary casts in the final code
     - final cast in a statement
     - successive casts that can be resolved to a single one
+
+- (done) allow '=' as completion (return) statement
+- (done) error in case function returning a value has no completion or no verbatim statement
 
 TODO:
 

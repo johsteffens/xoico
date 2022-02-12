@@ -57,7 +57,8 @@ func (:s)( er_t trans_control( m @* o, tp_t tp_control, m x_source* source, m :r
         case TYPEOF_switch:  return o.trans_control_switch(  source, result );
         case TYPEOF_case:    return o.trans_control_case(    source, result );
         case TYPEOF_default: return o.trans_control_default( source, result );
-        case TYPEOF_return:  return o.trans_control_return(  source, result );
+        case TYPEOF_return:     return o.trans_control_return( tp_control, source, result );
+        case TYPEOF_completion: return o.trans_control_return( tp_control, source, result );
 
         // unsupported controls
         case TYPEOF_goto:
@@ -365,30 +366,6 @@ func (:s)( er_t trans_control_default( m @* o, m x_source* source, m :result* re
 
 //----------------------------------------------------------------------------------------------------------------------
 
-stamp :result_break_s = aware :result
-{
-    sz_t ledge_level;
-    hidden :result_block_s* parent;
-
-    func :result.set_parent_block = { o.parent = parent; };
-
-    func :result.to_sink =
-    {
-        if( !o.parent ) ERR_fa( "Parent missing." );
-        if( o.parent.is_using_blm_until_level( o.ledge_level ) )
-        {
-            sink.push_fa( "BLM_BREAK_LEVEL(#<sz_t>);", o.ledge_level );
-        }
-        else
-        {
-            sink.push_fa( "break;" );
-        }
-        return 0;
-    };
-
-    func (d @* create_setup( sz_t ledge_level )) = { d $* o = @!; o.ledge_level = ledge_level; return o; };
-};
-
 func (:s)( er_t trans_control_break( m @* o, m x_source* source, m :result* result ) ) =
 {
     source.parse_fa( "break ;" );
@@ -409,41 +386,19 @@ func (:s)( er_t trans_control_break( m @* o, m x_source* source, m :result* resu
 
     if( ledge_level == -1 ) return source.parse_error_fa( "'break' has no ledge." );
 
-    result.push_result_d( :result_break_s_create_setup( ledge_level ) );
+    result.push_result_d( :result_break_s!( ledge_level ) );
 
     return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-stamp :result_return_s = aware :result
+func (:s)( er_t trans_control_return( m @* o, tp_t tp_control, m x_source* source, m :result* result ) ) =
 {
-    hidden :result_block_s* parent;
-    hidden aware :result -> result_blm;
-    hidden aware :result -> result_direct;
+    o.has_completion = true;
 
-    func :result.set_parent_block = { o.parent = parent; };
-
-    func :result.to_sink =
-    {
-        if( !o.parent ) ERR_fa( "Parent missing." );
-        if( o.parent.is_using_blm_until_level( 0 ) )
-        {
-            o.result_blm.to_sink( sink );
-        }
-        else
-        {
-            o.result_direct.to_sink( sink );
-        }
-        return 0;
-    };
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
-func (:s)( er_t trans_control_return( m @* o, m x_source* source, m :result* result ) ) =
-{
-    source.parse_fa( "return" );
+    if( tp_control == TYPEOF_return ) source.parse_fa( "return" );
+    if( tp_control == TYPEOF_completion ) source.parse_fa( "=" );
 
     m $* result_expr = :result_create_arr()^^;
 
@@ -469,7 +424,7 @@ func (:s)( er_t trans_control_return( m @* o, m x_source* source, m :result* res
         {
             if( typespec_expr.access_class == TYPEOF_discardable )
             {
-                return source.parse_error_fa( "return: Conversion discards typespe 'discardable'." );
+                return source.parse_error_fa( "return: Conversion discards typespec 'discardable'." );
             }
 
             if( typespec_ret.access_class == TYPEOF_discardable )
@@ -485,33 +440,7 @@ func (:s)( er_t trans_control_return( m @* o, m x_source* source, m :result* res
         result_expr_adapted.push_result_d( result_expr.fork() );
     }
 
-
-    m $* result_blm = :result_create_arr()^^;
-    if( o.returns_a_value() )
-    {
-        result_blm.push_sc( "BLM_RETURNV(" );
-        o.push_typespec( typespec_ret, result_blm );
-        result_blm.push_sc( "," );
-        result_blm.push_result_d( result_expr_adapted.fork() );
-        result_blm.push_sc( ")" );  // do not terminate BLM_RETURNV macro with a semicolon, otherwise if-else statements might not be handled correctly
-    }
-    else
-    {
-        result_blm.push_sc( "BLM_RETURN()" );
-        result_blm.push_result_d( result_expr_adapted.fork() );
-        result_blm.push_sc( ";" );
-    }
-
-    m $* result_direct = :result_create_arr()^^;
-    result_direct.push_sc( "return " );
-    result_direct.push_result_d( result_expr_adapted.fork() );
-    result_direct.push_sc( ";" );
-
-    m $* result_return = :result_return_s!^^;
-    result_return.result_blm =< result_blm.fork();
-    result_return.result_direct =< result_direct.fork();
-
-    result.push_result_d( result_return.fork() );
+    result.push_result_d( :result_return_s!( o, result_expr_adapted.fork() ) );
 
     return 0;
 };
