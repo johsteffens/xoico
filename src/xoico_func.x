@@ -97,27 +97,39 @@ func (:s) xoico.parse =
 {
     m $* compiler = host.compiler();
 
-    // global name signature
     o.source_point.setup_from_source( source );
 
-    if( source.parse_bl( " #?'('" ) )
-    {
-        d xoico_signature_s* signature = xoico_signature_s!;
-        compiler.life_a_push( signature );
+    bl_t is_enclosed_signature = source.parse_bl( " #?'('" ); // old style enclosed signature
 
+    // We first try parsing a direct signature. If that fails, we assume the signature is referenced by an identifier.
+    // This allows parsing without old style bracket enclosing. If that is a save practice under all circumstances is to be seen.
+    s3_t index = source.get_index();
+    m xoico_signature_s* signature = xoico_signature_s!^;
+
+    if( is_enclosed_signature )
+    {
         signature.parse( host, source );
         source.parse_fa( " ) " );
+    }
+    else if( signature.parse( host, source ) != 0 )
+    {
+        bcore_error_remove_last();
+        source.set_index( index );
+        signature = NULL;
+    }
 
+    if( signature )
+    {
+        compiler.life_a_push( signature.fork() );
         o.pre_hash = bcore_tp_fold_tp( o.pre_hash, signature.get_hash() );
         o.name = signature.name;
         compiler.register_item( signature );
-
         o.signature_global_name = signature.global_name;
         o.signature =< signature.clone();
         o.signature.relent( host, host.obj_type() );
         if( host.defines_transient_map() ) o.signature.convert_transient_types( host, host.transient_map() );
     }
-    else
+    else // use of external signature definition
     {
         tp_t tp_signature_base_name = 0;
         tp_t tp_signature_global_name = 0;
@@ -160,8 +172,7 @@ func (:s) xoico.parse =
         if( !o.name )
         {
             st_s^ st_name;
-            source.parse_fa( " #name", st_name.1 );
-            //if( st_name.size == 0 ) return source.parse_error_fa( "Function name expected." );
+            source.parse_fa( " #name", st_name.1 ); // empty name is allowed
             o.name = compiler.entypeof( st_name.sc );
         }
 
@@ -171,13 +182,12 @@ func (:s) xoico.parse =
         }
 
         o.signature_global_name = tp_signature_global_name;
-
     }
 
+    if( !source.parse_bl( " #=?';'" ) ) o.body!.parse( host, source );
 
-    if( source.parse_bl( " #=?'='" ) ) o.body!.parse( host, source );
+    source.parse_fa( " #-?';' " ); // closing semicolon is optional
 
-    source.parse_fa( " ; " );
     return 0;
 };
 

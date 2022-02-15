@@ -17,208 +17,175 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-feature void clear( m @* o )             = {};
-feature er_t push_char( m @* o, char c )          = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
-feature er_t push_sc( m @* o, sc_t sc )           = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
-feature er_t push_st( m @* o, c st_s* st )        = (verbatim_C) { ERR_fa( "Not implemented." ); return 0; };
-feature m :* push_result_c( m @* o, c :* result ) = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
-feature m :* push_result_d( m @* o, d :* result ) = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
-feature o activate(   m @* o ) = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
-feature o deactivate( m @* o ) = (verbatim_C) { ERR_fa( "Not implemented." ); return NULL; };
+feature o clear( m @* o )                         { =o; }
+feature er_t push_char( m @* o, char c )          { ERR_fa( "Not implemented." ); =0; }
+feature er_t push_sc( m @* o, sc_t sc )           { ERR_fa( "Not implemented." ); =0; }
+feature er_t push_st( m @* o, c st_s* st )        { ERR_fa( "Not implemented." ); =0; }
+feature m :* push_result_c( m @* o, c :* result ) { ERR_fa( "Not implemented." ); =NULL; }
+feature m :* push_result_d( m @* o, d :* result ) { ERR_fa( "Not implemented." ); =NULL; }
+feature o activate(   m @* o )                    { ERR_fa( "Not implemented." ); =NULL; }
+feature o deactivate( m @* o )                    { ERR_fa( "Not implemented." ); =NULL; }
 feature er_t to_sink( c @* o, m x_sink* sink );
 
-feature void set_parent_block( m @* o, m :block_s* parent ) = {};
+feature void set_parent_block( m @* o, m :block_s* parent ) {}
 
 // returns true in case result represents a cast and sets cast accordingly (pp_cast can be NULL)
-feature bl_t get_cast( m @* o, m :cast_s.2 pp_cast ) = { if( pp_cast ) pp_cast.1 = NULL; return false; };
+feature bl_t get_cast( m @* o, m :cast_s.2 pp_cast ) { if( pp_cast ) pp_cast.1 = NULL; = false; }
 
-feature d st_s* create_st( c @* o ) =
+feature d st_s* create_st( c @* o )
 {
     d $* st = st_s!;
     o.to_sink( st );
-    return st;
-};
+    = st;
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-stamp :whitespace_s = aware :
-{
-    $ st_s => st;
-    func :.to_sink = { sink.push_st( o.st );  return 0; };
-};
+stamp :whitespace_s( d st_s* st ) func :.to_sink { sink.push_st( o.st ); = 0; }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-stamp :plain_s = aware :
+stamp :plain_s
 {
     st_s st;
 
-    func (d @* create_from_st(   c st_s* st ) ) = { d $* o = @!; o.st.copy( st ); return o; };
-    func (d @* create_from_st_d( d st_s* st ) ) = { d $* o = @!; o.st.copy( st ); st.discard(); return o; };
-    func (d @* create_from_sc(     sc_t  sc ) ) = { d $* o = @!; o.st.copy_sc( sc ); return o; };
+    func d @* create_from_st(   c st_s* st ) { d $* o = @!; o.st.copy( st ); =o; }
+    func d @* create_from_st_d( d st_s* st ) { d $* o = @!; o.st.copy( st ); st.discard(); =o; }
+    func d @* create_from_sc(     sc_t  sc ) { d $* o = @!; o.st.copy_sc( sc ); =o; }
 
-    func :.clear     = { o.st.clear(); };
-    func :.push_char = { o.st.push_char( c ); return 0; };
-    func :.push_sc   = { o.st.push_sc( sc ); return 0; };
-    func :.push_st   = { o.st.push_st( st ); return 0; };
-    func :.to_sink   = { sink.push_st( o.st );  return 0; };
-    func :.create_st = { return o.st.clone(); };
-};
+    func :.clear     { o.st.clear(); =o; }
+    func :.push_char { o.st.push_char( c );  = 0; }
+    func :.push_sc   { o.st.push_sc( sc );   = 0; }
+    func :.push_st   { o.st.push_st( st );   = 0; }
+    func :.to_sink   { sink.push_st( o.st ); = 0; }
+    func :.create_st { = o.st.clone(); }
+}
 
-func (d :* create_from_st( c st_s* st ) ) = { d $* o = :arr_s!; o.push_st( st ); return o; };
-func (d :* create_from_sc(   sc_t  sc ) ) = { d $* o = :arr_s!; o.push_sc( sc ); return o; };
+func d :* create_from_st( c st_s* st ) { d $* o = :arr_s!; o.push_st( st ); =o; }
+func d :* create_from_sc(   sc_t  sc ) { d $* o = :arr_s!; o.push_sc( sc ); =o; }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-stamp :adl_s = aware x_array { aware : -> []; }; // !! weak links !!  (if this causes problems, revert to strong links)
-stamp :arr_s = aware :
+stamp :adl_s x_array { aware : -> []; } // !! weak links !!  (if this causes problems, revert to strong links)
+stamp :arr_s
 {
     :adl_s adl;
     bl_t active = true;
 
-    func :.clear = { o.adl.clear(); };
-    func :.activate = { o.active = true; return o; };
-    func :.deactivate = { o.active = false; return o; };
+    func :.clear { o.adl.clear(); =o; }
+    func :.activate = { o.active = true; =o; }
+    func :.deactivate = { o.active = false; =o; }
 
-    func (m :* last( m @* o )) =
-    {
-        return ( o.adl.size == 0 ) ? o.adl.push_d( :plain_s! ) : o.adl.[ o.adl.size - 1 ];
-    };
+    func m :* last(       m @* o ) { = ( o.adl.size == 0 )         ? o.adl.push_d( :plain_s! ) : o.adl.[ o.adl.size - 1 ]; }
+    func m :* last_plain( m @* o ) { = ( o.last()._ != :plain_s~ ) ? o.adl.push_d( :plain_s! ) : o.adl.[ o.adl.size - 1 ]; }
 
-    func (m :* last_plain( m @* o )) =
-    {
-        return ( o.last()._ != :plain_s~ ) ? o.adl.push_d( :plain_s! ) : o.adl.[ o.adl.size - 1 ];
-    };
+    func :.push_char { = o.last_plain().push_char( c ); }
+    func :.push_sc   { = o.last_plain().push_sc( sc );  }
+    func :.push_st   { = o.last_plain().push_st( st );  }
+    func :.push_result_d { = o.adl.push_d( result ); }
+    func :.push_result_c { = o.adl.push_c( result ); }
 
-    func :.push_char = { return o.last_plain().push_char( c ); };
-    func :.push_sc   = { return o.last_plain().push_sc( sc );  };
-    func :.push_st   = { return o.last_plain().push_st( st );  };
-    func :.push_result_d = { return o.adl.push_d( result ); };
-    func :.push_result_c = { return o.adl.push_c( result ); };
-
-    func :.to_sink =
+    func :.to_sink
     {
         if( o.active ) foreach( m $* e in o.adl ) e.to_sink( sink );
-        return 0;
-    };
+        =0;
+    }
 
-    func :.set_parent_block =
+    func :.set_parent_block
     {
         foreach( m $* e in o.adl ) e.set_parent_block( parent );
-    };
+    }
 
-    func :.get_cast =
+    func :.get_cast
     {
-        foreach( m $* e in o.adl ) if( e._ != :whitespace_s~ ) return e.get_cast( pp_cast );
+        foreach( m $* e in o.adl ) if( e._ != :whitespace_s~ ) =e.get_cast( pp_cast );
         if( pp_cast ) pp_cast.1 = NULL;
-        return false;
-    };
-};
-
-func (d :* create_arr() ) = { return :arr_s!; };
+        =false;
+    }
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-stamp :block_s = aware :
+stamp :block_s( sz_t level, bl_t is_using_blm )
 {
     :arr_s arr;
-    sz_t level = 0;
-    bl_t is_using_blm = false;
     bl_t is_root = false;
     hidden @* parent;
-    func :.clear = { o.arr.clear(); };
-    func :.push_char = { return o.arr.push_char( c ); };
-    func :.push_sc   = { return o.arr.push_sc( sc );  };
-    func :.push_st   = { return o.arr.push_st( st );  };
+    func :.clear { o.arr.clear(); =o; }
+    func :.push_char { =o.arr.push_char( c ); }
+    func :.push_sc   { =o.arr.push_sc( sc );  }
+    func :.push_st   { =o.arr.push_st( st );  }
 
-    func :.push_result_d =
+    func :.push_result_d
     {
         m :* result_pushed = o.arr.push_result_d( result );
         result_pushed.set_parent_block( o );
-        return result_pushed;
-    };
+        =result_pushed;
+    }
 
-    func :.push_result_c =
+    func :.push_result_c
     {
         m :* result_pushed = o.arr.push_result_c( result );
         result_pushed.set_parent_block( o );
-        return result_pushed;
-    };
+        =result_pushed;
+    }
 
-    func :.to_sink = { return o.arr.to_sink( sink ); };
-    func :.set_parent_block = { o.parent = parent; };
+    func :.to_sink { =o.arr.to_sink( sink ); }
+    func :.set_parent_block { o.parent = parent; }
 
-    func (bl_t is_using_blm_until_level( c @* o, sz_t level )) =
+    func bl_t is_using_blm_until_level( c @* o, sz_t level )
     {
-        if( level > o.level ) return false;
-        if( o.is_using_blm ) return true;
-        if( o.is_root ) return false;
+        if( level > o.level ) =false;
+        if( o.is_using_blm )  =true;
+        if( o.is_root )       =false;
 
         ASSERT( o.parent );
-        return o.parent.is_using_blm_until_level( level );
-    };
-
-};
-
-func (d :* create_block( sz_t level, bl_t is_using_blm  ) ) =
-{
-    d $* o = :block_s!;
-    o.level = level;
-    o.is_using_blm = is_using_blm;
-    return o;
-};
+        =o.parent.is_using_blm_until_level( level );
+    }
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-stamp :blm_init_s = aware :
+stamp :blm_init_s( sz_t level )
 {
     bl_t active = true;
-    sz_t level;
-    func :.to_sink = { if( o.active ) sink.push_fa( "BLM_INIT_LEVEL(#<sz_t>);", o.level ); return 0; };
-    func :.activate = { o.active = true; return o; };
-    func :.deactivate = { o.active = false; return o; };
-};
-
-func (d :* create_blm_init( sz_t level ) ) = { d $* o = :blm_init_s!; o.level = level; return o; };
+    func :.to_sink { if( o.active ) sink.push_fa( "BLM_INIT_LEVEL(#<sz_t>);", o.level ); =0; }
+    func :.activate   { o.active = true;  =o; }
+    func :.deactivate { o.active = false; =o; }
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-stamp :blm_down_s = aware :
+stamp :blm_down_s
 {
     bl_t active = true;
-    func :.to_sink = { if( o.active ) sink.push_sc( "BLM_DOWN();" ); return 0; };
-    func :.activate = { o.active = true; return o; };
-    func :.deactivate = { o.active = false; return o; };
-};
-
-func (d :* create_blm_down() ) = { d $* o = :blm_down_s!; return o; };
+    func :.to_sink    { if( o.active ) sink.push_sc( "BLM_DOWN();" ); =0; }
+    func :.activate   { o.active = true;  =o; }
+    func :.deactivate { o.active = false; =o; }
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-stamp :cast_s = aware :
+stamp :cast_s( m xoico_che_s* che, d xoico_typespec_s* target_typespec, d aware xoico_che_result* expression )
 {
-    $ hidden ::s* che;
-    $ xoico_typespec_s => target_typespec;
-    $ aware : => expression;
-
     bl_t active = true;
-    func :.activate = { o.active = true; return o; };
-    func :.deactivate = { o.active = false; return o; };
+    func :.activate   { o.active = true;  =o; }
+    func :.deactivate { o.active = false; =o; }
 
-    func :.get_cast =
+    func :.get_cast
     {
         if( o.active )
         {
             if( pp_cast ) pp_cast.1 = o;
-            return true;
+            =true;
         }
         else
         {
-            return o.expression.get_cast( pp_cast );
+            =o.expression.get_cast( pp_cast );
         }
-    };
+    }
 
-    func ( bl_t overrides( @* o, @* a )) =
+    func bl_t overrides( @* o, @* a )
     {
         xoico_typespec_s* to = o.target_typespec;
         xoico_typespec_s* ta = a.target_typespec;
@@ -226,27 +193,28 @@ stamp :cast_s = aware :
         /* Currently we restrict to group and stamp pointers.
          * We might be less restrictive in future.
          */
-        if( !o.che.is_group( to.type ) && !o.che.is_stamp( to.type ) ) return false;
-        if( !o.che.is_group( ta.type ) && !o.che.is_stamp( ta.type ) ) return false;
-        if( to.indirection != 1 ) return false;
-        if( ta.indirection != 1 ) return false;
-        return true;
-    };
+        if( !o.che.is_group( to.type ) && !o.che.is_stamp( to.type ) ) =false;
+        if( !o.che.is_group( ta.type ) && !o.che.is_stamp( ta.type ) ) =false;
+        if( to.indirection != 1 ) =false;
+        if( ta.indirection != 1 ) =false;
+
+        =true;
+    }
 
     /// removes successive reducible casts
-    func ( o reduce( m@* o )) =
+    func o reduce( m@* o )
     {
         m @* prev_cast = NULL;
         if( o.expression.get_cast( prev_cast ) )
         {
             if( o.overrides( prev_cast ) ) prev_cast.deactivate();
         }
-        return o;
-    };
+        =o;
+    }
 
-    func :.set_parent_block = { o.expression?.set_parent_block( parent ); };
+    func :.set_parent_block { o.expression?.set_parent_block( parent ); };
 
-    func :.to_sink =
+    func :.to_sink
     {
         if( o.active )
         {
@@ -260,40 +228,36 @@ stamp :cast_s = aware :
         {
             o.expression?.to_sink( sink );
         }
-        return 0;
-    };
-};
+        =0;
+    }
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-stamp :statement_s = aware :
+stamp :statement_s( d aware xoico_che_result* expression )
 {
-    $ aware : => expression;
-
-    func :.get_cast = { return o.expression.get_cast( pp_cast ); };
+    func :.get_cast { =o.expression.get_cast( pp_cast ); }
 
     /// removes ineffective code
-    func ( o reduce( m@* o )) =
+    func o reduce( m@* o )
     {
         m :cast_s* prev_cast = NULL;
         if( o.expression.get_cast( prev_cast ) ) prev_cast.deactivate();
-        return o;
+        =o;
     };
 
-    func :.set_parent_block = { o.expression.set_parent_block( parent ); };
-    func :.to_sink = { return o.expression.to_sink( sink ); };
-};
+    func :.set_parent_block { o.expression.set_parent_block( parent ); }
+    func :.to_sink { =o.expression.to_sink( sink ); }
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-stamp :break_s =
+stamp :break_s( sz_t ledge_level ) =
 {
-    $ sz_t ledge_level;
-
     hidden :block_s* parent;
-    func :.set_parent_block = { o.parent = parent; };
+    func :.set_parent_block = { o.parent = parent; }
 
-    func :.to_sink =
+    func :.to_sink
     {
         if( !o.parent ) ERR_fa( "Parent missing." );
         if( o.parent.is_using_blm_until_level( o.ledge_level ) )
@@ -304,21 +268,18 @@ stamp :break_s =
         {
             sink.push_fa( "break;" );
         }
-        return 0;
-    };
-};
+        =0;
+    }
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-stamp :return_s =
+stamp :return_s( m xoico_che_s* che, d aware xoico_che_result* return_expression ) =
 {
-    $ hidden xoico_che_s* che;
-    $ hidden aware :-> return_expression;
-
     hidden :block_s* parent;
     func :.set_parent_block = { o.parent = parent; };
 
-    func :.to_sink =
+    func :.to_sink
     {
         if( !o.parent ) ERR_fa( "Parent missing." );
 
@@ -345,50 +306,49 @@ stamp :return_s =
             o.return_expression.to_sink( sink );
             sink.push_sc( ";" );
         }
-        return 0;
-    };
-
-};
+        =0;
+    }
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (er_t push_fv( m @* o, sc_t format, va_list args )) =
+func er_t push_fv( m @* o, sc_t format, va_list args )
 {
     d st_s* st = st_s_create_fv( format, args );
     er_t ret = o.push_st( st );
     st_s_discard( st );
-    return ret;
-};
+    =ret;
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func( er_t push_fa( m @* o, sc_t format, ... )) =
+func( er_t push_fa( m @* o, sc_t format, ... ))
 {
     va_list args;
     va_start( args, format );
     er_t ret = o.push_fv( format, args );
     va_end( args );
-    return ret;
-};
+    =ret;
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func( er_t copy_fv( m @* o, sc_t format, va_list args )) =
+func( er_t copy_fv( m @* o, sc_t format, va_list args ))
 {
     xoico_che_result_a_clear( o );
-    return o.push_fv( format, args );
-};
+    =o.push_fv( format, args );
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (er_t copy_fa( m @* o, sc_t format, ... )) =
+func er_t copy_fa( m @* o, sc_t format, ... )
 {
     va_list args;
     va_start( args, format );
     er_t ret = o.copy_fv( format, args );
     va_end( args );
-    return ret;
-};
+    =ret;
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 

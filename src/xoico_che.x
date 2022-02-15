@@ -343,7 +343,7 @@ stamp :s = aware :
     func :.push_typespec;
     func :.typespec_to_sink =
     {
-        m $* result = :result_create_arr()^;
+        m $* result = :result_arr_s!^;
         o.push_typespec( typespec, result );
         result.to_sink( sink );
     };
@@ -461,7 +461,7 @@ func(:s) (er_t trans_identifier
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/** parses number: (all integer, hex and float encodings)*/
+/// parses number: (all integer, hex and float encodings)
 func(:s) (er_t trans_number_literal( m @* o, m x_source* source, m :result* result )) =
 {
     bl_t hex = false;
@@ -546,8 +546,6 @@ func (:s) (er_t trans_string_literal( m @* o, m x_source* source, m :result* res
 /// character literal
 func (:s) (er_t trans_char_literal( m @* o, m x_source* source, m :result* result )) =
 {
-try
-{
     o.trans( source, "'", result );
 
     while( !source.eos() && !source.parse_bl( "#=?|'|" ) )
@@ -558,7 +556,7 @@ try
 
     o.trans( source, "'", result );
     return 0;
-} /* try */ };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -820,7 +818,7 @@ func (:s)
         c :result* result_expr,
         m :result* result
     )
-) =
+)
 {
     if( !typespec_expr.type )
     {
@@ -1184,7 +1182,7 @@ func (:s)
     )
 ) =
 {
-    m $* result_local = :result_create_arr()^^;
+    m $* result_local = :result_arr_s!^;
     tp_t tp_identifier;
     o.trans_identifier( source, result_local, tp_identifier );
     o.trans_whitespace( source, result_local );
@@ -1245,7 +1243,7 @@ func (:s)
     )
 ) =
 {
-    m $* result_local = :result_create_arr()^^;
+    m $* result_local = :result_arr_s!^;
     tp_t tp_identifier;
     o.trans_identifier( source, result_local, tp_identifier );
     o.trans_whitespace( source, result_local );
@@ -1386,7 +1384,7 @@ func (:s)
 
     o.trans_whitespace( source, result_out );
 
-    m $* result = :result_create_arr()^^;
+    m $* result = :result_arr_s!^;
     bl_t continuation = true;
 
     if( out_typespec ) out_typespec.reset();
@@ -1588,7 +1586,7 @@ func (:s)
 
     sz_t index = source.get_index();
 
-    m $* result_var = :result_create_arr()^^;
+    m $* result_var = :result_arr_s!^;
 
     bl_t success_take_typespec = false;
     o.try_take_typespec( source, typespec_var, true, success_take_typespec.1 );
@@ -1623,7 +1621,7 @@ func (:s)
 
             result_var.push_sc( "=" );
             m xoico_typespec_s* typespec_expr = xoico_typespec_s!^^;
-            m $* result_expr = :result_create_arr()^^;
+            m $* result_expr = :result_arr_s!^^;
             o.trans_expression( source, result_expr, typespec_expr );
 
             if( typespec_var.type == type_deduce~ )
@@ -1679,6 +1677,14 @@ func (:s)
             result_out.push_char( ' ' );
             result_out.push_result_d( result_var.fork() );
             o.push_typedecl( typespec_var, tp_identifier );
+
+            o.trans_whitespace( source, result_var );
+            if( source.parse_bl( "#?'='" ) ) // c-style initialization
+            {
+                result_var.push_sc( "=" );
+                o.trans_whitespace( source, result_var );
+                o.trans_block( source, result_var, false );
+            }
         }
         else
         {
@@ -1696,7 +1702,7 @@ func (:s)
                 // debug
                 if( !source.parse_bl( " #=?';'" ) )
                 {
-                    m $* result_local = :result_arr_s!^;
+                    m $* result_local = :result_arr_s!^^;
                     result_local.push_fa( "#<sc_t>", o.nameof( tp_identifier ) );
                     o.trans_typespec_expression( source, result_local, typespec_var, NULL );
                     result_out.push_result_d( result_local.fork() );
@@ -1730,7 +1736,7 @@ func(:s) (er_t inspect_expression( m @* o, m x_source* source )) =
     source.parse_fa( "\?\?" );
 
     m $* st = st_s!^;
-    m $* result_local = :result_create_arr()^;
+    m $* result_local = :result_arr_s!^;
     m xoico_typespec_s* typespec = xoico_typespec_s!^;
     source.parse_fa( " #until';' ", st );
     source.parse_fa( ";" );
@@ -1779,7 +1785,7 @@ func (:s) (er_t trans_statement_expression( m @* o, m x_source* source, m :resul
     if( o.try_block_level > 0 )
     {
         m xoico_typespec_s* typespec = xoico_typespec_s!^^;
-        m $* result_expr = :result_create_arr()^^;
+        m $* result_expr = :result_arr_s!^^;
         o.trans_expression( source, result_expr, typespec );
         if
         (
@@ -1861,6 +1867,7 @@ func (:s) (er_t trans_statement( m @* o, m x_source* source, m :result* result )
         {
             o.trans_control( TYPEOF_completion, source, result );
         }
+        break;
 
         case '?':
         {
@@ -1923,7 +1930,7 @@ func (:s) (er_t trans_statement( m @* o, m x_source* source, m :result* result )
 
 func (:s) (er_t trans_block_inside( m @* o, m x_source* source, m :result* result_out )) =
 {
-    m $* result = :result_create_arr()^^;
+    m $* result = :result_arr_s!^;
 
     s3_t source_index = source.get_index();
 
@@ -1933,21 +1940,21 @@ func (:s) (er_t trans_block_inside( m @* o, m x_source* source, m :result* resul
         s3_t index = source.get_index();
         if( index == source_index && !source.eos() )
         {
-            return source.parse_error_fa( "Syntax error: Statement translator failed to progress." );
+            return source.parse_error_fa( "Internal error: Statement translator did not progress." );
         }
         source_index = index;
     }
 
     if( o.stack_block_get_top_unit().use_blm )
     {
-        m $* result_block = :result_create_block( o.level, true )^^;
+        m $* result_block = :result_block_s!( o.level, true )^^;
 
-        result_block.push_result_d( :result_create_blm_init( o.level ) );
+        result_block.push_result_d( :result_blm_init_s!( o.level ) );
         result_block.push_result_d( result.fork() );
 
         if( ( o.level > 0 ) || !o.returns_a_value() )
         {
-            result_block.push_result_d( :result_create_blm_down() );
+            result_block.push_result_d( :result_blm_down_s! );
         }
 
         result_out.push_result_d( result_block.fork() );
@@ -1965,7 +1972,7 @@ func (:s) (er_t trans_block_inside( m @* o, m x_source* source, m :result* resul
 func (:s) (er_t trans_block( m @* o, m x_source* source, m :result* result_out, bl_t is_break_ledge )) =
 {
     o.inc_block();
-    m $* result = :result_create_arr()^^;
+    m $* result = :result_arr_s!^;
     o.stack_block_get_top_unit().break_ledge = is_break_ledge;
     o.trans_whitespace( source, result );
     o.trans( source, "{", result );
@@ -1981,7 +1988,7 @@ func (:s) (er_t trans_block( m @* o, m x_source* source, m :result* result_out, 
 
 func (:s) (er_t trans_statement_as_block( m @* o, m x_source* source, m :result* result_out, bl_t is_break_ledge )) =
 {
-    m $* result = :result_create_arr()^^;
+    m $* result = :result_arr_s!^;
 
     o.inc_block();
 
@@ -1997,10 +2004,10 @@ func (:s) (er_t trans_statement_as_block( m @* o, m x_source* source, m :result*
 
     if( o.stack_block_get_top_unit().use_blm )
     {
-        m $* result_block = :result_create_block( o.level, true )^^;
-        result_block.push_result_d( :result_create_blm_init( o.level ) );
+        m $* result_block = :result_block_s!( o.level, true )^^;
+        result_block.push_result_d( :result_blm_init_s!( o.level ) );
         result_block.push_result_d( result.fork() );
-        result_block.push_result_d( :result_create_blm_down() );
+        result_block.push_result_d( :result_blm_down_s! );
 
         result_out.push_sc( "{" );
         result_out.push_result_d( result_block.fork() );
@@ -2161,7 +2168,7 @@ func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* b
 
     m x_source* source = body.code.source_point.clone_source()^^;
 
-    m $* result = :result_create_arr()^^;
+    m $* result = :result_arr_s!^;
 
     bl_t flag_verbatim_c = false;
     bl_t flag_try = o.for_all_functions_enable_try;
@@ -2203,11 +2210,10 @@ func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* b
 
     if( o.returns_a_value() && !o.has_completion && !o.has_verbatim_code )
     {
-        return source.parse_error_fa( "Function yields a value. Completion statement ('return' or '=') expected." );
+        return source.parse_error_fa( "Function must return a value. Completion statement ('return' or '=') expected." );
     }
 
-
-    m $* result_block = :result_create_block( o.level, o.stack_block_get_bottom_unit().use_blm )^^;
+    m $* result_block = :result_block_s!( o.level, o.stack_block_get_bottom_unit().use_blm )^^;
     result_block.cast( m :result_block_s* ).is_root = true;
     result_block.push_result_d( result.fork() );
 

@@ -34,8 +34,8 @@ XOILA_DEFINE_GROUP( <group_name>, <trait_name> )
 
     func feature : name [= { <body> }];
 
-    stamp <name> = [aware] <trait> { reflection-body };
-    stamp <name> = extending <tmpl> { reflection-body-extension }; // uses 'tmpl' as template to be extended; 'tmpl' can be a stamp or stump.
+    stamp <name> [=] [aware] <trait> { reflection-body };
+    stamp <name> [=] extending <tmpl> { reflection-body-extension }; // uses 'tmpl' as template to be extended; 'tmpl' can be a stamp or stump.
     stump ... // same as stamp definition. A 'stump' is not expanded into code. But it can be used as template. Stump-functions are overloadable.
     {stamp|stump} verbatim ....  // keyword 'verbatim' disables all automatic extensions for this definition
 
@@ -66,7 +66,7 @@ xoila-closer:
 body:
   A body consists of C-code and specific xoila controls.
 
-  body <name> = <body-expression>; // definition of a body
+  body <name> [=] <body-expression>; // definition of a body
 
   <body-expression>:
      { code.... } [: <body-expression>];
@@ -135,15 +135,15 @@ stamp:
   C-Prototypes are generated and registered as featured function.
 
   Function Syntax:
-   func <group_name> . <signature_name> [ = { <body> }];
+   func <group_name> . <signature_name> [ [=] { <body> }];
          <signature_name> is a signature defined in group <group_name>
          Creates a function <stamp_name>_s_<signature_name>.
 
-   func <group_name> . <feature_name> [ = { <body> }];
+   func <group_name> . <feature_name> [ [=] { <body> }];
          <feature_name> is a feature defined in group <group_name>
          Creates a function <stamp_name>_s_<feature_name> and binds it to <group_name>_<feature_name>.
 
-   func (<signature-def>) [ = { <body> }];
+   func (<signature-def>) [ [=] { <body> }];
          Creates a function <stamp_name>_s_<signature_name>.
 
   Special conditions:
@@ -490,11 +490,30 @@ FEATURES, BUGS ...
 
 - (done) allow '=' as completion (return) statement
 - (done) error in case function returning a value has no completion or no verbatim statement
+- (done) function/body definition: assignment symbol is optional
+- (done) stamp definition: assignment symbol is optional
+- (done) group definition: assignment symbol is optional
+- (done) feature with default function: assignment symbol is optional
+- (done) transient types declaration in stamp: use 'trans' prefix to distinguish from mere functor-style arguments
+- (done) function definition: turn requirement of extra brackets (...) for signature definition to optional:
+         try signature definition first, if pattern mismatches assume signature name
+- (done) stamp declaration: allow omitting braces in case of no or just one element
+- (done) stamp declaration: (functor style) allow compact initializing object declared via argument list
+
+- (done) make semicolons after stamp, func, group optional
+
 
 TODO:
 
 - stamp: parsing reflection:
    - automatic prepend 'aware' for group types when type-awareness is unclear
+
+- introduce a functor:
+  syntax on group level.
+  Example:
+  functor sz_t fu_s( sz_t a, sz_t b ).( sz_t c ) { = a + b + c; };
+  Resolves to
+  stamp :fu_s { $ sz_t a; $ sz_t_b; func sz_t ( sz_t c ) { = o.a + o.b + c; }; };
 
 - bug: binary operator not recognized after unregistered member function
 - introduce builtin ternary operator 'iff' as builtin function (might be solved by a transient function in x_inst)

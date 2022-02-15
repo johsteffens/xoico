@@ -127,7 +127,7 @@ func (:s)( er_t trans_control_foreach( m @* o, m x_source* source, m :result* re
     source.parse_fa( " in " );
 
     m xoico_typespec_s* typespec_arr_expr = xoico_typespec_s!^;
-    m $* result_arr_expr = :result_create_arr()^;
+    m $* result_arr_expr = :result_arr_s!^;
     o.trans_expression( source, result_arr_expr, typespec_arr_expr );
 
     if( !typespec_arr_expr.type )
@@ -197,7 +197,7 @@ func (:s)( er_t trans_control_foreach( m @* o, m x_source* source, m :result* re
     o.dec_block();
 
     result.push_fa( "{" );
-    d$* blm_init = :result_create_blm_init( o.level );
+    d$* blm_init = :result_blm_init_s!( o.level );
     result.push_result_d( blm_init );
 
     o.push_typespec( typespec_arr, result );
@@ -206,7 +206,7 @@ func (:s)( er_t trans_control_foreach( m @* o, m x_source* source, m :result* re
     o.adapt_expression( source, typespec_arr_expr, typespec_arr, result_arr_expr, result );
     result.push_fa( ";" );
 
-    result.push_fa( "if(__a)for(sz_t __i=0; __i<__a->size; __i++){" );
+    result.push_fa( "if(__a)for(sz_t __i=0;__i<__a->size;__i++){" );
     o.push_typespec( typespec_var, result );
     result.push_fa( " #<sc_t>=", xoico_che_s_nameof( o, tp_var_name ) );
 
@@ -228,7 +228,7 @@ func (:s)( er_t trans_control_foreach( m @* o, m x_source* source, m :result* re
 
     result.push_fa( "}" );
 
-    d$* blm_down = :result_create_blm_down();
+    d$* blm_down = :result_blm_down_s!;
 
     if( !o.stack_block_get_top_unit().use_blm )
     {
@@ -400,14 +400,12 @@ func (:s)( er_t trans_control_return( m @* o, tp_t tp_control, m x_source* sourc
     if( tp_control == TYPEOF_return ) source.parse_fa( "return" );
     if( tp_control == TYPEOF_completion ) source.parse_fa( "=" );
 
-    m $* result_expr = :result_create_arr()^^;
+    m $* result_expr = :result_arr_s!^;
 
     m xoico_typespec_s* typespec_expr = scope( xoico_typespec_s! );
     c xoico_typespec_s* typespec_ret = o.signature.typespec_ret;
 
     o.trans_expression( source, result_expr, typespec_expr );
-    o.trans_whitespace( source, result_expr );
-    source.parse_fa( ";" );
 
     if( typespec_expr.type )
     {
@@ -417,7 +415,11 @@ func (:s)( er_t trans_control_return( m @* o, tp_t tp_control, m x_source* sourc
         }
     }
 
-    m $* result_expr_adapted = :result_create_arr()^^;
+    o.trans_whitespace( source, result_expr );
+
+    if( !source.parse_bl( "#?';'" ) ) return source.parse_error_fa( "Missing ';' after completion statement." );
+
+    m $* result_expr_adapted = :result_arr_s!^;
     if( o.returns_a_value() && typespec_expr.type )
     {
         if( typespec_expr.access_class != typespec_ret.access_class )

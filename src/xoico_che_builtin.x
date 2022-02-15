@@ -83,7 +83,7 @@ func (:s)
     else // direct call
     {
         source.parse_fa( "cast ( " );
-        m $* result = :result_create_arr()^^;
+        m $* result = :result_arr_s!^^;
         m $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
         source.parse_fa( " , " );
@@ -195,7 +195,7 @@ func (:s)
     else // direct call
     {
         source.parse_fa( "scope ( " );
-        m $* result = :result_create_arr()^^;
+        m $* result = :result_arr_s!^^;
         m $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
         typespec_expr = typespec;
@@ -288,7 +288,7 @@ func (:s)
 
     sz_t level = 0;
 
-    m $* result_type_expr = :result_create_arr()^;
+    m $* result_type_expr = :result_arr_s!^;
 
     if( result_expr ) // member call
     {
@@ -300,7 +300,7 @@ func (:s)
     else // direct call
     {
         source.parse_fa( "scope ( " );
-        m $* result = :result_create_arr()^^;
+        m $* result = :result_arr_s!^^;
         m $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
         typespec_expr = typespec;
@@ -389,7 +389,7 @@ func (:s)
     else // direct call
     {
         source.parse_fa( "fork ( " );
-        m $* result = :result_create_arr()^^;
+        m $* result = :result_arr_s!^;
         m $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
         typespec_expr = typespec;
@@ -451,7 +451,7 @@ func (:s)
         }
 
         source.parse_fa( "( " );
-        m $* result = :result_create_arr()^^;
+        m $* result = :result_arr_s!^^;
         m $* typespec = xoico_typespec_s!^^;
         o.trans_expression( source, result, typespec );
         typespec_expr = typespec;

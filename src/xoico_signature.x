@@ -138,8 +138,7 @@ func (:s) xoico.parse =
         if( !signature ) return source.parse_error_fa( "Could not find predefined signature '#<sc_t>'.", host.nameof( tp_name ) );
         o.copy( signature );
         o.source_point.setup_from_source( source );
-        source.parse_fa( " #name", name_buf );
-        //if( name_buf.size == 0 ) return source.parse_error_fa( "Signature name missing." );
+        source.parse_fa( " #name", name_buf );  // empty name is allowed
         o.name = compiler.entypeof( name_buf.sc );
         source.parse_fa( " (" );
         o.args.append( host, source );
@@ -195,16 +194,6 @@ func (:s) xoico.parse =
     }
 
     o.set_global_name( host );
-
-//    if( name_buf.size == 0 )
-//    {
-//        source.parse_msg_fa
-//        (
-//            "Registrering an anonymous signature.\n"
-//            "Global name: #<sc_t>\n",
-//            host.nameof( o.global_name )
-//        );
-//    }
 
     return 0;
 };

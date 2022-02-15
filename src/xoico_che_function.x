@@ -49,7 +49,7 @@ func (:s)
     {
         if( !result_object_expr )
         {
-            m $* result_expr   = :result_create_arr()^^;
+            m $* result_expr   = :result_arr_s!^^;
             m $* typespec_expr = xoico_typespec_s!^^;
             o.trans_expression( source, result_expr, typespec_expr );
             result_object_expr = result_expr;
@@ -98,8 +98,8 @@ func (:s)
     {
         if( arg.is_variadic() ) break;
 
-        m $* result_expr = :result_arr_s!^;
-        m $* typespec_expr = xoico_typespec_s!^;
+        m $* result_expr = :result_arr_s!^^;
+        m $* typespec_expr = xoico_typespec_s!^^;
         source.parse_fa( " " );
 
         if( __i > 0 )

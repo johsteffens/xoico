@@ -469,7 +469,13 @@ func (:s) :.parse =
         else if( source.parse_bl( " #?w'body' " ) )
         {
             m $* body = xoico_body_s!^;
+            st_s^ body_name;
+            o.parse_name_st( source, body_name );
+            if( body_name.size == 0 ) return source.parse_error_fa( "Body name expected." );
+            body.name = host.entypeof( body_name.sc );
+
             body.parse( o, source );
+
             source.parse_fa( " ; " );
             compiler.register_item( o.push_item_d( body.fork() ) );
         }
@@ -572,7 +578,11 @@ func (:s) :.parse =
             o.parse_name_st( source, st_group_name );
             bl_t retrievable = false;
 
-            source.parse_fa( " =" );
+            // using assignment symbol is optional
+            if( source.parse_bl( " #?'=' " ) )
+            {
+                // nothing (error in case use of assignment becomes illegal)
+            }
 
             // flags
             if( source.parse_bl( " #?w'retrievable' " ) ) retrievable = true;
@@ -615,7 +625,7 @@ func (:s) :.parse =
                 group.parse( o, true, source );
             }
 
-            source.parse_fa( " ; " );
+            source.parse_fa( " #-?';' " ); // closing semicolon is optional
         }
         else if( source.parse_bl( " #?w'set' " ) )
         {

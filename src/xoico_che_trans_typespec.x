@@ -108,7 +108,7 @@ func (:s)
     }
     else // member (object or function)
     {
-        m $* result_local = :result_create_arr()^^;
+        m $* result_local = :result_arr_s!^;
 
         tp_t tp_identifier = o.get_identifier( source, true );
         if( !tp_identifier )
@@ -187,7 +187,7 @@ func (:s)
                 {
                     if( source.parse_bl( "#=?')'" ) ) break;
 
-                    m $* result_expr = :result_create_arr()^^;
+                    m $* result_expr = :result_arr_s!^;
                     if( !first ) source.parse_fa( "," );
                     o.trans_expression( source, result_expr, NULL );
                     o.trans_whitespace( source, result_expr );

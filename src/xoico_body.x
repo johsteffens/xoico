@@ -239,23 +239,19 @@ func (:s) :.parse_expression =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.parse =
+func (:s) xoico.parse
 {
-    m $* compiler = host.compiler();
-    m st_s* string = st_s!^^;
     o.source_point.setup_from_source( source );
 
-    if( !source.parse_bl( " #=?'='" ) )
+    // using assignment symbol is optinal
+    if( source.parse_bl( " #?'='" ) )
     {
-        source.parse_fa( " #name", string );
-        if( string.size == 0 ) return source.parse_error_fa( "Body name expected." );
-        o.name = host.entypeof( string.sc );
+        // if it shall be deprecating it, place an error here
     }
-
-    source.parse_fa( " =" );
 
     o.parse_expression( host, source );
 
+    m $* compiler = host.compiler();
     o.global_name = host.entypeof( st_s_create_fa( "#<sc_t>_#<sc_t>", compiler.nameof( host.obj_type() ), compiler.nameof( o.name ) )^^.sc );
     return 0;
 };

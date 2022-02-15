@@ -123,9 +123,10 @@ stamp :s = aware :
 
 stamp :self_item_s =
 {
-    bl_t arg_of_initializer;
-    st_s st;
     x_source_point_s source_point;
+    st_s st;
+    bl_t arg_of_initializer; // this item is arguiment of the compact initializer
+    bl_t copy_from_initializer; // this shall be copied (cloned) from the the compact initializer
 
     func (er_t to_bcore_self_item( @* o, bcore_self_s* self, m bcore_self_item_s* item )) =
     {
@@ -364,89 +365,102 @@ func (:s) (er_t parse_extend( m @* o, m x_source* source )) =
     self.type = o.tp_name;
     self.trait = o.trait_name;
 
-    source.parse_fa( " {" );
+    if( source.parse_bl( " #?'{'" ) )
+    {
+        while( !source.eos() && !source.parse_bl( " #?'}'" ) )
+        {
+            if( source.parse_bl( " #?w'func'" ) )
+            {
+                o.parse_func( source );
+            }
+            else if( source.parse_bl( " #?w'wrap'" ) )
+            {
+                o.parse_wrap( source );
+            }
+            else
+            {
+                bl_t exit = false;
 
-    while( !source.eos() && !source.parse_bl( " #?'}'" ) )
+                buf.clear();
+                bl_t arg_of_initializer = false;
+
+                while( !exit && !source.eos() )
+                {
+                    u0_t c =  source.get_u0();
+                    switch( c )
+                    {
+                        case ':':
+                        {
+                            m st_s* name = st_s!^;
+                            o.group.parse_name_recursive( source, name );
+                            buf.push_st( name );
+                        }
+                        break;
+
+                        case '$':
+                        {
+                            arg_of_initializer = true;
+                        }
+                        break;
+
+                        case '@':
+                        {
+                            buf.push_st( o.st_name );
+                        }
+                        break;
+
+                        case ';':
+                        {
+                            buf.push_char( c );
+                            exit = true;
+                        }
+                        break;
+
+                        case '"': // string literal
+                        {
+                            buf.push_char( c );
+                            while( !source.eos() && ((c = source.get_char()) != '"') )
+                            {
+                                buf.push_char( c );
+                                if( c == '\\' ) buf.push_char( source.get_char() );
+                                if( c == '\n' ) return source.parse_error_fa( "Newline in string literal." );
+                            }
+                            if( source.eos() ) return source.parse_error_fa( "End of file in string literal." );
+                            buf.push_char( c );
+                        }
+                        break;
+
+                        default:
+                        {
+                            buf.push_char( c );
+                        }
+                        break;
+                    }
+                }
+
+                if( arg_of_initializer ) o.has_compact_initializer = true;
+
+                m$* self_item = :self_item_s!^;
+                self_item.arg_of_initializer = arg_of_initializer;
+                self_item.st.copy( buf );
+                self_item.source_point.setup_from_source( source );
+                o.arr_self_item!.push_d( self_item.fork() );
+            }
+        }
+    }
+    else
     {
         if( source.parse_bl( " #?w'func'" ) )
         {
             o.parse_func( source );
         }
-        else if( source.parse_bl( " #?w'wrap'" ) )
+        else  // a non-block must close with semicolon
         {
-            o.parse_wrap( source );
-        }
-        else
-        {
-            bl_t exit = false;
-
-            buf.clear();
-            bl_t arg_of_initializer = false;
-
-            while( !exit && !source.eos() )
-            {
-                u0_t c =  source.get_u0();
-                switch( c )
-                {
-                    case ':':
-                    {
-                        m st_s* name = st_s!^;
-                        o.group.parse_name_recursive( source, name );
-                        buf.push_st( name );
-                    }
-                    break;
-
-                    case '$':
-                    {
-                        arg_of_initializer = true;
-                    }
-                    break;
-
-                    case '@':
-                    {
-                        buf.push_st( o.st_name );
-                    }
-                    break;
-
-                    case ';':
-                    {
-                        buf.push_char( c );
-                        exit = true;
-                    }
-                    break;
-
-                    case '"': // string literal
-                    {
-                        buf.push_char( c );
-                        while( !source.eos() && ((c = source.get_char()) != '"') )
-                        {
-                            buf.push_char( c );
-                            if( c == '\\' ) buf.push_char( source.get_char() );
-                            if( c == '\n' ) return source.parse_error_fa( "Newline in string literal." );
-                        }
-                        if( source.eos() ) return source.parse_error_fa( "End of file in string literal." );
-                        buf.push_char( c );
-                    }
-                    break;
-
-                    default:
-                    {
-                        buf.push_char( c );
-                    }
-                    break;
-                }
-            }
-
-            if( arg_of_initializer ) o.has_compact_initializer = true;
-
-            m$* self_item = :self_item_s!^;
-            self_item.arg_of_initializer = arg_of_initializer;
-            self_item.st.copy( buf );
-            self_item.source_point.setup_from_source( source );
-            o.arr_self_item!.push_d( self_item.fork() );
+            source.parse_fa( " ;" );
         }
     }
-    source.parse_fa( " ; " );
+
+    source.parse_fa( " #-?';' " ); // closing semicolon is optional
 
     return 0;
 };
@@ -526,12 +540,12 @@ func (:s) :.push_compact_initializer_func =
                 if( is_leaf )
                 {
                     sig.push_fa( ", #<sc_t> #<sc_t>", sc_type, sc_name );
-                    body.push_fa( "    o.#<sc_t> = #<sc_t>;", sc_name, sc_name );
+                    body.push_fa( "    o.#<sc_t> = #<sc_t>;\n", sc_name, sc_name );
                 }
                 else
                 {
                     sig.push_fa( ", c #<sc_t>* #<sc_t>", sc_type, sc_name );
-                    body.push_fa( "    o.#<sc_t>.copy( #<sc_t> );", sc_name, sc_name );
+                    body.push_fa( "    o.#<sc_t>.copy( #<sc_t> );\n", sc_name, sc_name );
                 }
             }
             else
@@ -539,15 +553,19 @@ func (:s) :.push_compact_initializer_func =
                 if( is_leaf || is_pointer )
                 {
                     sig.push_fa( ", m #<sc_t>* #<sc_t>", sc_type, sc_name );
-                    body.push_fa( "    o.#<sc_t> = #<sc_t>;", sc_name, sc_name );
+                    body.push_fa( "    o.#<sc_t> = #<sc_t>;\n", sc_name, sc_name );
+                }
+                else if( self_item.copy_from_initializer )
+                {
+                    sig.push_fa( ", c #<sc_t>* #<sc_t>", sc_type, sc_name );
+                    body.push_fa( "    o.#<sc_t> =< #<sc_t>.clone();\n", sc_name, sc_name );
                 }
                 else
                 {
                     sig.push_fa( ", d #<sc_t>* #<sc_t>", sc_type, sc_name );
-                    body.push_fa( "    o.#<sc_t> =< #<sc_t>;", sc_name, sc_name );
+                    body.push_fa( "    o.#<sc_t> =< #<sc_t>;\n", sc_name, sc_name );
                 }
             }
-            body.push_fa( "\n" );
         }
     }
     sig.push_fa( "))" );
@@ -594,7 +612,31 @@ func (:s) xoico.parse =
 
     if( !st_stamp_name.ends_in_sc( "_s" ) ) return source.parse_error_fa( "Stamp name '#<sc_t>' must end in '_s'.", st_stamp_name->sc );
 
-    source.parse_fa( " = " );
+
+    if( source.parse_bl( " #?'('" ) ) // functor args
+    {
+        m$* args = xoico_args_s!^;
+        args.parse( host, source );
+        source.parse_fa( " )" );
+
+        foreach( $*e in args )
+        {
+            m$* self_item = :self_item_s!^;
+            self_item.arg_of_initializer = true;
+            self_item.copy_from_initializer = ( e.typespec.access_class == TYPEOF_const );
+
+            e.to_self_item_st( o, self_item.st );
+            self_item.source_point.copy( e.source_point );
+            o.arr_self_item!.push_d( self_item.fork() );
+            o.has_compact_initializer = true;
+        }
+    }
+
+    // using assignment symbol is optional
+    if( source.parse_bl( " #?'=' " ) )
+    {
+        // nothing (error in case use of assignment becomes illegal)
+    }
 
     if( source.parse_bl( " #?w'extending'" ) )
     {
@@ -620,23 +662,20 @@ func (:s) xoico.parse =
         /// 'is_aware' is true by default
         if      ( source.parse_bl( " #?w'obliv'" ) ) o.is_aware = false;
         else if ( source.parse_bl( " #?w'aware'" ) ) o.is_aware = true;
+        o.trait_name = o.group.tp_name;
 
-        m $* st_trait_name = st_s!^;
-        o.group.parse_name_st( source, st_trait_name );
-        if( st_trait_name.size > 0 )
+        if( !source.parse_bl( " #=?w'func'" ) ) // if func follows, the brief-functor format was chosen
         {
-            o.trait_name = compiler.entypeof( st_trait_name.sc );
-        }
-        else
-        {
-            o.trait_name = o.group.tp_name;
+            m $* st_trait_name = st_s!^;
+            o.group.parse_name_st( source, st_trait_name );
+            if( st_trait_name.size > 0 ) o.trait_name = compiler.entypeof( st_trait_name.sc );
         }
 
-
-        if( source.parse_bl( " #=?'('" ) )
+        if( source.parse_bl( " #?w'trans'" ) )
         {
             o.transient_map.parse( o, source );
         }
+
     }
 
     o.st_name.copy( st_stamp_name );

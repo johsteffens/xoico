@@ -113,21 +113,21 @@ func (:s) xoico.parse =
         return source.parse_error_fa( "Feature: A feature must have a first argument of name 'o'." );
     }
 
-    if( source.parse_bl( " #=?'=' " ) )
+    if( source.parse_bl( " #?w'extern' " ) )
+    {
+        o.st_default_func_name.clear();
+        source.parse_fa( "#name ", &o.st_default_func_name );
+        if( o.st_default_func_name.size == 0 ) return source.parse_error_fa( "Feature: Default function: Global function name expected." );
+    }
+    else if( !source.parse_bl( " #=?';' " ) )
     {
         if( o.strict ) return source.parse_error_fa( "Feature is 'strict'. Default function would have no effect." );
         o.default_body = xoico_body_s!;
         o.default_body.parse( host, source );
         o.st_default_func_name.copy_fa( "#<sc_t>_default", compiler.nameof( o.signature.name ) );
     }
-    else if( source.parse_bl( " #?w'extern' " ) )
-    {
-        o.st_default_func_name.clear();
-        source.parse_fa( "#name ", &o.st_default_func_name );
-        if( o.st_default_func_name.size == 0 ) return source.parse_error_fa( "Feature: Default function: Global function name expected." );
-    }
 
-    source.parse_fa( " ; " );
+    source.parse_fa( " #-?';' " ); // closing semicolon is optional
 
     o.function_pointer_name = o.signature.global_name;
 

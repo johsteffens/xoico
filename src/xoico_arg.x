@@ -47,7 +47,7 @@ func (:s) xoico.parse =
         return o.source_point.parse_error_fa( "'void' is misplaced here." );
     }
 
-    m $* s = st_s!^^;
+    m $* s = st_s!^;
     source.parse_fa( "#name ", s );
     if( s.size == 0 )
     {
@@ -112,6 +112,47 @@ func (:s) (er_t expand_name( c @* o, c xoico_host* host, m x_sink* sink )) =
 {
     if( !o.name ) return 0;
     sink.push_fa( "#<sc_t>", host.compiler().nameof( o.name ) );
+    return 0;
+};
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+func (:s) (er_t to_self_item_st( c @* o, c xoico_host* host, m st_s* st )) =
+{
+    st.clear();
+    if( o.typespec.indirection > 1 ) return o.source_point.parse_error_fa( "Indirection > 1 is not allowed as functor argument." );
+    if( o.typespec.transient       ) return o.source_point.parse_error_fa( "Transient type is not allowed as functor argument." );
+
+    if( o.typespec.indirection == 1 && o.typespec.access_class == TYPEOF_mutable )
+    {
+        st.push_fa( "hidden " );
+    }
+
+    if( o.typespec.flag_aware )
+    {
+        st.push_fa( "aware " );
+    }
+    else if( o.typespec.flag_obliv )
+    {
+        st.push_fa( "obliv " );
+    }
+
+    st.push_fa( "#<sc_t> ", host.nameof( o.typespec.type ) );
+
+    if( o.typespec.indirection == 1 )
+    {
+        switch( o.typespec.access_class )
+        {
+            case TYPEOF_discardable: st.push_fa( "=> " ); break;
+            case TYPEOF_mutable:     st.push_fa( "* "  ); break;
+            case TYPEOF_const:       st.push_fa( "=> " ); break;
+            default: return o.source_point.parse_error_fa( "Functor argument: Unhandled access class." ); break;
+        }
+    }
+
+    st.push_fa( "#<sc_t>", host.nameof( o.name ) );
+    st.push_fa( ";" );
+
     return 0;
 };
 
