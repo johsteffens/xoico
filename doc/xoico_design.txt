@@ -502,7 +502,6 @@ FEATURES, BUGS ...
 
 - (done) make semicolons after stamp, func, group optional
 
-
 TODO:
 
 - stamp: parsing reflection:
