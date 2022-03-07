@@ -24,15 +24,24 @@ stamp :s = aware :
     bcore_hmap_tptp_s map;
     func xoico.parse;
 
-    func (m @* set(    m @* o, tp_t key, tp_t val )) = { o.map.set( key, val ); return o; };
-    func (tp_t get(    c @* o, tp_t key )) = { m tp_t* p = o.map.get( key ); return p ? *p : 0; };
-    func (bl_t exists( c @* o, tp_t key )) = { return o.map.exists( key ); };
-};
+    func m @* set(    m @* o, tp_t key, tp_t val ) { o.map.set( key, val ); = o; }
+    func tp_t get(    c @* o, tp_t key ) { m tp_t* p = o.map.get( key ); = p ? *p : 0; }
+    func bl_t exists( c @* o, tp_t key ) { = o.map.exists( key ); }
+
+    /// creates key array (only of valid keys)
+    func d bcore_arr_tp_s* create_key_arr( @*o )
+    {
+        d $* arr_tp = bcore_arr_tp_s!;
+        sz_t size = o.map.size();
+        for( sz_t i = 0; i < size; i++ ) if( o.map.idx_key( i ) ) arr_tp.push( o.map.idx_key( i ) );
+        return arr_tp;
+    }
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
 /// ( <key> <value>, <key> <value>, ... )
-func (:s) xoico.parse =
+func (:s) xoico.parse
 {
     o.map.clear();
     m xoico_compiler_s* compiler = host.compiler();

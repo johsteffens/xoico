@@ -34,18 +34,18 @@ stamp :s = aware :
 
     hidden aware xoico_target_s* target;
 
-    func xoico.expand_setup =
+    func xoico.expand_setup
     {
         foreach( m $* e in o ) e.expand_setup( o );
         return 0;
     };
 
-    func (m xoico_group_s* push_d( m @* o, d xoico_group_s* group )) =
+    func (m xoico_group_s* push_d( m @* o, d xoico_group_s* group ))
     {
         return o.cast( m x_array* ).push_d( group );
     };
 
-    func xoico.get_hash =
+    func xoico.get_hash
     {
         tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
         foreach( m xoico_group_s* e in o ) hash = bcore_tp_fold_tp( hash, e.get_hash() );
@@ -55,14 +55,14 @@ stamp :s = aware :
     func :.parse_h;
     func :.parse_x;
 
-    func xoico.finalize =
+    func xoico.finalize
     {
         foreach( m $* e in o ) e.finalize( o );
         return 0;
     };
 
 
-    func xoico.expand_declaration =
+    func xoico.expand_declaration
     {
         if( o.size > 0 )
         {
@@ -74,7 +74,7 @@ stamp :s = aware :
         return 0;
     };
 
-    func xoico.expand_definition =
+    func xoico.expand_definition
     {
         if( o.size > 0 || o.ext.equal_sc( "h" ) )
         {
@@ -91,7 +91,7 @@ stamp :s = aware :
         return 0;
     };
 
-    func xoico.expand_init1 =
+    func xoico.expand_init1
     {
         if( o.size > 0 )
         {
@@ -103,18 +103,18 @@ stamp :s = aware :
         return 0;
     };
 
-    func xoico.expand_manifesto =
+    func xoico.expand_manifesto
     {
         foreach( m $* e in o ) e.expand_manifesto( host, indent, sink );
         return 0;
     };
 
-    func xoico_group.explicit_embeddings_push =
+    func xoico_group.explicit_embeddings_push
     {
         foreach( m $* group in o ) group.explicit_embeddings_push( arr );
     };
 
-    func xoico_host.compiler =
+    func xoico_host.compiler
     {
         return o.target.compiler;
     };
@@ -125,7 +125,7 @@ stamp :s = aware :
 //----------------------------------------------------------------------------------------------------------------------
 
 /// Returns NULL in case of no match;
-func (:s) get_group_if_preexsting =
+func (:s) get_group_if_preexsting
 {
     m xoico_compiler_s* compiler = host.compiler();
     if( compiler.is_group( host.entypeof( group_name ) ) )
@@ -153,7 +153,7 @@ func (:s) get_group_if_preexsting =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) parse_h =
+func (:s) parse_h
 {
     m $* compiler = o.target.compiler;
     while( !source.eos() )
@@ -205,7 +205,7 @@ func (:s) parse_h =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) parse_x =
+func (:s) parse_x
 {
     m $* compiler = o.target.compiler;
     m xoico_group_s* group = NULL;

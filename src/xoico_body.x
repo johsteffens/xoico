@@ -17,7 +17,8 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-signature er_t parse_expression( m @* o, c xoico_host* host, m x_source* source );
+signature er_t parse_expression      ( m @* o, c xoico_host* host, m x_source* source );
+signature er_t parse_single_statement( m @* o, c xoico_host* host, m x_source* source );
 signature er_t finalize( m @* o, c xoico_host* host );
 signature er_t expand( c @* o, c xoico_host* host, c xoico_signature_s* signature, sz_t indent, m x_sink* sink );
 
@@ -31,8 +32,9 @@ stamp :code_s = aware :
     x_source_point_s source_point;
 
     func xoico.parse;
+    func     :.parse_single_statement;
     func xoico.get_hash;
-    func xoico.get_source_point = { return o.source_point; };
+    func xoico.get_source_point { return o.source_point; };
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -49,10 +51,10 @@ stamp :s = aware :
     x_source_point_s source_point;
 
     func xoico.get_hash;
-    func xoico.get_global_name_tp = { return o.global_name; };
+    func xoico.get_global_name_tp { return o.global_name; };
     func     :.parse_expression;
     func     xoico.parse;
-    func     :.finalize = { return 0; };
+    func     :.finalize { return 0; };
     func     :.expand;
 };
 
@@ -62,7 +64,7 @@ stamp :s = aware :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:code_s) xoico.parse =
+func (:code_s) xoico.parse
 {
     tp_t hash = bcore_tp_init();
 
@@ -184,7 +186,131 @@ func (:code_s) xoico.parse =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:code_s) xoico.get_hash =
+func (:code_s) :.parse_single_statement
+{
+    tp_t hash = bcore_tp_init();
+
+    o.source_point.setup_from_source( source );
+
+    sz_t nest_count = 0;
+    bl_t exit_loop = false;
+    o.single_line = true;
+
+    while( source.parse_bl( "#?' '" ) ); // skip leading spaces
+
+    while( !source.eos() && !exit_loop )
+    {
+        u0_t c =  source.get_u0();
+        switch( c )
+        {
+            case '{':
+            case '}':
+                return source.parse_error_fa( "Braces are not allowed in single statement." );
+            break;
+
+            case '(':
+            {
+                nest_count++;
+            }
+            break;
+
+            case ')':
+            {
+                if( nest_count == 0 )
+                {
+                    return source.parse_error_fa( "Unmatched closing bracket ')'." );
+                }
+                nest_count--;
+            }
+            break;
+
+            case ';':
+            {
+                if( nest_count == 0 ) exit_loop = true;
+            }
+            break;
+
+            case '"': // string literal
+            {
+                hash = bcore_tp_fold_u0( hash, c );
+                while( !source.eos() && ((c = source.get_char()) != '"') )
+                {
+                    hash = bcore_tp_fold_u0( hash, c );
+                    if( c == '\\' ) hash = bcore_tp_fold_u0( hash, source.get_u0() );
+                    if( c == '\n' ) return source.parse_error_fa( "Newline in string literal." );
+                }
+                c = 0;
+            }
+            break;
+
+            case '\'': // char literal
+            {
+                hash = bcore_tp_fold_u0( hash, c );
+                while( !source.eos() && ((c = source.get_char()) != '\'') )
+                {
+                    hash = bcore_tp_fold_u0( hash, c );
+                    if( c == '\\' ) hash = bcore_tp_fold_u0( hash, source.get_u0() );
+                    if( c == '\n' ) return source.parse_error_fa( "Newline in char literal." );
+                }
+                c = 0;
+            }
+            break;
+
+            case '/': // comment
+            {
+                hash = bcore_tp_fold_u0( hash, c );
+                if( source.inspect_char() == '/' )
+                {
+                    while( !source.eos() )
+                    {
+                        c = source.get_char();
+                        hash = bcore_tp_fold_u0( hash, c );
+                        if( c == '\n' )
+                        {
+                            o.single_line = false;
+                            break;
+                        }
+                    }
+                }
+                else if( source.inspect_char() == '*' )
+                {
+                    while( !source.eos() )
+                    {
+                        if( source.parse_bl( "#?'*/'" ) )
+                        {
+                            hash = bcore_tp_fold_sc( hash, "*/" );
+                            break;
+                        }
+                        else
+                        {
+                            c = source.get_char();
+                            if( c == '\n' ) o.single_line = false;
+                            hash = bcore_tp_fold_u0( hash, c );
+                        }
+                    }
+                }
+                c = 0;
+            }
+            break;
+
+            case '\n' :
+            {
+                o.single_line = false;
+                break;
+            }
+
+            default: break;
+        }
+        hash = bcore_tp_fold_u0( hash, c );
+    }
+
+    o.hash_source = hash;
+    return 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:code_s) xoico.get_hash
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
     hash = bcore_tp_fold_tp( hash, o.hash_source );
@@ -197,7 +323,7 @@ func (:code_s) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.get_hash =
+func (:s) xoico.get_hash
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
     hash = bcore_tp_fold_tp( hash, o.name );
@@ -208,7 +334,7 @@ func (:s) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.parse_expression =
+func (:s) :.parse_expression
 {
     if( source.parse_bl( " #=?'{'" ) || source.parse_bl( " #=?'('" ) )
     {
@@ -243,10 +369,15 @@ func (:s) xoico.parse
 {
     o.source_point.setup_from_source( source );
 
-    // using assignment symbol is optinal
-    if( source.parse_bl( " #?'='" ) )
+    // using assignment symbol is optional
+//    if( source.parse_bl( " #?'='" ) ) {};
+
+    if( source.parse_bl( " #=?'='" ) )
     {
-        // if it shall be deprecating it, place an error here
+        if( source.parse_bl( "= #?'{'" ) )
+        {
+            return source.parse_error_fa( "Explicit block assignment is deprecated.\n" );
+        }
     }
 
     o.parse_expression( host, source );
@@ -258,7 +389,7 @@ func (:s) xoico.parse
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.expand =
+func (:s) :.expand
 {
     c st_s* final_code = NULL;
     m st_s* st_out = st_s!^^;

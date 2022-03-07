@@ -27,7 +27,7 @@ func (:s)
         c xoico_typespec_s*  in_typespec, // required
         m xoico_typespec_s* out_typespec  // optional
     )
-) =
+)
 {
     if( source.parse_bl( "#?'->'" ) )
     {
@@ -254,7 +254,7 @@ func (:s)
         c xoico_typespec_s*  in_typespec, // required
         m xoico_typespec_s* out_typespec  // optional
     )
-) =
+)
 {
     source.parse_fa( "[" );
 
@@ -298,7 +298,7 @@ func (:s)
         c xoico_typespec_s*  in_typespec, // required
         m xoico_typespec_s* out_typespec  // optional
     )
-) =
+)
 {
     source.parse_fa( "!" );
 
@@ -340,7 +340,7 @@ func (:s)
         c xoico_typespec_s*  in_typespec, // required
         m xoico_typespec_s* out_typespec  // optional
     )
-) =
+)
 {
     source.parse_fa( "?" );
 
@@ -377,7 +377,7 @@ func (:s)
         c xoico_typespec_s*  in_typespec, // required
         m xoico_typespec_s* out_typespec  // optional
     )
-) =
+)
 {
     if( in_typespec.indirection != 1 )
     {
@@ -446,7 +446,7 @@ func (:s)
         c xoico_typespec_s*  in_typespec, // required
         m xoico_typespec_s* out_typespec  // optional
     )
-) =
+)
 {
     source.parse_fa( "=" );
     result.push_sc( "=" );
@@ -504,7 +504,7 @@ func (:s)
         c xoico_typespec_s*  in_typespec, // required
         m xoico_typespec_s* out_typespec  // optional
     )
-) =
+)
 {
     if( out_typespec ) out_typespec.type = 0;
     o.trans_whitespace( source, result );

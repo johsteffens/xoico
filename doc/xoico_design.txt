@@ -1,4 +1,4 @@
-Author and Copyright 2020 Johannes Bernhard Steffens
+Author and Copyright 2020...2022 Johannes Bernhard Steffens
 
 XOICO Framework Design
 
@@ -32,7 +32,7 @@ XOILA_DEFINE_GROUP( <group_name>, <trait_name> )
     feature [strict] ['<flags>'] <syntax-of-signature> [ = <body> ];
     feature [strict] ['<flags>'] <syntax-of-signature> extern <name>;
 
-    func feature : name [= { <body> }];
+    func feature : name [{ <body> }];
 
     stamp <name> [=] [aware] <trait> { reflection-body };
     stamp <name> [=] extending <tmpl> { reflection-body-extension }; // uses 'tmpl' as template to be extended; 'tmpl' can be a stamp or stump.
@@ -244,7 +244,7 @@ A compact function call is done without using the '.' delimiter: my_stamp( ... )
 
 Compact Initializer:
 Certain elements of a stamp can be marked using a preceding '$':
-stamp my_stamp_s = { $ f3_t a; $ st_s => b; $ st_s c; };
+stamp my_stamp_s { $ f3_t a; $ st_s => b; $ st_s c; };
 In that case a compact initializer funtion is automatically generated:
 func (my_stamp_s) (o _(m@* o, f3_t a, d st_s* b, c st_s* c )) =
 {
@@ -258,7 +258,7 @@ Completion (Return statement) '=':
 Using '=' as statement is interpreted as completion.
 At this corresponds to using a return satement
 Example:
-func ( sz_t seven() ) = { = 7; };
+func ( sz_t seven() ) { = 7; };
 
 ===================================================================
 FEATURES, BUGS ...
@@ -439,9 +439,9 @@ FEATURES, BUGS ...
                  dedicated member entry for functions or objects. This needs a modification of function 'get_type_element_info'
 - (done) x_via: rename to x_stamp
 - (done) type modifier: treat type modifiers in variable and arg declarations equally
-- (done) assignment: extend auto type conversion to leaf-types excluding pinter-types
+- (done) assignment: extend auto type conversion to leaf-types excluding pointer-types
 - (rejected) trailine function: make only true member functions visible as traitline functions to a given object (no plain functions)
-  Reason: Many traitline functions (e.g. x_* groups) should be seen as member functions even though they do not formally need an object input (sometimes just a type)
+  Reason for rejection: Many traitline functions (e.g. x_* groups) should be seen as member functions even though they do not formally need an object input (sometimes just a type)
 - (solved) Problem: scoping an oblivious instance: x_inst_t_create( tp_t )^
       scoping assumes instance is aware.
       Fix:
@@ -502,10 +502,24 @@ FEATURES, BUGS ...
 
 - (done) make semicolons after stamp, func, group optional
 
+- (done)
+  Transient types: automatically overload feature in traitline with same name as transient type identifier
+  This allows generic function to retrieve the actual type at runtime.
+  First used in: x_hmap
+
+- (done) stamp: parsing reflection:
+   - automatic assume 'aware' for group types when type-awareness is not explicitly specified (e.g. by aware/typed/obliv)
+
+- (done) func body:
+   - when return object is declared to be one of the arguments but function body does not explicitly return anything,
+     append return <arg> as final statement
+
+- (done) remove function body prefixes: disallow prefixes (try), (verbatim_C)
+- (done) disallow explicit function body assignemnt
+
 TODO:
 
-- stamp: parsing reflection:
-   - automatic prepend 'aware' for group types when type-awareness is unclear
+- single-statement-function: if a function's body' contains only a single statement, it can be defined without braces { ... }
 
 - introduce a functor:
   syntax on group level.
@@ -530,8 +544,8 @@ TODO:
      - Simplifies handling of of sr_s
      - Potential for unintended destructive cases is low as long as automatic indirection adjustment is prevented.
 
-- taget.cfg file: source: listing a *.x file without group specification automatically adds it to a common group
-  of name 'taget-name' instead of creating a dedicated group.
+- target.cfg file: source: listing a *.x file without group specification automatically adds it to a common group
+  of name 'target-name' instead of creating a dedicated group.
 
 ===================================================================
 

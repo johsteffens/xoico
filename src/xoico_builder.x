@@ -38,7 +38,7 @@ stamp :target_s = aware :
      *  If no output folder was defined anywhere, the source folder is used as output.
      */
     st_s => output_folder;
-    func (st_s* root_output_folder(@* o)) =
+    func (st_s* root_output_folder(@* o))
     {
         st_s* folder = ( o.parent_ ) ? o.parent_.root_output_folder() : NULL;
         return folder ? folder : o.output_folder;
@@ -75,7 +75,7 @@ stamp :target_s = aware :
     hidden  sz_t                   target_index_ = -1; // Index for target on the compiler; -1 if this target has no representation
     hidden  bcore_hmap_tpvd_s   => hmap_built_target_; // map of targets that have already been built
 
-    func bcore_via_call.source =
+    func bcore_via_call.source
     {
         if( !o->root_folder )
         {
@@ -84,14 +84,14 @@ stamp :target_s = aware :
         }
     };
 
-    func :.name_match =
+    func :.name_match
     {
         if( o.name && sc_t_equal( name, o.name.sc ) ) return o;
         if( o.parent_ ) return o->parent_.name_match( name );
         return NULL;
     };
 
-    func :.push_target_index_to_arr =
+    func :.push_target_index_to_arr
     {
         if( o.target_index_ != -1 )
         {
@@ -103,7 +103,7 @@ stamp :target_s = aware :
         }
     };
 
-    func xoico.get_hash =
+    func xoico.get_hash
     {
         tp_t hash = bcore_tp_init();
         hash = o.name ? bcore_tp_fold_sc( hash, o.name.sc ) : hash;
@@ -145,38 +145,38 @@ stamp :main_s = aware :
     :target_s => target;
 
     func :.build_from_file;
-    func :.update_required = { return o.compiler.update_required(); };
+    func :.update_required { return o.compiler.update_required(); };
     func :.update;
 
-    func :.set_dry_run =
+    func :.set_dry_run
     {
         o.compiler.dry_run = v;
         return 0;
     };
 
-    func :.get_dry_run =
+    func :.get_dry_run
     {
         return o.compiler.dry_run;
     };
 
-    func :.set_always_expand =
+    func :.set_always_expand
     {
         o.compiler.always_expand = v;
         return 0;
     };
 
-    func :.get_always_expand =
+    func :.get_always_expand
     {
         return o.compiler.always_expand;
     };
 
-    func :.set_overwrite_unsigned_target_files =
+    func :.set_overwrite_unsigned_target_files
     {
         o.compiler.overwrite_unsigned_target_files = v;
         return 0;
     };
 
-    func :.get_overwrite_unsigned_target_files =
+    func :.get_overwrite_unsigned_target_files
     {
         return o.compiler.overwrite_unsigned_target_files;
     };
@@ -188,7 +188,7 @@ stamp :main_s = aware :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:target_s) :.load =
+func (:target_s) :.load
 {
     m st_s* st_path = st_s!^^;
     st_path.copy_sc( path );
@@ -266,7 +266,7 @@ func (:target_s) :.load =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:target_s) :.build =
+func (:target_s) :.build
 {
     if( !o.root_    ) o.root_    = ( o.parent_ ) ? o.parent_.root_    : o;
     if( !o.compiler ) o.compiler = ( o.parent_ ) ? o.parent_.compiler : NULL;
@@ -392,7 +392,7 @@ func (:target_s) :.build =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:main_s) :.build_from_file =
+func (:main_s) :.build_from_file
 {
     o.target =< xoico_builder_target_s!;
     o.target.load( false, path );
@@ -405,7 +405,7 @@ func (:main_s) :.build_from_file =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:main_s) :.update =
+func (:main_s) :.update
 {
     if( bcore_error_stack_size() > 0 ) return error_stack~;
     try( o.compiler.update_target_files( NULL ) );

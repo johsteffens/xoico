@@ -31,13 +31,15 @@ signature m xoico_source_s*   get_source( c @* o );
 signature m xoico_target_s*   get_target( c @* o );
 signature m xoico_compiler_s* get_compiler( c @* o );
 
-signature c xoico_func_s* get_func( c @* o, tp_t name ); // returns NULL in case name is not a member function
+signature c xoico_feature_s* get_feature( c @* o, tp_t name ); // returns NULL in case name is not a member function
+signature c    xoico_func_s*    get_func( c @* o, tp_t name ); // returns NULL in case name is not a member function
 
 /// returns function by name in trait-line or NULL
-signature c xoico_func_s* get_trait_line_func_from_name( c @* o, tp_t name );
+signature c xoico_feature_s* get_traitline_feature_from_name( c @* o, tp_t name );
+signature c    xoico_func_s*    get_traitline_func_from_name( c @* o, tp_t name );
 
 /// returns member-function by name in trait-line or NULL
-signature c xoico_func_s* get_trait_line_member_func_from_name( c @* o, tp_t name );
+signature c xoico_func_s* get_traitline_member_func_from_name( c @* o, tp_t name );
 
 /// source stack to handle includes
 stamp :source_stack_s = aware x_array { aware x_source -> []; };
@@ -60,7 +62,7 @@ stamp :s = aware :
     st_s st_name; // global name
     tp_t tp_name; // global name
 
-    func ( void set_name_sc( m @* o, xoico_host* host, sc_t name ) ) =
+    func ( void set_name_sc( m @* o, xoico_host* host, sc_t name ) )
     {
         o.st_name.copy_sc( name );
         o.tp_name = host.entypeof( name );
@@ -97,7 +99,7 @@ stamp :s = aware :
 
     private xoico_stamp_s* extending_stamp; // !=NULL: extends this stamp on subsequent stamps
 
-    xoico_funcs_s funcs; // functions defined inside the group
+    xoico_funcs_s funcs;    // functions defined inside the group
 
     private aware xoico_source_s* xoico_source;
     hidden aware  xoico_compiler_s* compiler;
@@ -110,9 +112,9 @@ stamp :s = aware :
     func :.parse;
 
     func xoico.get_hash;
-    func xoico.get_global_name_tp = { return o.tp_name; };
+    func xoico.get_global_name_tp { return o.tp_name; };
     func xoico.finalize;
-    func xoico.expand_setup =
+    func xoico.expand_setup
     {
         foreach( m $* e in o ) try( e.expand_setup( o ) );
         return 0;
@@ -123,55 +125,69 @@ stamp :s = aware :
     func :.expand_definition;
     func :.expand_init1;
 
-    func xoico.expand_manifesto =
+    func xoico.expand_manifesto
     {
         if( !o.expandable || !o.is_manifesto ) return 0;
         sink.push_fa( "#rn{ }BETH_EXPAND_GROUP_#<sc_t>\n", indent, o.st_name.sc );
         return 0;
     };
 
-    func :.push_item_d = { return o.cast( m x_array* ).push_d( item ); };
+    func :.push_item_d { return o.cast( m x_array* ).push_d( item ); };
 
-    func (c @* get_trait_group( c @* o )) =
+    func (c @* get_trait_group( c @* o ))
     {
         return ( o.trait_name != o.tp_name ) ? o.compiler.get_group( o.trait_name ) : NULL;
     };
 
-    func :.get_trait_line_func_from_name =
+    func :.get_traitline_feature_from_name
+    {
+        if( !o ) return NULL;
+        c xoico_feature_s** p_feature = ( const xoico_feature_s** )o.hmap_feature.get( name );
+        return p_feature ? *p_feature : o.get_trait_group().get_traitline_feature_from_name( name );
+    };
+
+    func :.get_traitline_func_from_name
     {
         if( !o ) return NULL;
         c xoico_func_s** p_func = ( const xoico_func_s** )o.hmap_func.get( name );
-        return p_func ? *p_func : o.get_trait_group().get_trait_line_func_from_name( name );
+        return p_func ? *p_func : o.get_trait_group().get_traitline_func_from_name( name );
     };
 
-    func :.get_trait_line_member_func_from_name =
+    func :.get_traitline_member_func_from_name
     {
         if( !o ) return NULL;
         c xoico_func_s** p_func = ( const xoico_func_s** )o.hmap_func.get( name );
         if( p_func && p_func.as_member() ) return p_func.1;
-        return o.get_trait_group().get_trait_line_member_func_from_name( name );
+        return o.get_trait_group().get_traitline_member_func_from_name( name );
     };
 
-    func :.get_func =
+    func :.get_feature
+    {
+        c xoico_feature_s** p_feature = ( const xoico_feature_s** )o.hmap_feature.get( name );
+        return p_feature ? *p_feature : NULL;
+    };
+
+    func :.get_func
     {
         c xoico_func_s** p_func = ( const xoico_func_s** )o.hmap_func.get( name );
         return p_func ? *p_func : NULL;
     };
 
-    func :.explicit_embeddings_push = { foreach( m st_s* st in o.explicit_embeddings ) arr.push_st( st ); };
+    func :.explicit_embeddings_push { foreach( m st_s* st in o.explicit_embeddings ) arr.push_st( st ); };
 
     func xoico_host.parse_name_st;
     func xoico_host.parse_name_tp;
 
-    func xoico_host.compiler = { return o.compiler; };
-    func xoico_host.cengine =
+    func xoico_host.compiler { return o.compiler; };
+    func xoico_host.cengine
     {
         return o.xoico_source.target.cengine;
     };
-    func xoico_host.obj_type = { return o.tp_name; };
+
+    func xoico_host.obj_type { return o.tp_name; };
     func xoico_host.create_spect_name;
 
-    func xoico.get_source_point = { return o.source_point; };
+    func xoico.get_source_point { return o.source_point; };
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -179,24 +195,24 @@ stamp :s = aware :
 stamp xoico_nested_group_s = aware :
 {
     hidden xoico_group_s* group; // group object;
-    func xoico.get_hash =
+    func xoico.get_hash
     {
         return o.group ? o.group.get_hash() : 0;
     };
 
-    func xoico.expand_forward =
+    func xoico.expand_forward
     {
         sink.push_fa( " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o.group.st_name.sc );
         return 0;
     };
 
-    func xoico.expand_indef_declaration =
+    func xoico.expand_indef_declaration
     {
         sink.push_fa( " \\\n#rn{ }  BETH_EXPAND_GROUP_#<sc_t>", indent, o.group.st_name.sc );
         return 0;
     };
 
-    func xoico.get_source_point = { return o.group.source_point; };
+    func xoico.get_source_point { return o.group.source_point; };
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -205,7 +221,7 @@ stamp xoico_nested_group_s = aware :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.get_hash =
+func (:s) xoico.get_hash
 {
     tp_t hash = o.pre_hash;
     hash = bcore_tp_fold_tp( hash, o.tp_name );
@@ -224,7 +240,7 @@ func (:s) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico_host.create_spect_name =
+func (:s) xoico_host.create_spect_name
 {
     if( o.short_spect_name )
     {
@@ -238,7 +254,7 @@ func (:s) xoico_host.create_spect_name =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.parse_name_recursive =
+func (:s) :.parse_name_recursive
 {
     if( source.parse_bl( "#?':'" ) )
     {
@@ -263,7 +279,7 @@ func (:s) :.parse_name_recursive =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico_host.parse_name_st =
+func (:s) xoico_host.parse_name_st
 {
     if( source.parse_bl( " #?':'" ) )
     {
@@ -281,7 +297,7 @@ func (:s) xoico_host.parse_name_st =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico_host.parse_name_tp =
+func (:s) xoico_host.parse_name_tp
 {
     m $* s = st_s!^;
 
@@ -303,7 +319,7 @@ func (:s) xoico_host.parse_name_tp =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_default_feature_from_sc( m @* o, sc_t sc )) =
+func (:s) (er_t push_default_feature_from_sc( m @* o, sc_t sc ))
 {
     m $* compiler = o.compiler;
     m $* feature = xoico_feature_s!^;
@@ -324,7 +340,7 @@ func (:s) (er_t push_default_feature_from_sc( m @* o, sc_t sc )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc )) =
+func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc ))
 {
     m $* func = xoico_func_s!^;
     func.expandable = false;
@@ -335,7 +351,7 @@ func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t parse_func( m @* o, m x_source* source )) =
+func (:s) (er_t parse_func( m @* o, m x_source* source ))
 {
     m $* func = xoico_func_s!^;
     func.parse( o, source );
@@ -346,7 +362,7 @@ func (:s) (er_t parse_func( m @* o, m x_source* source )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_func_d( m @* o, d xoico_func_s* func )) =
+func (:s) (er_t push_func_d( m @* o, d xoico_func_s* func ))
 {
     sz_t idx = o.funcs.get_index_from_name( func.name );
 
@@ -385,7 +401,7 @@ func (:s) (er_t push_func_d( m @* o, d xoico_func_s* func )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.parse =
+func (:s) :.parse
 {
     m $* compiler = o.compiler;
     m $* stack = xoico_group_source_stack_s!^;
@@ -482,6 +498,7 @@ func (:s) :.parse =
         else if( source.parse_bl( " #?w'feature' " ) )
         {
             m $* feature = xoico_feature_s!^;
+            feature.group = o;
             feature.parse( o, source );
             compiler.register_item( o.push_item_d( feature.fork() ) );
             o.hmap_feature.set( feature.signature.name, ( vd_t )feature );
@@ -722,7 +739,7 @@ func (:s) :.parse =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.finalize =
+func (:s) xoico.finalize
 {
     /// default features
     o.push_default_feature_from_sc( "d @* clone( c @* o );" );
@@ -742,7 +759,7 @@ func (:s) xoico.finalize =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_forward( c @* o, sz_t indent, m x_sink* sink )) =
+func (:s) (er_t expand_forward( c @* o, sz_t indent, m x_sink* sink ))
 {
     if( !o.expandable ) return 0;
     sink.push_fa( " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o.st_name.sc );
@@ -753,7 +770,7 @@ func (:s) (er_t expand_forward( c @* o, sz_t indent, m x_sink* sink )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_spect_declaration( c @* o, sz_t indent, m x_sink* sink )) =
+func (:s) (er_t expand_spect_declaration( c @* o, sz_t indent, m x_sink* sink ))
 {
     if( !o.expandable ) return 0;
     if( o.short_spect_name )
@@ -783,7 +800,7 @@ func (:s) (er_t expand_spect_declaration( c @* o, sz_t indent, m x_sink* sink ))
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.expand_declaration =
+func (:s) :.expand_declaration
 {
     if( !o.expandable ) return 0;
 
@@ -824,7 +841,7 @@ func (:s) :.expand_declaration =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_spect_definition( c @* o, sz_t indent, m x_sink* sink )) =
+func (:s) (er_t expand_spect_definition( c @* o, sz_t indent, m x_sink* sink ))
 {
     m $* compiler = o.compiler;
     if( !o.expandable ) return 0;
@@ -847,7 +864,7 @@ func (:s) (er_t expand_spect_definition( c @* o, sz_t indent, m x_sink* sink )) 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.expand_definition =
+func (:s) :.expand_definition
 {
     if( !o.expandable ) return 0;
     sink.push_fa( "\n" );
@@ -877,7 +894,7 @@ func (:s) :.expand_definition =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.expand_init1 =
+func (:s) :.expand_init1
 {
     if( !o.expandable ) return 0;
     sink.push_fa( "\n" );

@@ -44,7 +44,7 @@ stamp :s = aware :
 
     func :.get_hash;
 
-    func :.reflectable =
+    func :.reflectable
     {
         return o.expandable && host.compiler().is_feature( o.signature_global_name );
     };
@@ -54,9 +54,9 @@ stamp :s = aware :
     func xoico.expand_forward;
     func xoico.expand_declaration;
     func xoico.expand_definition;
-    func xoico.get_source_point = { return o.source_point; };
+    func xoico.get_source_point { return o.source_point; };
 
-    func xoico_signature.as_member = { return o.signature ? o.signature.as_member() : false; };
+    func xoico_signature.as_member { return o.signature ? o.signature.as_member() : false; };
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ stamp :s = aware :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.get_hash =
+func (:s) :.get_hash
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
     hash = bcore_tp_fold_tp( hash, o.pre_hash );
@@ -83,7 +83,7 @@ func (:s) :.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t freeze_global_name( m @* o, c xoico_host* host )) =
+func (:s) (er_t freeze_global_name( m @* o, c xoico_host* host ))
 {
     if( o.global_name ) return 0;
     m $* compiler = host.compiler();
@@ -93,7 +93,7 @@ func (:s) (er_t freeze_global_name( m @* o, c xoico_host* host )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.parse =
+func (:s) xoico.parse
 {
     m $* compiler = host.compiler();
 
@@ -193,7 +193,7 @@ func (:s) xoico.parse =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_flect_decl_to_sink( c @* o, c xoico_host* host, m x_sink* sink )) =
+func (:s) (er_t push_flect_decl_to_sink( c @* o, c xoico_host* host, m x_sink* sink ))
 {
     m $* compiler = host.compiler();
     sink.push_sc( "func " );
@@ -211,7 +211,7 @@ func (:s) (er_t push_flect_decl_to_sink( c @* o, c xoico_host* host, m x_sink* s
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.finalize =
+func (:s) xoico.finalize
 {
     m $* compiler = host.compiler();
     o.freeze_global_name( host );
@@ -242,7 +242,7 @@ func (:s) xoico.finalize =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_forward =
+func (:s) xoico.expand_forward
 {
     if( !o->expandable ) return 0;
     if( !o->declare_in_expand_forward ) return 0;
@@ -268,7 +268,7 @@ func (:s) xoico.expand_forward =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_declaration =
+func (:s) xoico.expand_declaration
 {
     if( !o.expandable ) return 0;
 
@@ -296,7 +296,7 @@ func (:s) xoico.expand_declaration =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_definition =
+func (:s) xoico.expand_definition
 {
     if( !o.expandable ) return 0;
     m $* compiler = host.compiler();

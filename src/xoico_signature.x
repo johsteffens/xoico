@@ -29,8 +29,11 @@ stamp :s = aware :
     tp_t global_name;
 
     xoico_typespec_s typespec_ret; // return type
-    xoico_arg_s => arg_o; // object argument (NULL in case of plain function)
-    xoico_args_s args; // e.g.: sz_t a, sz_t b
+    xoico_arg_s => arg_o; // (first) object argument (NULL in case of plain function)
+    xoico_args_s args; // arguments (excluding arg_o) e.g.: sz_t a, sz_t b
+
+    // points to an argument in case this signature is supposed to directly return that argument
+    xoico_arg_s -> direct_return_arg;
 
     x_source_point_s source_point;
 
@@ -38,7 +41,7 @@ stamp :s = aware :
     func xoico.get_hash;
     func :.set_global_name;
 
-    func xoico.convert_transient_types =
+    func xoico.convert_transient_types
     {
         if( o.arg_o )
         {
@@ -59,9 +62,9 @@ stamp :s = aware :
         return  0;
     };
 
-    func xoico.get_global_name_tp = { return o.global_name; };
+    func xoico.get_global_name_tp { return o.global_name; };
 
-    func :.relent =
+    func :.relent
     {
         if( o.arg_o ) o.arg_o.relent( host, tp_obj_type );
         o.args.relent( host, tp_obj_type );
@@ -71,27 +74,27 @@ stamp :s = aware :
 
     func :.expand_declaration;
 
-    func xoico_arg.is_variadic = { return o.args.is_variadic(); };
+    func xoico_arg.is_variadic { return o.args.is_variadic(); };
 
-    func :.as_member = { return o.arg_o != NULL; };
+    func :.as_member { return o.arg_o != NULL; };
 
-    func xoico.get_source_point = { return o.source_point; };
+    func xoico.get_source_point { return o.source_point; };
 
-    func (bl_t returns_a_value( c @* o )) = { return !o.typespec_ret.is_void(); };
+    func (bl_t returns_a_value( c @* o )) { return !o.typespec_ret.is_void(); };
 
-    func (er_t expand_ret( c @* o, c xoico_host* host, m x_sink* sink )) =
+    func (er_t expand_ret( c @* o, c xoico_host* host, m x_sink* sink ))
     {
         o.typespec_ret.expand( host, sink );
         return 0;
     };
 
-    func (er_t expand_ret_x( c @* o, c xoico_host* host, m x_sink* sink )) =
+    func (er_t expand_ret_x( c @* o, c xoico_host* host, m x_sink* sink ))
     {
         o.typespec_ret.expand_x( host, sink );
         return 0;
     };
 
-    func (c xoico_arg_s* get_arg_by_name( c @* o, tp_t name )) =
+    func (c xoico_arg_s* get_arg_by_name( c @* o, tp_t name ))
     {
         return ( o.arg_o && o.arg_o.name == name ) ? o.arg_o : o.args.get_arg_by_name( name );
     };
@@ -104,7 +107,7 @@ stamp :s = aware :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.get_hash =
+func (:s) xoico.get_hash
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
     hash = bcore_tp_fold_tp( hash, o.global_name );
@@ -116,7 +119,7 @@ func (:s) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.set_global_name =
+func (:s) :.set_global_name
 {
     o.base_name = host.obj_type();
     o.global_name = host.entypeof( st_s_create_fa( "#<sc_t>_#<sc_t>", host.nameof( o.base_name ), host.nameof( o.name ) )^^.sc );
@@ -125,7 +128,7 @@ func (:s) :.set_global_name =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.parse =
+func (:s) xoico.parse
 {
     m $* compiler = host.compiler();
     m $* name_buf = st_s!^^;
@@ -181,16 +184,17 @@ func (:s) xoico.parse =
     }
 
     /// if return type is a name in the argument list, copy argument typespec to return typespec
-    c xoico_arg_s* ret_arg = ( o.typespec_ret.indirection == 0 ) ? o.get_arg_by_name( o.typespec_ret.type ) : NULL;
+    xoico_arg_s* ret_arg = ( o.typespec_ret.indirection == 0 ) ? o.get_arg_by_name( o.typespec_ret.type ) : NULL;
 
     if( ret_arg )
     {
-        if( o.typespec_ret.access_class != 0  || o.typespec_ret.transient )
+        if( o.typespec_ret.access_class != 0  || o.typespec_ret.transient || o.typespec_ret.indirection != 0 )
         {
             return source.parse_error_fa( "Return typespec: Argument name used as type." );
         }
         o.typespec_ret.copy( ret_arg.typespec );
         o.typespec_ret.transient!.cast_to_var = ret_arg.name;
+        o.direct_return_arg =< ret_arg.cast( m$* ).fork();
     }
 
     o.set_global_name( host );
@@ -200,7 +204,7 @@ func (:s) xoico.parse =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.expand_declaration =
+func (:s) :.expand_declaration
 {
     o.expand_ret( host, sink );
     sink.push_fa( " #<sc_t>( ", sc_func_global_name );
@@ -225,6 +229,16 @@ func (:s) :.expand_declaration =
     }
     return 0;
 };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+func (:s) bl_t fits_transient_type_feature( @*o )
+{
+    if( o.typespec_ret.type != TYPEOF_tp_t ) = false;
+    if( o.typespec_ret.indirection != 0 )    = false;
+    if( !o.as_member() )                     = false;
+    = true;
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 

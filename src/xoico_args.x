@@ -20,16 +20,16 @@
 stamp :s = aware x_array
 {
     xoico_arg_s => [];
-    func xoico_arg.is_variadic = { return ( o.size > 0 && o.[ o.size - 1 ].is_variadic() ); };
+    func xoico_arg.is_variadic { return ( o.size > 0 && o.[ o.size - 1 ].is_variadic() ); };
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.parse = { o.clear(); return o.append( host, source ); };
+func (:s) xoico.parse { o.clear(); return o.append( host, source ); };
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t append( m @* o, c xoico_host* host, m x_source* source )) =
+func (:s) (er_t append( m @* o, c xoico_host* host, m x_source* source ))
 {
     bl_t first = true;
     while( !source.parse_bl( " #=?')' " ) ) // args follow
@@ -46,7 +46,7 @@ func (:s) (er_t append( m @* o, c xoico_host* host, m x_source* source )) =
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t relent( m @* o, c xoico_host* host, tp_t tp_obj_type )) =
+func (:s) (er_t relent( m @* o, c xoico_host* host, tp_t tp_obj_type ))
 {
     foreach( m $* arg in o ) arg.relent( host, tp_obj_type );
     return 0;
@@ -54,7 +54,7 @@ func (:s) (er_t relent( m @* o, c xoico_host* host, tp_t tp_obj_type )) =
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.convert_transient_types =
+func (:s) xoico.convert_transient_types
 {
     foreach( m $* arg in o ) arg.convert_transient_types( host, map );
     return  0;
@@ -62,7 +62,7 @@ func (:s) xoico.convert_transient_types =
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand( c @* o, c xoico_host* host, bl_t first, m x_sink* sink )) =
+func (:s) (er_t expand( c @* o, c xoico_host* host, bl_t first, m x_sink* sink ))
 {
     foreach( m $* arg in o )
     {
@@ -75,7 +75,7 @@ func (:s) (er_t expand( c @* o, c xoico_host* host, bl_t first, m x_sink* sink )
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_x( c @* o, c xoico_host* host, bl_t first, m x_sink* sink )) =
+func (:s) (er_t expand_x( c @* o, c xoico_host* host, bl_t first, m x_sink* sink ))
 {
     foreach( m $* arg in o )
     {
@@ -88,7 +88,7 @@ func (:s) (er_t expand_x( c @* o, c xoico_host* host, bl_t first, m x_sink* sink
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_name( c @* o, c xoico_host* host, bl_t first, m x_sink* sink )) =
+func (:s) (er_t expand_name( c @* o, c xoico_host* host, bl_t first, m x_sink* sink ))
 {
     foreach( m $* arg in o )
     {
@@ -101,7 +101,7 @@ func (:s) (er_t expand_name( c @* o, c xoico_host* host, bl_t first, m x_sink* s
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.get_hash =
+func (:s) xoico.get_hash
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
     foreach( m $* arg in o ) hash = bcore_tp_fold_tp( hash, arg.get_hash() );
@@ -110,7 +110,7 @@ func (:s) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (c xoico_arg_s* get_arg_by_name( c @* o, tp_t name )) =
+func (:s) (c xoico_arg_s* get_arg_by_name( c @* o, tp_t name ))
 {
     foreach( c $* arg in o ) if( arg.name == name ) return arg;
     return NULL;

@@ -135,14 +135,14 @@ stamp :s = aware :
     func :.register_item;
     func :.register_group;
     func :.register_func;
-    func :.register_external_type = { o.hmap_external_type.set( type ); return 0; };
-    func :.register_external_identifier = { o.hmap_external_identifier.set( name ); return 0; };
+    func :.register_external_type { o.hmap_external_type.set( type ); return 0; };
+    func :.register_external_identifier { o.hmap_external_identifier.set( name ); return 0; };
 
-    func :.is_item  = { return o.hmap_item.exists( name ); };
-    func :.is_group = { return o.hmap_group.exists( name ); };
-    func :.is_func  = { return o.hmap_func.exists( name ); };
+    func :.is_item  { return o.hmap_item.exists( name ); };
+    func :.is_group { return o.hmap_group.exists( name ); };
+    func :.is_func  { return o.hmap_func.exists( name ); };
 
-    func :.is_type =
+    func :.is_type
     {
         if( o.is_group( name ) ) return true;
         if( o.is_stamp( name ) ) return true;
@@ -150,7 +150,7 @@ stamp :s = aware :
         return false;
     };
 
-    func :.is_identifier =
+    func :.is_identifier
     {
         if( o.is_type( name ) ) return true;
         if( o.hmap_declared_name.exists( name ) ) return true;
@@ -158,34 +158,34 @@ stamp :s = aware :
         return false;
     };
 
-    func :.is_name =
+    func :.is_name
     {
         if( o.hmap_declared_name.exists( name ) ) return true;
         return false;
     };
 
-    func :.is_stamp =
+    func :.is_stamp
     {
         c xoico* item = o.get_const_item( name );
         if( item && ( item->_ == xoico_stamp_s~ ) ) return true;
         return false;
     };
 
-    func :.is_body =
+    func :.is_body
     {
         c xoico* item = o.get_const_item( name );
         if( item && ( item->_ == xoico_body_s~ ) ) return true;
         return false;
     };
 
-    func :.is_signature =
+    func :.is_signature
     {
         c xoico* item = o.get_const_item( name );
         if( item && ( item->_ == xoico_signature_s~ ) ) return true;
         return false;
     };
 
-    func :.is_signature_or_feature =
+    func :.is_signature_or_feature
     {
         c xoico* item = o.get_const_item( name );
         if( !item ) return NULL;
@@ -193,44 +193,44 @@ stamp :s = aware :
         return false;
     };
 
-    func :.is_feature =
+    func :.is_feature
     {
         c xoico* item = o.get_const_item( name );
         if( item && ( item->_ == xoico_feature_s~ ) ) return true;
         return false;
     };
 
-    func :.get_const_item =
+    func :.get_const_item
     {
         vd_t* ptr = o.hmap_item.get( name );
         return ptr ? ( const xoico* )*ptr : NULL;
     };
 
-    func :.get_item =
+    func :.get_item
     {
         vd_t* ptr = o.hmap_item.get( name );
         return ptr ? ( xoico* )*ptr : NULL;
     };
 
-    func :.get_stamp =
+    func :.get_stamp
     {
         c xoico* item = o.get_const_item( name );
         return ( item ) ? ( item._ == xoico_stamp_s~ ) ? item.cast( m xoico_stamp_s* ) : NULL : NULL;
     };
 
-    func :.get_body =
+    func :.get_body
     {
         c xoico* item = o.get_const_item( name );
         return ( item ) ? ( item._ == xoico_body_s~ ) ? item.cast( m xoico_body_s* ) : NULL : NULL;
     };
 
-    func :.get_feature =
+    func :.get_feature
     {
         c xoico* item = o.get_const_item( name );
         return ( item ) ? ( item._ == xoico_feature_s~ ) ? item.cast( m xoico_feature_s* ) : NULL : NULL;
     };
 
-    func :.get_signature =
+    func :.get_signature
     {
         c xoico* item = o.get_const_item( name );
         if( !item ) return NULL;
@@ -239,25 +239,25 @@ stamp :s = aware :
         return NULL;
     };
 
-    func :.get_group =
+    func :.get_group
     {
         vd_t* ptr = o.hmap_group.get( name );
         return ptr ? ( xoico_group_s* )*ptr : NULL;
     };
 
-    func :.get_transient_map =
+    func :.get_transient_map
     {
         m xoico_stamp_s* stamp = o.get_stamp( type );
         return stamp ? stamp.transient_map.1 : NULL;
     };
 
-    func :.get_func =
+    func :.get_func
     {
         vd_t* ptr = o.hmap_func.get( name );
         return ptr ? ( xoico_func_s* )*ptr : NULL;
     };
 
-    func :.life_a_push =
+    func :.life_a_push
     {
         bcore_life_s_push_aware( o.life.1, object );
         return 0;
@@ -274,13 +274,13 @@ stamp :s = aware :
     // external interface ...
     func :.parse;
     func :.update_target_files;
-    func :.update_required = { return o.to_be_modified(); };
-    func :.get_verbosity = { return o.verbosity; };
+    func :.update_required { return o.to_be_modified(); };
+    func :.get_verbosity { return o.verbosity; };
 
-    func :.entypeof = { return o.name_map.set_sc( name ); };
-    func :.nameof   = { return o.name_map.get_sc( type ); };
+    func :.entypeof { return o.name_map.set_sc( name ); };
+    func :.nameof   { return o.name_map.get_sc( type ); };
 
-    func bcore_inst_call.init_x =
+    func bcore_inst_call.init_x
     {
         if( o-> work_build_time_into_pre_hash )
         {
@@ -289,13 +289,13 @@ stamp :s = aware :
         }
     };
 
-    func (void push_d( m @* o, d xoico_target_s* target )) =
+    func (void push_d( m @* o, d xoico_target_s* target ))
     {
         o.cast( m x_array* ).push_d( target );
     };
 
     /// clears flags in targets
-    func (void clear_flags( m @* o )) = { foreach( m $* e in o ) e.flag = false; };
+    func (void clear_flags( m @* o )) { foreach( m $* e in o ) e.flag = false; };
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -304,7 +304,7 @@ stamp :s = aware :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.register_group =
+func (:s) :.register_group
 {
     if( o.hmap_group.exists( group.tp_name ) ) return 0;
     o.hmap_group.set( group.tp_name, ( vd_t )group );
@@ -313,7 +313,7 @@ func (:s) :.register_group =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.register_item =
+func (:s) :.register_item
 {
     tp_t global_id = item.get_global_name_tp();
     if( o.hmap_item.exists( global_id ) )
@@ -326,7 +326,7 @@ func (:s) :.register_item =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.register_func =
+func (:s) :.register_func
 {
     if( o.hmap_func.exists( func.global_name ) )
     {
@@ -362,7 +362,7 @@ func (:s) :.register_func =
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if correct file signature could be verified
-func (bl_t is_correctly_signed( st_s* data )) =
+func (bl_t is_correctly_signed( st_s* data ))
 {
     if( data.size < bcore_strlen( "// XOICO_FILE_SIGNATURE" ) ) return false;
 
@@ -387,7 +387,7 @@ func (bl_t is_correctly_signed( st_s* data )) =
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if correct file signature could be verified
-func (tp_t body_signature( st_s* data )) =
+func (tp_t body_signature( st_s* data ))
 {
     // search from bottom upwards ...
     sz_t idx = 0;
@@ -401,7 +401,7 @@ func (tp_t body_signature( st_s* data )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.check_overwrite =
+func (:s) :.check_overwrite
 {
     if( clear_to_overwrite ) clear_to_overwrite.0 = true;
     if( !bcore_file_exists( file ) ) return 0;
@@ -442,7 +442,7 @@ func (:s) :.check_overwrite =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.parse =
+func (:s) :.parse
 {
     st_s* source_folder = bcore_file_folder_path( source_path )^;
     st_s* output_folder = target_output_folder ? target_output_folder : source_folder;
@@ -490,7 +490,7 @@ func (:s) :.parse =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.finalize =
+func (:s) xoico.finalize
 {
     foreach( m $* e in o ) e.finalize( o );
     return 0;
@@ -498,7 +498,7 @@ func (:s) xoico.finalize =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_setup =
+func (:s) xoico.expand_setup
 {
     for( sz_t i = 0; i < o->size; i++ ) o.[ i ].expand_setup( o );
 
@@ -514,7 +514,7 @@ func (:s) xoico.expand_setup =
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if a file will be modified in function xoico_compiler_s_expand
-func (:s) (bl_t to_be_modified( c @* o )) =
+func (:s) (bl_t to_be_modified( c @* o ))
 {
     for( sz_t i = 0; i < o->size; i++ )
     {
@@ -526,7 +526,7 @@ func (:s) (bl_t to_be_modified( c @* o )) =
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if a file was modified
-func (:s) (er_t expand( m @* o, m bl_t* p_modified )) =
+func (:s) (er_t expand( m @* o, m bl_t* p_modified ))
 {
     bl_t modified = false;
 
@@ -540,7 +540,7 @@ func (:s) (er_t expand( m @* o, m bl_t* p_modified )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.get_self =
+func (:s) :.get_self
 {
     c xoico* item = o.get_const_item( type );
     if( !item ) return false;
@@ -557,7 +557,7 @@ func (:s) :.get_self =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.get_type_info =
+func (:s) :.get_type_info
 {
     c xoico* item = o.get_const_item( type );
     if( !item ) return false;
@@ -617,7 +617,7 @@ func (:s) :.get_type_info =
 //                success = true;
 //            }
 //        }
-//        else if( ( info.func = stamp.get_trait_line_func_from_name( name ).cast( m $* ) ) ) /// trait-line function
+//        else if( ( info.func = stamp.get_traitline_func_from_name( name ).cast( m $* ) ) ) /// trait-line function
 //        {
 //            success = true;
 //        }
@@ -667,7 +667,7 @@ func (:s) :.get_type_info =
 //        }
 //        else
 //        {
-//            info.func = group.get_trait_line_func_from_name( name ).cast( m $* );
+//            info.func = group.get_traitline_func_from_name( name ).cast( m $* );
 //            if( info.func ) success = true;
 //        }
 //    }
@@ -677,7 +677,7 @@ func (:s) :.get_type_info =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) get_type_member_function_info =
+func (:s) get_type_member_function_info
 {
     c xoico* xoico_item = o.get_const_item( type );
     if( !xoico_item )
@@ -696,7 +696,7 @@ func (:s) get_type_member_function_info =
         c bcore_self_s* self = stamp.self;
         c bcore_self_item_s* self_item = NULL; // returns NULL in case of no match
 
-        if( ( info.func = stamp.get_trait_line_func_from_name( name ).cast( m $* ) ) ) /// trait-line function
+        if( ( info.func = stamp.get_traitline_func_from_name( name ).cast( m $* ) ) ) /// trait-line function
         {
             success = true;
         }
@@ -713,7 +713,7 @@ func (:s) get_type_member_function_info =
     else if( xoico_item._ == xoico_group_s~ )
     {
         c $* group = xoico_item.cast( m xoico_group_s* );
-        info.func = group.get_trait_line_func_from_name( name ).cast( m $* );
+        info.func = group.get_traitline_func_from_name( name ).cast( m $* );
         if( info.func ) success = true;
     }
 
@@ -722,7 +722,7 @@ func (:s) get_type_member_function_info =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) get_type_member_object_info =
+func (:s) get_type_member_object_info
 {
     c xoico* xoico_item = o.get_const_item( type );
     if( !xoico_item )
@@ -809,7 +809,7 @@ func (:s) get_type_member_object_info =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.get_type_array_element_info =
+func (:s) :.get_type_array_element_info
 {
     ASSERT( info );
 
@@ -840,7 +840,7 @@ func (:s) :.get_type_array_element_info =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.update_target_files =
+func (:s) :.update_target_files
 {
     bl_t modified = false;
     bl_t verbosity = o.verbosity;

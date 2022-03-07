@@ -47,7 +47,7 @@ stamp :whitespace_s( d st_s* st ) func :.to_sink { sink.push_st( o.st ); = 0; }
 
 stamp :plain_s
 {
-    st_s st;
+    $ st_s st;
 
     func d @* create_from_st(   c st_s* st ) { d $* o = @!; o.st.copy( st ); =o; }
     func d @* create_from_st_d( d st_s* st ) { d $* o = @!; o.st.copy( st ); st.discard(); =o; }
@@ -73,8 +73,8 @@ stamp :arr_s
     bl_t active = true;
 
     func :.clear { o.adl.clear(); =o; }
-    func :.activate = { o.active = true; =o; }
-    func :.deactivate = { o.active = false; =o; }
+    func :.activate { o.active = true; =o; }
+    func :.deactivate { o.active = false; =o; }
 
     func m :* last(       m @* o ) { = ( o.adl.size == 0 )         ? o.adl.push_d( :plain_s! ) : o.adl.[ o.adl.size - 1 ]; }
     func m :* last_plain( m @* o ) { = ( o.last()._ != :plain_s~ ) ? o.adl.push_d( :plain_s! ) : o.adl.[ o.adl.size - 1 ]; }
@@ -255,7 +255,7 @@ stamp :statement_s( d aware xoico_che_result* expression )
 stamp :break_s( sz_t ledge_level ) =
 {
     hidden :block_s* parent;
-    func :.set_parent_block = { o.parent = parent; }
+    func :.set_parent_block { o.parent = parent; }
 
     func :.to_sink
     {
@@ -277,7 +277,7 @@ stamp :break_s( sz_t ledge_level ) =
 stamp :return_s( m xoico_che_s* che, d aware xoico_che_result* return_expression ) =
 {
     hidden :block_s* parent;
-    func :.set_parent_block = { o.parent = parent; };
+    func :.set_parent_block { o.parent = parent; };
 
     func :.to_sink
     {

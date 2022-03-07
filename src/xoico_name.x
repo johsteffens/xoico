@@ -20,7 +20,7 @@ stamp :s = aware :
     tp_t name; // deemed global
     x_source_point_s source_point;
 
-    func xoico.parse =
+    func xoico.parse
     {
         o.source_point.setup_from_source( source );
         host.parse_name_tp( source, o.name.1 );
@@ -28,22 +28,22 @@ stamp :s = aware :
         return 0;
     };
 
-    func xoico.get_hash =
+    func xoico.get_hash
     {
         tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
         hash = bcore_tp_fold_tp( hash, o->name );
         return hash;
     };
 
-    func xoico.get_global_name_tp = { return o.name; };
+    func xoico.get_global_name_tp { return o.name; };
 
-    func xoico.expand_declaration =
+    func xoico.expand_declaration
     {
         sink.push_fa( "#rn{ }##define TYPEOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}ull\n", indent, host.compiler().nameof( o.name ), o.name );
         return 0;
     };
 
-    func xoico.expand_init1 =
+    func xoico.expand_init1
     {
         sink.push_fa( "#rn{ }BCORE_REGISTER_NAME( #<sc_t> );\n", indent, host.compiler().nameof( o.name ) );
         return 0;

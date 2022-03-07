@@ -51,22 +51,22 @@ group :stack_var = :
         :unit_adl_s adl;
         bcore_hmap_tpuz_s hmap_name;
 
-        func :.exists = { return o.hmap_name.exists( name ); };
+        func :.exists { return o.hmap_name.exists( name ); };
 
-        func :.rehash_names =
+        func :.rehash_names
         {
             o.hmap_name.clear();
             for( sz_t i = 0; i < o.adl.size; i++ ) o.hmap_name.set( o.adl.[i].name, i );
         };
 
-        func :.push_unit =
+        func :.push_unit
         {
             o.adl.push_c( unit );
             o.hmap_name.set( unit->name, o.adl.size - 1 );
             return o;
         };
 
-        func :.pop_level =
+        func :.pop_level
         {
             sz_t size = o->adl.size;
             while( size > 0 && o.adl.data[ size - 1 ]->level >= level ) size--;
@@ -75,7 +75,7 @@ group :stack_var = :
             return o;
         };
 
-        func :.get_typespec =
+        func :.get_typespec
         {
             m uz_t* p_idx = o.hmap_name.get( name );
             if( !p_idx ) return NULL;
@@ -83,14 +83,14 @@ group :stack_var = :
         };
 
         /// returns -1 if not found
-        func :.get_level =
+        func :.get_level
         {
             m uz_t* p_idx = o.hmap_name.get( name );
             if( !p_idx ) return -1;
             return o.adl.[ p_idx.0 ].level;
         };
 
-        func :.clear =
+        func :.clear
         {
             o.adl.clear();
             o.hmap_name.clear();
@@ -132,17 +132,17 @@ group :stack_block = :
     stamp :s = aware :
     {
         :unit_adl_s adl;
-        func :.push      = { o.adl.push_d( :unit_s! ); return o; };
-        func :.push_unit = { o.adl.push_c( unit ); return o; };
+        func :.push      { o.adl.push_d( :unit_s! ); return o; };
+        func :.push_unit { o.adl.push_c( unit ); return o; };
 
-        func :.pop =
+        func :.pop
         {
             o.adl.set_size( sz_max( o->adl.size - 1, 0 ) );
             return o;
         };
 
-        func :.clear = { o.adl.clear(); };
-        func :.get_size = { return o.adl.size; };
+        func :.clear { o.adl.clear(); };
+        func :.get_size { return o.adl.size; };
     };
 
 };
@@ -256,7 +256,7 @@ stamp :s = aware :
     hidden bl_t has_completion; // function has at least one completion statement (used to detect missing returns)
     hidden bl_t has_verbatim_code; // function has verbatim code (disables error on missing return)
 
-    func xoico.get_hash =
+    func xoico.get_hash
     {
         tp_t hash = bcore_tp_init();
 
@@ -276,37 +276,37 @@ stamp :s = aware :
 
     func xoico_cengine.translate;
 
-    func xoico_cengine.is_reserved =
+    func xoico_cengine.is_reserved
     {
         return o.is_builtin_func( tp_identifier ) ||
                o.is_control_name( tp_identifier ) ||
                tp_identifier == TYPEOF_verbatim_C;
     };
 
-    func :.entypeof = { return o.hmap_name.set_sc( name ); };
+    func :.entypeof { return o.hmap_name.set_sc( name ); };
 
-    func :.nameof   =
+    func :.nameof
     {
         sc_t name = o.hmap_name.get_sc( type );
         if( !name ) name = o.compiler.nameof( type );
         return name;
     };
 
-    func :.init_level0 =
+    func :.init_level0
     {
         o.stack_block.clear();
         o.stack_block.push();
         o.level = 0;
     };
 
-    func :.inc_block =
+    func :.inc_block
     {
         o.stack_block.push();
         o->level++;
         o.stack_block_get_top_unit().level = o.level;
     };
 
-    func :.dec_block =
+    func :.dec_block
     {
         o.stack_var.pop_level( o->level );
         o.level--;
@@ -314,24 +314,24 @@ stamp :s = aware :
         o.stack_block.pop();
     };
 
-    func :.stack_block_get_top_unit =
+    func :.stack_block_get_top_unit
     {
         return o.stack_block.adl.[ o.stack_block.adl.size - 1 ];
     };
 
-    func :.stack_block_get_bottom_unit =
+    func :.stack_block_get_bottom_unit
     {
         return o.stack_block.adl.[ 0 ];
     };
 
-    func :.stack_block_get_level_unit =
+    func :.stack_block_get_level_unit
     {
         foreach( m $* e in o.stack_block.adl ) if( e.level == level ) return e;
         ERR_fa( "Level #<sz_t> not found.", level );
         return NULL;
     };
 
-    func :.push_typedecl =
+    func :.push_typedecl
     {
         m :stack_var_unit_s* unit = :stack_var_unit_s!^^;
         unit.level = o->level;
@@ -341,29 +341,29 @@ stamp :s = aware :
     };
 
     func :.push_typespec;
-    func :.typespec_to_sink =
+    func :.typespec_to_sink
     {
         m $* result = :result_arr_s!^;
         o.push_typespec( typespec, result );
         result.to_sink( sink );
     };
 
-    func xoico_compiler.is_type  = { return o.compiler.is_type( name ); };
-    func xoico_compiler.is_identifier = { return o.compiler.is_identifier( name ); };
-    func xoico_compiler.is_name  = { return o.compiler.is_name( name ); };
-    func xoico_compiler.is_group = { return o.compiler.is_group( name ); };
-    func xoico_compiler.is_stamp = { return o.compiler.is_stamp( name ); };
-    func xoico_compiler.is_func  = { return o.compiler.is_func( name ); };
-    func :.is_var = { return o.stack_var.exists( name ); };
+    func xoico_compiler.is_type { return o.compiler.is_type( name ); };
+    func xoico_compiler.is_identifier { return o.compiler.is_identifier( name ); };
+    func xoico_compiler.is_name  { return o.compiler.is_name( name ); };
+    func xoico_compiler.is_group { return o.compiler.is_group( name ); };
+    func xoico_compiler.is_stamp { return o.compiler.is_stamp( name ); };
+    func xoico_compiler.is_func  { return o.compiler.is_func( name ); };
+    func :.is_var { return o.stack_var.exists( name ); };
 
-    func xoico_compiler.get_group = { return o.compiler.get_group( name ); };
-    func xoico_compiler.get_stamp = { return o.compiler.get_stamp( name ); };
-    func xoico_compiler.get_func  = { return o.compiler.get_func( name ); };
-    func xoico_compiler.get_transient_map = { return o.compiler.get_transient_map( type ); };
+    func xoico_compiler.get_group { return o.compiler.get_group( name ); };
+    func xoico_compiler.get_stamp { return o.compiler.get_stamp( name ); };
+    func xoico_compiler.get_func  { return o.compiler.get_func( name ); };
+    func xoico_compiler.get_transient_map { return o.compiler.get_transient_map( type ); };
 
-    func (bl_t returns_a_value( c @* o )) = { return o.signature.returns_a_value(); };
+    func (bl_t returns_a_value( c @* o )) { return o.signature.returns_a_value(); };
 
-    func (er_t trans( c @* o, m x_source* source, sc_t format, m :result* result )) =
+    func (er_t trans( c @* o, m x_source* source, sc_t format, m :result* result ))
     {
         try( source.parse_fa( format ));
         result.push_sc( format );
@@ -371,7 +371,7 @@ stamp :s = aware :
     };
 
 
-    func (bl_t returns_er_t( c @* o )) =
+    func (bl_t returns_er_t( c @* o ))
     {
         return o.signature.typespec_ret.type == er_t~ && o.signature.typespec_ret.indirection == 0;
     };
@@ -389,7 +389,7 @@ stamp :s = aware :
  *  Detects '@' as type of class or group
  *  If no identifier could be detected: Returns 0 and leave source unchanged.
  */
-func (:s) (tp_t get_identifier( m @* o, m x_source* source, bl_t take_from_source )) =
+func (:s) (tp_t get_identifier( m @* o, m x_source* source, bl_t take_from_source ))
 {
     tp_t tp_identifier = 0;
     if( source.parse_bl( "#?(([0]>='A'&&[0]<='Z')||([0]>='a'&&[0]<='z')||[0]=='_'||[0]=='@'||[0]=='$'||([0]==':'&&([1]!=' '&&[1]!='\t'&&[1]!='\n'&&[1]!='/')))" ) )
@@ -425,7 +425,7 @@ func (:s) (tp_t get_identifier( m @* o, m x_source* source, bl_t take_from_sourc
 
             default:
             {
-                m st_s* st_name = st_s!^^;
+                m st_s* st_name = st_s!^;
                 source.parse_fa( "#name", st_name );
                 tp_identifier = o.entypeof( st_name.sc );
             }
@@ -447,7 +447,7 @@ func(:s) (er_t trans_identifier
     m x_source* source,
     m :result* result,    // can be NULL
     m tp_t* tp_identifier // can be NULL
-)) =
+))
 {
     tp_t identifier = o.get_identifier( source, true );
     if( !identifier )
@@ -462,7 +462,7 @@ func(:s) (er_t trans_identifier
 //----------------------------------------------------------------------------------------------------------------------
 
 /// parses number: (all integer, hex and float encodings)
-func(:s) (er_t trans_number_literal( m @* o, m x_source* source, m :result* result )) =
+func(:s) (er_t trans_number_literal( m @* o, m x_source* source, m :result* result ))
 {
     bl_t hex = false;
     if( source.parse_bl( "#?'0x'" ) )
@@ -527,7 +527,7 @@ func(:s) (er_t trans_number_literal( m @* o, m x_source* source, m :result* resu
 //----------------------------------------------------------------------------------------------------------------------
 
 /// parses string
-func (:s) (er_t trans_string_literal( m @* o, m x_source* source, m :result* result )) =
+func (:s) (er_t trans_string_literal( m @* o, m x_source* source, m :result* result ))
 {
     o.trans( source, "\"", result );
 
@@ -544,7 +544,7 @@ func (:s) (er_t trans_string_literal( m @* o, m x_source* source, m :result* res
 //----------------------------------------------------------------------------------------------------------------------
 
 /// character literal
-func (:s) (er_t trans_char_literal( m @* o, m x_source* source, m :result* result )) =
+func (:s) (er_t trans_char_literal( m @* o, m x_source* source, m :result* result ))
 {
     o.trans( source, "'", result );
 
@@ -561,7 +561,7 @@ func (:s) (er_t trans_char_literal( m @* o, m x_source* source, m :result* resul
 //----------------------------------------------------------------------------------------------------------------------
 
 /// parses whitespaces including comments
-func (:s) (er_t trans_whitespace( m @* o, m x_source* source, m :result* result /* can be NULL */ )) =
+func (:s) (er_t trans_whitespace( m @* o, m x_source* source, m :result* result /* can be NULL */ ))
 {
     bl_t exit_loop = false;
 
@@ -628,7 +628,7 @@ func (:s) (er_t trans_whitespace( m @* o, m x_source* source, m :result* result 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t trans_preprocessor( m @* o, m x_source* source, m :result* result )) =
+func (:s) (er_t trans_preprocessor( m @* o, m x_source* source, m :result* result ))
 {
     source.parse_fa( "##" );
     result.push_sc( "#" );
@@ -645,7 +645,7 @@ func (:s) (er_t trans_preprocessor( m @* o, m x_source* source, m :result* resul
 //----------------------------------------------------------------------------------------------------------------------
 
 // any state; returns !=0 in case an operator was consumed
-func (:s) (tp_t trans_inert_operator( m @* o, m x_source* source, m :result* result )) =
+func (:s) (tp_t trans_inert_operator( m @* o, m x_source* source, m :result* result ))
 {
     switch( source.inspect_char() )
     {
@@ -676,7 +676,7 @@ func (:s) (tp_t trans_inert_operator( m @* o, m x_source* source, m :result* res
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (bl_t trans_operator( m @* o, m x_source* source, m :result* result )) =
+func (:s) (bl_t trans_operator( m @* o, m x_source* source, m :result* result ))
 {
     switch( source.inspect_char() )
     {
@@ -767,7 +767,7 @@ func (:s)
         c :result* result_expr,
         m :result* result
     )
-) =
+)
 {
     if( target_indirection == typespec_expr.indirection )
     {
@@ -936,7 +936,7 @@ func (:s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t trans_member( m @* o, m x_source* source, m :result* result )) =
+func (:s) (er_t trans_member( m @* o, m x_source* source, m :result* result ))
 {
     if(      source.parse_bl( "#?'.'"  ) ) result.push_sc( "." );
     else if( source.parse_bl( "#?'->'" ) ) result.push_sc( "->" );
@@ -987,7 +987,7 @@ func (:s)
         bl_t require_tractable_type,
         m bl_t* success
     )
-) =
+)
 {
     if( success ) success.0 = false;
 
@@ -1111,7 +1111,7 @@ func (:s)
         m xoico_typespec_s* typespec,
         bl_t require_tractable_type
     )
-) =
+)
 {
     bl_t success = false;
     o.try_take_typespec( source, typespec, require_tractable_type, success );
@@ -1133,7 +1133,7 @@ func (:s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.push_typespec  =
+func (:s) :.push_typespec
 {
     tp_t type = typespec.type;
 
@@ -1180,7 +1180,7 @@ func (:s)
         m :result* result, // can be NULL
         m xoico_typespec_s* out_typespec // optional
     )
-) =
+)
 {
     m $* result_local = :result_arr_s!^;
     tp_t tp_identifier;
@@ -1241,7 +1241,7 @@ func (:s)
         m :result* result, // can be NULL
         m xoico_typespec_s* out_typespec // optional
     )
-) =
+)
 {
     m $* result_local = :result_arr_s!^;
     tp_t tp_identifier;
@@ -1275,7 +1275,7 @@ func (:s)
         m :result* result, // can be NULL
         m xoico_typespec_s* out_typespec // optional
     )
-) =
+)
 {
     source.parse_fa( "?" );
     result.push_sc( "?" );
@@ -1330,7 +1330,7 @@ func (:s)
         m :result* result, // can be NULL
         m xoico_typespec_s* out_typespec // optional
     )
-) =
+)
 {
     source.parse_fa( "(" );
     result.push_char( '(' );
@@ -1357,7 +1357,7 @@ func (:s)
         m :result* result, // can be NULL
         m xoico_typespec_s* out_typespec // optional
     )
-) =
+)
 {
     source.parse_fa( "[" );
     result.push_sc( "[" );
@@ -1378,7 +1378,7 @@ func (:s)
         m :result* result_out, // can be NULL
         m xoico_typespec_s* out_typespec // optional
     )
-) =
+)
 {
     sc_t sc_bl_end_of_expression = "#?([0]==';'||[0]=='{'||[0]=='}'||[0]==')'||[0]==']'||[0]==','||([0]=='.'&&[1]=='.')||([0]==':'&&([1]==' '||[1]=='\t'||[1]=='\n'||[1]=='/')))";
 
@@ -1578,7 +1578,7 @@ func (:s)
         m :result* result_out,
         m bl_t* success
     )
-) =
+)
 {
     if( success ) success.0 = false;
 
@@ -1731,7 +1731,7 @@ func (:s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func(:s) (er_t inspect_expression( m @* o, m x_source* source )) =
+func(:s) (er_t inspect_expression( m @* o, m x_source* source ))
 {
     source.parse_fa( "\?\?" );
 
@@ -1778,7 +1778,7 @@ func(:s) (er_t inspect_expression( m @* o, m x_source* source )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t trans_statement_expression( m @* o, m x_source* source, m :result* result )) =
+func (:s) (er_t trans_statement_expression( m @* o, m x_source* source, m :result* result ))
 {
     m$* result_statement = :result_statement_s!^( :result_arr_s! );
 
@@ -1828,7 +1828,7 @@ func (:s) (er_t trans_statement_expression( m @* o, m x_source* source, m :resul
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t trans_statement( m @* o, m x_source* source, m :result* result )) =
+func (:s) (er_t trans_statement( m @* o, m x_source* source, m :result* result ))
 {
     o.trans_whitespace( source, result );
 
@@ -1928,7 +1928,7 @@ func (:s) (er_t trans_statement( m @* o, m x_source* source, m :result* result )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t trans_block_inside( m @* o, m x_source* source, m :result* result_out )) =
+func (:s) (er_t trans_block_inside( m @* o, m x_source* source, m :result* result_out ))
 {
     m $* result = :result_arr_s!^;
 
@@ -1969,7 +1969,7 @@ func (:s) (er_t trans_block_inside( m @* o, m x_source* source, m :result* resul
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t trans_block( m @* o, m x_source* source, m :result* result_out, bl_t is_break_ledge )) =
+func (:s) (er_t trans_block( m @* o, m x_source* source, m :result* result_out, bl_t is_break_ledge ))
 {
     o.inc_block();
     m $* result = :result_arr_s!^;
@@ -1986,7 +1986,7 @@ func (:s) (er_t trans_block( m @* o, m x_source* source, m :result* result_out, 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t trans_statement_as_block( m @* o, m x_source* source, m :result* result_out, bl_t is_break_ledge )) =
+func (:s) (er_t trans_statement_as_block( m @* o, m x_source* source, m :result* result_out, bl_t is_break_ledge ))
 {
     m $* result = :result_arr_s!^;
 
@@ -2024,7 +2024,7 @@ func (:s) (er_t trans_statement_as_block( m @* o, m x_source* source, m :result*
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t trans_block_inside_verbatim_c( m @* o, m x_source* source, m :result* result )) =
+func (:s) (er_t trans_block_inside_verbatim_c( m @* o, m x_source* source, m :result* result ))
 {
     o.has_verbatim_code = true;
     o.trans_whitespace( source, result );
@@ -2066,7 +2066,7 @@ func (:s) (er_t trans_block_inside_verbatim_c( m @* o, m x_source* source, m :re
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t setup( m @* o, c xoico_host* host, c xoico_signature_s* signature )) =
+func (:s) (er_t setup( m @* o, c xoico_host* host, c xoico_signature_s* signature ))
 {
     o.signature =< signature.clone();
     o.signature.relent( host, host.obj_type() );
@@ -2121,7 +2121,7 @@ func (:s) (er_t setup( m @* o, c xoico_host* host, c xoico_signature_s* signatur
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (sz_t assess_indentation( m x_source* source )) =
+func (:s) (sz_t assess_indentation( m x_source* source ))
 {
     sz_t index = source.get_index();
     while( !source.eos() ) if( source.get_char() == '\n' ) break;
@@ -2137,7 +2137,7 @@ func (:s) (sz_t assess_indentation( m x_source* source )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (void remove_indentation( m st_s* string, sz_t indentation )) =
+func (:s) (void remove_indentation( m st_s* string, sz_t indentation ))
 {
     ASSERT( string.space >= string.size );
 
@@ -2162,7 +2162,7 @@ func (:s) (void remove_indentation( m st_s* string, sz_t indentation )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* body, c xoico_signature_s* signature, m x_sink* sink )) =
+func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* body, c xoico_signature_s* signature, m x_sink* sink ))
 {
     o.setup( host, signature );
 
@@ -2179,10 +2179,12 @@ func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* b
         {
             if( source.parse_bl( " #?w'try'" ) )
             {
-                flag_try = true;
+                return source.parse_error_fa( "prefix (try) is deprecated." );
+                //flag_try = true;
             }
             else if( source.parse_bl( " #?w'verbatim_C'" ) )
             {
+                source.parse_error_fa( "prefix (verbatim_C) is deprecated." );
                 flag_verbatim_c = true;
             }
             else
@@ -2192,8 +2194,9 @@ func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* b
         }
     }
 
-    source.parse_fa( " {" );
     sz_t indentation = 0;
+
+    source.parse_fa( " {" );
     if( !body.go_inline ) indentation = o.assess_indentation( source );
 
     if( flag_verbatim_c )
@@ -2210,7 +2213,14 @@ func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* b
 
     if( o.returns_a_value() && !o.has_completion && !o.has_verbatim_code )
     {
-        return source.parse_error_fa( "Function must return a value. Completion statement ('return' or '=') expected." );
+        if( o.signature.direct_return_arg )
+        {
+            result.push_result_d( :result_return_s!( o, :result_plain_s!( st_s!^.push_sc( o.nameof( o.signature.direct_return_arg.name ) ) ) ) );
+        }
+        else
+        {
+            return source.parse_error_fa( "Function must return a value. Completion statement ('return' or '=') expected." );
+        }
     }
 
     m $* result_block = :result_block_s!( o.level, o.stack_block_get_bottom_unit().use_blm )^^;
@@ -2250,7 +2260,7 @@ func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* b
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico_cengine.translate =
+func (:s) xoico_cengine.translate
 {
     er_t er = o.clone()^^.translate_mutable( host, body, signature, sink );
     return er;

@@ -17,7 +17,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (void help( m x_sink* sink )) =
+func (void help( m x_sink* sink ))
 {
     sink.push_sc
     (
@@ -36,7 +36,7 @@ func (void help( m x_sink* sink )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func x_inst.main =
+func x_inst.main
 {
     xoico_builder_main_s^ builder_main;
     er_t er = 0;

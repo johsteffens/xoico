@@ -26,7 +26,7 @@ stamp :s = aware :
     xoico_signature_s => signature;
     xoico_func_s => func;
 
-    func xoico.parse =
+    func xoico.parse
     {
         source.parse_fa( " " );
         host.parse_name_tp( source, o.group_name.1 );
@@ -38,7 +38,7 @@ stamp :s = aware :
         return 0;
     };
 
-    func xoico.finalize =
+    func xoico.finalize
     {
         m $* compiler = host.compiler();
         c xoico_group_s* group = compiler.get_group( o.group_name );
@@ -56,7 +56,7 @@ stamp :s = aware :
         o.func.signature_global_name = o.signature.global_name;
 
         m st_s* st = st_s!^^;
-        st.push_fa( "={" );
+        st.push_fa( "{" );
         if( o.signature.returns_a_value() ) st.push_sc( "return " );
 
         st.push_fa( "#<sc_t>_#<sc_t>(", host.nameof( group.tp_name ), host.nameof( func.name ) );
@@ -79,7 +79,7 @@ stamp :s = aware :
         return 0;
     };
 
-    func xoico.get_source_point = { return o.source_point; };
+    func xoico.get_source_point { return o.source_point; };
 };
 
 //----------------------------------------------------------------------------------------------------------------------

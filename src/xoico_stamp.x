@@ -23,8 +23,9 @@ signature er_t make_funcs_overloadable( m @* o );
 signature er_t push_default_funcs( m @* o );
 signature er_t push_compact_initializer_func( m @* o );
 signature c xoico_func_s* get_func_from_name( c @* o, tp_t name ); // returns NULL if not found
-signature c xoico_func_s* get_trait_line_func_from_name( c @* o, tp_t name ); // returns NULL if not found
-signature c xoico_func_s* get_trait_line_member_func_from_name( c @* o, tp_t name ); // returns NULL if not found
+signature c xoico_feature_s* get_traitline_feature_from_name( c @* o, tp_t name ); // returns NULL if not found
+signature c xoico_func_s* get_traitline_func_from_name( c @* o, tp_t name ); // returns NULL if not found
+signature c xoico_func_s* get_traitline_member_func_from_name( c @* o, tp_t name ); // returns NULL if not found
 
 stamp :s = aware :
 {
@@ -47,7 +48,7 @@ stamp :s = aware :
     private aware xoico_group_s* group;
     x_source_point_s source_point;
 
-    func xoico.get_hash =
+    func xoico.get_hash
     {
         tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
         hash = bcore_tp_fold_sc( hash, o.st_name.sc );
@@ -56,18 +57,18 @@ stamp :s = aware :
         return hash;
     };
 
-    func xoico.get_global_name_tp = { return o.tp_name; };
+    func xoico.get_global_name_tp { return o.tp_name; };
     func xoico.finalize;
 
-    func xoico.expand_setup = { return 0; };
+    func xoico.expand_setup { return 0; };
     func xoico.expand_declaration;
-    func xoico.expand_forward =
+    func xoico.expand_forward
     {
         sink.push_fa( " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o.st_name.sc );
         return 0;
     };
 
-    func xoico.expand_indef_declaration =
+    func xoico.expand_indef_declaration
     {
         sink.push_fa( " \\\n#rn{ }  BETH_EXPAND_ITEM_#<sc_t>", indent, o.st_name.sc );
         return 0;
@@ -80,43 +81,48 @@ stamp :s = aware :
     func :.parse_func;
     func :.parse_wrap;
 
-    func :.make_funcs_overloadable =
+    func :.make_funcs_overloadable
     {
         foreach( m $* func in o.funcs ) func->overloadable = true;
         return 0;
     };
 
-    func :.get_func_from_name = { return o.funcs.get_func_from_name( name ); };
+    func :.get_func_from_name { return o.funcs.get_func_from_name( name ); };
 
-    func :.get_trait_line_func_from_name =
+    func :.get_traitline_func_from_name
     {
         c $* func = o.funcs.get_func_from_name( name );
         if( !func )
         {
-            func = o.group.compiler.get_group( o.trait_name ).get_trait_line_func_from_name( name );
+            func = o.group.compiler.get_group( o.trait_name ).get_traitline_func_from_name( name );
         }
         return func;
     };
 
-    func :.get_trait_line_member_func_from_name =
+    func :.get_traitline_feature_from_name
+    {
+        return o.group.compiler.get_group( o.trait_name ).get_traitline_feature_from_name( name );
+    };
+
+    func :.get_traitline_member_func_from_name
     {
         c $* func = o.funcs.get_func_from_name( name );
         if( !func )
         {
-            func = o.group.compiler.get_group( o.trait_name ).get_trait_line_member_func_from_name( name );
+            func = o.group.compiler.get_group( o.trait_name ).get_traitline_member_func_from_name( name );
         }
         return func;
     };
 
     func :.push_default_funcs;
 
-    func xoico_host.parse_name_st = { return o.group.parse_name_st( source, name ); };
-    func xoico_host.compiler = { return o.group.compiler; };
-    func xoico_host.cengine = { return o.group.cengine(); };
-    func xoico_host.obj_type = { return o.tp_name; };
-    func xoico_host.transient_map = { return o.transient_map; };
+    func xoico_host.parse_name_st { return o.group.parse_name_st( source, name ); };
+    func xoico_host.compiler { return o.group.compiler; };
+    func xoico_host.cengine { return o.group.cengine(); };
+    func xoico_host.obj_type { return o.tp_name; };
+    func xoico_host.transient_map { return o.transient_map; };
 
-    func xoico.get_source_point = { return o.source_point; };
+    func xoico.get_source_point { return o.source_point; };
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -125,10 +131,10 @@ stamp :self_item_s =
 {
     x_source_point_s source_point;
     st_s st;
-    bl_t arg_of_initializer; // this item is arguiment of the compact initializer
+    bl_t arg_of_initializer; // this item is argument of the compact initializer
     bl_t copy_from_initializer; // this shall be copied (cloned) from the the compact initializer
 
-    func (er_t to_bcore_self_item( @* o, bcore_self_s* self, m bcore_self_item_s* item )) =
+    func (er_t to_bcore_self_item( @* o, bcore_self_s* self, m bcore_self_item_s* item ))
     {
         er_t er = bcore_self_item_s_parse_src( item, sr_awc( x_source_create_from_st( o.st )^ ), self, false );
 
@@ -140,7 +146,6 @@ stamp :self_item_s =
         }
         return 0;
     };
-
 };
 
 stamp :arr_self_item_s = x_array { :self_item_s []; };
@@ -152,7 +157,7 @@ stamp :arr_self_item_s = x_array { :self_item_s []; };
 //----------------------------------------------------------------------------------------------------------------------
 
 /// removes comments, excessive whitespaces; trailing whitespaces; keeps strings but replaces '"' with '\"'
-func (d st_s* create_embedded_string( c st_s* s )) =
+func (d st_s* create_embedded_string( c st_s* s ))
 {
     d st_s* out = st_s!;
     for( sz_t i = 0; i < s.size; i++ )
@@ -216,7 +221,7 @@ func (d st_s* create_embedded_string( c st_s* s )) =
 /** Creates a structured multiline string for direct code embedding
  *  from an embedded string
  */
-func (d st_s* create_structured_multiline_string( c sc_t s, sz_t indent )) =
+func (d st_s* create_structured_multiline_string( c sc_t s, sz_t indent ))
 {
     d st_s* out = st_s!;
     sz_t ind = indent;
@@ -287,7 +292,7 @@ func (d st_s* create_structured_multiline_string( c sc_t s, sz_t indent )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (sc_t get_rel_name_sc( c @* o )) =
+func (:s) (sc_t get_rel_name_sc( c @* o ))
 {
     sc_t group_name = o.group.st_name.sc;
     sc_t stamp_name = o.st_name.sc;
@@ -301,7 +306,7 @@ func (:s) (sc_t get_rel_name_sc( c @* o )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.parse_func =
+func (:s) :.parse_func
 {
     m $* compiler = o.group.compiler;
     m $* func = xoico_func_s!^;
@@ -348,7 +353,7 @@ func (:s) :.parse_func =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.parse_wrap =
+func (:s) :.parse_wrap
 {
     m $* wrap = xoico_wrap_s!^;
     wrap.parse( o, source );
@@ -358,7 +363,7 @@ func (:s) :.parse_wrap =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t parse_extend( m @* o, m x_source* source )) =
+func (:s) (er_t parse_extend( m @* o, m x_source* source ))
 {
     m $* buf = st_s!^;
     m $* self = bcore_self_s!^;
@@ -467,7 +472,7 @@ func (:s) (er_t parse_extend( m @* o, m x_source* source )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc )) =
+func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc ))
 {
     m $* compiler = o.group.compiler;
     m $* func = xoico_func_s!^;
@@ -492,7 +497,7 @@ func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.push_default_funcs =
+func (:s) :.push_default_funcs
 {
     o.push_default_func_from_sc( "bcore_stamp_funcs.init;" );
     o.push_default_func_from_sc( "bcore_stamp_funcs.down;" );
@@ -505,7 +510,7 @@ func (:s) :.push_default_funcs =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.push_compact_initializer_func =
+func (:s) :.push_compact_initializer_func
 {
     m $* compiler = o.group.compiler;
 
@@ -572,7 +577,7 @@ func (:s) :.push_compact_initializer_func =
 
     st_s^ st_func.push_fa
     (
-        "#<sc_t> =\n"
+        "#<sc_t>\n"
         "{\n"
         "#<sc_t>"
         "    return o;\n"
@@ -599,7 +604,7 @@ func (:s) :.push_compact_initializer_func =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.parse =
+func (:s) xoico.parse
 {
     m $* compiler = o.group.compiler;
     bl_t verbatim = source.parse_bl( " #?w'verbatim'" );
@@ -688,7 +693,7 @@ func (:s) xoico.parse =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.finalize =
+func (:s) xoico.finalize
 {
     //if( o.has_compact_initializer ) o.push_compact_initializer_func();
 
@@ -698,7 +703,7 @@ func (:s) xoico.finalize =
     m bcore_self_item_s* first_array_item = NULL; // !=NULL if stamp has an array;
     {
         m $* self = bcore_self_s!^; self.type = o.tp_name; self.trait = o.trait_name;
-        foreach( $* self_item in o.arr_self_item )
+        foreach( m $* self_item in o.arr_self_item )
         {
             m $* item = bcore_self_item_s!^;
             self_item.to_bcore_self_item( self, item );
@@ -712,15 +717,18 @@ func (:s) xoico.finalize =
 
                 if( verbatim_C{ !item->flags.f_aware } && verbatim_C{ !item->flags.f_obliv } && !bcore_flect_caps_is_typed( item.caps ) )
                 {
-                    return self_item.source_point.parse_error_fa
-                    (
-                        "Element type is a group. Please use type-specifier 'obliv' or 'aware'. "
-                        "In future 'aware' is assumed in case awareness was not specified.\n"
-                    );
+//                    return self_item.source_point.parse_error_fa
+//                    (
+//                        "Element type is a group. Please use type-specifier 'obliv' or 'aware'. "
+//                        "In future 'aware' is assumed in case awareness was not specified.\n"
+//                    );
+
+                    /// group reference: when type awareness is not specified but 'aware' is a legal option, assume 'aware'.
+                    self_item.st.insert_sc( 0, "aware " );
                 }
             }
 
-            if( bcore_flect_caps_is_array( item->caps ) && !first_array_item ) first_array_item = item.clone()^^;
+            if( bcore_flect_caps_is_array( item.caps ) && !first_array_item ) first_array_item = item.clone()^^;
             self_buf.push_st( self_item.st );
         }
     }
@@ -734,6 +742,47 @@ func (:s) xoico.finalize =
         }
         o.transient_map.set( compiler.entypeof( "TO" ), o.tp_name );
         if( first_array_item.type ) o.transient_map.set( compiler.entypeof( "TE" ), first_array_item.type );
+    }
+
+    // overload transient features
+    foreach( tp_t key in o.transient_map.create_key_arr()^ )
+    {
+        $* feature = o.get_traitline_feature_from_name( key );
+        if( feature )
+        {
+            if( !feature.signature.fits_transient_type_feature() )
+            {
+                st_s^ feature_reference;
+                feature.source_point.source_reference_to_sink( false, feature_reference );
+                return o.source_point.parse_error_fa
+                (
+                    "In stamp '#<sc_t>': Stamp uses transient feature '#<sc_t>' with triggers automatic overload of a feature with this name in the stamps traitline.\n"
+                    "A matching feature was found in '#<sc_t>' but it does not satisfy signature-requirements for such an overload.\n"
+                    "Suggestions:\n"
+                    "   - Define feature in the form 'feature tp_t #<sc_t>( @*o );'. Or\n"
+                    "   - If the feature has a different purpose:\n"
+                    "       - Rename the feature. Or\n"
+                    "       - Rename the transient type identifier '#<sc_t>'.\n",
+                    o.st_name.sc,
+                    compiler.nameof( feature.signature.name ),
+                    feature_reference.sc,
+                    compiler.nameof( feature.signature.name ),
+                    compiler.nameof( feature.signature.name )
+                );
+            }
+
+            tp_t type = o.transient_map.get( key );
+
+            st_s^ func_code.push_fa
+            (
+                "#<sc_t>.#<sc_t> { = TYPEOF_#<sc_t> }",
+                compiler.nameof( feature.group.tp_name ),
+                compiler.nameof( feature.signature.name ),
+                compiler.nameof( type )
+            );
+
+            o.push_default_func_from_sc( func_code.sc );
+        }
     }
 
     foreach( m $* wrap in o.wraps )
@@ -793,7 +842,7 @@ func (:s) xoico.finalize =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_declaration =
+func (:s) xoico.expand_declaration
 {
     sc_t sc_name = o.st_name.sc;
 
@@ -815,7 +864,7 @@ func (:s) xoico.expand_declaration =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_definition =
+func (:s) xoico.expand_definition
 {
     m st_s* embedded_string = o.create_embedded_string( o.self_source )^^;
 
@@ -850,7 +899,7 @@ func (:s) xoico.expand_definition =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_init1 =
+func (:s) xoico.expand_init1
 {
     m $* compiler = o.group.compiler;
 

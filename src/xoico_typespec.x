@@ -40,7 +40,7 @@ stamp :transient_s = aware :
     tp_t class;
     tp_t cast_to_var; // cast to typespec of variable with given name (typically a return typespec of a function)
 
-    func xoico.get_hash =
+    func xoico.get_hash
     {
         tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
         hash = bcore_tp_fold_tp( hash, o.class );
@@ -68,13 +68,13 @@ stamp :s = aware :
 
     func xoico.get_hash;
     func     :.parse;
-    func     :.relent =
+    func     :.relent
     {
         if( o.type == type_object~ ) o.type = tp_obj_type;
         return 0;
     };
 
-    func xoico.convert_transient_types =
+    func xoico.convert_transient_types
     {
         if( o.transient )
         {
@@ -89,7 +89,7 @@ stamp :s = aware :
     func :.converts_to;
     func :.is_ptr_type;
 
-    func :.reset =
+    func :.reset
     {
         o.access_class = 0;
         o.transient =< NULL;
@@ -104,7 +104,7 @@ stamp :s = aware :
         o.flag_addressable = true;  // object can have a pointer ('false' for objects returned by a function)
     };
 
-    func ( bl_t is_void( c @* o )) = { return (o.type == 0 || o.type == void~) && o.indirection == 0; };
+    func ( bl_t is_void( c @* o )) { return (o.type == 0 || o.type == void~) && o.indirection == 0; };
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ stamp :s = aware :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.parse =
+func (:s) :.parse
 {
     o.reset();
     m $* compiler = host.compiler();
@@ -196,7 +196,7 @@ func (:s) :.parse =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.get_hash =
+func (:s) xoico.get_hash
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
     hash = bcore_tp_fold_tp( hash, o.type );
@@ -212,7 +212,7 @@ func (:s) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.expand =
+func (:s) :.expand
 {
     if( o.flag_variadic )
     {
@@ -250,7 +250,7 @@ func (:s) :.expand =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.expand_x =
+func (:s) :.expand_x
 {
     if( o.flag_variadic )
     {
@@ -295,7 +295,7 @@ func (:s) :.expand_x =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (bl_t is_numeric( tp_t type )) =
+func (bl_t is_numeric( tp_t type ))
 {
     switch( type )
     {
@@ -323,7 +323,7 @@ func (bl_t is_numeric( tp_t type )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) :.converts_to =
+func (:s) :.converts_to
 {
     if( o.type == b.type )
     {
@@ -410,7 +410,7 @@ func (:s) :.converts_to =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) is_ptr_type =
+func (:s) is_ptr_type
 {
     return o.type == TYPEOF_vd_t ||
            o.type == TYPEOF_vc_t ||

@@ -37,11 +37,13 @@ stamp :s = aware :
     bl_t flag_r;
     bl_t expandable = true;
 
+    private aware xoico_group_s* group;
+
     x_source_point_s source_point;
 
     func xoico.parse;
     func xoico.get_hash;
-    func xoico.get_global_name_tp = { return o.signature.global_name; };
+    func xoico.get_global_name_tp { return o.signature.global_name; };
     func xoico.finalize;
     func xoico.expand_forward;
     func xoico.expand_indef_typedef;
@@ -50,7 +52,7 @@ stamp :s = aware :
     func xoico.expand_indef_declaration;
     func xoico.expand_definition;
     func xoico.expand_init1;
-    func xoico.get_source_point = { return o.source_point; };
+    func xoico.get_source_point { return o.source_point; };
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -59,7 +61,7 @@ stamp :s = aware :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.get_hash =
+func (:s) xoico.get_hash
 {
     tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o._ );
     hash = bcore_tp_fold_tp( hash, o.signature.get_hash() );
@@ -75,7 +77,7 @@ func (:s) xoico.get_hash =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.parse =
+func (:s) xoico.parse
 {
     m $* compiler = host.compiler();
 
@@ -137,7 +139,7 @@ func (:s) xoico.parse =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (d xoico_func_s* create_func_from_sc( c @* o, c xoico_host* host, sc_t sc )) =
+func (:s) (d xoico_func_s* create_func_from_sc( c @* o, c xoico_host* host, sc_t sc ))
 {
     d xoico_func_s* func = xoico_func_s!;
     func.parse_sc( host, sc );
@@ -147,14 +149,14 @@ func (:s) (d xoico_func_s* create_func_from_sc( c @* o, c xoico_host* host, sc_t
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (m xoico_func_s* push_func_from_sc( m @* o, c xoico_host* host, sc_t sc )) =
+func (:s) (m xoico_func_s* push_func_from_sc( m @* o, c xoico_host* host, sc_t sc ))
 {
     return o.funcs.push_d( o.create_func_from_sc( host, sc ) );
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) =
+func (:s) (er_t setup_functions( m @* o, c xoico_host* host ))
 {
     m $* compiler = host.compiler();
     sc_t sc_name = compiler.nameof( o.signature.name );
@@ -179,13 +181,13 @@ func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) =
         st.push_fa( flag_const ? " c" : " m" );
         st.push_fa( " @* o" );
         o.signature.args.expand_x( host, false, st );
-        st.push_fa( " )) = (verbatim_C) { " );
+        st.push_fa( " )) { verbatim_C{" );
         st.push_fa( "const #<sc_t>* p = #<sc_t>_get_aware( o ); ", sc_spect_name, sc_spect_name );
         st.push_fa( "assert( p->#<sc_t> ); ", sc_name );
         if( has_ret ) st.push_fa( "return " );
         st.push_fa( "p->#<sc_t>( o", sc_name );
         o->signature.args.expand_name( host, false, st );
-        st.push_fa( " ); };" );
+        st.push_fa( " ); } };" );
 
         m xoico_func_s* func = o.push_func_from_sc( host, st.sc );
         func.declare_in_expand_forward = false;
@@ -201,14 +203,14 @@ func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) =
     if( o.flag_a )
     {
         m st_s* st = st_s!^^;
-        st.push_fa( "(bl_t defines_#<sc_t>( c @* o )) = ", sc_name );
+        st.push_fa( "(bl_t defines_#<sc_t>( c @* o )) ", sc_name );
         if( always_defined )
         {
             st.push_fa( "{ return true; };", sc_name );
         }
         else
         {
-            st.push_fa( "(verbatim_C) { return #<sc_t>_get_aware( o )->#<sc_t> != NULL; };", sc_spect_name, sc_name );
+            st.push_fa( "{ verbatim_C { return #<sc_t>_get_aware( o )->#<sc_t> != NULL; } };", sc_spect_name, sc_name );
         }
 
         m xoico_func_s* func = o.push_func_from_sc( host, st.sc );
@@ -228,13 +230,13 @@ func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) =
         st.push_fa( flag_const ? " c" : " m" );
         st.push_fa( " #<sc_t>* o, tp_t t", sc_obj_type );
         o->signature.args.expand_x( host, false, st );
-        st.push_fa( " )) = (verbatim_C) { " );
+        st.push_fa( " )) { verbatim_C{" );
         st.push_fa( "const #<sc_t>* p = #<sc_t>_get_typed( t ); ", sc_spect_name, sc_spect_name );
         st.push_fa( "assert( p->#<sc_t> ); ", sc_name );
         if( has_ret ) st.push_fa( "return " );
         st.push_fa( "p->#<sc_t>( o", sc_name );
         o->signature.args.expand_name( host, false, st );
-        st.push_fa( " ); };" );
+        st.push_fa( " ); } };" );
 
         m xoico_func_s* func = o.push_func_from_sc( host, st.sc );
         func.declare_in_expand_forward = false;
@@ -248,14 +250,14 @@ func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) =
     if( o->flag_t )
     {
         m st_s* st = st_s!^^;
-        st.push_fa( "(bl_t t_defines_#<sc_t>( tp_t t )) = ", sc_name );
+        st.push_fa( "(bl_t t_defines_#<sc_t>( tp_t t )) ", sc_name );
         if( always_defined )
         {
             st.push_fa( "{ return true; };", sc_name );
         }
         else
         {
-            st.push_fa( "(verbatim_C) { return #<sc_t>_get_typed( t )->#<sc_t> != NULL; };", sc_spect_name, sc_name );
+            st.push_fa( "{ verbatim_C{ return #<sc_t>_get_typed( t )->#<sc_t> != NULL; } };", sc_spect_name, sc_name );
         }
 
         m xoico_func_s* func = o.push_func_from_sc( host, st.sc );
@@ -275,12 +277,12 @@ func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) =
         st.push_fa( flag_const ? " c" : " m" );
         st.push_fa( " #<sc_t>* o", sc_obj_type );
         o->signature.args.expand_x( host, false, st );
-        st.push_fa( " )) = (verbatim_C) { " );
+        st.push_fa( " )) { verbatim_C {" );
         st.push_fa( "assert( p->#<sc_t> ); ", sc_name );
         if( has_ret ) st.push_fa( "return " );
         st.push_fa( "p->#<sc_t>( o", sc_name );
         o.signature.args.expand_name( host, false, st );
-        st.push_fa( " ); };" );
+        st.push_fa( " ); } };" );
 
         m xoico_func_s* func = o.push_func_from_sc( host, st.sc );
         func.declare_in_expand_forward = false;
@@ -289,14 +291,14 @@ func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) =
     if( o.flag_p )
     {
         m st_s* st = st_s!^^;
-        st.push_fa( "(bl_t p_defines_#<sc_t>( c #<sc_t>* p )) = ", sc_name, sc_spect_name );
+        st.push_fa( "(bl_t p_defines_#<sc_t>( c #<sc_t>* p )) ", sc_name, sc_spect_name );
         if( always_defined )
         {
             st.push_fa( "{ return true; };", sc_name );
         }
         else
         {
-            st.push_fa( "(verbatim_C) { return p->#<sc_t> != NULL; };", sc_name );
+            st.push_fa( "{ verbatim_C{ return p->#<sc_t> != NULL; } };", sc_name );
         }
 
         m xoico_func_s* func = o.push_func_from_sc( host, st.sc );
@@ -309,7 +311,7 @@ func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) =
         st.push_fa( "( #<sc_t> r_#<sc_t>(", sc_ret_typespec, sc_name );
         st.push_fa( " c sr_s* o" );
         o.signature.args.expand_x( host, false, st );
-        st.push_fa( " )) = (verbatim_C) { " );
+        st.push_fa( " )) { verbatim_C {" );
         if( !flag_const ) st.push_fa( "ASSERT( !sr_s_is_const( o ) ); " );
         st.push_fa
         (
@@ -323,7 +325,7 @@ func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) =
         if( has_ret ) st.push_fa( "return " );
         st.push_fa( "p->#<sc_t>( o->o", sc_name );
         o->signature.args.expand_name( host, false, st );
-        st.push_fa( " ); };" );
+        st.push_fa( " ); } };" );
 
         m xoico_func_s* func = o.push_func_from_sc( host, st.sc );
         func.declare_in_expand_forward = false;
@@ -333,14 +335,14 @@ func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) =
     {
         m st_s* st = st_s!^^;
 
-        st.push_fa( "(bl_t r_defines_#<sc_t>( c sr_s* o )) = ", sc_name );
+        st.push_fa( "(bl_t r_defines_#<sc_t>( c sr_s* o )) ", sc_name );
         if( always_defined )
         {
             st.push_fa( "{ return true; };", sc_name );
         }
         else
         {
-            st.push_fa( "(verbatim_C) { return ( (#<sc_t>*)ch_spect_p( o->p, TYPEOF_#<sc_t> ) )->#<sc_t> != NULL; };", sc_spect_name, sc_spect_name, sc_name );
+            st.push_fa( "{ verbatim_C{ return ( (#<sc_t>*)ch_spect_p( o->p, TYPEOF_#<sc_t> ) )->#<sc_t> != NULL; } };", sc_spect_name, sc_spect_name, sc_name );
         }
 
         m xoico_func_s* func = o.push_func_from_sc( host, st.sc );
@@ -366,7 +368,7 @@ func (:s) (er_t setup_functions( m @* o, c xoico_host* host )) =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.finalize =
+func (:s) xoico.finalize
 {
     foreach( m $* func in o.funcs ) func.finalize( host );
     return 0;
@@ -374,7 +376,7 @@ func (:s) xoico.finalize =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_forward =
+func (:s) xoico.expand_forward
 {
     foreach( m $* func in o.funcs ) func.expand_forward( host, indent, sink );
     return 0;
@@ -382,7 +384,7 @@ func (:s) xoico.expand_forward =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_indef_typedef =
+func (:s) xoico.expand_indef_typedef
 {
     if( !o.expandable ) return 0;
     m xoico_compiler_s* compiler = host.compiler();
@@ -397,7 +399,7 @@ func (:s) xoico.expand_indef_typedef =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_spect_declaration =
+func (:s) xoico.expand_spect_declaration
 {
     if( !o.expandable ) return 0;
     m xoico_compiler_s* compiler = host.compiler();
@@ -407,7 +409,7 @@ func (:s) xoico.expand_spect_declaration =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_spect_definition =
+func (:s) xoico.expand_spect_definition
 {
     if( !o.expandable ) return 0;
     m xoico_compiler_s* compiler = host.compiler();
@@ -426,7 +428,7 @@ func (:s) xoico.expand_spect_definition =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_indef_declaration =
+func (:s) xoico.expand_indef_declaration
 {
     if( !o.expandable ) return 0;
     foreach( m $* func in o->funcs ) func.expand_declaration( host, indent + 2, sink );
@@ -435,7 +437,7 @@ func (:s) xoico.expand_indef_declaration =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_definition =
+func (:s) xoico.expand_definition
 {
     if( !o.expandable ) return 0;
     foreach( m $* func in o.funcs ) func.expand_definition( host, indent, sink );
@@ -444,7 +446,7 @@ func (:s) xoico.expand_definition =
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) xoico.expand_init1 =
+func (:s) xoico.expand_init1
 {
     if( !o.expandable ) return 0;
     m xoico_compiler_s* compiler = host.compiler();

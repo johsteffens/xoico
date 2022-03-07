@@ -1,4 +1,4 @@
-/** Author and Copyright 2020 Johannes Bernhard Steffens
+/** Author and Copyright 2022 Johannes Bernhard Steffens
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,14 +15,26 @@
 
 /**********************************************************************************************************************/
 
-/** C-Engine Interface */
-
-/**********************************************************************************************************************/
-
 //----------------------------------------------------------------------------------------------------------------------
 
-feature 'a' er_t translate( c @* o, c xoico_host* host, c xoico_body_s* body, c xoico_signature_s* signature, m x_sink* sink );
-feature 'a' bl_t is_reserved( c @* o, tp_t tp_identifier ) { return false; };
+signature bl_t exists_from_name( c @* o, tp_t name );
+signature sz_t get_index_from_name( c @* o, tp_t name ); // returns -1 if not found
+
+stamp :s = aware x_array
+{
+    xoico_feature_s => [];
+
+    func :.get_index_from_name
+    {
+        foreach( m $* e in o ) if( e.signature.name == name ) return __i;
+        return -1;
+    };
+
+    func :.exists_from_name
+    {
+        return ( o.get_index_from_name( name ) >= 0 );
+    };
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 

@@ -17,7 +17,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( bl_t is_builtin_func( c @* o, tp_t tp_identifier ) ) =
+func (:s)( bl_t is_builtin_func( c @* o, tp_t tp_identifier ) )
 {
     switch( tp_identifier )
     {
@@ -47,7 +47,7 @@ func (:s)
         m :result* result_out,
         m xoico_typespec_s* typespec_out
     )
-) =
+)
 {
     switch( tp_builtin )
     {
@@ -73,7 +73,7 @@ func (:s)
         m :result* result_out,
         m xoico_typespec_s* typespec_out
     )
-) =
+)
 {
     if( result_expr ) // member call
     {
@@ -163,7 +163,7 @@ func (:s)
         m :result* result_out,
         m xoico_typespec_s* typespec_out
     )
-) =
+)
 {
     bl_t has_arg = false;
     bl_t closing_bracket = true;
@@ -281,7 +281,7 @@ func (:s)
         m :result* result_out,
         m xoico_typespec_s* typespec_out
     )
-) =
+)
 {
     bl_t has_arg = false;
     bl_t closing_bracket = true;
@@ -379,7 +379,7 @@ func (:s)
         m :result* result_out,
         m xoico_typespec_s* typespec_out
     )
-) =
+)
 {
     if( result_expr ) // member call
     {
@@ -429,7 +429,7 @@ func (:s)
         m :result* result_out,
         m xoico_typespec_s* typespec_out
     )
-) =
+)
 {
     if( typespec_out ) typespec_out.reset();
 

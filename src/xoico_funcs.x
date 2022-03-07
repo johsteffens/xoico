@@ -30,41 +30,41 @@ stamp :s = aware x_array
 {
     xoico_func_s => [];
 
-    func :.get_index_from_signature_global_name =
+    func :.get_index_from_signature_global_name
     {
         foreach( m $* e in o ) if( e.signature_global_name == signature_global_name ) return __i;
         return -1;
     };
 
-    func :.exists_from_signature_global_name =
+    func :.exists_from_signature_global_name
     {
         return ( o.get_index_from_signature_global_name( signature_global_name ) >= 0 );
     };
 
-    func :.get_index_from_name =
+    func :.get_index_from_name
     {
         foreach( m $* e in o ) if( e.name == name ) return __i;
         return -1;
     };
 
-    func :.exists_from_name =
+    func :.exists_from_name
     {
         return ( o.get_index_from_name( name ) >= 0 );
     };
 
-    func :.get_func_from_signature_global_name =
+    func :.get_func_from_signature_global_name
     {
         sz_t idx = o.get_index_from_signature_global_name( signature_global_name );
         return ( idx >= 0 ) ? o.[ idx ] : NULL;
     };
 
-    func :.get_func_from_name =
+    func :.get_func_from_name
     {
         sz_t idx = o.get_index_from_name( name );
         return ( idx >= 0 ) ? o.[ idx ] : NULL;
     };
 
-    func :.replace_d =
+    func :.replace_d
     {
         ASSERT( idx >= 0 && idx < o.size );
         o.[ idx ] =< NULL;
@@ -73,7 +73,7 @@ stamp :s = aware x_array
         return 0;
     };
 
-    func :.get_hash =
+    func :.get_hash
     {
         tp_t hash = bcore_tp_fold_tp( bcore_tp_init(), o->_ );
         foreach( m $* func in o ) hash = bcore_tp_fold_tp( hash, func.get_hash() );
