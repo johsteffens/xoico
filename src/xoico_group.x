@@ -62,7 +62,7 @@ stamp :s = aware :
     st_s st_name; // global name
     tp_t tp_name; // global name
 
-    func ( void set_name_sc( m @* o, xoico_host* host, sc_t name ) )
+    func void set_name_sc( m @* o, xoico_host* host, sc_t name )
     {
         o.st_name.copy_sc( name );
         o.tp_name = host.entypeof( name );
@@ -134,7 +134,7 @@ stamp :s = aware :
 
     func :.push_item_d { return o.cast( m x_array* ).push_d( item ); };
 
-    func (c @* get_trait_group( c @* o ))
+    func c @* get_trait_group( c @* o )
     {
         return ( o.trait_name != o.tp_name ) ? o.compiler.get_group( o.trait_name ) : NULL;
     };
@@ -319,7 +319,7 @@ func (:s) xoico_host.parse_name_tp
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_default_feature_from_sc( m @* o, sc_t sc ))
+func (:s) er_t push_default_feature_from_sc( m @* o, sc_t sc )
 {
     m $* compiler = o.compiler;
     m $* feature = xoico_feature_s!^;
@@ -340,7 +340,7 @@ func (:s) (er_t push_default_feature_from_sc( m @* o, sc_t sc ))
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc ))
+func (:s) er_t push_default_func_from_sc( m @* o, sc_t sc )
 {
     m $* func = xoico_func_s!^;
     func.expandable = false;
@@ -351,7 +351,7 @@ func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc ))
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t parse_func( m @* o, m x_source* source ))
+func (:s) er_t parse_func( m @* o, m x_source* source )
 {
     m $* func = xoico_func_s!^;
     func.parse( o, source );
@@ -362,7 +362,7 @@ func (:s) (er_t parse_func( m @* o, m x_source* source ))
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_func_d( m @* o, d xoico_func_s* func ))
+func (:s) er_t push_func_d( m @* o, d xoico_func_s* func )
 {
     sz_t idx = o.funcs.get_index_from_name( func.name );
 
@@ -745,7 +745,7 @@ func (:s) xoico.finalize
     o.push_default_feature_from_sc( "d @* clone( c @* o );" );
     o.push_default_feature_from_sc( "void copy( m @* o, c @* src );" );
     o.push_default_feature_from_sc( "void discard( m @* o );" );
-    o.push_default_func_from_sc(    "(d obliv @* t_create( tp_t t ));" );
+    o.push_default_func_from_sc(    "d obliv @* t_create( tp_t t );" );
 
     foreach( m $* e in o ) e.finalize( o );
     foreach( m $* func in o.funcs )
@@ -759,7 +759,7 @@ func (:s) xoico.finalize
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_forward( c @* o, sz_t indent, m x_sink* sink ))
+func (:s) er_t expand_forward( c @* o, sz_t indent, m x_sink* sink )
 {
     if( !o.expandable ) return 0;
     sink.push_fa( " \\\n#rn{ }BCORE_FORWARD_OBJECT( #<sc_t> );", indent, o.st_name.sc );
@@ -770,7 +770,7 @@ func (:s) (er_t expand_forward( c @* o, sz_t indent, m x_sink* sink ))
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_spect_declaration( c @* o, sz_t indent, m x_sink* sink ))
+func (:s) er_t expand_spect_declaration( c @* o, sz_t indent, m x_sink* sink )
 {
     if( !o.expandable ) return 0;
     if( o.short_spect_name )
@@ -841,7 +841,7 @@ func (:s) :.expand_declaration
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_spect_definition( c @* o, sz_t indent, m x_sink* sink ))
+func (:s) er_t expand_spect_definition( c @* o, sz_t indent, m x_sink* sink )
 {
     m $* compiler = o.compiler;
     if( !o.expandable ) return 0;

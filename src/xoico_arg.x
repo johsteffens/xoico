@@ -70,7 +70,7 @@ func (:s) xoico.get_hash
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t relent( m @* o, c xoico_host* host, tp_t tp_obj_type ))
+func (:s) er_t relent( m @* o, c xoico_host* host, tp_t tp_obj_type )
 {
     return o.typespec.relent( host, tp_obj_type );
 };
@@ -82,7 +82,7 @@ func (:s) xoico.convert_transient_types { return o.typespec.convert_transient_ty
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand( c @* o, c xoico_host* host, m x_sink* sink ))
+func (:s) er_t expand( c @* o, c xoico_host* host, m x_sink* sink )
 {
     try( o.typespec.expand( host, sink ) );
     if( o.name )
@@ -95,7 +95,7 @@ func (:s) (er_t expand( c @* o, c xoico_host* host, m x_sink* sink ))
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_x( c @* o, c xoico_host* host, m x_sink* sink ))
+func (:s) er_t expand_x( c @* o, c xoico_host* host, m x_sink* sink )
 {
     try( o.typespec.expand_x( host, sink ) );
     if( o.name )
@@ -108,7 +108,7 @@ func (:s) (er_t expand_x( c @* o, c xoico_host* host, m x_sink* sink ))
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_name( c @* o, c xoico_host* host, m x_sink* sink ))
+func (:s) er_t expand_name( c @* o, c xoico_host* host, m x_sink* sink )
 {
     if( !o.name ) return 0;
     sink.push_fa( "#<sc_t>", host.compiler().nameof( o.name ) );
@@ -117,7 +117,7 @@ func (:s) (er_t expand_name( c @* o, c xoico_host* host, m x_sink* sink ))
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t to_self_item_st( c @* o, c xoico_host* host, m st_s* st ))
+func (:s) er_t to_self_item_st( c @* o, c xoico_host* host, m st_s* st )
 {
     st.clear();
     if( o.typespec.indirection > 1 ) return o.source_point.parse_error_fa( "Indirection > 1 is not allowed as functor argument." );

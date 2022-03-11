@@ -75,7 +75,7 @@ feature 'ap' c x_source_point_s* get_source_point( c @* o ) { ERR_fa( "Not imple
 //----------------------------------------------------------------------------------------------------------------------
 // functions
 
-func (er_t parse_f( m x_source* source, sc_t format ))
+func er_t parse_f( m x_source* source, sc_t format )
 {
     return source.parse_fa( format );
 };
@@ -83,7 +83,7 @@ func (er_t parse_f( m x_source* source, sc_t format ))
 //----------------------------------------------------------------------------------------------------------------------
 
 /// opens an include file from an include directive in parent
-func (er_t embed_file_open( m x_source* parent, sc_t file_name, m x_source** include_source ))
+func er_t embed_file_open( m x_source* parent, sc_t file_name, m x_source** include_source )
 {
     m st_s* folder = bcore_file_folder_path( parent.get_file() )^^;
     if( folder.size == 0 ) folder.push_char( '.' );

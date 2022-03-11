@@ -40,7 +40,7 @@ stamp :s = aware :
         return 0;
     };
 
-    func (m xoico_group_s* push_d( m @* o, d xoico_group_s* group ))
+    func m xoico_group_s* push_d( m @* o, d xoico_group_s* group )
     {
         return o.cast( m x_array* ).push_d( group );
     };

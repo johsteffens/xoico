@@ -18,18 +18,15 @@
 //----------------------------------------------------------------------------------------------------------------------
 
 /// Processes the argument section '(....)' of a function
-func (:s)
+func (:s) er_t trans_function_args
 (
-    er_t trans_function_args
-    (
-        m @* o,
-        m x_source* source,
-        c xoico_func_s* func,
-        c :result* result_object_expr,
-        c xoico_typespec_s* typespec_object,
-        m :result* result,
-        m xoico_typespec_s* typespec_return
-    )
+    m @* o,
+    m x_source* source,
+    c xoico_func_s* func,
+    c :result* result_object_expr,
+    c xoico_typespec_s* typespec_object,
+    m :result* result,
+    m xoico_typespec_s* typespec_return
 )
 {
     tp_t transient_return_type = 0;
@@ -173,18 +170,15 @@ func (:s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)
+func (:s) er_t trans_function
 (
-    er_t trans_function
-    (
-        m @* o,
-        m x_source* source,
-        c xoico_func_s* func,
-        c :result* result_object_expr, // NULL on direct calls
-        c xoico_typespec_s* typespec_object, // NULL on direct calls
-        m :result* result,
-        m xoico_typespec_s* return_typespec
-    )
+    m @* o,
+    m x_source* source,
+    c xoico_func_s* func,
+    c :result* result_object_expr, // NULL on direct calls
+    c xoico_typespec_s* typespec_object, // NULL on direct calls
+    m :result* result,
+    m xoico_typespec_s* return_typespec
 )
 {
     m $* typespec_ret = xoico_typespec_s!^;

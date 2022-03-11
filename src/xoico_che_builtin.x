@@ -17,7 +17,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( bl_t is_builtin_func( c @* o, tp_t tp_identifier ) )
+func (:s) bl_t is_builtin_func( c @* o, tp_t tp_identifier )
 {
     switch( tp_identifier )
     {
@@ -35,18 +35,15 @@ func (:s)( bl_t is_builtin_func( c @* o, tp_t tp_identifier ) )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)
+func (:s) er_t trans_builtin
 (
-    er_t trans_builtin
-    (
-        m @* o,
-        tp_t tp_builtin,
-        m x_source* source,
-        c :result* result_expr,
-        c xoico_typespec_s* typespec_expr,
-        m :result* result_out,
-        m xoico_typespec_s* typespec_out
-    )
+    m @* o,
+    tp_t tp_builtin,
+    m x_source* source,
+    c :result* result_expr,
+    c xoico_typespec_s* typespec_expr,
+    m :result* result_out,
+    m xoico_typespec_s* typespec_out
 )
 {
     switch( tp_builtin )
@@ -62,17 +59,14 @@ func (:s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)
+func (:s) er_t trans_builtin_cast
 (
-    er_t trans_builtin_cast
-    (
-        m @* o,
-        m x_source* source,
-        c :result* result_expr,
-        c xoico_typespec_s* typespec_expr,
-        m :result* result_out,
-        m xoico_typespec_s* typespec_out
-    )
+    m @* o,
+    m x_source* source,
+    c :result* result_expr,
+    c xoico_typespec_s* typespec_expr,
+    m :result* result_out,
+    m xoico_typespec_s* typespec_out
 )
 {
     if( result_expr ) // member call
@@ -152,17 +146,14 @@ func (:s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)
+func (:s) er_t trans_builtin_scope
 (
-    er_t trans_builtin_scope
-    (
-        m @* o,
-        m x_source* source,
-        c :result* result_expr,
-        c xoico_typespec_s* typespec_expr,
-        m :result* result_out,
-        m xoico_typespec_s* typespec_out
-    )
+    m @* o,
+    m x_source* source,
+    c :result* result_expr,
+    c xoico_typespec_s* typespec_expr,
+    m :result* result_out,
+    m xoico_typespec_s* typespec_out
 )
 {
     bl_t has_arg = false;
@@ -270,17 +261,14 @@ func (:s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)
+func (:s) er_t trans_builtin_t_scope
 (
-    er_t trans_builtin_t_scope
-    (
-        m @* o,
-        m x_source* source,
-        c :result* result_expr,
-        c xoico_typespec_s* typespec_expr,
-        m :result* result_out,
-        m xoico_typespec_s* typespec_out
-    )
+    m @* o,
+    m x_source* source,
+    c :result* result_expr,
+    c xoico_typespec_s* typespec_expr,
+    m :result* result_out,
+    m xoico_typespec_s* typespec_out
 )
 {
     bl_t has_arg = false;
@@ -368,17 +356,14 @@ func (:s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)
+func (:s) er_t trans_builtin_fork
 (
-    er_t trans_builtin_fork
-    (
-        m @* o,
-        m x_source* source,
-        c :result* result_expr,
-        c xoico_typespec_s* typespec_expr,
-        m :result* result_out,
-        m xoico_typespec_s* typespec_out
-    )
+    m @* o,
+    m x_source* source,
+    c :result* result_expr,
+    c xoico_typespec_s* typespec_expr,
+    m :result* result_out,
+    m xoico_typespec_s* typespec_out
 )
 {
     if( result_expr ) // member call
@@ -418,17 +403,14 @@ func (:s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)
+func (:s) er_t trans_builtin_try
 (
-    er_t trans_builtin_try
-    (
-        m @* o,
-        m x_source* source,
-        c :result* result_expr,
-        c xoico_typespec_s* typespec_expr,
-        m :result* result_out,
-        m xoico_typespec_s* typespec_out
-    )
+    m @* o,
+    m x_source* source,
+    c :result* result_expr,
+    c xoico_typespec_s* typespec_expr,
+    m :result* result_out,
+    m xoico_typespec_s* typespec_out
 )
 {
     if( typespec_out ) typespec_out.reset();

@@ -80,21 +80,21 @@ stamp :s = aware :
 
     func xoico.get_source_point { return o.source_point; };
 
-    func (bl_t returns_a_value( c @* o )) { return !o.typespec_ret.is_void(); };
+    func bl_t returns_a_value( c @* o ) { return !o.typespec_ret.is_void(); };
 
-    func (er_t expand_ret( c @* o, c xoico_host* host, m x_sink* sink ))
+    func er_t expand_ret( c @* o, c xoico_host* host, m x_sink* sink )
     {
         o.typespec_ret.expand( host, sink );
         return 0;
     };
 
-    func (er_t expand_ret_x( c @* o, c xoico_host* host, m x_sink* sink ))
+    func er_t expand_ret_x( c @* o, c xoico_host* host, m x_sink* sink )
     {
         o.typespec_ret.expand_x( host, sink );
         return 0;
     };
 
-    func (c xoico_arg_s* get_arg_by_name( c @* o, tp_t name ))
+    func c xoico_arg_s* get_arg_by_name( c @* o, tp_t name )
     {
         return ( o.arg_o && o.arg_o.name == name ) ? o.arg_o : o.args.get_arg_by_name( name );
     };

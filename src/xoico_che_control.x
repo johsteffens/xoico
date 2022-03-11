@@ -17,7 +17,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( bl_t is_control_name( c @* o, tp_t tp_identifier ) )
+func (:s) bl_t is_control_name( c @* o, tp_t tp_identifier )
 {
     switch( tp_identifier )
     {
@@ -43,7 +43,7 @@ func (:s)( bl_t is_control_name( c @* o, tp_t tp_identifier ) )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control( m @* o, tp_t tp_control, m x_source* source, m :result* result ) )
+func (:s) er_t trans_control( m @* o, tp_t tp_control, m x_source* source, m :result* result )
 {
     switch( tp_control )
     {
@@ -72,7 +72,7 @@ func (:s)( er_t trans_control( m @* o, tp_t tp_control, m x_source* source, m :r
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control_for( m @* o, m x_source* source, m :result* result ) )
+func (:s) er_t trans_control_for( m @* o, m x_source* source, m :result* result )
 {
     o.inc_block();
     o.stack_block_get_top_unit().break_ledge = true;
@@ -105,7 +105,7 @@ func (:s)( er_t trans_control_for( m @* o, m x_source* source, m :result* result
  *  -->
  * { <typespec> __a = (match)<arr_expr>; for( sz_t __i = 0; __i < __a->size; __i++ ) [if( <condition> ) ] { <typespec> var = (match)__a->data[ __i ][.element_path]; <foreach-statement> }  }
  */
-func (:s)( er_t trans_control_foreach( m @* o, m x_source* source, m :result* result ) )
+func (:s) er_t trans_control_foreach( m @* o, m x_source* source, m :result* result )
 {
     o.inc_block();
     source.parse_fa( "foreach ( " );
@@ -244,7 +244,7 @@ func (:s)( er_t trans_control_foreach( m @* o, m x_source* source, m :result* re
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control_if( m @* o, m x_source* source, m :result* result ) )
+func (:s) er_t trans_control_if( m @* o, m x_source* source, m :result* result )
 {
     o.trans( source, "if", result );
     o.trans_whitespace( source, result );
@@ -265,7 +265,7 @@ func (:s)( er_t trans_control_if( m @* o, m x_source* source, m :result* result 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control_while( m @* o, m x_source* source, m :result* result ) )
+func (:s) er_t trans_control_while( m @* o, m x_source* source, m :result* result )
 {
     o.trans( source, "while", result );
     o.trans_whitespace( source, result );
@@ -286,7 +286,7 @@ func (:s)( er_t trans_control_while( m @* o, m x_source* source, m :result* resu
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control_do( m @* o, m x_source* source, m :result* result ) )
+func (:s) er_t trans_control_do( m @* o, m x_source* source, m :result* result )
 {
     o.trans( source, "do", result );
     o.trans_whitespace( source, result );
@@ -310,7 +310,7 @@ func (:s)( er_t trans_control_do( m @* o, m x_source* source, m :result* result 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control_else( m @* o, m x_source* source, m :result* result ) )
+func (:s) er_t trans_control_else( m @* o, m x_source* source, m :result* result )
 {
     o.trans( source, "else", result );
     o.trans_whitespace( source, result );
@@ -327,7 +327,7 @@ func (:s)( er_t trans_control_else( m @* o, m x_source* source, m :result* resul
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control_switch( m @* o, m x_source* source, m :result* result ) )
+func (:s) er_t trans_control_switch( m @* o, m x_source* source, m :result* result )
 {
     o.trans( source, "switch", result );
     o.trans_whitespace( source, result );
@@ -341,7 +341,7 @@ func (:s)( er_t trans_control_switch( m @* o, m x_source* source, m :result* res
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control_case( m @* o, m x_source* source, m :result* result ) )
+func (:s) er_t trans_control_case( m @* o, m x_source* source, m :result* result )
 {
     o.trans( source, "case", result );
     o.trans_expression( source, result, NULL );
@@ -354,7 +354,7 @@ func (:s)( er_t trans_control_case( m @* o, m x_source* source, m :result* resul
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control_default( m @* o, m x_source* source, m :result* result ) )
+func (:s) er_t trans_control_default( m @* o, m x_source* source, m :result* result )
 {
     o.trans( source, "default", result );
     o.trans_whitespace( source, result );
@@ -366,7 +366,7 @@ func (:s)( er_t trans_control_default( m @* o, m x_source* source, m :result* re
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control_break( m @* o, m x_source* source, m :result* result ) )
+func (:s) er_t trans_control_break( m @* o, m x_source* source, m :result* result )
 {
     source.parse_fa( "break ;" );
 
@@ -393,7 +393,7 @@ func (:s)( er_t trans_control_break( m @* o, m x_source* source, m :result* resu
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)( er_t trans_control_return( m @* o, tp_t tp_control, m x_source* source, m :result* result ) )
+func (:s) er_t trans_control_return( m @* o, tp_t tp_control, m x_source* source, m :result* result )
 {
     o.has_completion = true;
 

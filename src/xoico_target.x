@@ -96,7 +96,7 @@ stamp :s = aware :
         return 0;
     };
 
-    func (void push_d( m @* o, d xoico_source_s* source ))
+    func void push_d( m @* o, d xoico_source_s* source )
     {
         o.cast( m x_array* ).push_d( source );
     };
@@ -166,7 +166,7 @@ func (:s) :.parse_from_path
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (tp_t get_hash( c @* o ))
+func (:s) tp_t get_hash( c @* o )
 {
     tp_t hash = bcore_tp_init();
     hash = bcore_tp_fold_tp( hash, o.pre_hash );
@@ -199,7 +199,7 @@ func (:s) (tp_t get_hash( c @* o ))
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if target's dependencies are cyclic
-func (:s) (bl_t is_cyclic_recursive( m @* o ))
+func (:s) bl_t is_cyclic_recursive( m @* o )
 {
     if( o.flag ) return true;
     o.flag = true;
@@ -248,7 +248,7 @@ func (:s) :.set_dependencies
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_update_time( c @* o, sz_t indent, m x_sink* sink ))
+func (:s) er_t expand_update_time( c @* o, sz_t indent, m x_sink* sink )
 {
     m bcore_cday_utc_s* time = bcore_cday_utc_s!^^;
     bcore_cday_utc_s_from_system( time );
@@ -258,7 +258,7 @@ func (:s) (er_t expand_update_time( c @* o, sz_t indent, m x_sink* sink ))
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_heading( c @* o, sz_t indent, m x_sink* sink ))
+func (:s) er_t expand_heading( c @* o, sz_t indent, m x_sink* sink )
 {
     sink.push_fa( "/** This file was generated from xoila source code.\n" );
     sink.push_fa( " *  Compiling Agent : XOICO (C) 2020 ... 2022 J.B.Steffens\n" );
@@ -307,7 +307,7 @@ func (:s) (er_t expand_heading( c @* o, sz_t indent, m x_sink* sink ))
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_h( c @* o, sz_t indent, m x_sink* sink, mutable tp_t* body_signature ))
+func (:s) er_t expand_h( c @* o, sz_t indent, m x_sink* sink, mutable tp_t* body_signature )
 {
     o.expand_update_time( indent, sink );
 
@@ -360,14 +360,14 @@ func (:s) (er_t expand_h( c @* o, sz_t indent, m x_sink* sink, mutable tp_t* bod
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_init1( c @* o, sz_t indent, m x_sink* sink ))
+func (:s) er_t expand_init1( c @* o, sz_t indent, m x_sink* sink )
 {
     return 0;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_c( c @* o, sz_t indent, m x_sink* sink, mutable tp_t* body_signature ))
+func (:s) er_t expand_c( c @* o, sz_t indent, m x_sink* sink, mutable tp_t* body_signature )
 {
     st_s^ sink_buf;
     tp_t body_hash = bcore_tp_init();
@@ -477,7 +477,7 @@ func (:s) (er_t expand_c( c @* o, sz_t indent, m x_sink* sink, mutable tp_t* bod
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t expand_state( c @* o, m x_sink* sink ))
+func (:s) er_t expand_state( c @* o, m x_sink* sink )
 {
     sink.push_fa( "HKEYOF_#<sc_t> 0x#pl16'0'{#X<tp_t>}\n", o.name.sc, o.get_hash() );
     return 0;
@@ -558,7 +558,7 @@ func (:s) :.expand_phase1
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (er_t write_with_signature( sc_t file, c st_s* data ))
+func er_t write_with_signature( sc_t file, c st_s* data )
 {
     tp_t hash = bcore_tp_fold_sc( bcore_tp_init(), data.sc );
     m x_sink* sink = bcore_file_open_sink( file )^^;

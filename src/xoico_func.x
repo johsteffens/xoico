@@ -83,7 +83,7 @@ func (:s) :.get_hash
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t freeze_global_name( m @* o, c xoico_host* host ))
+func (:s) er_t freeze_global_name( m @* o, c xoico_host* host )
 {
     if( o.global_name ) return 0;
     m $* compiler = host.compiler();
@@ -108,6 +108,8 @@ func (:s) xoico.parse
 
     if( is_enclosed_signature )
     {
+        return source.parse_error_fa( "Signature-enclosure '( ...sig... )' is deprecated." );
+
         signature.parse( host, source );
         source.parse_fa( " ) " );
     }
@@ -193,7 +195,7 @@ func (:s) xoico.parse
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_flect_decl_to_sink( c @* o, c xoico_host* host, m x_sink* sink ))
+func (:s) er_t push_flect_decl_to_sink( c @* o, c xoico_host* host, m x_sink* sink )
 {
     m $* compiler = host.compiler();
     sink.push_sc( "func " );

@@ -38,7 +38,7 @@ stamp :target_s = aware :
      *  If no output folder was defined anywhere, the source folder is used as output.
      */
     st_s => output_folder;
-    func (st_s* root_output_folder(@* o))
+    func st_s* root_output_folder(@* o)
     {
         st_s* folder = ( o.parent_ ) ? o.parent_.root_output_folder() : NULL;
         return folder ? folder : o.output_folder;

@@ -17,16 +17,13 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)
+func (:s) er_t trans_typespec_member
 (
-    er_t trans_typespec_member
-    (
-        m @* o,
-        m x_source* source,
-        m :result* result,
-        c xoico_typespec_s*  in_typespec, // required
-        m xoico_typespec_s* out_typespec  // optional
-    )
+    m @* o,
+    m x_source* source,
+    m :result* result,
+    c xoico_typespec_s*  in_typespec, // required
+    m xoico_typespec_s* out_typespec  // optional
 )
 {
     if( source.parse_bl( "#?'->'" ) )
@@ -244,16 +241,13 @@ func (:s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)
+func (:s) er_t trans_typespec_array_subscript
 (
-    er_t trans_typespec_array_subscript
-    (
-        m @* o,
-        m x_source* source,
-        m :result* result,
-        c xoico_typespec_s*  in_typespec, // required
-        m xoico_typespec_s* out_typespec  // optional
-    )
+    m @* o,
+    m x_source* source,
+    m :result* result,
+    c xoico_typespec_s*  in_typespec, // required
+    m xoico_typespec_s* out_typespec  // optional
 )
 {
     source.parse_fa( "[" );
@@ -288,16 +282,13 @@ func (:s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)
+func (:s) er_t trans_typespec_create
 (
-    er_t trans_typespec_create
-    (
-        m @* o,
-        m x_source* source,
-        m :result* result,
-        c xoico_typespec_s*  in_typespec, // required
-        m xoico_typespec_s* out_typespec  // optional
-    )
+    m @* o,
+    m x_source* source,
+    m :result* result,
+    c xoico_typespec_s*  in_typespec, // required
+    m xoico_typespec_s* out_typespec  // optional
 )
 {
     source.parse_fa( "!" );
@@ -330,16 +321,13 @@ func (:s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)
+func (:s) er_t trans_typespec_test_presence
 (
-    er_t trans_typespec_test_presence
-    (
-        m @* o,
-        m x_source* source,
-        m :result* result,
-        c xoico_typespec_s*  in_typespec, // required
-        m xoico_typespec_s* out_typespec  // optional
-    )
+    m @* o,
+    m x_source* source,
+    m :result* result,
+    c xoico_typespec_s*  in_typespec, // required
+    m xoico_typespec_s* out_typespec  // optional
 )
 {
     source.parse_fa( "?" );
@@ -367,16 +355,13 @@ func (:s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)
+func (:s) er_t trans_typespec_attach
 (
-    er_t trans_typespec_attach
-    (
-        m @* o,
-        m x_source* source,
-        m :result* result,
-        c xoico_typespec_s*  in_typespec, // required
-        m xoico_typespec_s* out_typespec  // optional
-    )
+    m @* o,
+    m x_source* source,
+    m :result* result,
+    c xoico_typespec_s*  in_typespec, // required
+    m xoico_typespec_s* out_typespec  // optional
 )
 {
     if( in_typespec.indirection != 1 )
@@ -436,16 +421,13 @@ func (:s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)
+func (:s) er_t trans_typespec_assign
 (
-    er_t trans_typespec_assign
-    (
-        m @* o,
-        m x_source* source,
-        m :result* result,
-        c xoico_typespec_s*  in_typespec, // required
-        m xoico_typespec_s* out_typespec  // optional
-    )
+    m @* o,
+    m x_source* source,
+    m :result* result,
+    c xoico_typespec_s*  in_typespec, // required
+    m xoico_typespec_s* out_typespec  // optional
 )
 {
     source.parse_fa( "=" );
@@ -494,16 +476,13 @@ func (:s)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s)
+func (:s) er_t trans_typespec_expression
 (
-    er_t trans_typespec_expression
-    (
-        m @* o,
-        m x_source* source,
-        m :result* result,
-        c xoico_typespec_s*  in_typespec, // required
-        m xoico_typespec_s* out_typespec  // optional
-    )
+    m @* o,
+    m x_source* source,
+    m :result* result,
+    c xoico_typespec_s*  in_typespec, // required
+    m xoico_typespec_s* out_typespec  // optional
 )
 {
     if( out_typespec ) out_typespec.type = 0;

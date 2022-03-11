@@ -322,7 +322,7 @@ func er_t push_fv( m @* o, sc_t format, va_list args )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func( er_t push_fa( m @* o, sc_t format, ... ))
+func er_t push_fa( m @* o, sc_t format, ... )
 {
     va_list args;
     va_start( args, format );
@@ -333,7 +333,7 @@ func( er_t push_fa( m @* o, sc_t format, ... ))
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func( er_t copy_fv( m @* o, sc_t format, va_list args ))
+func er_t copy_fv( m @* o, sc_t format, va_list args )
 {
     xoico_che_result_a_clear( o );
     =o.push_fv( format, args );

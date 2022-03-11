@@ -134,7 +134,7 @@ stamp :self_item_s =
     bl_t arg_of_initializer; // this item is argument of the compact initializer
     bl_t copy_from_initializer; // this shall be copied (cloned) from the the compact initializer
 
-    func (er_t to_bcore_self_item( @* o, bcore_self_s* self, m bcore_self_item_s* item ))
+    func er_t to_bcore_self_item( @* o, bcore_self_s* self, m bcore_self_item_s* item )
     {
         er_t er = bcore_self_item_s_parse_src( item, sr_awc( x_source_create_from_st( o.st )^ ), self, false );
 
@@ -157,7 +157,7 @@ stamp :arr_self_item_s = x_array { :self_item_s []; };
 //----------------------------------------------------------------------------------------------------------------------
 
 /// removes comments, excessive whitespaces; trailing whitespaces; keeps strings but replaces '"' with '\"'
-func (d st_s* create_embedded_string( c st_s* s ))
+func d st_s* create_embedded_string( c st_s* s )
 {
     d st_s* out = st_s!;
     for( sz_t i = 0; i < s.size; i++ )
@@ -221,7 +221,7 @@ func (d st_s* create_embedded_string( c st_s* s ))
 /** Creates a structured multiline string for direct code embedding
  *  from an embedded string
  */
-func (d st_s* create_structured_multiline_string( c sc_t s, sz_t indent ))
+func d st_s* create_structured_multiline_string( c sc_t s, sz_t indent )
 {
     d st_s* out = st_s!;
     sz_t ind = indent;
@@ -292,7 +292,7 @@ func (d st_s* create_structured_multiline_string( c sc_t s, sz_t indent ))
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (sc_t get_rel_name_sc( c @* o ))
+func (:s) sc_t get_rel_name_sc( c @* o )
 {
     sc_t group_name = o.group.st_name.sc;
     sc_t stamp_name = o.st_name.sc;
@@ -363,7 +363,7 @@ func (:s) :.parse_wrap
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t parse_extend( m @* o, m x_source* source ))
+func (:s) er_t parse_extend( m @* o, m x_source* source )
 {
     m $* buf = st_s!^;
     m $* self = bcore_self_s!^;
@@ -472,7 +472,7 @@ func (:s) (er_t parse_extend( m @* o, m x_source* source ))
 
 //----------------------------------------------------------------------------------------------------------------------
 
-func (:s) (er_t push_default_func_from_sc( m @* o, sc_t sc ))
+func (:s) er_t push_default_func_from_sc( m @* o, sc_t sc )
 {
     m $* compiler = o.group.compiler;
     m $* func = xoico_func_s!^;
@@ -516,7 +516,7 @@ func (:s) :.push_compact_initializer_func
 
     st_s^ sig;
     st_s^ body;
-    sig.push_fa( "(o _(m@* o" );
+    sig.push_fa( "o _(m@* o" );
 
     m $* self = bcore_self_s!^; self.type = o.tp_name; self.trait = o.trait_name;
 
@@ -573,7 +573,7 @@ func (:s) :.push_compact_initializer_func
             }
         }
     }
-    sig.push_fa( "))" );
+    sig.push_fa( ")" );
 
     st_s^ st_func.push_fa
     (
@@ -717,12 +717,6 @@ func (:s) xoico.finalize
 
                 if( verbatim_C{ !item->flags.f_aware } && verbatim_C{ !item->flags.f_obliv } && !bcore_flect_caps_is_typed( item.caps ) )
                 {
-//                    return self_item.source_point.parse_error_fa
-//                    (
-//                        "Element type is a group. Please use type-specifier 'obliv' or 'aware'. "
-//                        "In future 'aware' is assumed in case awareness was not specified.\n"
-//                    );
-
                     /// group reference: when type awareness is not specified but 'aware' is a legal option, assume 'aware'.
                     self_item.st.insert_sc( 0, "aware " );
                 }

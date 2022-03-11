@@ -289,13 +289,13 @@ stamp :s = aware :
         }
     };
 
-    func (void push_d( m @* o, d xoico_target_s* target ))
+    func void push_d( m @* o, d xoico_target_s* target )
     {
         o.cast( m x_array* ).push_d( target );
     };
 
     /// clears flags in targets
-    func (void clear_flags( m @* o )) { foreach( m $* e in o ) e.flag = false; };
+    func void clear_flags( m @* o ) { foreach( m $* e in o ) e.flag = false; };
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -362,7 +362,7 @@ func (:s) :.register_func
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if correct file signature could be verified
-func (bl_t is_correctly_signed( st_s* data ))
+func bl_t is_correctly_signed( st_s* data )
 {
     if( data.size < bcore_strlen( "// XOICO_FILE_SIGNATURE" ) ) return false;
 
@@ -387,7 +387,7 @@ func (bl_t is_correctly_signed( st_s* data ))
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if correct file signature could be verified
-func (tp_t body_signature( st_s* data ))
+func tp_t body_signature( st_s* data )
 {
     // search from bottom upwards ...
     sz_t idx = 0;
@@ -514,7 +514,7 @@ func (:s) xoico.expand_setup
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if a file will be modified in function xoico_compiler_s_expand
-func (:s) (bl_t to_be_modified( c @* o ))
+func (:s) bl_t to_be_modified( c @* o )
 {
     for( sz_t i = 0; i < o->size; i++ )
     {
@@ -526,7 +526,7 @@ func (:s) (bl_t to_be_modified( c @* o ))
 //----------------------------------------------------------------------------------------------------------------------
 
 /// returns true if a file was modified
-func (:s) (er_t expand( m @* o, m bl_t* p_modified ))
+func (:s) er_t expand( m @* o, m bl_t* p_modified )
 {
     bl_t modified = false;
 
