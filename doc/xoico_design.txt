@@ -517,9 +517,11 @@ FEATURES, BUGS ...
 - (done) remove function body prefixes: disallow prefixes (try), (verbatim_C)
 - (done) disallow explicit function body assignemnt
 
-TODO:
+- (done) single-statement-function: if a function's body' contains only a single statement, it can be defined without braces { ... }
+- (done) single-statement-function: test blm behavior extensively
+- (fixed) bug: automatic cast of function return on a function call is invoked far too often because only typespec hash values are compared
 
-- single-statement-function: if a function's body' contains only a single statement, it can be defined without braces { ... }
+TODO:
 
 - introduce a functor:
   syntax on group level.

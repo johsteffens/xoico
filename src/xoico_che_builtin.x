@@ -174,7 +174,7 @@ func (:s)
     {
         if( source.parse_bl( "#?'^'" ) )
         {
-            level = source.parse_bl( "#?'^'" ) ? 0 : o.level;
+            level = source.parse_bl( "#?'^'" ) ? 0 : o.block_level;
 
             if( !o.waive_local_scope_operator_creates_implicit_block )
             {
@@ -221,7 +221,7 @@ func (:s)
         }
         else if( tp_identifier == scope_local~ )
         {
-            level = o.level;
+            level = o.block_level;
         }
         else if( tp_identifier == scope_func~ )
         {
@@ -330,7 +330,7 @@ func (:s)
         }
         else if( tp_identifier == scope_local~ )
         {
-            level = o.level;
+            level = o.block_level;
         }
         else if( tp_identifier == scope_func~ )
         {

@@ -336,7 +336,7 @@ func (:s) xoico.get_hash
 
 func (:s) :.parse_expression
 {
-    if( source.parse_bl( " #=?'{'" ) || source.parse_bl( " #=?'('" ) )
+    if( source.parse_bl( " #=?'{'" ) )
     {
         o.code =< xoico_body_code_s!;
         o.code.parse( host, source );
@@ -344,9 +344,15 @@ func (:s) :.parse_expression
     }
     else
     {
+        s3_t index = source.get_index();
+
         m $* compiler = host.compiler();
-        tp_t tp_name = 0;
-        host.parse_name_tp( source, tp_name );
+//        tp_t tp_name = 0;
+//        host.parse_name_tp( source, tp_name );
+
+        st_s^ st_name;
+        host.parse_name_st( source, st_name );
+        tp_t tp_name = btypeof( st_name.sc );
 
         // if name_buf refers to another body
         if( compiler.is_body( tp_name ) )
@@ -355,9 +361,16 @@ func (:s) :.parse_expression
             o.code =< body.code.clone();
             o.go_inline = body.go_inline;
         }
-        else
+        else // at this point we assume a single statement body
         {
-            return source.parse_error_fa( "Cannot resolve body name '#<sc_t>'\n", host.nameof( tp_name ) );
+            source.set_index( index );
+            o.code =< xoico_body_code_s!;
+            o.code.parse_single_statement( host, source );
+            o.go_inline = o.code.single_line;
+
+
+
+            //return source.parse_error_fa( "Cannot resolve body name '#<sc_t>'\n", host.nameof( tp_name ) );
         }
     }
     return 0;
@@ -369,14 +382,16 @@ func (:s) xoico.parse
 {
     o.source_point.setup_from_source( source );
 
-    // using assignment symbol is optional
-//    if( source.parse_bl( " #?'='" ) ) {};
-
     if( source.parse_bl( " #=?'='" ) )
     {
+        s3_t index = source.get_index();
         if( source.parse_bl( "= #?'{'" ) )
         {
-            return source.parse_error_fa( "Explicit block assignment is deprecated.\n" );
+            return source.parse_error_fa( "Explicit block assignment '=' is deprecated. Remove assignment operator.\n" );
+        }
+        else // assignment can be used as completion in a single-statement body
+        {
+            source.set_index( index );
         }
     }
 

@@ -191,13 +191,19 @@ func (:s)
     m $* result_args = :result_arr_s!^;
 
     o.trans_function_args( source, func, result_object_expr, typespec_object, result_args, typespec_ret );
-    bl_t cast_return_type = ( typespec_ret.get_hash() != func.signature.typespec_ret.get_hash() );
 
     m $* result_expression = :result_arr_s!^;
     result_expression.push_sc( o.nameof( func.global_name ) );
     result_expression.push_result_d( result_args.fork() );
 
-    if( cast_return_type )
+    /** Casting can become necessary when the functions declared return typespec is be less specific than
+     *  the expected return type due to transient types.
+     */
+    if
+    (
+        typespec_ret.type        != func.signature.typespec_ret.type ||
+        typespec_ret.indirection != func.signature.typespec_ret.indirection
+    )
     {
         result.push_result_d( :result_cast_s!( o, typespec_ret.clone(), result_expression.fork() ).reduce() );
     }

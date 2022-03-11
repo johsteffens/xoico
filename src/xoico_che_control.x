@@ -197,7 +197,7 @@ func (:s)( er_t trans_control_foreach( m @* o, m x_source* source, m :result* re
     o.dec_block();
 
     result.push_fa( "{" );
-    d$* blm_init = :result_blm_init_s!( o.level );
+    d$* blm_init = :result_blm_init_s!( o.block_level );
     result.push_result_d( blm_init );
 
     o.push_typespec( typespec_arr, result );

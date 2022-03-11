@@ -17,7 +17,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
-feature o clear( m @* o )                         { =o; }
+feature o clear( m @* o )                         =o;
 feature er_t push_char( m @* o, char c )          { ERR_fa( "Not implemented." ); =0; }
 feature er_t push_sc( m @* o, sc_t sc )           { ERR_fa( "Not implemented." ); =0; }
 feature er_t push_st( m @* o, c st_s* st )        { ERR_fa( "Not implemented." ); =0; }
@@ -72,18 +72,18 @@ stamp :arr_s
     :adl_s adl;
     bl_t active = true;
 
-    func :.clear { o.adl.clear(); =o; }
-    func :.activate { o.active = true; =o; }
-    func :.deactivate { o.active = false; =o; }
+    func :.clear      o.adl.clear();
+    func :.activate   o.active = true;
+    func :.deactivate o.active = false;
 
-    func m :* last(       m @* o ) { = ( o.adl.size == 0 )         ? o.adl.push_d( :plain_s! ) : o.adl.[ o.adl.size - 1 ]; }
-    func m :* last_plain( m @* o ) { = ( o.last()._ != :plain_s~ ) ? o.adl.push_d( :plain_s! ) : o.adl.[ o.adl.size - 1 ]; }
+    func m :* last(       m @* o ) = ( o.adl.size == 0 )         ? o.adl.push_d( :plain_s! ) : o.adl.[ o.adl.size - 1 ];
+    func m :* last_plain( m @* o ) = ( o.last()._ != :plain_s~ ) ? o.adl.push_d( :plain_s! ) : o.adl.[ o.adl.size - 1 ];
 
-    func :.push_char { = o.last_plain().push_char( c ); }
-    func :.push_sc   { = o.last_plain().push_sc( sc );  }
-    func :.push_st   { = o.last_plain().push_st( st );  }
-    func :.push_result_d { = o.adl.push_d( result ); }
-    func :.push_result_c { = o.adl.push_c( result ); }
+    func :.push_char     = o.last_plain().push_char( c );
+    func :.push_sc       = o.last_plain().push_sc( sc );
+    func :.push_st       = o.last_plain().push_st( st );
+    func :.push_result_d = o.adl.push_d( result );
+    func :.push_result_c = o.adl.push_c( result );
 
     func :.to_sink
     {
@@ -98,9 +98,9 @@ stamp :arr_s
 
     func :.get_cast
     {
-        foreach( m $* e in o.adl ) if( e._ != :whitespace_s~ ) =e.get_cast( pp_cast );
+        foreach( m $* e in o.adl ) if( e._ != :whitespace_s~ ) = e.get_cast( pp_cast );
         if( pp_cast ) pp_cast.1 = NULL;
-        =false;
+        = false;
     }
 }
 
@@ -111,10 +111,10 @@ stamp :block_s( sz_t level, bl_t is_using_blm )
     :arr_s arr;
     bl_t is_root = false;
     hidden @* parent;
-    func :.clear { o.arr.clear(); =o; }
-    func :.push_char { =o.arr.push_char( c ); }
-    func :.push_sc   { =o.arr.push_sc( sc );  }
-    func :.push_st   { =o.arr.push_st( st );  }
+    func :.clear       o.arr.clear();
+    func :.push_char = o.arr.push_char( c );
+    func :.push_sc   = o.arr.push_sc( sc );
+    func :.push_st   = o.arr.push_st( st );
 
     func :.push_result_d
     {
@@ -135,12 +135,12 @@ stamp :block_s( sz_t level, bl_t is_using_blm )
 
     func bl_t is_using_blm_until_level( c @* o, sz_t level )
     {
-        if( level > o.level ) =false;
-        if( o.is_using_blm )  =true;
-        if( o.is_root )       =false;
+        if( level > o.level ) = false;
+        if( o.is_using_blm )  = true;
+        if( o.is_root )       = false;
 
         ASSERT( o.parent );
-        =o.parent.is_using_blm_until_level( level );
+        = o.parent.is_using_blm_until_level( level );
     }
 }
 
@@ -149,9 +149,9 @@ stamp :block_s( sz_t level, bl_t is_using_blm )
 stamp :blm_init_s( sz_t level )
 {
     bl_t active = true;
-    func :.to_sink { if( o.active ) sink.push_fa( "BLM_INIT_LEVEL(#<sz_t>);", o.level ); =0; }
-    func :.activate   { o.active = true;  =o; }
-    func :.deactivate { o.active = false; =o; }
+    func :.to_sink    { if( o.active ) sink.push_fa( "BLM_INIT_LEVEL(#<sz_t>);", o.level ); =0; }
+    func :.activate   o.active = true;
+    func :.deactivate o.active = false;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -160,8 +160,8 @@ stamp :blm_down_s
 {
     bl_t active = true;
     func :.to_sink    { if( o.active ) sink.push_sc( "BLM_DOWN();" ); =0; }
-    func :.activate   { o.active = true;  =o; }
-    func :.deactivate { o.active = false; =o; }
+    func :.activate   o.active = true;
+    func :.deactivate o.active = false;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -169,8 +169,8 @@ stamp :blm_down_s
 stamp :cast_s( m xoico_che_s* che, d xoico_typespec_s* target_typespec, d aware xoico_che_result* expression )
 {
     bl_t active = true;
-    func :.activate   { o.active = true;  =o; }
-    func :.deactivate { o.active = false; =o; }
+    func :.activate   o.active = true;
+    func :.deactivate o.active = false;
 
     func :.get_cast
     {
@@ -277,7 +277,7 @@ stamp :break_s( sz_t ledge_level ) =
 stamp :return_s( m xoico_che_s* che, d aware xoico_che_result* return_expression ) =
 {
     hidden :block_s* parent;
-    func :.set_parent_block { o.parent = parent; };
+    func :.set_parent_block o.parent = parent;
 
     func :.to_sink
     {

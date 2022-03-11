@@ -247,7 +247,7 @@ stamp :s = aware :
 
     /// runtime state
 
-    hidden sz_t level;
+    hidden sz_t block_level;
     hidden sz_t try_block_level;
     hidden :stack_var_s   stack_var;
     hidden :stack_block_s stack_block;
@@ -296,21 +296,21 @@ stamp :s = aware :
     {
         o.stack_block.clear();
         o.stack_block.push();
-        o.level = 0;
+        o.block_level = 0;
     };
 
     func :.inc_block
     {
         o.stack_block.push();
-        o->level++;
-        o.stack_block_get_top_unit().level = o.level;
+        o->block_level++;
+        o.stack_block_get_top_unit().level = o.block_level;
     };
 
     func :.dec_block
     {
-        o.stack_var.pop_level( o->level );
-        o.level--;
-        ASSERT( o.level >= 0 );
+        o.stack_var.pop_level( o.block_level );
+        o.block_level--;
+        ASSERT( o.block_level >= 0 );
         o.stack_block.pop();
     };
 
@@ -334,7 +334,7 @@ stamp :s = aware :
     func :.push_typedecl
     {
         m :stack_var_unit_s* unit = :stack_var_unit_s!^^;
-        unit.level = o->level;
+        unit.level = o.block_level;
         unit.name = name;
         unit.typespec.copy( typespec );
         o.stack_var.push_unit( unit );
@@ -1697,7 +1697,7 @@ func (:s)
             {
                 result_out.push_char( ';' );
                 result_out.push_fa( "BLM_T_INIT_SPUSH(#<sc_t>, &#<sc_t>);", o.nameof( typespec_var.type ), o.nameof( tp_identifier ) );
-                o.stack_block.adl.[ o.level ].use_blm = true;
+                o.stack_block.adl.[ o.block_level ].use_blm = true;
 
                 // debug
                 if( !source.parse_bl( " #=?';'" ) )
@@ -1849,7 +1849,7 @@ func (:s) (er_t trans_statement( m @* o, m x_source* source, m :result* result )
         }
         break;
 
-        case ';': /// consume semicolon
+        case ';': /// consume semicolon (!)
         {
             source.get_char();
             result.push_char( ';' );
@@ -1937,6 +1937,7 @@ func (:s) (er_t trans_block_inside( m @* o, m x_source* source, m :result* resul
     while( !source.parse_bl( "#=?'}'" ) && !source.eos() )
     {
         o.trans_statement( source, result );
+
         s3_t index = source.get_index();
         if( index == source_index && !source.eos() )
         {
@@ -1947,12 +1948,12 @@ func (:s) (er_t trans_block_inside( m @* o, m x_source* source, m :result* resul
 
     if( o.stack_block_get_top_unit().use_blm )
     {
-        m $* result_block = :result_block_s!( o.level, true )^^;
+        m $* result_block = :result_block_s!( o.block_level, true )^^;
 
-        result_block.push_result_d( :result_blm_init_s!( o.level ) );
+        result_block.push_result_d( :result_blm_init_s!( o.block_level ) );
         result_block.push_result_d( result.fork() );
 
-        if( ( o.level > 0 ) || !o.returns_a_value() )
+        if( ( o.block_level > 0 ) || !o.returns_a_value() )
         {
             result_block.push_result_d( :result_blm_down_s! );
         }
@@ -2004,8 +2005,8 @@ func (:s) (er_t trans_statement_as_block( m @* o, m x_source* source, m :result*
 
     if( o.stack_block_get_top_unit().use_blm )
     {
-        m $* result_block = :result_block_s!( o.level, true )^^;
-        result_block.push_result_d( :result_blm_init_s!( o.level ) );
+        m $* result_block = :result_block_s!( o.block_level, true )^^;
+        result_block.push_result_d( :result_blm_init_s!( o.block_level ) );
         result_block.push_result_d( result.fork() );
         result_block.push_result_d( :result_blm_down_s! );
 
@@ -2066,6 +2067,55 @@ func (:s) (er_t trans_block_inside_verbatim_c( m @* o, m x_source* source, m :re
 
 //----------------------------------------------------------------------------------------------------------------------
 
+/// function-level block
+func (:s) (er_t trans_level0_block( m @* o, bl_t exit_after_first_statement, m x_source* source, m :result* result_out ))
+{
+    m $* result = :result_arr_s!^;
+
+    s3_t source_index = source.get_index();
+
+    while( !source.parse_bl( "#=?'}'" ) && !source.eos() )
+    {
+        o.trans_statement( source, result );
+
+        if( exit_after_first_statement )
+        {
+            if( source.parse_bl( "#?';'" ) ) result.push_sc( ";" );
+            break;
+        }
+
+        s3_t index = source.get_index();
+        if( index == source_index && !source.eos() )
+        {
+            return source.parse_error_fa( "Internal error: Statement translator did not progress." );
+        }
+        source_index = index;
+    }
+
+    if( o.stack_block_get_top_unit().use_blm )
+    {
+        m $* result_block = :result_block_s!( o.block_level, true )^^;
+
+        result_block.push_result_d( :result_blm_init_s!( o.block_level ) );
+        result_block.push_result_d( result.fork() );
+
+        if( !o.returns_a_value() )
+        {
+            result_block.push_result_d( :result_blm_down_s! );
+        }
+
+        result_out.push_result_d( result_block.fork() );
+    }
+    else
+    {
+        result_out.push_result_d( result.fork() );
+    }
+
+    return 0;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+
 func (:s) (er_t setup( m @* o, c xoico_host* host, c xoico_signature_s* signature ))
 {
     o.signature =< signature.clone();
@@ -2073,7 +2123,7 @@ func (:s) (er_t setup( m @* o, c xoico_host* host, c xoico_signature_s* signatur
 
     o.host     = host.cast( m $* );
     o.compiler = host.compiler();
-    o.level    = 0;
+    o.block_level     = 0;
     o.try_block_level = 0;
     o.stack_var.clear();
     o.init_level0();
@@ -2085,7 +2135,7 @@ func (:s) (er_t setup( m @* o, c xoico_host* host, c xoico_signature_s* signatur
 
         unit.typespec.copy( o.signature.arg_o.typespec );
         unit.name = tp_member_obj_name;
-        unit.level = o.level;
+        unit.level = o.block_level;
 
         if( !o.waive_unknown_type && !o.is_type( unit.typespec.type ) )
         {
@@ -2104,7 +2154,7 @@ func (:s) (er_t setup( m @* o, c xoico_host* host, c xoico_signature_s* signatur
             m $* unit = xoico_che_stack_var_unit_s!^^;
             unit.typespec.copy( arg.typespec );
             unit.name = arg.name;
-            unit.level = o.level;
+            unit.level = o.block_level;
 
             if( !o.waive_unknown_type && !o.is_type( unit.typespec.type ) )
             {
@@ -2196,20 +2246,29 @@ func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* b
 
     sz_t indentation = 0;
 
-    source.parse_fa( " {" );
-    if( !body.go_inline ) indentation = o.assess_indentation( source );
+    if( source.parse_bl( " #?'{'" ) )
+    {
+        if( !body.go_inline ) indentation = o.assess_indentation( source );
 
-    if( flag_verbatim_c )
-    {
-        o.trans_block_inside_verbatim_c( source, result );
+        if( flag_verbatim_c )
+        {
+            o.trans_block_inside_verbatim_c( source, result );
+        }
+        else
+        {
+            o.try_block_level += flag_try;
+            o.trans_level0_block( false, source, result );
+            o.try_block_level -= flag_try;
+        }
+        source.parse_fa( " }" );
     }
-    else
+    else // single statement body
     {
+        if( !body.go_inline ) indentation = o.assess_indentation( source );
         o.try_block_level += flag_try;
-        o.trans_block_inside( source, result );
+        o.trans_level0_block( true, source, result );
         o.try_block_level -= flag_try;
     }
-    source.parse_fa( " }" );
 
     if( o.returns_a_value() && !o.has_completion && !o.has_verbatim_code )
     {
@@ -2223,7 +2282,7 @@ func (:s) (er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* b
         }
     }
 
-    m $* result_block = :result_block_s!( o.level, o.stack_block_get_bottom_unit().use_blm )^^;
+    m $* result_block = :result_block_s!( o.block_level, o.stack_block_get_bottom_unit().use_blm )^^;
     result_block.cast( m :result_block_s* ).is_root = true;
     result_block.push_result_d( result.fork() );
 
