@@ -2244,6 +2244,7 @@ func (:s) er_t translate_mutable( m @* o, c xoico_host* host, c xoico_body_s* bo
         }
         else
         {
+            o.signature.cast( x_btml* ).to_stdout();
             return source.parse_error_fa( "Function must return a value. Completion statement ('return' or '=') expected." );
         }
     }

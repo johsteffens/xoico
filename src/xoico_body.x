@@ -347,8 +347,6 @@ func (:s) :.parse_expression
         s3_t index = source.get_index();
 
         m $* compiler = host.compiler();
-//        tp_t tp_name = 0;
-//        host.parse_name_tp( source, tp_name );
 
         st_s^ st_name;
         host.parse_name_st( source, st_name );
@@ -367,10 +365,6 @@ func (:s) :.parse_expression
             o.code =< xoico_body_code_s!;
             o.code.parse_single_statement( host, source );
             o.go_inline = o.code.single_line;
-
-
-
-            //return source.parse_error_fa( "Cannot resolve body name '#<sc_t>'\n", host.nameof( tp_name ) );
         }
     }
     return 0;

@@ -1,4 +1,4 @@
-//  Last update: 2022-03-08T11:14:30Z
+//  Last update: 2022-03-14T10:20:28Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : XOICO (C) 2020 ... 2022 J.B.Steffens
  *  Note that any changes of this file can be erased or overwritten by XOICO.
@@ -62,6 +62,10 @@
 #define TYPEOF_mutable 0xD3AC3C45566EFDE9ull
 #define TYPEOF_const 0x65C9718E19E3DF34ull
 #define TYPEOF_void 0x3173C900E37AE1DFull
+#define TYPEOF_int 0x2B9FFF192BD4C83Eull
+#define TYPEOF_long 0xCDE8C9AD70D16733ull
+#define TYPEOF_float 0xA00A62A942B20165ull
+#define TYPEOF_double 0xA0880A9CE131DEA8ull
 #define TYPEOF_type 0xA79439EF7BFA9C2Dull
 #define TYPEOF_aware 0x0328D79D85BE3229ull
 #define TYPEOF_obliv 0x872E61F6D2D9FBFFull
@@ -806,6 +810,7 @@
 #define TYPEOF_xoico_group 0xF9A247075F113FF9ull
 #define TYPEOF_xoico_group_spect_s 0x3DE6C1C7D3A336F5ull
 #define TYPEOF_x_inst_main 0x0242B13DF94FA288ull
+#define TYPEOF_x_inst_main_c 0x85BAD49DD0D384C2ull
 #define TYPEOF_xoico_group_source_stack_s 0x753CECC8CE8A05B2ull
 #define BETH_EXPAND_ITEM_xoico_group_source_stack_s \
   BCORE_DECLARE_OBJECT( xoico_group_source_stack_s ) \
@@ -2007,5 +2012,5 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOICO_BODY_SIGNATURE 0x77FDF4E9CCD8ED11
-// XOICO_FILE_SIGNATURE 0x92B6C3F8616B02AC
+// XOICO_BODY_SIGNATURE 0x0A644969A4EBB6B4
+// XOICO_FILE_SIGNATURE 0xC8D95A067FC8D2E5

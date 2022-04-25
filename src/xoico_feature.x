@@ -351,8 +351,18 @@ func (:s) er_t setup_functions( m @* o, c xoico_host* host )
 
     if( o.st_default_func_name.size > 0 )
     {
-        m st_s* st = st_s!^^;
-        st.push_fa( "#<sc_t> #<sc_t>(", sc_ret_typespec, o.st_default_func_name.sc );
+        m st_s* st = st_s!^;
+
+        if( o.signature.direct_return_arg )
+        {
+            st.push_fa( "#<sc_t>", compiler.nameof( o.signature.direct_return_arg.name ) );
+        }
+        else
+        {
+            st.push_fa( "#<sc_t>", sc_ret_typespec );
+        }
+
+        st.push_fa( " #<sc_t>(", o.st_default_func_name.sc );
         st.push_fa( flag_const ? " c" : " m" );
         st.push_fa( " #<sc_t>* o", sc_obj_type );
         o.signature.args.expand_x( host, false, st );

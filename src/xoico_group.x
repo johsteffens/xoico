@@ -18,6 +18,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 
 name x_inst_main;
+name x_inst_main_c;
 
 signature m xoico* /*item*/ push_item_d( m @* o, d xoico* item );
 signature er_t parse_name_recursive( c @* o, m x_source* source, m st_s* name );
@@ -356,7 +357,10 @@ func (:s) er_t parse_func( m @* o, m x_source* source )
     m $* func = xoico_func_s!^;
     func.parse( o, source );
     o.push_func_d( func.fork() );
-    if( func.signature_global_name == x_inst_main~ ) o.xoico_source.target.set_main_function( func );
+    if( func.signature_global_name == x_inst_main~ || func.signature_global_name == x_inst_main_c~ )
+    {
+        o.xoico_source.target.set_main_function( func );
+    }
     return 0;
 };
 
@@ -492,7 +496,7 @@ func (:s) :.parse
 
             body.parse( o, source );
 
-            source.parse_fa( " ; " );
+            source.parse_fa( " #-?';' " ); // closing semicolon is optional
             compiler.register_item( o.push_item_d( body.fork() ) );
         }
         else if( source.parse_bl( " #?w'feature' " ) )

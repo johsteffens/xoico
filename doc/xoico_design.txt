@@ -510,8 +510,8 @@ FEATURES, BUGS ...
 - (done) stamp: parsing reflection:
    - automatic assume 'aware' for group types when type-awareness is not explicitly specified (e.g. by aware/typed/obliv)
 
-- (done) func body:
-   - when return object is declared to be one of the arguments but function body does not explicitly return anything,
+- (done) Autocompletion:
+   - func body: when return object is declared to be one of the arguments but function body does not explicitly return anything,
      append return <arg> as final statement
 
 - (done) remove function body prefixes: disallow prefixes (try), (verbatim_C)
@@ -520,6 +520,8 @@ FEATURES, BUGS ...
 - (done) single-statement-function: if a function's body' contains only a single statement, it can be defined without braces { ... }
 - (done) single-statement-function: test blm behavior extensively
 - (fixed) bug: automatic cast of function return on a function call is invoked far too often because only typespec hash values are compared
+- (fixed) Bug Autocompletion: Autocompletion does not work on a feature's default body
+- (done) Introduce c-style main function x_inst.main_c
 
 TODO:
 

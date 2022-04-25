@@ -2,7 +2,7 @@ TARGET = bin/xoico
 
 CC      = gcc
 CFLAGS  = -Wall -O3 -std=c11 
-LDFLAGS = -lm -lpthread
+LDFLAGS = -lm -lpthread -latomic
 
 BETH_LIB = ../beth/lib
 MAIN_SRC = src

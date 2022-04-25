@@ -316,6 +316,10 @@ func bl_t is_numeric( tp_t type )
         case er_t~: return true;
         case bl_t~: return true;
         case char~: return true;
+        case int~:    return true;
+        case long~:   return true;
+        case float~:  return true;
+        case double~: return true;
         default: break;
     }
     return false;
@@ -347,7 +351,7 @@ func (:s) :.converts_to
     {
         if( o.indirection == 0 && b.indirection == 0 )
         {
-            if( xoico_typespec_is_numeric( o.type ) && xoico_typespec_is_numeric( b.type ) )
+            if( :is_numeric( o.type ) && :is_numeric( b.type ) )
             {
                 return true;
             }

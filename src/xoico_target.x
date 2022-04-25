@@ -452,14 +452,26 @@ func (:s) er_t expand_c( c @* o, sz_t indent, m x_sink* sink, mutable tp_t* body
 
     if( o.main_function )
     {
+        bl_t c_style = ( o.main_function.signature.args.size == 2 );
+
         sink_buf.push_fa( "\n" );
         sink_buf.push_fa( "#rn{ }int main( int argc, char** argv )\n", indent );
         sink_buf.push_fa( "#rn{ }{\n", indent );
         sink_buf.push_fa( "#rn{ }    BETH_USE( #<sc_t> );\n", indent, o.name.sc );
-        sink_buf.push_fa( "#rn{ }    bcore_arr_st_s* args = bcore_arr_st_s_create();\n", indent );
-        sink_buf.push_fa( "#rn{ }    for( sz_t i = 0; i < argc; i++ ) bcore_arr_st_s_push_sc( args, argv[ i ] );\n", indent );
-        sink_buf.push_fa( "#rn{ }    int retv = #<sc_t>( args );\n", indent, o.compiler.nameof( o.main_function.global_name ) );
-        sink_buf.push_fa( "#rn{ }    bcore_arr_st_s_discard( args );\n", indent );
+
+
+        if( c_style )
+        {
+            sink_buf.push_fa( "#rn{ }    int retv = #<sc_t>( argc, argv );\n", indent, o.compiler.nameof( o.main_function.global_name ) );
+        }
+        else
+        {
+            sink_buf.push_fa( "#rn{ }    bcore_arr_st_s* args = bcore_arr_st_s_create();\n", indent );
+            sink_buf.push_fa( "#rn{ }    for( sz_t i = 0; i < argc; i++ ) bcore_arr_st_s_push_sc( args, argv[ i ] );\n", indent );
+            sink_buf.push_fa( "#rn{ }    int retv = #<sc_t>( args );\n", indent, o.compiler.nameof( o.main_function.global_name ) );
+            sink_buf.push_fa( "#rn{ }    bcore_arr_st_s_discard( args );\n", indent );
+        }
+
         sink_buf.push_fa( "#rn{ }    BETH_CLOSEV( 0 );\n", indent );
         sink_buf.push_fa( "#rn{ }    return retv;\n", indent );
         sink_buf.push_fa( "#rn{ }}\n", indent );
