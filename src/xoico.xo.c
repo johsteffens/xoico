@@ -1,4 +1,4 @@
-//  Last update: 2022-03-14T10:21:00Z
+//  Last update: 2022-05-01T18:21:49Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : XOICO (C) 2020 ... 2022 J.B.Steffens
  *  Note that any changes of this file can be erased or overwritten by XOICO.
@@ -48,7 +48,7 @@
 #include "bcore_const_manager.h"
 
 // To force a rebuild of this target by xoico, reset the hash key value below to 0.
-// HKEYOF_xoico 0x6AE06A5678E7A735ull
+// HKEYOF_xoico 0x61D45D4722C4C65Full
 
 /**********************************************************************************************************************/
 // source: xoico.x
@@ -729,8 +729,8 @@ er_t xoico_transient_map_s_parse( xoico_transient_map_s* o, const xoico_host* ho
         BLM_TRY(xoico_host_a_parse_name_tp(host,source, (&(type)) ))
         if( !type ) BLM_RETURNV(er_t, x_source_parse_error_fa(source,"Type name expected." ))
         bcore_hmap_tptp_s_set(&(o->map),key, type );
-        if( x_source_parse_bl(source,"#?')' " ) ) break;
-        BLM_TRY(x_source_parse_fa(source,", " ))
+        if( x_source_parse_bl(source," #?')' " ) ) break;
+        BLM_TRY(x_source_parse_fa(source," , " ))
     };
     
     BLM_RETURNV(er_t, 0)
@@ -10888,5 +10888,5 @@ int main( int argc, char** argv )
     BETH_CLOSEV( 0 );
     return retv;
 }
-// XOICO_BODY_SIGNATURE 0x8E987F7804D517A4
-// XOICO_FILE_SIGNATURE 0x4514BBD24C9ECC23
+// XOICO_BODY_SIGNATURE 0x6A78BB895445A94E
+// XOICO_FILE_SIGNATURE 0xEA4005B9261D3347

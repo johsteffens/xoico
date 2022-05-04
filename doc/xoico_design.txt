@@ -522,8 +522,11 @@ FEATURES, BUGS ...
 - (fixed) bug: automatic cast of function return on a function call is invoked far too often because only typespec hash values are compared
 - (fixed) Bug Autocompletion: Autocompletion does not work on a feature's default body
 - (done) Introduce c-style main function x_inst.main_c
+- (fixed) Bug: whitespaces in transient list declaration not consumed
 
 TODO:
+
+- stamp: allow function-style readonly request of a member variable even if the function was not defined
 
 - introduce a functor:
   syntax on group level.
@@ -557,5 +560,5 @@ Keywords (for syntax highlight)
 
 group stamp stump hidden private func name signature body obliv aware feature extending verbatim
 mutable discardable retrievable forward include embed cast foreach in verbatim_C fork
-strict try scope t_scope scope_local scope_func extern wrap restrict type identifier
+strict try scope t_scope scope_local scope_func extern wrap restrict type identifier trans TE TO
 

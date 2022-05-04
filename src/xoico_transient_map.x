@@ -57,8 +57,8 @@ func (:s) xoico.parse
         host.parse_name_tp( source, type.1 );
         if( !type ) return source.parse_error_fa( "Type name expected." );
         o.map.set( key, type );
-        if( source.parse_bl( "#?')' " ) ) break;
-        source.parse_fa( ", " );
+        if( source.parse_bl( " #?')' " ) ) break;
+        source.parse_fa( " , " );
     };
 
     return 0;
