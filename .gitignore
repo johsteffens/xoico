@@ -6,6 +6,7 @@
 *.layout
 *.depend
 *.xo.state
+*.bmarks
 xoico
 build
 dev

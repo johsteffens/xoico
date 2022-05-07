@@ -1,4 +1,4 @@
-//  Last update: 2022-05-01T18:21:49Z
+//  Last update: 2022-05-07T10:56:10Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : XOICO (C) 2020 ... 2022 J.B.Steffens
  *  Note that any changes of this file can be erased or overwritten by XOICO.
@@ -48,7 +48,7 @@
 #include "bcore_const_manager.h"
 
 // To force a rebuild of this target by xoico, reset the hash key value below to 0.
-// HKEYOF_xoico 0x61D45D4722C4C65Full
+// HKEYOF_xoico 0x8D8F7ADB778591AFull
 
 /**********************************************************************************************************************/
 // source: xoico.x
@@ -3881,7 +3881,6 @@ er_t xoico_stamp_s_parse( xoico_stamp_s* o, const xoico_host* host, x_source* so
     
     if( !st_s_ends_in_sc(st_stamp_name,"_s" ) ) BLM_RETURNV(er_t, x_source_parse_error_fa(source,"Stamp name '#<sc_t>' must end in '_s'.", st_stamp_name->sc ))
     
-    
     if( x_source_parse_bl(source," #?'('" ) ) // functor args
     {BLM_INIT_LEVEL(1);
         xoico_args_s* args = ((xoico_args_s*)BLM_LEVEL_T_PUSH(1,xoico_args_s,xoico_args_s_create()));
@@ -3933,11 +3932,11 @@ er_t xoico_stamp_s_parse( xoico_stamp_s* o, const xoico_host* host, x_source* so
         else if ( x_source_parse_bl(source," #?w'aware'" ) ) o->is_aware = true;
         o->trait_name = o->group->tp_name;
     
-        if( !x_source_parse_bl(source," #=?w'func'" ) ) // if func follows, the brief-functor format was chosen
+        if( !x_source_parse_bl(source," #=?w'func'" ) && !x_source_parse_bl(source," #=?w'trans'" ) ) // if func follows, the brief-functor format was chosen
         {BLM_INIT_LEVEL(2);
-            st_s* st_trait_name = ((st_s*)BLM_LEVEL_T_PUSH(2,st_s,st_s_create()));
-            BLM_TRY(xoico_group_s_parse_name_st(o->group,source, st_trait_name ))
-            if( st_trait_name->size > 0 ) o->trait_name = xoico_compiler_s_entypeof(compiler,st_trait_name->sc );
+            st_s st_trait_name;BLM_T_INIT_SPUSH(st_s, &st_trait_name);;
+            BLM_TRY(xoico_group_s_parse_name_st(o->group,source,&( st_trait_name )))
+            if( st_trait_name.size > 0 ) o->trait_name = xoico_compiler_s_entypeof(compiler,st_trait_name.sc );
         BLM_DOWN();}
     
         if( x_source_parse_bl(source," #?w'trans'" ) )
@@ -3957,7 +3956,7 @@ er_t xoico_stamp_s_parse( xoico_stamp_s* o, const xoico_host* host, x_source* so
 
 er_t xoico_stamp_s_finalize( xoico_stamp_s* o, const xoico_host* host )
 {
-    // xoico_stamp.x:697:1
+    // xoico_stamp.x:696:1
     BLM_INIT_LEVEL(0);
     //if( o.has_compact_initializer ) o.push_compact_initializer_func();
     
@@ -4096,7 +4095,7 @@ er_t xoico_stamp_s_finalize( xoico_stamp_s* o, const xoico_host* host )
 
 er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, const xoico_host* host, sz_t indent, x_sink* sink )
 {
-    // xoico_stamp.x:840:1
+    // xoico_stamp.x:839:1
     
     sc_t sc_name = o->st_name.sc;
     
@@ -4118,7 +4117,7 @@ er_t xoico_stamp_s_expand_declaration( const xoico_stamp_s* o, const xoico_host*
 
 er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, const xoico_host* host, sz_t indent, x_sink* sink )
 {
-    // xoico_stamp.x:862:1
+    // xoico_stamp.x:861:1
     BLM_INIT_LEVEL(0);
     st_s* embedded_string = ((st_s*)BLM_LEVEL_T_PUSH(0,st_s,xoico_stamp_create_embedded_string(o->self_source )));
     
@@ -4151,7 +4150,7 @@ er_t xoico_stamp_s_expand_definition( const xoico_stamp_s* o, const xoico_host* 
 
 er_t xoico_stamp_s_expand_init1( const xoico_stamp_s* o, const xoico_host* host, sz_t indent, x_sink* sink )
 {
-    // xoico_stamp.x:897:1
+    // xoico_stamp.x:896:1
     
     xoico_compiler_s* compiler = o->group->compiler;
     
@@ -10888,5 +10887,5 @@ int main( int argc, char** argv )
     BETH_CLOSEV( 0 );
     return retv;
 }
-// XOICO_BODY_SIGNATURE 0x6A78BB895445A94E
-// XOICO_FILE_SIGNATURE 0xEA4005B9261D3347
+// XOICO_BODY_SIGNATURE 0x3704DAD0F63BCFEA
+// XOICO_FILE_SIGNATURE 0x0F7DBCCB7E56F434

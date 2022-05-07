@@ -617,7 +617,6 @@ func (:s) xoico.parse
 
     if( !st_stamp_name.ends_in_sc( "_s" ) ) return source.parse_error_fa( "Stamp name '#<sc_t>' must end in '_s'.", st_stamp_name->sc );
 
-
     if( source.parse_bl( " #?'('" ) ) // functor args
     {
         m$* args = xoico_args_s!^;
@@ -669,9 +668,9 @@ func (:s) xoico.parse
         else if ( source.parse_bl( " #?w'aware'" ) ) o.is_aware = true;
         o.trait_name = o.group.tp_name;
 
-        if( !source.parse_bl( " #=?w'func'" ) ) // if func follows, the brief-functor format was chosen
+        if( !source.parse_bl( " #=?w'func'" ) && !source.parse_bl( " #=?w'trans'" ) ) // if func follows, the brief-functor format was chosen
         {
-            m $* st_trait_name = st_s!^;
+            st_s^ st_trait_name;
             o.group.parse_name_st( source, st_trait_name );
             if( st_trait_name.size > 0 ) o.trait_name = compiler.entypeof( st_trait_name.sc );
         }
