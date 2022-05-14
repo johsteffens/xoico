@@ -167,18 +167,18 @@ func (:s) er_t setup_functions( m @* o, c xoico_host* host )
 
     bl_t has_ret = o.signature.returns_a_value();
     o.signature.expand_ret_x( host, st_ret_typespec );
-//    o.signature.expand_ret( host, st_ret_typespec );
 
     sc_t sc_ret_typespec = st_ret_typespec.sc;
     bl_t flag_const = o.signature.arg_o.typespec.access_class == TYPEOF_const;
+    bl_t flag_discardable = o.signature.arg_o.typespec.access_class == TYPEOF_discardable;
 
     bl_t always_defined = ( o.strict || o.default_body || o.st_default_func_name.size > 0 );
 
     if( o.flag_a )
     {
         m st_s* st = st_s!^^;
-        st.push_fa( "#<sc_t> a_#<sc_t>(", sc_ret_typespec, sc_name );
-        st.push_fa( flag_const ? " c" : " m" );
+        st.push_fa( "#<sc_t> a_#<sc_t>( ", sc_ret_typespec, sc_name );
+        st.push_fa( flag_const ? "c" : flag_discardable ? "d" : "m" );
         st.push_fa( " @* o" );
         o.signature.args.expand_x( host, false, st );
         st.push_fa( " ) { verbatim_C{" );
@@ -227,7 +227,7 @@ func (:s) er_t setup_functions( m @* o, c xoico_host* host )
         /// new
         m st_s* st = st_s!^^;
         st.push_fa( "#<sc_t> t_#<sc_t>( ", sc_ret_typespec, sc_name );
-        st.push_fa( flag_const ? " c" : " m" );
+        st.push_fa( flag_const ? "c" : flag_discardable ? "d" : "m" );
         st.push_fa( " #<sc_t>* o, tp_t t", sc_obj_type );
         o->signature.args.expand_x( host, false, st );
         st.push_fa( " ) { verbatim_C{" );
@@ -272,9 +272,8 @@ func (:s) er_t setup_functions( m @* o, c xoico_host* host )
     if( o.flag_p )
     {
         m st_s* st = st_s!^^;
-        st.push_fa( "#<sc_t> p_#<sc_t>( c #<sc_t>* p,", sc_ret_typespec, sc_name, sc_spect_name );
-
-        st.push_fa( flag_const ? " c" : " m" );
+        st.push_fa( "#<sc_t> p_#<sc_t>( c #<sc_t>* p, ", sc_ret_typespec, sc_name, sc_spect_name );
+        st.push_fa( flag_const ? "c" : flag_discardable ? "d" : "m" );
         st.push_fa( " #<sc_t>* o", sc_obj_type );
         o->signature.args.expand_x( host, false, st );
         st.push_fa( " ) { verbatim_C {" );

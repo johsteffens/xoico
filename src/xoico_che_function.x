@@ -159,7 +159,6 @@ func (:s) er_t trans_function_args
     source.parse_fa( " " );
     o.trans( source, ")", result );
 
-
     if( typespec_return.type == 0 )
     {
         typespec_return.copy( signature.typespec_ret );
@@ -190,7 +189,7 @@ func (:s) er_t trans_function
     result_expression.push_sc( o.nameof( func.global_name ) );
     result_expression.push_result_d( result_args.fork() );
 
-    /** Casting can become necessary when the functions declared return typespec is be less specific than
+    /** Casting can become necessary when the functions declared return typespec is less specific than
      *  the expected return type due to transient types.
      */
     if

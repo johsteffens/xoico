@@ -1,4 +1,4 @@
-//  Last update: 2022-03-14T10:20:28Z
+//  Last update: 2022-05-13T14:54:26Z
 /** This file was generated from xoila source code.
  *  Compiling Agent : XOICO (C) 2020 ... 2022 J.B.Steffens
  *  Note that any changes of this file can be erased or overwritten by XOICO.
@@ -442,6 +442,8 @@
   static inline tp_t xoico_transient_map_s_get( const xoico_transient_map_s* o, tp_t key ); \
   static inline bl_t xoico_transient_map_s_exists( const xoico_transient_map_s* o, tp_t key ); \
   bcore_arr_tp_s* xoico_transient_map_s_create_key_arr( const xoico_transient_map_s* o ); \
+  xoico_transient_map_s* xoico_transient_map_s_update( xoico_transient_map_s* o, const xoico_transient_map_s* src ); \
+  er_t xoico_transient_map_s_parse_update( xoico_transient_map_s* o, const xoico_host* host, x_source* source ); \
   er_t xoico_transient_map_s_parse( xoico_transient_map_s* o, const xoico_host* host, x_source* source ); \
   static inline xoico_transient_map_s* xoico_transient_map_s_set( xoico_transient_map_s* o, tp_t key, tp_t val ){ bcore_hmap_tptp_s_set(&(o->map),key, val ); return  o;} \
   static inline tp_t xoico_transient_map_s_get( const xoico_transient_map_s* o, tp_t key ){ tp_t* p = bcore_hmap_tptp_s_get(&(o->map),key ); return  p ? *p : 0;} \
@@ -838,6 +840,7 @@
       bl_t is_retrievable; \
       bcore_arr_tp_s* retrievable_stamps; \
       bl_t short_spect_name; \
+      xoico_transient_map_s transient_map; \
       xoico_stamp_s* extending_stamp; \
       xoico_funcs_s funcs; \
       xoico_source_s* xoico_source; \
@@ -861,6 +864,7 @@
   static inline xoico_compiler_s* xoico_group_s_compiler( const xoico_group_s* o ); \
   xoico_cengine* xoico_group_s_cengine( const xoico_group_s* o ); \
   static inline tp_t xoico_group_s_obj_type( const xoico_group_s* o ); \
+  static inline const xoico_transient_map_s* xoico_group_s_transient_map( const xoico_group_s* o ); \
   static inline const x_source_point_s* xoico_group_s_get_source_point( const xoico_group_s* o ); \
   tp_t xoico_group_s_get_hash( const xoico_group_s* o ); \
   st_s* xoico_group_s_create_spect_name( const xoico_group_s* o ); \
@@ -884,6 +888,7 @@
   static inline void xoico_group_s_explicit_embeddings_push( const xoico_group_s* o, bcore_arr_st_s* arr ){ {const bcore_arr_st_s* __a=&(o->explicit_embeddings );if(__a)for(sz_t __i=0;__i<__a->size;__i++){st_s* st=__a->data[__i]; bcore_arr_st_s_push_st(arr,st );}}} \
   static inline xoico_compiler_s* xoico_group_s_compiler( const xoico_group_s* o ){ return  o->compiler;} \
   static inline tp_t xoico_group_s_obj_type( const xoico_group_s* o ){ return  o->tp_name;} \
+  static inline const xoico_transient_map_s* xoico_group_s_transient_map( const xoico_group_s* o ){ return &( o->transient_map);} \
   static inline const x_source_point_s* xoico_group_s_get_source_point( const xoico_group_s* o ){ return  o->source_point;}
 #define TYPEOF_xoico_nested_group_s 0xB4EB0E2A56FB3087ull
 #define BETH_EXPAND_ITEM_xoico_nested_group_s \
@@ -2012,5 +2017,5 @@ BETH_EXPAND_GROUP_xoico_builder
 BETH_EXPAND_GROUP_xoico_main
 
 #endif // __xoico_xo_H
-// XOICO_BODY_SIGNATURE 0x0A644969A4EBB6B4
-// XOICO_FILE_SIGNATURE 0xC8D95A067FC8D2E5
+// XOICO_BODY_SIGNATURE 0x7D92221FE04ED782
+// XOICO_FILE_SIGNATURE 0xC6342FA36C748122

@@ -90,7 +90,15 @@ stamp :s = aware :
 
     func er_t expand_ret_x( c @* o, c xoico_host* host, m x_sink* sink )
     {
-        o.typespec_ret.expand_x( host, sink );
+        if( o.typespec_ret.transient && o.typespec_ret.transient.cast_to_var )
+        {
+            tp_t var_name = o.typespec_ret.transient.cast_to_var;
+            sink.push_fa( "#<sc_t> ", host.nameof( var_name ) );
+        }
+        else
+        {
+            o.typespec_ret.expand_x( host, sink );
+        }
         return 0;
     };
 

@@ -264,7 +264,6 @@ func (:s) :.expand_x
 
     if( type == type_object~ )
     {
-        //if( !sc_obj_type ) ERR_fa( "Cannot resolve 'type_object' at this point." );
         type = host.obj_type(); //compiler.entypeof( sc_obj_type );
     }
     else if( type == type_deduce~ )
@@ -285,6 +284,12 @@ func (:s) :.expand_x
     if( o.flag_static   ) sink.push_fa( "static " );
     if( o.flag_volatile ) sink.push_fa( "volatile " );
     sc_t sc_type = st_type.sc;
+
+    if( o.transient )
+    {
+        sink.push_fa( "(#<sc_t>)", host.nameof( o.transient.class ) );
+    }
+
     sink.push_fa( "#<sc_t>", sc_type );
 
     if( o.indirection > 0 ) sink.push_fa( ".#<sz_t>", o.indirection );

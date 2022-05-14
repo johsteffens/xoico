@@ -98,6 +98,8 @@ stamp :s = aware :
      */
     bl_t short_spect_name;
 
+    xoico_transient_map_s transient_map;
+
     private xoico_stamp_s* extending_stamp; // !=NULL: extends this stamp on subsequent stamps
 
     xoico_funcs_s funcs;    // functions defined inside the group
@@ -187,6 +189,7 @@ stamp :s = aware :
 
     func xoico_host.obj_type { return o.tp_name; };
     func xoico_host.create_spect_name;
+    func xoico_host.transient_map { return o.transient_map; };
 
     func xoico.get_source_point { return o.source_point; };
 };
@@ -608,18 +611,30 @@ func (:s) :.parse
             // flags
             if( source.parse_bl( " #?w'retrievable' " ) ) retrievable = true;
 
+            m$* transient_map = o.transient_map.clone()^;
             tp_t tp_trait_name = o.tp_name;
             m $* st_trait_name = st_s!^;
-            o.parse_name_st( source, st_trait_name );
-            if( st_trait_name.size > 0 )
+
+            // first test for 'trans' used instead of trait_name
+            if( source.parse_bl( " #?w'trans' " ) )
             {
-                tp_trait_name = compiler.entypeof( st_trait_name.sc );
+                transient_map.parse_update( o, source );
             }
             else
             {
-                st_trait_name.copy_sc( compiler.nameof( tp_trait_name ) );
-            }
+                o.parse_name_st( source, st_trait_name );
+                if( st_trait_name.size > 0 )
+                {
+                    tp_trait_name = compiler.entypeof( st_trait_name.sc );
+                }
+                else
+                {
+                    st_trait_name.copy_sc( compiler.nameof( tp_trait_name ) );
+                }
 
+                // second test for trans in case it occurs after trait_name
+                if( source.parse_bl( " #?w'trans' " ) ) transient_map.parse_update( o, source );
+            }
 
             m xoico_group_s* group = NULL;
             o.xoico_source.get_group_if_preexsting( host, source, st_group_name.sc, st_trait_name.sc, group.2 );
@@ -635,6 +650,7 @@ func (:s) :.parse
                 group.set_name_sc( host, st_group_name.sc );
                 group.is_retrievable = retrievable;
                 group.trait_name = tp_trait_name;
+                group.transient_map.copy( transient_map );
                 group.parse( o, true, source );
                 compiler.register_group( group );
                 m xoico_nested_group_s* nested_group = xoico_nested_group_s!^;
@@ -643,6 +659,7 @@ func (:s) :.parse
             }
             else
             {
+                group.transient_map.update( transient_map );
                 group.parse( o, true, source );
             }
 
@@ -725,6 +742,11 @@ func (:s) :.parse
                 o.includes_in_declaration.push_st( include_file );
             }
         }
+        else if( source.parse_bl( " #?w'trans' " ) )
+        {
+            o.transient_map.parse_update( o, source );
+            source.parse_fa( " ;" );
+        }
         else
         {
             return source.parse_error_fa( "Xoico: syntax error." );
@@ -750,6 +772,12 @@ func (:s) xoico.finalize
     o.push_default_feature_from_sc( "void copy( m @* o, c @* src );" );
     o.push_default_feature_from_sc( "void discard( m @* o );" );
     o.push_default_func_from_sc(    "d obliv @* t_create( tp_t t );" );
+
+    // check validity of trait name
+    if( !host.compiler().is_group( o.trait_name ) )
+    {
+        return o.source_point.parse_error_fa( "In group '#<sc_t>': Trait name '#<sc_t>' is not a group.", o.st_name.sc, host.nameof( o.trait_name ) );
+    }
 
     foreach( m $* e in o ) e.finalize( o );
     foreach( m $* func in o.funcs )

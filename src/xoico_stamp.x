@@ -613,6 +613,8 @@ func (:s) xoico.parse
 
     o.source_point.setup_from_source( source );
 
+    o.transient_map.copy( o.group.transient_map );
+
     o.group.parse_name_st( source, st_stamp_name );
 
     if( !st_stamp_name.ends_in_sc( "_s" ) ) return source.parse_error_fa( "Stamp name '#<sc_t>' must end in '_s'.", st_stamp_name->sc );
@@ -675,9 +677,9 @@ func (:s) xoico.parse
             if( st_trait_name.size > 0 ) o.trait_name = compiler.entypeof( st_trait_name.sc );
         }
 
-        if( source.parse_bl( " #?w'trans'" ) )
+        if( source.parse_bl( " #?w'trans' " ) )
         {
-            o.transient_map.parse( o, source );
+            o.transient_map.parse_update( o, source );
         }
 
     }

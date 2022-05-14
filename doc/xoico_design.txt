@@ -524,6 +524,13 @@ FEATURES, BUGS ...
 - (done) Introduce c-style main function x_inst.main_c
 - (fixed) Bug: whitespaces in transient list declaration not consumed
 
+- (done) group: add optional list of transient types (same syntax as for stamps);
+                stamps and groups defined in this group inherit this list;
+                stamps, groups defining own transient types update their predefined list.
+
+- (fixed) bug: a feature's signature defined with transient types does not retain transient properties on group level
+- (fixed) bug: crash in case group's' trait name is not a group
+
 TODO:
 
 - stamp: allow function-style readonly request of a member variable even if the function was not defined

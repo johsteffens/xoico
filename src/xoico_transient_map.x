@@ -40,10 +40,20 @@ stamp :s = aware :
 
 //----------------------------------------------------------------------------------------------------------------------
 
-/// ( <key> <value>, <key> <value>, ... )
-func (:s) xoico.parse
+func (:s) o update( m @* o, @* src )
 {
-    o.map.clear();
+    for( sz_t i = 0; i < src.map.size(); i++ )
+    {
+        tp_t key = src.map.idx_key( i );
+        if( key ) o.map.set( key, src.map.idx_val( i ) );
+    }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+/// ( <key> <value>, <key> <value>, ... )
+func (:s) er_t parse_update( m @* o, c xoico_host* host, m x_source* source )
+{
     m xoico_compiler_s* compiler = host.compiler();
     source.parse_fa( "( " );
     m $* s = st_s!^;
@@ -59,9 +69,17 @@ func (:s) xoico.parse
         o.map.set( key, type );
         if( source.parse_bl( " #?')' " ) ) break;
         source.parse_fa( " , " );
-    };
+    }
 
     return 0;
+};
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+func (:s) xoico.parse
+{
+    o.map.clear();
+    return o.parse_update( host, source );
 };
 
 // ---------------------------------------------------------------------------------------------------------------------
